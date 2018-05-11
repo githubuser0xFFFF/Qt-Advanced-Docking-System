@@ -32,6 +32,8 @@
 //============================================================================
 #include <QFrame>
 
+#include "shared_export.h"
+
 namespace ads
 {
 class CDockWidget;
@@ -41,7 +43,7 @@ struct DockWidgetTitleBarPrivate;
 /**
  * A dock widget title bar that shows a title and an icon
  */
-class CDockWidgetTitleBar : public QFrame
+class SHARED_EXPORT CDockWidgetTitleBar : public QFrame
 {
 	Q_OBJECT
 	Q_PROPERTY(bool activeTab READ isActiveTab WRITE setActiveTab NOTIFY activeTabChanged)

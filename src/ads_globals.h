@@ -32,11 +32,13 @@
 //============================================================================
 #include <QPair>
 
+#include "shared_export.h"
+
 class QSplitter;
 
 namespace ads
 {
-enum DockWidgetArea
+SHARED_EXPORT enum DockWidgetArea
 {
 	NoDockWidgetArea = 0x00,
 	LeftDockWidgetArea = 0x01,

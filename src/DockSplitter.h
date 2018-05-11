@@ -31,6 +31,8 @@
 //============================================================================
 #include <QSplitter>
 
+#include "shared_export.h"
+
 namespace ads
 {
 struct DockSplitterPrivate;
@@ -38,7 +40,7 @@ struct DockSplitterPrivate;
 /**
  * Splitter used internally instead of QSplitter
  */
-class CDockSplitter : public QSplitter
+class SHARED_EXPORT CDockSplitter : public QSplitter
 {
 	Q_OBJECT
 private:
