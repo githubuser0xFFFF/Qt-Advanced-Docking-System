@@ -5,3 +5,5 @@
 src/GeneratedFiles/*
 src/x64/*
 *.vcxproj.user
+src/release/
+src/debug/
