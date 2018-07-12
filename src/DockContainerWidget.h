@@ -34,6 +34,9 @@
 
 #include "ads_globals.h"
 
+
+#include "shared_export.h"
+
 class QXmlStreamWriter;
 class QXmlStreamReader;
 
@@ -49,7 +52,7 @@ class CFloatingDockContainer;
  * Container that manages a number of dock areas with single dock widgets
  * or tabyfied dock widgets in each area
  */
-class CDockContainerWidget : public QFrame
+class SHARED_EXPORT CDockContainerWidget : public QFrame
 {
 	Q_OBJECT
 private:

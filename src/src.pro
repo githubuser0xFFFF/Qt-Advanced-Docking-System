@@ -11,7 +11,7 @@ CONFIG += adsBuildShared
 
 adsBuildShared {
 	CONFIG += shared
-	DEFINES += ADS_EXPORT
+        DEFINES += SHARED_EXPORT
 }
 !adsBuildShared {
 	CONFIG += staticlib
@@ -39,7 +39,8 @@ HEADERS += \
     DockWidgetTitleBar.h \
     FloatingDockContainer.h \
     DockOverlay.h \
-    DockSplitter.h
+    DockSplitter.h \
+    shared_export.h
     
     
     

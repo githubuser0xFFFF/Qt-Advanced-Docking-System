@@ -32,6 +32,8 @@
 //============================================================================
 #include "DockContainerWidget.h"
 
+#include "shared_export.h"
+
 class QSettings;
 
 namespace ads
@@ -44,7 +46,7 @@ class CDockOverlay;
 /**
  * The central dock manager that maintains the complete docking system
  **/
-class CDockManager : public CDockContainerWidget
+class SHARED_EXPORT CDockManager : public CDockContainerWidget
 {
 	Q_OBJECT
 private:

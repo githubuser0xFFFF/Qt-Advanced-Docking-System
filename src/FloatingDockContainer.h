@@ -31,6 +31,8 @@
 //============================================================================
 #include <QWidget>
 
+#include "shared_export.h"
+
 class QXmlStreamReader;
 
 namespace ads
@@ -46,7 +48,7 @@ class CDockManager;
  * docking of dock widgets like the main window and that can be docked into
  * another dock container
  */
-class CFloatingDockContainer : public QWidget
+class SHARED_EXPORT CFloatingDockContainer : public QWidget
 {
 	Q_OBJECT
 private:

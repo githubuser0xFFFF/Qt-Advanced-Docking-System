@@ -1,0 +1,34 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdvancedDockingSystem", "src\AdvancedDockingSystem.vcxproj", "{F675203E-9BB5-370A-B055-F15BD096DAEC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AdvancedDockingSystemDemo", "demo\AdvancedDockingSystemDemo.vcxproj", "{90FD056B-7F1E-36B6-BEA1-C691F1523436}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F675203E-9BB5-370A-B055-F15BD096DAEC} = {F675203E-9BB5-370A-B055-F15BD096DAEC}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F675203E-9BB5-370A-B055-F15BD096DAEC}.Debug|x64.ActiveCfg = Debug|x64
+		{F675203E-9BB5-370A-B055-F15BD096DAEC}.Debug|x64.Build.0 = Debug|x64
+		{F675203E-9BB5-370A-B055-F15BD096DAEC}.Release|x64.ActiveCfg = Release|x64
+		{F675203E-9BB5-370A-B055-F15BD096DAEC}.Release|x64.Build.0 = Release|x64
+		{90FD056B-7F1E-36B6-BEA1-C691F1523436}.Debug|x64.ActiveCfg = Debug|x64
+		{90FD056B-7F1E-36B6-BEA1-C691F1523436}.Debug|x64.Build.0 = Debug|x64
+		{90FD056B-7F1E-36B6-BEA1-C691F1523436}.Release|x64.ActiveCfg = Release|x64
+		{90FD056B-7F1E-36B6-BEA1-C691F1523436}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		Qt5Version = 5.10.1-msvc2017_64
+		SolutionGuid = {C323CF76-5EFC-4EAB-8B3B-D06C0374D401}
+	EndGlobalSection
+EndGlobal
