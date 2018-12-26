@@ -29,6 +29,7 @@
 //                                   INCLUDES
 //============================================================================
 #include <QVariant>
+#include <QPainter>
 
 #include "DockSplitter.h"
 #include "ads_globals.h"
@@ -39,16 +40,6 @@ namespace ads
 
 namespace internal
 {
-//============================================================================
-QSplitter* newSplitter(Qt::Orientation orientation, QWidget* parent)
-{
-	QSplitter* s = new CDockSplitter(orientation, parent);
-	s->setProperty("ads-splitter", QVariant(true));
-	s->setChildrenCollapsible(false);
-	s->setOpaqueResize(false);
-	return s;
-}
-
 //============================================================================
 void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To)
 {
@@ -72,6 +63,33 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area)
 
 	return CDockInsertParam(Qt::Vertical, false);
 }
+
+
+//============================================================================
+QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity)
+{
+	QPixmap TransparentPixmap(Source.size());
+	TransparentPixmap.fill(Qt::transparent);
+	QPainter p(&TransparentPixmap);
+	p.setOpacity(Opacity);
+	p.drawPixmap(0, 0, Source);
+	return TransparentPixmap;
+}
+
+
+//============================================================================
+void hideEmptyParentSplitters(CDockSplitter* Splitter)
+{
+	while (Splitter && Splitter->isVisible())
+	{
+		if (!Splitter->hasVisibleContent())
+		{
+			Splitter->hide();
+		}
+		Splitter = internal::findParent<CDockSplitter*>(Splitter);
+	}
+}
+
 
 } // namespace internal
 } // namespace ads

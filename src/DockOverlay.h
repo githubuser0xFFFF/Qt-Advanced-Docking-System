@@ -48,6 +48,8 @@ private:
 	friend class DockOverlayCross;
 
 public:
+	using Super = QFrame;
+
 	enum eMode
 	{
 		ModeDockAreaOverlay,
@@ -100,6 +102,11 @@ public:
 	 */
 	QRect dropOverlayRect() const;
 
+	/**
+	 * Handle polish events
+	 */
+	virtual bool event(QEvent *e) override;
+
 protected:
 	virtual void paintEvent(QPaintEvent *e) override;
 	virtual void showEvent(QShowEvent* e) override;
@@ -112,18 +119,71 @@ struct DockOverlayCrossPrivate;
  * DockOverlayCross shows a cross with 5 different drop area possibilities.
  * I could have handled everything inside DockOverlay, but because of some
  * styling issues it's better to have a separate class for the cross.
+ * You can style the cross icon using the property system.
+ * \code
+ * ads--CDockOverlayCross
+  {
+		qproperty-iconFrameColor: palette(highlight);
+		qproperty-iconBackgroundColor: palette(base);
+		qproperty-iconOverlayColor: palette(highlight);
+		qproperty-iconArrowColor: rgb(227, 227, 227);
+		qproperty-iconShadowColor: rgb(0, 0, 0);
+	}
+ * \endcode
+ * Or you can use the iconColors property to pass in AARRGGBB values as
+ * hex string like shown in the example below.
+ * \code
+ * ads--CDockOverlayCross
+ * {
+ *     qproperty-iconColors: "Frame=#ff3d3d3d Background=#ff929292 Overlay=#1f3d3d3d Arrow=#ffb4b4b4 Shadow=#40474747";
+ * }
+ * \endcode
  */
 class CDockOverlayCross : public QWidget
 {
 	Q_OBJECT
+	Q_PROPERTY(QString iconColors READ iconColors WRITE setIconColors)
+	Q_PROPERTY(QColor iconFrameColor READ iconColor WRITE setIconFrameColor)
+	Q_PROPERTY(QColor iconBackgroundColor READ iconColor WRITE setIconBackgroundColor)
+	Q_PROPERTY(QColor iconOverlayColor READ iconColor WRITE setIconOverlayColor)
+	Q_PROPERTY(QColor iconArrowColor READ iconColor WRITE setIconArrowColor)
+	Q_PROPERTY(QColor iconShadowColor READ iconColor WRITE setIconShadowColor)
+
+public:
+	enum eIconColor
+	{
+		FrameColor,///< the color of the frame of the small window icon
+		WindowBackgroundColor,///< the background color of the small window in the icon
+		OverlayColor,///< the color that shows the overlay (the dock side) in the icon
+		ArrowColor,///< the arrow that points into the direction
+		ShadowColor///< the color of the shadow rectangle that is painted below the icons
+	};
+
 private:
 	DockOverlayCrossPrivate* d;
 	friend struct DockOverlayCrossPrivate;
 	friend class CDockOverlay;
 
+protected:
+	/**
+     * This function returns an empty string and is only here to silence
+     * moc
+     */
+    QString iconColors() const;
+
+    /**
+     * This is a dummy function for the property system
+     */
+    QColor iconColor() const {return QColor();}
+    void setIconFrameColor(const QColor& Color) {setIconColor(FrameColor, Color);}
+    void setIconBackgroundColor(const QColor& Color) {setIconColor(WindowBackgroundColor, Color);}
+    void setIconOverlayColor(const QColor& Color) {setIconColor(OverlayColor, Color);}
+    void setIconArrowColor(const QColor& Color) {setIconColor(ArrowColor, Color);}
+    void setIconShadowColor(const QColor& Color) {setIconColor(ShadowColor, Color);}
+
 public:
 	/**
-	 * Creates an overlay corss for the given overlay
+	 * Creates an overlay cross for the given overlay
 	 */
 	CDockOverlayCross(CDockOverlay* overlay);
 
@@ -131,6 +191,16 @@ public:
 	 * Virtual destructor
 	 */
 	virtual ~CDockOverlayCross();
+
+	/**
+	 * Sets a certain icon color
+	 */
+	void setIconColor(eIconColor ColorIndex, const QColor& Color);
+
+	/**
+	 * Returns the icon color given by ColorIndex
+	 */
+	QColor iconColor(eIconColor ColorIndex) const;
 
 	/**
 	 * Returns the dock widget area depending on the current cursor location.
@@ -145,6 +215,11 @@ public:
 	void setupOverlayCross(CDockOverlay::eMode Mode);
 
 	/**
+	 * Recreates the overlay icons.
+	 */
+	void updateOverlayIcons();
+
+	/**
 	 * Resets and updates the
 	 */
 	void reset();
@@ -153,6 +228,19 @@ public:
 	 * Updates the current position
 	 */
 	void updatePosition();
+
+	/**
+	 * A string with all icon colors to set.
+	 * You can use this property to style the overly icon via CSS stylesheet
+	 * file. The colors are set via a color identifier and a hex AARRGGBB value like
+	 * in the example below.
+	 * \code
+	 * ads--CDockOverlayCross
+	 * {
+	 *     qproperty-iconColors: "Frame=#ff3d3d3d Background=#ff929292 Overlay=#1f3d3d3d Arrow=#ffb4b4b4 Shadow=#40474747";
+	 * }
+	 */
+    void setIconColors(const QString& Colors);
 
 protected:
 	virtual void showEvent(QShowEvent* e) override;

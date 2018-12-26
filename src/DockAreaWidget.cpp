@@ -28,6 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <DockWidgetTab.h>
 #include "DockAreaWidget.h"
 
 #include <QStackedLayout>
@@ -40,155 +41,197 @@
 #include <QMenu>
 #include <QSplitter>
 #include <QXmlStreamWriter>
+#include <QVector>
+#include <QList>
 
 
 #include "DockContainerWidget.h"
 #include "DockWidget.h"
-#include "DockWidgetTitleBar.h"
 #include "FloatingDockContainer.h"
 #include "DockManager.h"
 #include "DockOverlay.h"
+#include "DockAreaTabBar.h"
+#include "DockSplitter.h"
+#include "DockAreaTitleBar.h"
+
+#include <iostream>
 
 
 namespace ads
 {
 static const char* const INDEX_PROPERTY = "index";
 static const char* const ACTION_PROPERTY = "action";
+static const char* const DOCKWIDGET_PROPERTY = "dockwidget";
 static const int APPEND = -1;
 
+
 /**
- * Custom scroll bar implementation for dock area tab bar
- * This scroll area enables floating of a whole dock area including all
- * dock widgets
+ * New dock area layout mimics stack layout but only inserts the current
+ * widget into the internal QLayout object
  */
-class CTabsScrollArea : public QScrollArea
+class CDockAreaLayout
 {
 private:
-	QPoint m_DragStartMousePos;
-	CDockAreaWidget* m_DockArea;
-	CFloatingDockContainer* m_FloatingWidget = nullptr;
+	QBoxLayout* m_ParentLayout;
+	QList<QWidget*> m_Widgets;
+	int m_CurrentIndex = -1;
+	QWidget* m_CurrentWidget = nullptr;
 
 public:
-	CTabsScrollArea(CDockAreaWidget* parent)
-		: QScrollArea(parent),
-		  m_DockArea(parent)
+	/**
+	 * Creates an instance with the given parent layout
+	 */
+	CDockAreaLayout(QBoxLayout* ParentLayout)
+		: m_ParentLayout(ParentLayout)
 	{
-		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-		setFrameStyle(QFrame::NoFrame);
-		setWidgetResizable(true);
-		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 	}
 
-protected:
-	virtual void wheelEvent(QWheelEvent* Event) override
+	/**
+	 * Returns the number of widgets in this layout
+	 */
+	int count() const
 	{
-		Event->accept();
-		const int direction = Event->angleDelta().y();
-		if (direction < 0)
+		return m_Widgets.count();
+	}
+
+	/**
+	 * Inserts the widget at the given index position into the internal widget
+	 * list
+	 */
+	void insertWidget(int index, QWidget* Widget)
+	{
+		Widget->setParent(0);
+		if (index < 0)
 		{
-			horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
+			index = m_Widgets.count();
+		}
+		m_Widgets.insert(index, Widget);
+		if (m_CurrentIndex < 0)
+		{
+			setCurrentIndex(index);
 		}
 		else
 		{
-			horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
+			if (index <= m_CurrentIndex )
+			{
+				++m_CurrentIndex;
+			}
 		}
 	}
 
 	/**
-	 * Stores mouse position to detect dragging
+	 * Removes the given widget from the lyout
 	 */
-	virtual void mousePressEvent(QMouseEvent* ev) override
+	void removeWidget(QWidget* Widget)
 	{
-		if (ev->button() == Qt::LeftButton)
+		if (currentWidget() == Widget)
 		{
-			ev->accept();
-			m_DragStartMousePos = ev->pos();
-			return;
+			auto LayoutItem = m_ParentLayout->takeAt(1);
+			if (LayoutItem)
+			{
+				LayoutItem->widget()->setParent(0);
+			}
+			m_CurrentWidget = nullptr;
+			m_CurrentIndex = -1;
 		}
-		QScrollArea::mousePressEvent(ev);
+		m_Widgets.removeOne(Widget);
 	}
 
 	/**
-	 * Stores mouse position to detect dragging
+	 * Returns the current selected widget
 	 */
-	virtual void mouseReleaseEvent(QMouseEvent* ev) override
+	QWidget* currentWidget() const
 	{
-		if (ev->button() == Qt::LeftButton)
-		{
-			qDebug() << "CTabsScrollArea::mouseReleaseEvent";
-			ev->accept();
-			m_FloatingWidget = nullptr;
-			m_DragStartMousePos = QPoint();
-			return;
-		}
-		QScrollArea::mouseReleaseEvent(ev);
+		return m_CurrentWidget;
 	}
 
 	/**
-	 * Starts floating the complete docking area including all dock widgets,
-	 * if it is not the last dock area in a floating widget
+	 * Activates the widget with the give index.
 	 */
-	virtual void mouseMoveEvent(QMouseEvent* ev) override
+	void setCurrentIndex(int index)
 	{
-		QScrollArea::mouseMoveEvent(ev);
-		if (ev->buttons() != Qt::LeftButton)
+		QWidget *prev = currentWidget();
+		QWidget *next = widget(index);
+		if (!next || (next == prev && !m_CurrentWidget))
 		{
 			return;
 		}
 
-		if (m_FloatingWidget)
+		bool reenableUpdates = false;
+		QWidget *parent = m_ParentLayout->parentWidget();
+
+		if (parent && parent->updatesEnabled())
 		{
-			m_FloatingWidget->moveFloating();
-			return;
+			reenableUpdates = true;
+			parent->setUpdatesEnabled(false);
 		}
 
-		// If this is the last dock area in a dock container it does not make
-		// sense to move it to a new floating widget and leave this one
-		// empty
-		if (m_DockArea->dockContainer()->isFloating()
-		 && m_DockArea->dockContainer()->visibleDockAreaCount() == 1)
+		auto LayoutItem = m_ParentLayout->takeAt(1);
+		if (LayoutItem)
 		{
-			return;
+			LayoutItem->widget()->setParent(0);
 		}
 
-		if (!this->geometry().contains(ev->pos()))
+		m_ParentLayout->addWidget(next);
+		if (prev)
 		{
-			qDebug() << "CTabsScrollArea::startFloating";
-			startFloating(m_DragStartMousePos);
-			auto Overlay = m_DockArea->dockManager()->containerOverlay();
-			Overlay->setAllowedAreas(OuterDockAreas);
+			prev->hide();
 		}
+		m_CurrentIndex = index;
+		m_CurrentWidget = next;
 
-		return;
+
+		if (reenableUpdates)
+		{
+			parent->setUpdatesEnabled(true);
+		}
 	}
 
 	/**
-	 * Double clicking the title bar also starts floating of the complete area
+	 * Returns the index of the current active widget
 	 */
-	virtual void mouseDoubleClickEvent(QMouseEvent *event) override
+	int currentIndex() const
 	{
-		// If this is the last dock area in a dock container it does not make
-		// sense to move it to a new floating widget and leave this one
-		// empty
-		if (m_DockArea->dockContainer()->isFloating() && m_DockArea->dockContainer()->dockAreaCount() == 1)
-		{
-			return;
-		}
-		startFloating(event->pos());
+		return m_CurrentIndex;
 	}
 
 	/**
-	 * Starts floating
+	 * Returns true if there are no widgets in the layout
 	 */
-	void startFloating(const QPoint& Pos)
+	bool isEmpty() const
 	{
-		QSize Size = m_DockArea->size();
-		CFloatingDockContainer* FloatingWidget = new CFloatingDockContainer(m_DockArea);
-		FloatingWidget->startFloating(Pos, Size);
-		m_FloatingWidget = FloatingWidget;
+		return m_Widgets.empty();
 	}
-}; // class CTabsScrollArea
+
+	/**
+	 * Returns the index of the given widget
+	 */
+	int indexOf(QWidget* w) const
+	{
+		return m_Widgets.indexOf(w);
+	}
+
+	/**
+	 * Returns the widget for the given index
+	 */
+	QWidget* widget(int index) const
+	{
+		return (index < m_Widgets.size()) ? m_Widgets.at(index) : nullptr;
+	}
+
+	/**
+	 * Returns the geometry of the current active widget
+	 */
+	QRect geometry() const
+	{
+		return m_Widgets.empty() ? QRect() : currentWidget()->geometry();
+	}
+};
+
+
+
+using DockAreaLayout = CDockAreaLayout;
 
 
 /**
@@ -198,16 +241,10 @@ struct DockAreaWidgetPrivate
 {
 	CDockAreaWidget* _this;
 	QBoxLayout* Layout;
-	QFrame* TitleBar;
-	QBoxLayout* TopLayout;
-	QStackedLayout* ContentsLayout;
-	QScrollArea* TabsScrollArea;
-	QWidget* TabsContainerWidget;
-	QBoxLayout* TabsLayout;
-	QPushButton* TabsMenuButton;
-	QPushButton* CloseButton;
-	int TabsLayoutInitCount;
+	DockAreaLayout* ContentsLayout;
+	CDockAreaTitleBar* TitleBar;
 	CDockManager* DockManager = nullptr;
+	bool UpdateCloseButton = false;
 
 	/**
 	 * Private data constructor
@@ -217,7 +254,7 @@ struct DockAreaWidgetPrivate
 	/**
 	 * Creates the layout for top area with tabs and close button
 	 */
-	void createTabBar();
+	void createTitleBar();
 
 	/**
 	 * Returns the dock widget with the given index
@@ -230,18 +267,11 @@ struct DockAreaWidgetPrivate
 	/**
 	 * Convenience function to ease title widget access by index
 	 */
-	CDockWidgetTitleBar* titleWidgetAt(int index)
+	CDockWidgetTab* tabWidgetAt(int index)
 	{
-		return dockWidgetAt(index)->titleBar();
+		return dockWidgetAt(index)->tabWidget();
 	}
 
-	/**
-	 * Adds a tabs menu entry for the given dock widget
-	 * If menu is 0, a menu entry is added to the menu of the TabsMenuButton
-	 * member. If menu is a valid menu pointer, the entry will be added to
-	 * the given menu
-	 */
-	void addTabsMenuEntry(CDockWidget* DockWidget, int Index = -1, QMenu* menu = 0);
 
 	/**
 	 * Returns the tab action of the given dock widget
@@ -260,16 +290,17 @@ struct DockAreaWidgetPrivate
 	}
 
 	/**
-	 * Update the tabs menu if dock widget order changed or if dock widget has
-	 * been removed
+	 * Convenience function for tabbar access
 	 */
-	void updateTabsMenu();
+	CDockAreaTabBar* tabBar() const
+	{
+		return TitleBar->tabBar();
+	}
 
 	/**
-	 * Updates the tab bar visibility depending on the number of dock widgets
-	 * in this area
+	 * Udpates the enable state of the close button
 	 */
-	void updateTabBar();
+	void updateCloseButtonState();
 };
 // struct DockAreaWidgetPrivate
 
@@ -283,101 +314,31 @@ DockAreaWidgetPrivate::DockAreaWidgetPrivate(CDockAreaWidget* _public) :
 
 
 //============================================================================
-void DockAreaWidgetPrivate::createTabBar()
+void DockAreaWidgetPrivate::createTitleBar()
 {
-	TitleBar = new QFrame(_this);
-	TitleBar->setObjectName("dockAreaTitleBar");
-	TopLayout = new QBoxLayout(QBoxLayout::LeftToRight);
-	TopLayout->setContentsMargins(0, 0, 0, 0);
-	TopLayout->setSpacing(0);
-	TitleBar->setLayout(TopLayout);
+	TitleBar = new CDockAreaTitleBar(_this);
 	Layout->addWidget(TitleBar);
-
-	TabsScrollArea = new CTabsScrollArea(_this);
-	TopLayout->addWidget(TabsScrollArea, 1);
-
-	TabsContainerWidget = new QWidget();
-	TabsContainerWidget->setObjectName("tabsContainerWidget");
-	TabsScrollArea->setWidget(TabsContainerWidget);
-
-	TabsLayout = new QBoxLayout(QBoxLayout::LeftToRight);
-	TabsLayout->setContentsMargins(0, 0, 0, 0);
-	TabsLayout->setSpacing(0);
-	TabsLayout->addStretch(1);
-	TabsContainerWidget->setLayout(TabsLayout);
-
-	TabsMenuButton = new QPushButton();
-	TabsMenuButton->setObjectName("tabsMenuButton");
-	TabsMenuButton->setFlat(true);
-	TabsMenuButton->setIcon(_this->style()->standardIcon(QStyle::SP_TitleBarUnshadeButton));
-	TabsMenuButton->setMaximumWidth(TabsMenuButton->iconSize().width());
-	TabsMenuButton->setMenu(new QMenu(TabsMenuButton));
-	TopLayout->addWidget(TabsMenuButton, 0);
-	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
-		SLOT(onTabsMenuActionTriggered(QAction*)));
-
-	CloseButton = new QPushButton();
-	CloseButton->setObjectName("closeButton");
-	CloseButton->setFlat(true);
-	CloseButton->setIcon(_this->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
-	CloseButton->setToolTip(_this->tr("Close"));
-	CloseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	TopLayout->addWidget(CloseButton, 0);
-	_this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
-
-	TabsLayoutInitCount = TabsLayout->count();
+	_this->connect(tabBar(), SIGNAL(tabCloseRequested(int)),
+		SLOT(onTabCloseRequested(int)));
+	_this->connect(TitleBar, SIGNAL(tabBarClicked(int)),
+		SLOT(setCurrentIndex(int)));
+	_this->connect(tabBar(), SIGNAL(tabMoved(int, int)),
+		SLOT(reorderDockWidget(int, int)));
 }
 
 
 //============================================================================
-void DockAreaWidgetPrivate::updateTabBar()
+void DockAreaWidgetPrivate::updateCloseButtonState()
 {
-	CDockContainerWidget* Container = _this->dockContainer();
-	if (!Container)
+	if (_this->isHidden())
 	{
+		UpdateCloseButton = true;
 		return;
 	}
 
-	if (Container->isFloating() && (Container->dockAreaCount() == 1) && (_this->count() == 1))
-	{
-		TitleBar->setVisible(false);
-	}
-	else
-	{
-		TitleBar->setVisible(true);
-	}
-}
-
-
-//============================================================================
-void DockAreaWidgetPrivate::addTabsMenuEntry(CDockWidget* DockWidget,
-	int Index, QMenu* menu)
-{
-	menu = menu ? menu : TabsMenuButton->menu();
-	QAction* Action;
-	if (Index >= 0 && Index < menu->actions().count())
-	{
-		Action = new QAction(DockWidget->windowTitle());
-		menu->insertAction(menu->actions().at(Index), Action);
-	}
-	else
-	{
-		Action = menu->addAction(DockWidget->windowTitle());
-	}
-	QVariant vAction = QVariant::fromValue(Action);
-	DockWidget->setProperty(ACTION_PROPERTY, vAction);
-}
-
-
-//============================================================================
-void DockAreaWidgetPrivate::updateTabsMenu()
-{
-	QMenu* menu = TabsMenuButton->menu();
-	menu->clear();
-	for (int i = 0; i < ContentsLayout->count(); ++i)
-	{
-		addTabsMenuEntry(dockWidgetAt(i), APPEND, menu);
-	}
+	TitleBar->button(TitleBarButtonClose)->setEnabled(
+		_this->features().testFlag(CDockWidget::DockWidgetClosable));
+	UpdateCloseButton = false;
 }
 
 
@@ -392,18 +353,15 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 	d->Layout->setSpacing(0);
 	setLayout(d->Layout);
 
-	d->createTabBar();
-
-	d->ContentsLayout = new QStackedLayout();
-	d->ContentsLayout->setContentsMargins(0, 0, 0, 0);
-	d->ContentsLayout->setSpacing(0);
-	d->Layout->addLayout(d->ContentsLayout, 1);
+	d->createTitleBar();
+	d->ContentsLayout = new DockAreaLayout(d->Layout);
 }
 
 //============================================================================
 CDockAreaWidget::~CDockAreaWidget()
 {
 	qDebug() << "~CDockAreaWidget()";
+	delete d->ContentsLayout;
 	delete d;
 }
 
@@ -418,18 +376,7 @@ CDockManager* CDockAreaWidget::dockManager() const
 //============================================================================
 CDockContainerWidget* CDockAreaWidget::dockContainer() const
 {
-	QWidget* Parent = parentWidget();
-	while (Parent)
-	{
-		CDockContainerWidget* Container = dynamic_cast<CDockContainerWidget*>(Parent);
-		if (Container)
-		{
-			return Container;
-		}
-		Parent = Parent->parentWidget();
-	}
-
-	return 0;
+	return internal::findParent<CDockContainerWidget*>(this);
 }
 
 
@@ -445,18 +392,21 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	bool Activate)
 {
 	d->ContentsLayout->insertWidget(index, DockWidget);
-	DockWidget->titleBar()->setDockAreaWidget(this);
-	auto TitleBar = DockWidget->titleBar();
-	d->TabsLayout->insertWidget(index, TitleBar);
-	TitleBar->show();
-	connect(TitleBar, SIGNAL(clicked()), this, SLOT(onDockWidgetTitleClicked()));
+	DockWidget->tabWidget()->setDockAreaWidget(this);
+	auto TabWidget = DockWidget->tabWidget();
+	// Inserting the tab will change the current index which in turn will
+	// make the tab widget visible in the slot
+	d->tabBar()->blockSignals(true);
+	d->tabBar()->insertTab(index, TabWidget);
+	d->tabBar()->blockSignals(false);
+	TabWidget->setVisible(!DockWidget->isClosed());
 	DockWidget->setProperty(INDEX_PROPERTY, index);
 	if (Activate)
 	{
 		setCurrentIndex(index);
 	}
-	d->addTabsMenuEntry(DockWidget, index);
 	DockWidget->setDockArea(this);
+	d->updateCloseButtonState();
 }
 
 
@@ -464,64 +414,118 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 {
 	qDebug() << "CDockAreaWidget::removeDockWidget";
-	d->ContentsLayout->removeWidget(DockWidget);
-	auto TitleBar = DockWidget->titleBar();
-	TitleBar->hide();
-	d->TabsLayout->removeWidget(TitleBar);
-	disconnect(TitleBar, SIGNAL(clicked()), this, SLOT(onDockWidgetTitleClicked()));
-	setCurrentIndex(d->ContentsLayout->currentIndex());
-	d->updateTabsMenu();
+	auto NextOpenDockWidget = nextOpenDockWidget(DockWidget);
 
-	CDockContainerWidget* DockContainer = dockContainer();
-	if (d->ContentsLayout->isEmpty())
+	d->ContentsLayout->removeWidget(DockWidget);
+	auto TabWidget = DockWidget->tabWidget();
+	TabWidget->hide();
+	d->tabBar()->removeTab(TabWidget);
+	if (NextOpenDockWidget)
+	{
+		setCurrentDockWidget(NextOpenDockWidget);
+	}
+	else if (d->ContentsLayout->isEmpty())
 	{
 		qDebug() << "Dock Area empty";
 		dockContainer()->removeDockArea(this);
-		this->deleteLater();;
+		this->deleteLater();
+	}
+	else
+	{
+		// if contents layout is not empty but there are no more open dock
+		// widgets, then we need to hide the dock area because it does not
+		// contain any visible content
+		hideAreaWithNoVisibleContent();
 	}
 
-	d->updateTabBar();
-	DockWidget->setDockArea(nullptr);
+	d->updateCloseButtonState();
+	updateTitleBarVisibility();
+	auto TopLevelDockWidget = dockContainer()->topLevelDockWidget();
+	if (TopLevelDockWidget)
+	{
+		TopLevelDockWidget->emitTopLevelChanged(true);
+	}
+
+#if (ADS_DEBUG_LEVEL > 0)
+	CDockContainerWidget* DockContainer = dockContainer();
 	DockContainer->dumpLayout();
+#endif
 }
 
 
 //============================================================================
-void CDockAreaWidget::onDockWidgetTitleClicked()
+void CDockAreaWidget::hideAreaWithNoVisibleContent()
 {
-	CDockWidgetTitleBar* TitleWidget = qobject_cast<CDockWidgetTitleBar*>(sender());
-	if (!TitleWidget)
+	this->toggleView(false);
+
+	// Hide empty parent splitters
+	auto Splitter = internal::findParent<CDockSplitter*>(this);
+	internal::hideEmptyParentSplitters(Splitter);
+
+	//Hide empty floating widget
+	CDockContainerWidget* Container = this->dockContainer();
+	if (!Container->isFloating())
 	{
 		return;
 	}
 
-	int index = d->TabsLayout->indexOf(TitleWidget);
-	setCurrentIndex(index);
+	updateTitleBarVisibility();
+	auto TopLevelWidget = Container->topLevelDockWidget();
+	auto FloatingWidget = Container->floatingWidget();
+	if (TopLevelWidget)
+	{
+		FloatingWidget->updateWindowTitle();
+		CDockWidget::emitTopLevelEventForWidget(TopLevelWidget, true);
+	}
+	else if (Container->openedDockAreas().isEmpty())
+	{
+		FloatingWidget->hide();
+	}
 }
 
 
 //============================================================================
-void CDockAreaWidget::onCloseButtonClicked()
+void CDockAreaWidget::onTabCloseRequested(int Index)
 {
-	currentDockWidget()->toggleView(false);
+	qDebug() << "CDockAreaWidget::onTabCloseRequested " << Index;
+	dockWidget(Index)->toggleView(false);
 }
 
 
 //============================================================================
 CDockWidget* CDockAreaWidget::currentDockWidget() const
 {
-	return dockWidget(currentIndex());
+	int CurrentIndex = currentIndex();
+	if (CurrentIndex < 0)
+	{
+		return nullptr;
+	}
+
+	return dockWidget(CurrentIndex);
 }
 
 
 //============================================================================
 void CDockAreaWidget::setCurrentDockWidget(CDockWidget* DockWidget)
 {
-	int Index = tabIndex(DockWidget);
+	if (dockManager()->isRestoringState())
+	{
+		return;
+	}
+
+	internalSetCurrentDockWidget(DockWidget);
+}
+
+
+//============================================================================
+void CDockAreaWidget::internalSetCurrentDockWidget(CDockWidget* DockWidget)
+{
+	int Index = index(DockWidget);
 	if (Index < 0)
 	{
 		return;
 	}
+
 	setCurrentIndex(Index);
 }
 
@@ -529,43 +533,15 @@ void CDockAreaWidget::setCurrentDockWidget(CDockWidget* DockWidget)
 //============================================================================
 void CDockAreaWidget::setCurrentIndex(int index)
 {
-	if (index < 0 || index > (d->TabsLayout->count() - 1))
+	auto TabBar = d->tabBar();
+	if (index < 0 || index > (TabBar->count() - 1))
 	{
 		qWarning() << Q_FUNC_INFO << "Invalid index" << index;
 		return;
     }
 
     emit currentChanging(index);
-
-	// Set active TAB and update all other tabs to be inactive
-	for (int i = 0; i < d->TabsLayout->count(); ++i)
-	{
-		QLayoutItem* item = d->TabsLayout->itemAt(i);
-		if (!item->widget())
-		{
-			continue;
-		}
-
-		auto TitleWidget = dynamic_cast<CDockWidgetTitleBar*>(item->widget());
-		if (!TitleWidget)
-		{
-			continue;
-		}
-
-		if (i == index)
-		{
-			TitleWidget->show();
-			TitleWidget->setActiveTab(true);
-			d->TabsScrollArea->ensureWidgetVisible(TitleWidget);
-			auto Features = TitleWidget->dockWidget()->features();
-			d->CloseButton->setVisible(Features.testFlag(CDockWidget::DockWidgetClosable));
-		}
-		else
-		{
-			TitleWidget->setActiveTab(false);
-		}
-	}
-
+    TabBar->setCurrentIndex(index);
 	d->ContentsLayout->setCurrentIndex(index);
 	d->ContentsLayout->currentWidget()->show();
 	emit currentChanged(index);
@@ -580,9 +556,9 @@ int CDockAreaWidget::currentIndex() const
 
 
 //============================================================================
-QRect CDockAreaWidget::titleAreaGeometry() const
+QRect CDockAreaWidget::titleBarGeometry() const
 {
-	return d->TopLayout->geometry();
+	return d->TitleBar->geometry();
 }
 
 //============================================================================
@@ -593,7 +569,7 @@ QRect CDockAreaWidget::contentAreaGeometry() const
 
 
 //============================================================================
-int CDockAreaWidget::tabIndex(CDockWidget* DockWidget)
+int CDockAreaWidget::index(CDockWidget* DockWidget)
 {
 	return d->ContentsLayout->indexOf(DockWidget);
 }
@@ -608,6 +584,21 @@ QList<CDockWidget*> CDockAreaWidget::dockWidgets() const
 		DockWidgetList.append(dockWidget(i));
 	}
 	return DockWidgetList;
+}
+
+
+//============================================================================
+int CDockAreaWidget::openDockWidgetsCount() const
+{
+	int Count = 0;
+	for (int i = 0; i < d->ContentsLayout->count(); ++i)
+	{
+		if (!dockWidget(i)->isClosed())
+		{
+			++Count;
+		}
+	}
+	return Count;
 }
 
 
@@ -628,22 +619,22 @@ QList<CDockWidget*> CDockAreaWidget::openedDockWidgets() const
 
 
 //============================================================================
-int CDockAreaWidget::indexOfContentByTitlePos(const QPoint& p, QWidget* exclude) const
+int CDockAreaWidget::indexOfFirstOpenDockWidget() const
 {
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
-		auto TitleWidget = d->titleWidgetAt(i);
-		if (TitleWidget->geometry().contains(p) && (!exclude || TitleWidget != exclude))
+		if (!dockWidget(i)->isClosed())
 		{
 			return i;
 		}
 	}
+
 	return -1;
 }
 
 
 //============================================================================
-int CDockAreaWidget::count() const
+int CDockAreaWidget::dockWidgetsCount() const
 {
 	return d->ContentsLayout->count();
 }
@@ -652,70 +643,60 @@ int CDockAreaWidget::count() const
 //============================================================================
 CDockWidget* CDockAreaWidget::dockWidget(int Index) const
 {
-	return dynamic_cast<CDockWidget*>(d->ContentsLayout->widget(Index));
+	return qobject_cast<CDockWidget*>(d->ContentsLayout->widget(Index));
 }
 
 
 //============================================================================
 void CDockAreaWidget::reorderDockWidget(int fromIndex, int toIndex)
 {
+	qDebug() << "CDockAreaWidget::reorderDockWidget";
 	if (fromIndex >= d->ContentsLayout->count() || fromIndex < 0
      || toIndex >= d->ContentsLayout->count() || toIndex < 0 || fromIndex == toIndex)
 	{
 		qDebug() << "Invalid index for tab movement" << fromIndex << toIndex;
-		d->TabsLayout->update();
 		return;
 	}
 
-	CDockWidget* DockWidget = dockWidget(fromIndex);
-
-	// reorder tabs menu action to match new order of contents
-	auto Menu = d->TabsMenuButton->menu();
-	auto TabsAction = d->dockWidgetTabAction(DockWidget);
-	Menu->removeAction(TabsAction);
-	if (toIndex >= Menu->actions().count())
-	{
-		Menu->addAction(TabsAction);
-	}
-	else
-	{
-		Menu->insertAction(Menu->actions().at(toIndex), TabsAction);
-	}
-
-
-	// now reorder contents and title bars
-	QLayoutItem* liFrom = nullptr;
-	liFrom = d->TabsLayout->takeAt(fromIndex);
-	d->TabsLayout->insertItem(toIndex, liFrom);
-	liFrom = d->ContentsLayout->takeAt(fromIndex);
-	d->ContentsLayout->insertWidget(toIndex, liFrom->widget());
-	delete liFrom;
+	auto Widget = d->ContentsLayout->widget(fromIndex);
+	d->ContentsLayout->removeWidget(Widget);
+	d->ContentsLayout->insertWidget(toIndex, Widget);
+	setCurrentIndex(toIndex);
 }
 
 
 //============================================================================
-void CDockAreaWidget::onTabsMenuActionTriggered(QAction* Action)
+void CDockAreaWidget::toggleDockWidgetView(CDockWidget* DockWidget, bool Open)
 {
-	int Index = d->TabsMenuButton->menu()->actions().indexOf(Action);
-	setCurrentIndex(Index);
+	Q_UNUSED(DockWidget);
+	Q_UNUSED(Open);
+	updateTitleBarVisibility();
 }
 
 
 //============================================================================
-void CDockAreaWidget::updateDockArea()
+void CDockAreaWidget::updateTitleBarVisibility()
 {
-	d->updateTabBar();
+	CDockContainerWidget* Container = dockContainer();
+	if (!Container)
+	{
+		return;
+	}
+
+	d->TitleBar->setVisible(!Container->isFloating() || !Container->hasTopLevelDockWidget());
 }
 
 
 //============================================================================
 void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 {
-	s.writeStartElement("DockAreaWidget");
+	s.writeStartElement("Area");
 	s.writeAttribute("Tabs", QString::number(d->ContentsLayout->count()));
-	s.writeAttribute("CurrentIndex", QString::number(d->ContentsLayout->currentIndex()));
+	auto CurrentDockWidget = currentDockWidget();
+	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
+	s.writeAttribute("Current", Name);
 	qDebug() << "CDockAreaWidget::saveState TabCount: " << d->ContentsLayout->count()
-			<< " CurrentIndex: " << d->ContentsLayout->currentIndex();
+			<< " Current: " << Name;
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
 		dockWidget(i)->saveState(s);
@@ -723,6 +704,88 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	s.writeEndElement();
 }
 
+
+//============================================================================
+CDockWidget* CDockAreaWidget::nextOpenDockWidget(CDockWidget* DockWidget) const
+{
+	auto OpenDockWidgets = openedDockWidgets();
+	if (OpenDockWidgets.count() > 1 || (OpenDockWidgets.count() == 1 && OpenDockWidgets[0] != DockWidget))
+	{
+		CDockWidget* NextDockWidget;
+		if (OpenDockWidgets.last() == DockWidget)
+		{
+			NextDockWidget = OpenDockWidgets[OpenDockWidgets.count() - 2];
+		}
+		else
+		{
+			int NextIndex = OpenDockWidgets.indexOf(DockWidget) + 1;
+			NextDockWidget = OpenDockWidgets[NextIndex];
+		}
+
+		return NextDockWidget;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+
+//============================================================================
+CDockWidget::DockWidgetFeatures CDockAreaWidget::features() const
+{
+	CDockWidget::DockWidgetFeatures Features(CDockWidget::AllDockWidgetFeatures);
+	for (const auto DockWidget : dockWidgets())
+	{
+		Features &= DockWidget->features();
+	}
+
+	return Features;
+}
+
+
+//============================================================================
+void CDockAreaWidget::toggleView(bool Open)
+{
+	setVisible(Open);
+
+	emit viewToggled(Open);
+}
+
+
+//============================================================================
+void CDockAreaWidget::setVisible(bool Visible)
+{
+	Super::setVisible(Visible);
+	if (d->UpdateCloseButton)
+	{
+		d->updateCloseButtonState();
+	}
+}
+
+
+//============================================================================
+QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
+{
+	return d->TitleBar->button(which);
+}
+
+
+//============================================================================
+void CDockAreaWidget::closeArea()
+{
+	for (auto DockWidget : openedDockWidgets())
+	{
+		DockWidget->toggleView(false);
+	}
+}
+
+
+//============================================================================
+void CDockAreaWidget::closeOtherAreas()
+{
+	dockContainer()->closeOtherAreas(this);
+}
 } // namespace ads
 
 //---------------------------------------------------------------------------

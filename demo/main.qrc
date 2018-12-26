@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>bricks.gif</file>
+        <file>bricks_orange.gif</file>
+        <file>bricks.apng</file>
+    </qresource>
+</RCC>

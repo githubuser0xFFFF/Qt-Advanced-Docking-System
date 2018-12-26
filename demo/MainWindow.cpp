@@ -57,6 +57,7 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
+#include "AnimatedLabel.h"
 
 
 //============================================================================
@@ -83,7 +84,6 @@ static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
 
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
 	DockWidget->setWidget(l);
-	DockWidget->setObjectName(DockWidget->windowTitle());
 	ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
 }
@@ -96,7 +96,6 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 	QCalendarWidget* w = new QCalendarWidget();
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
 	DockWidget->setWidget(w);
-	DockWidget->setObjectName(DockWidget->windowTitle());
 	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
 	ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
@@ -114,7 +113,6 @@ static ads::CDockWidget* createFileSystemTreeDockWidget(QMenu* ViewMenu)
 	w->setModel(m);
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Filesystem %1").arg(FileSystemCount++));
 	DockWidget->setWidget(w);
-	DockWidget->setObjectName(DockWidget->windowTitle());
 	ViewMenu->addAction(DockWidget->toggleViewAction());
     return DockWidget;
 }
@@ -174,13 +172,23 @@ void MainWindowPrivate::createContent()
 	QMenu* ViewMenu = ui.menuView;
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
 	DockWidget->setIcon(_this->style()->standardIcon(QStyle::SP_DialogOpenButton));
-	DockWidget->setFeatures(DockWidget->features().setFlag(ads::CDockWidget::DockWidgetClosable, false));
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
-	DockManager->addDockWidget(ads::BottomDockWidgetArea, createFileSystemTreeDockWidget(ViewMenu));
-	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, createFileSystemTreeDockWidget(ViewMenu));
+	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
+	auto ToolBar = FileSystemWidget->createDefaultToolBar();
+	ToolBar->addAction(ui.actionSaveState);
+	ToolBar->addAction(ui.actionRestoreState);
+	DockManager->addDockWidget(ads::BottomDockWidgetArea, FileSystemWidget);
+
+	FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
+	ToolBar = FileSystemWidget->createDefaultToolBar();
+	ToolBar->addAction(ui.actionSaveState);
+	ToolBar->addAction(ui.actionRestoreState);
+	FileSystemWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 	DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setFeatures(DockWidget->features().setFlag(ads::CDockWidget::DockWidgetClosable, false));
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 
 	// Test dock area docking
@@ -258,11 +266,17 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	d(new MainWindowPrivate(this))
 {
+	using namespace ads;
 	d->ui.setupUi(this);
 	d->createActions();
 
 	// Now create the dock manager and its content
-	d->DockManager = new ads::CDockManager(this);
+	d->DockManager = new CDockManager(this);
+
+	// Uncomment the following line to have the old style where the dock
+	// area close button closes the active tab
+	//d->DockManager->setConfigFlags({
+	//	CDockManager::DockAreaHasCloseButton | CDockManager::DockAreaCloseButtonClosesTab});
 	connect(d->PerspectiveComboBox, SIGNAL(activated(const QString&)),
 		d->DockManager, SLOT(openPerspective(const QString&)));
 
@@ -309,7 +323,6 @@ void CMainWindow::on_actionRestoreState_triggered(bool)
 //============================================================================
 void CMainWindow::savePerspective()
 {
-	std::cout << "savePerspective" << std::endl;
 	QString PerspectiveName = QInputDialog::getText(this, "Save Perspective", "Enter unique name:");
 	if (PerspectiveName.isEmpty())
 	{

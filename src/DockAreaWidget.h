@@ -33,19 +33,21 @@
 #include <QFrame>
 
 #include "ads_globals.h"
+#include "DockWidget.h"
 
 class QXmlStreamWriter;
+class QAbstractButton;
 
 namespace ads
 {
 struct DockAreaWidgetPrivate;
 class CDockManager;
 class CDockContainerWidget;
-class CDockWidget;
+class DockContainerWidgetPrivate;
 
 
 /**
- * DockAreaWidget manages multiple instances of DckWidgets.
+ * DockAreaWidget manages multiple instances of DockWidgets.
  * It displays a title tab, which is clickable and will switch to
  * the contents associated to the title when clicked.
  */
@@ -55,13 +57,85 @@ class ADS_EXPORT CDockAreaWidget : public QFrame
 private:
 	DockAreaWidgetPrivate* d; ///< private data (pimpl)
 	friend struct DockAreaWidgetPrivate;
+	friend class CDockContainerWidget;
+	friend class DockContainerWidgetPrivate;
+	friend class CDockWidgetTab;
+	friend struct DockWidgetPrivate;
+	friend class CDockWidget;
+	friend struct DockManagerPrivate;
 
 private slots:
-	void onDockWidgetTitleClicked();
-	void onTabsMenuActionTriggered(QAction* Action);
-	void onCloseButtonClicked();
+	void onTabCloseRequested(int Index);
+
+	/**
+	 * Reorder the index position of DockWidget at fromIndx to toIndex
+	 * if a tab in the tabbar is dragged from one index to another one
+	 */
+	void reorderDockWidget(int fromIndex, int toIndex);
+
+protected:
+	/**
+	 * Inserts a dock widget into dock area.
+	 * All dockwidgets in the dock area tabified in a stacked layout with tabs.
+	 * The index indicates the index of the new dockwidget in the tabbar and
+	 * in the stacked layout. If the Activate parameter is true, the new
+	 * DockWidget will be the active one in the stacked layout
+	 */
+	void insertDockWidget(int index, CDockWidget* DockWidget, bool Activate = true);
+
+	/**
+	 * Add a new dock widget to dock area.
+	 * All dockwidgets in the dock area tabified in a stacked layout with tabs
+	 */
+	void addDockWidget(CDockWidget* DockWidget);
+
+	/**
+	 * Removes the given dock widget from the dock area
+	 */
+	void removeDockWidget(CDockWidget* DockWidget);
+
+	/**
+	 * Called from dock widget if it is opened or closed
+	 */
+	void toggleDockWidgetView(CDockWidget* DockWidget, bool Open);
+
+	/**
+	 * This is a helper function to get the next open dock widget to activate
+	 * if the given DockWidget will be closed or removed.
+	 * The function returns the next widget that should be activated or
+	 * nullptr in case there are no more open widgets in this area.
+	 */
+	CDockWidget* nextOpenDockWidget(CDockWidget* DockWidget) const;
+
+	/**
+	 * Returns the index of the given DockWidget in the internal layout
+	 */
+	int index(CDockWidget* DockWidget);
+
+	/**
+	 * Call this function, if you already know, that the dock does not
+	 * contain any visible content (any open dock widgets).
+	 */
+	void hideAreaWithNoVisibleContent();
+
+	/**
+	 * Updates the dock area layout and components visibility
+	 */
+	void updateTitleBarVisibility();
+
+	/**
+	 * This is the internal private function for setting the current widget.
+	 * This function is called by the public setCurrentDockWidget() function
+	 * and by the dock manager when restoring the state
+	 */
+	void internalSetCurrentDockWidget(CDockWidget* DockWidget);
+
+protected slots:
+	void toggleView(bool Open);
 
 public:
+	using Super = QFrame;
+
 	/**
 	 * Default Constructor
 	 */
@@ -84,29 +158,9 @@ public:
 	CDockContainerWidget* dockContainer() const;
 
 	/**
-	 * Inserts a dock widget into dock area.
-	 * All dockwidgets in the dock area tabified in a stacked layout with tabs.
-	 * The index indicates the index of the new dockwidget in the tabbar and
-	 * in the stacked layout. If the Activate parameter is true, the new
-	 * DockWidget will be the active one in the stacked layout
-	 */
-	void insertDockWidget(int index, CDockWidget* DockWidget, bool Activate = true);
-
-	/**
-	 * Add a new dock widget to dock area.
-	 * All dockwidgets in the dock area tabified in a stacked layout with tabs
-	 */
-	void addDockWidget(CDockWidget* DockWidget);
-
-	/**
-	 * Removes the given dock widget from the dock area
-	 */
-	void removeDockWidget(CDockWidget* DockWidget);
-
-	/**
 	 * Returns the rectangle of the title area
 	 */
-	QRect titleAreaGeometry() const;
+	QRect titleBarGeometry() const;
 
 	/**
 	 * Returns the rectangle of the content
@@ -114,15 +168,9 @@ public:
 	QRect contentAreaGeometry() const;
 
 	/**
-	 * Returns the tab index of the given DockWidget
+	 * Returns the number of dock widgets in this area
 	 */
-	int tabIndex(CDockWidget* DockWidget);
-
-	/**
-	 * Returns the index of contents of the title widget that is located at
-	 * mouse position pos
-	 */
-	int indexOfContentByTitlePos(const QPoint& pos, QWidget* exclude = nullptr) const;
+	int dockWidgetsCount() const;
 
 	/**
 	 * Returns a list of all dock widgets in this dock area.
@@ -131,14 +179,14 @@ public:
 	QList<CDockWidget*> dockWidgets() const;
 
 	/**
+	 * Returns the number of dock widgets in this area
+	 */
+	int openDockWidgetsCount() const;
+
+	/**
 	 * Returns a list of dock widgets that are not closed
 	 */
 	QList<CDockWidget*> openedDockWidgets() const;
-
-	/**
-	 * Returns the number of dock widgets in this area
-	 */
-	int count() const;
 
 	/**
 	 * Returns a dock widget by its index
@@ -146,22 +194,30 @@ public:
 	CDockWidget* dockWidget(int Index) const;
 
 	/**
-	 * Reorder the index position of DockWidget at fromIndx to toIndex.
-	 */
-	void reorderDockWidget(int fromIndex, int toIndex);
-
-	/**
-	 * Returns the index of the current active dock widget
+	 * Returns the index of the current active dock widget or -1 if there
+	 * are is no active dock widget (ie.e if all dock widgets are closed)
 	 */
 	int currentIndex() const;
 
 	/**
-	 * Returns the current active dock widget
+	 * Returns the index of the first open dock widgets in the list of
+	 * dock widgets.
+	 * This function is here for performance reasons. Normally it would
+	 * be possible to take the first dock widget from the list returned by
+	 * openedDockWidgets() function. But that function enumerates all
+	 * dock widgets while this functions stops after the first open dock widget.
+	 * If there are no open dock widgets, the function returns -1.
+	 */
+	int indexOfFirstOpenDockWidget() const;
+
+	/**
+	 * Returns the current active dock widget or a nullptr if there is no
+	 * active dock widget (i.e. if all dock widgets are closed)
 	 */
 	CDockWidget* currentDockWidget() const;
 
 	/**
-	 * Shows the tab with tghe given dock widget
+	 * Shows the tab with the given dock widget
 	 */
 	void setCurrentDockWidget(CDockWidget* DockWidget);
 
@@ -170,16 +226,43 @@ public:
 	 */
 	void saveState(QXmlStreamWriter& Stream) const;
 
+	/**
+	 * This functions returns the dock widget features of all dock widget in
+	 * this area.
+	 * A bitwise and is used to combine the flags of all dock widgets. That
+	 * means, if only dock widget does not support a certain flag, the whole
+	 * dock are does not support the flag.
+	 */
+	CDockWidget::DockWidgetFeatures features() const;
+
+	/**
+	 * Returns the title bar button corresponding to the given title bar
+	 * button identifier
+	 */
+	QAbstractButton* titleBarButton(TitleBarButton which) const;
+
+	/**
+	 * Update the close button if visibility changed
+	 */
+	virtual void setVisible(bool Visible) override;
+
 public slots:
 	/**
-	 * This sets the index position of the current tab page.
+	 * This activates the tab for the given tab index.
+	 * If the dock widget for the given tab is not visible, the this function
+	 * call will make it visible.
 	 */
 	void setCurrentIndex(int index);
 
 	/**
-	 * Updates the dock area layout and components visibility
+	 * Closes the dock area and all dock widgets in this area
 	 */
-	void updateDockArea();
+	void closeArea();
+
+	/**
+	 * This function closes all other areas except of this area
+	 */
+	void closeOtherAreas();
 
 signals:
 	/**
@@ -200,6 +283,12 @@ signals:
 	 * @param index
 	 */
 	void currentChanged(int index);
+
+	/**
+	 * This signal is emitted if the visibility of this dock area is toggled
+	 * via toggle view function
+	 */
+	void viewToggled(bool Open);
 }; // class DockAreaWidget
 }
  // namespace ads

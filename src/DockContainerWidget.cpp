@@ -30,8 +30,6 @@
 //============================================================================
 #include "DockContainerWidget.h"
 
-#include <iostream>
-
 #include <QEvent>
 #include <QList>
 #include <QGridLayout>
@@ -39,20 +37,42 @@
 #include <QVariant>
 #include <QDebug>
 #include <QXmlStreamWriter>
+#include <QAbstractButton>
 
 #include "DockManager.h"
 #include "DockAreaWidget.h"
 #include "DockWidget.h"
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
-#include "DockStateSerialization.h"
 #include "ads_globals.h"
 #include "DockSplitter.h"
+
+#include <iostream>
 
 
 namespace ads
 {
 static unsigned int zOrderCounter = 0;
+
+
+/**
+ * Converts dock area ID to an index for array access
+ */
+static int areaIdToIndex(DockWidgetArea area)
+{
+	switch (area)
+	{
+	case LeftDockWidgetArea: return 0;
+	case RightDockWidgetArea: return 1;
+	case TopDockWidgetArea: return 2;
+	case BottomDockWidgetArea: return 3;
+	case CenterDockWidgetArea: return 4;
+	default:
+		return 4;
+	}
+
+	return 4;
+}
 
 /**
  * Helper function to ease insertion of dock area into splitter
@@ -72,15 +92,19 @@ static void insertWidgetIntoSplitter(QSplitter* Splitter, QWidget* widget, bool 
 /**
  * Private data class of CDockContainerWidget class (pimpl)
  */
-struct DockContainerWidgetPrivate
+class DockContainerWidgetPrivate
 {
+public:
 	CDockContainerWidget* _this;
 	QPointer<CDockManager> DockManager;
 	unsigned int zOrderIndex = 0;
 	QList<CDockAreaWidget*> DockAreas;
 	QGridLayout* Layout = nullptr;
-	QSplitter* RootSplitter;
+	QSplitter* RootSplitter = nullptr;
 	bool isFloating = false;
+	CDockAreaWidget* LastAddedAreaCache[5]{0, 0, 0, 0, 0};
+	int VisibleDockAreaCount = -1;
+	CDockAreaWidget* TopLevelDockArea = nullptr;
 
 	/**
 	 * Private data constructor
@@ -121,6 +145,12 @@ struct DockContainerWidgetPrivate
 	void addDockAreasToList(const QList<CDockAreaWidget*> NewDockAreas);
 
 	/**
+	 * Wrapper function for DockAreas append, that ensures that dock area signals
+	 * are properly connected to dock container slots
+	 */
+	void appendDockAreas(const QList<CDockAreaWidget*> NewDockAreas);
+
+	/**
 	 * Save state of child nodes
 	 */
 	void saveChildNodesState(QXmlStreamWriter& Stream, QWidget* Widget);
@@ -154,6 +184,74 @@ struct DockContainerWidgetPrivate
 	 * Helper function for recursive dumping of layout
 	 */
 	void dumpRecursive(int level, QWidget* widget);
+
+	/**
+	 * Initializes the visible dock area count variable if it is not initialized
+	 * yet
+	 */
+	void initVisibleDockAreaCount()
+	{
+		if (VisibleDockAreaCount > -1)
+		{
+			return;
+		}
+
+		VisibleDockAreaCount = 0;
+		for (auto DockArea : DockAreas)
+		{
+			VisibleDockAreaCount += DockArea->isHidden() ? 0 : 1;
+		}
+	}
+
+	/**
+	 * Access function for the visible dock area counter
+	 */
+	int& visibleDockAreaCount()
+	{
+		// Lazy initialisation - we initialize the VisibleDockAreaCount variable
+		// on first use
+		initVisibleDockAreaCount();
+		return VisibleDockAreaCount;
+	}
+
+	/**
+	 * The visible dock area count changes, if dock areas are remove, added or
+	 * when its view is toggled
+	 */
+	void onVisibleDockAreaCountChanged();
+
+	void emitDockAreasRemoved()
+	{
+		onVisibleDockAreaCountChanged();
+		emit _this->dockAreasRemoved();
+	}
+
+	void emitDockAreasAdded()
+	{
+		onVisibleDockAreaCountChanged();
+		emit _this->dockAreasAdded();
+	}
+
+	/**
+	 * Helper function for creation of new splitter
+	 */
+	CDockSplitter* newSplitter(Qt::Orientation orientation, QWidget* parent = 0)
+	{
+		CDockSplitter* s = new CDockSplitter(orientation, parent);
+		s->setOpaqueResize(DockManager->configFlags().testFlag(CDockManager::OpaqueSplitterResize));
+		s->setChildrenCollapsible(false);
+		return s;
+	}
+
+
+// private slots: ------------------------------------------------------------
+	void onDockAreaViewToggled(bool Visible)
+	{
+		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(_this->sender());
+		VisibleDockAreaCount += Visible ? 1 : -1;
+		onVisibleDockAreaCountChanged();
+		emit _this->dockAreaViewToggled(DockArea, Visible);
+	}
 }; // struct DockContainerWidgetPrivate
 
 
@@ -166,13 +264,35 @@ DockContainerWidgetPrivate::DockContainerWidgetPrivate(CDockContainerWidget* _pu
 
 
 //============================================================================
+void DockContainerWidgetPrivate::onVisibleDockAreaCountChanged()
+{
+	auto TopLevelDockArea = _this->topLevelDockArea();
+
+	if (TopLevelDockArea)
+	{
+		this->TopLevelDockArea = TopLevelDockArea;
+		TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(false || !_this->isFloating());
+		TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(false || !_this->isFloating());
+	}
+	else if (this->TopLevelDockArea)
+	{
+		this->TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(true);
+		this->TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
+		this->TopLevelDockArea = nullptr;
+	}
+}
+
+
+//============================================================================
 void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* FloatingWidget,
 	DockWidgetArea area)
 {
 	auto InsertParam = internal::dockAreaInsertParameters(area);
-	auto NewDockAreas = FloatingWidget->dockContainer()->findChildren<CDockAreaWidget*>(
+	CDockContainerWidget* FloatingDockContainer = FloatingWidget->dockContainer();
+	auto NewDockAreas = FloatingDockContainer->findChildren<CDockAreaWidget*>(
 		QString(), Qt::FindChildrenRecursively);
-	CDockWidget* DockWidget = FloatingWidget->dockContainer()->findChild<CDockWidget*>();
+	CDockWidget* SingleDroppedDockWidget = FloatingDockContainer->topLevelDockWidget();
+	CDockWidget* SingleDockWidget = _this->topLevelDockWidget();
 	QSplitter* Splitter = RootSplitter;
 
 	if (DockAreas.count() <= 1)
@@ -181,7 +301,7 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 	}
 	else if (Splitter->orientation() != InsertParam.orientation())
 	{
-		QSplitter* NewSplitter = internal::newSplitter(InsertParam.orientation());
+		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		QLayoutItem* li = Layout->replaceWidget(Splitter, NewSplitter);
 		NewSplitter->addWidget(Splitter);
 		Splitter = NewSplitter;
@@ -189,7 +309,7 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 	}
 
 	// Now we can insert the floating widget content into this container
-	auto FloatingSplitter = FloatingWidget->dockContainer()->rootSplitter();
+	auto FloatingSplitter = FloatingDockContainer->rootSplitter();
 	if (FloatingSplitter->count() == 1)
 	{
 		insertWidgetIntoSplitter(Splitter, FloatingSplitter->widget(0), InsertParam.append());
@@ -209,9 +329,15 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 	RootSplitter = Splitter;
 	addDockAreasToList(NewDockAreas);
 	FloatingWidget->deleteLater();
-	if (DockWidget)
+	CDockWidget::emitTopLevelEventForWidget(SingleDroppedDockWidget, false);
+	CDockWidget::emitTopLevelEventForWidget(SingleDockWidget, false);
+
+	// If we dropped the floating widget into the main dock container that does
+	// not contain any dock widgets, then splitter is invisible and we need to
+	// show it to display the docked widgets
+	if (!Splitter->isVisible())
 	{
-		DockWidget->toggleView(true);
+		Splitter->show();
 	}
 	_this->dumpLayout();
 }
@@ -222,17 +348,37 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 		CDockAreaWidget* TargetArea, DockWidgetArea area)
 {
 	CDockContainerWidget* FloatingContainer = FloatingWidget->dockContainer();
-	if (area == CenterDockWidgetArea)
+	// Dropping into center means all dock widgets in the dropped floating
+	// widget will become tabs of the drop area
+	if (CenterDockWidgetArea == area)
 	{
-		auto NewDockWidgets = FloatingContainer->findChildren<CDockWidget*>(
-			QString(), Qt::FindChildrenRecursively);
-		for (auto DockWidget : NewDockWidgets)
+		auto NewDockWidgets = FloatingContainer->dockWidgets();
+		auto TopLevelDockArea = FloatingContainer->topLevelDockArea();
+		int NewCurrentIndex = -1;
+
+		// If the floating widget contains only one single dock are, then the
+		// current dock widget of the dock area will also be the future current
+		// dock widget in the drop area.
+		if (TopLevelDockArea)
 		{
-			TargetArea->insertDockWidget(0, DockWidget, false);
+			NewCurrentIndex = TopLevelDockArea->currentIndex();
 		}
-		TargetArea->setCurrentIndex(0); // make the topmost widget active
+
+		for (int i = 0; i < NewDockWidgets.count(); ++i)
+		{
+			CDockWidget* DockWidget = NewDockWidgets[i];
+			TargetArea->insertDockWidget(i, DockWidget, false);
+			// If the floating widget contains multiple visible dock areas, then we
+			// simply pick the first visible open dock widget and make it
+			// the current one.
+			if (NewCurrentIndex < 0 && !DockWidget->isClosed())
+			{
+				NewCurrentIndex = i;
+			}
+		}
+		TargetArea->setCurrentIndex(NewCurrentIndex);
 		FloatingWidget->deleteLater();
-		TargetArea->updateDockArea();
+		TargetArea->updateTitleBarVisibility();
 		return;
 	}
 
@@ -243,12 +389,11 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 
 	if (!TargetAreaSplitter)
 	{
-		QSplitter* Splitter = internal::newSplitter(InsertParam.orientation());
+		QSplitter* Splitter = newSplitter(InsertParam.orientation());
 		Layout->replaceWidget(TargetArea, Splitter);
 		Splitter->addWidget(TargetArea);
 		TargetAreaSplitter = Splitter;
 	}
-
 	int AreaIndex = TargetAreaSplitter->indexOf(TargetArea);
 	auto Widget = FloatingWidget->dockContainer()->findChild<QWidget*>(QString(), Qt::FindDirectChildrenOnly);
 	auto FloatingSplitter = dynamic_cast<QSplitter*>(Widget);
@@ -270,7 +415,7 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 	}
 	else
 	{
-		QSplitter* NewSplitter = internal::newSplitter(InsertParam.orientation());
+		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		if ((FloatingSplitter->orientation() != InsertParam.orientation()) && FloatingSplitter->count() > 1)
 		{
 			NewSplitter->addWidget(Widget);
@@ -283,8 +428,8 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 			}
 		}
 
-		insertWidgetIntoSplitter(NewSplitter, TargetArea, !InsertParam.append());
 		TargetAreaSplitter->insertWidget(AreaIndex, NewSplitter);
+		insertWidgetIntoSplitter(NewSplitter, TargetArea, !InsertParam.append());
 	}
 
 	FloatingWidget->deleteLater();
@@ -298,21 +443,40 @@ void DockContainerWidgetPrivate::addDockAreasToList(const QList<CDockAreaWidget*
 {
 	int CountBefore = DockAreas.count();
 	int NewAreaCount = NewDockAreas.count();
-	DockAreas.append(NewDockAreas);
+	appendDockAreas(NewDockAreas);
+	// If the user dropped a floating widget that contains only one single
+	// visible dock area, then its title bar button TitleBarButtonUndock is
+	// likely hidden. We need to ensure, that it is visible
+	for (auto DockArea : NewDockAreas)
+	{
+		DockArea->titleBarButton(TitleBarButtonUndock)->setVisible(true);
+		DockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
+	}
 
 	// We need to ensure, that the dock area title bar is visible. The title bar
 	// is invisible, if the dock are is a single dock area in a floating widget.
 	if (1 == CountBefore)
 	{
-		DockAreas.at(0)->updateDockArea();
+		DockAreas.at(0)->updateTitleBarVisibility();
 	}
 
 	if (1 == NewAreaCount)
 	{
-		DockAreas.last()->updateDockArea();
+		DockAreas.last()->updateTitleBarVisibility();
 	}
 
-	emit _this->dockAreasAdded();
+	emitDockAreasAdded();
+}
+
+
+//============================================================================
+void DockContainerWidgetPrivate::appendDockAreas(const QList<CDockAreaWidget*> NewDockAreas)
+{
+	DockAreas.append(NewDockAreas);
+	for (auto DockArea : NewDockAreas)
+	{
+		_this->connect(DockArea, SIGNAL(viewToggled(bool)), SLOT(onDockAreaViewToggled(bool)));
+	}
 }
 
 
@@ -323,7 +487,7 @@ void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter& s, QWidge
 	if (Splitter)
 	{
 		s.writeStartElement("Splitter");
-		s.writeAttribute("Orientation", QString::number(Splitter->orientation()));
+		s.writeAttribute("Orientation", (Splitter->orientation() == Qt::Horizontal) ? "-" : "|");
 		s.writeAttribute("Count", QString::number(Splitter->count()));
 		qDebug() << "NodeSplitter orient: " << Splitter->orientation()
 			<< " WidgetCont: " << Splitter->count();
@@ -356,8 +520,17 @@ bool DockContainerWidgetPrivate::restoreSplitter(QXmlStreamReader& s,
 	QWidget*& CreatedWidget, bool Testing)
 {
 	bool Ok;
-	int Orientation  = s.attributes().value("Orientation").toInt(&Ok);
-	if (!Ok)
+	QString OrientationStr = s.attributes().value("Orientation").toString();
+	int Orientation;
+	if (OrientationStr.startsWith("-"))
+	{
+		Orientation = Qt::Horizontal;
+	}
+	else if (OrientationStr.startsWith("|"))
+	{
+		Orientation = Qt::Vertical;
+	}
+	else
 	{
 		return false;
 	}
@@ -372,7 +545,7 @@ bool DockContainerWidgetPrivate::restoreSplitter(QXmlStreamReader& s,
 	QSplitter* Splitter = nullptr;
 	if (!Testing)
 	{
-		Splitter = internal::newSplitter((Qt::Orientation)Orientation);
+		Splitter = newSplitter((Qt::Orientation)Orientation);
 	}
 	bool Visible = false;
 	QList<int> Sizes;
@@ -384,7 +557,7 @@ bool DockContainerWidgetPrivate::restoreSplitter(QXmlStreamReader& s,
 		{
 			Result = restoreSplitter(s, ChildNode, Testing);
 		}
-		else if (s.name() == "DockAreaWidget")
+		else if (s.name() == "Area")
 		{
 			Result = restoreDockArea(s, ChildNode, Testing);
 		}
@@ -460,13 +633,10 @@ bool DockContainerWidgetPrivate::restoreDockArea(QXmlStreamReader& s,
 		return false;
 	}
 
-	int CurrentIndex = s.attributes().value("CurrentIndex").toInt(&Ok);
-	if (!Ok)
-	{
-		return false;
-	}
-	qDebug() << "Restore NodeDockArea Tabs: " << Tabs << " CurrentIndex: "
-			<< CurrentIndex;
+
+	QString CurrentDockWidget = s.attributes().value("Current").toString();
+	qDebug() << "Restore NodeDockArea Tabs: " << Tabs << " Current: "
+			<< CurrentDockWidget;
 
 	CDockAreaWidget* DockArea = nullptr;
 	if (!Testing)
@@ -476,12 +646,12 @@ bool DockContainerWidgetPrivate::restoreDockArea(QXmlStreamReader& s,
 
 	while (s.readNextStartElement())
 	{
-		if (s.name() != "DockWidget")
+		if (s.name() != "Widget")
 		{
 			continue;
 		}
 
-		auto ObjectName = s.attributes().value("ObjectName");
+		auto ObjectName = s.attributes().value("Name");
 		if (ObjectName.isEmpty())
 		{
 			return false;
@@ -501,10 +671,12 @@ bool DockContainerWidgetPrivate::restoreDockArea(QXmlStreamReader& s,
 		}
 
 		qDebug() << "Dock Widget found - parent " << DockWidget->parent();
-		DockArea->addDockWidget(DockWidget);
-
+		// We hide the DockArea here to prevent the short display (the flashing)
+		// of the dock areas during application startup
 		DockArea->hide();
+		DockArea->addDockWidget(DockWidget);
 		DockWidget->setToggleViewActionChecked(!Closed);
+		DockWidget->setClosedState(Closed);
 		DockWidget->setProperty("closed", Closed);
 		DockWidget->setProperty("dirty", false);
 	}
@@ -514,15 +686,15 @@ bool DockContainerWidgetPrivate::restoreDockArea(QXmlStreamReader& s,
 		return true;
 	}
 
-	if (!DockArea->count())
+	if (!DockArea->dockWidgetsCount())
 	{
 		delete DockArea;
 		DockArea = nullptr;
 	}
 	else
 	{
-		DockArea->setProperty("currentIndex", CurrentIndex);
-		DockAreas.append(DockArea);
+		DockArea->setProperty("currentDockWidget", CurrentDockWidget);
+		appendDockAreas({DockArea});
 	}
 
 	CreatedWidget = DockArea;
@@ -542,7 +714,7 @@ bool DockContainerWidgetPrivate::restoreChildNodes(QXmlStreamReader& s,
 			Result = restoreSplitter(s, CreatedWidget, Testing);
 			qDebug() << "Splitter";
 		}
-		else if (s.name() == "DockAreaWidget")
+		else if (s.name() == "Area")
 		{
 			Result = restoreDockArea(s, CreatedWidget, Testing);
 			qDebug() << "DockAreaWidget";
@@ -565,6 +737,8 @@ CDockAreaWidget* DockContainerWidgetPrivate::dockWidgetIntoContainer(DockWidgetA
 	CDockAreaWidget* NewDockArea = new CDockAreaWidget(DockManager, _this);
 	NewDockArea->addDockWidget(Dockwidget);
 	addDockArea(NewDockArea, area);
+	NewDockArea->updateTitleBarVisibility();
+	LastAddedAreaCache[areaIdToIndex(area)] = NewDockArea;
 	return NewDockArea;
 }
 
@@ -587,7 +761,7 @@ void DockContainerWidgetPrivate::addDockArea(CDockAreaWidget* NewDockArea, DockW
 	}
 	else
 	{
-		QSplitter* NewSplitter = internal::newSplitter(InsertParam.orientation());
+		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		if (InsertParam.append())
 		{
 			QLayoutItem* li = Layout->replaceWidget(Splitter, NewSplitter);
@@ -605,9 +779,9 @@ void DockContainerWidgetPrivate::addDockArea(CDockAreaWidget* NewDockArea, DockW
 		RootSplitter = NewSplitter;
 	}
 
-	DockAreas.append(NewDockArea);
-	NewDockArea->updateDockArea();
-	emit _this->dockAreasAdded();
+	appendDockAreas({NewDockArea});
+	NewDockArea->updateTitleBarVisibility();
+	emitDockAreasAdded();
 }
 
 
@@ -622,9 +796,13 @@ void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 	{
 		qDebug("%sSplitter %s v: %s c: %s",
 			(const char*)buf,
-			(Splitter->orientation() == Qt::Vertical) ? "-" : "|",
-			 Splitter->isVisibleTo(Splitter->parentWidget()) ? "1" : "0",
+			(Splitter->orientation() == Qt::Vertical) ? "--" : "|",
+			 Splitter->isHidden() ? " " : "v",
 			 QString::number(Splitter->count()).toStdString().c_str());
+		std::cout << (const char*)buf << "Splitter "
+			<< ((Splitter->orientation() == Qt::Vertical) ? "--" : "|") << " "
+			<< (Splitter->isHidden() ? " " : "v") << " "
+		    << QString::number(Splitter->count()).toStdString() << std::endl;
 		for (int i = 0; i < Splitter->count(); ++i)
 		{
 			dumpRecursive(level + 1, Splitter->widget(i));
@@ -638,6 +816,19 @@ void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 			return;
 		}
 		qDebug("%sDockArea", (const char*)buf);
+		std::cout << (const char*)buf
+			<< (DockArea->isHidden() ? " " : "v")
+			<< (DockArea->openDockWidgetsCount() > 0 ? " " : "c")
+			<< " DockArea" << std::endl;
+		buf.fill(' ', (level + 1) * 4);
+		for (int i = 0; i < DockArea->dockWidgetsCount(); ++i)
+		{
+			std::cout << (const char*)buf << (i == DockArea->currentIndex() ? "*" : " ");
+			CDockWidget* DockWidget = DockArea->dockWidget(i);
+			std::cout << (DockWidget->isHidden() ? " " : "v");
+			std::cout << (DockWidget->isClosed() ? "c" : " ") << " ";
+			std::cout << DockWidget->windowTitle().toStdString() << std::endl;
+		}
 	}
 #else
 	Q_UNUSED(level);
@@ -670,14 +861,14 @@ CDockAreaWidget* DockContainerWidgetPrivate::dockWidgetIntoDockArea(DockWidgetAr
 	else
 	{
 		qDebug() << "TargetAreaSplitter->orientation() != InsertParam.orientation()";
-		QSplitter* NewSplitter = internal::newSplitter(InsertParam.orientation());
+		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		NewSplitter->addWidget(TargetDockArea);
 		insertWidgetIntoSplitter(NewSplitter, NewDockArea, InsertParam.append());
 		TargetAreaSplitter->insertWidget(index, NewSplitter);
 	}
 
-	DockAreas.append(NewDockArea);
-	emit _this->dockAreasAdded();
+	appendDockAreas({NewDockArea});
+	emitDockAreasAdded();
 	return NewDockArea;
 }
 
@@ -687,22 +878,24 @@ CDockContainerWidget::CDockContainerWidget(CDockManager* DockManager, QWidget *p
 	QFrame(parent),
 	d(new DockContainerWidgetPrivate(this))
 {
-	d->isFloating = dynamic_cast<CFloatingDockContainer*>(parent) != 0;
-
-	//setStyleSheet("background: green;");
 	d->DockManager = DockManager;
-	if (DockManager != this)
-	{
-		d->DockManager->registerDockContainer(this);
-	}
+	d->isFloating = floatingWidget() != nullptr;
 
 	d->Layout = new QGridLayout();
 	d->Layout->setContentsMargins(0, 1, 0, 1);
 	d->Layout->setSpacing(0);
 	setLayout(d->Layout);
 
-	d->RootSplitter = internal::newSplitter(Qt::Horizontal);
-	d->Layout->addWidget(d->RootSplitter);
+	// The function d->newSplitter() accesses the config flags from dock
+	// manager which in turn requires a properly constructed dock manager.
+	// If this dock container is the dock manager, then it is not properly
+	// constructed yet because this base class constructor is called before
+	// the constructor of the DockManager private class
+	if (DockManager != this)
+	{
+		d->DockManager->registerDockContainer(this);
+		createRootSplitter();
+	}
 }
 
 //============================================================================
@@ -787,13 +980,14 @@ void CDockContainerWidget::addDockArea(CDockAreaWidget* DockAreaWidget,
 void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 {
 	qDebug() << "CDockContainerWidget::removeDockArea";
+	area->disconnect(this);
 	d->DockAreas.removeAll(area);
 	CDockSplitter* Splitter = internal::findParent<CDockSplitter*>(area);
 
-	// Remove are from parent splitter and hide splitter if it has no visible
-	// content
+	// Remove are from parent splitter and recursively hide tree of parent
+	// splitters if it has no visible content
 	area->setParent(0);
-	Splitter->setVisible(Splitter->hasVisibleContent());
+	internal::hideEmptyParentSplitters(Splitter);
 
 	// If splitter has more than 1 widgets, we are finished and can leave
 	if (Splitter->count() >  1)
@@ -841,8 +1035,13 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 	delete Splitter;
 
 emitAndExit:
+	CDockWidget* TopLevelWidget = topLevelDockWidget();
+
+	// Updated the title bar visibility of the dock widget if there is only
+    // one single visible dock widget
+	CDockWidget::emitTopLevelEventForWidget(TopLevelWidget, true);
 	dumpLayout();
-	emit dockAreasRemoved();
+	d->emitDockAreasRemoved();
 }
 
 
@@ -885,15 +1084,17 @@ int CDockContainerWidget::dockAreaCount() const
 //============================================================================
 int CDockContainerWidget::visibleDockAreaCount() const
 {
-	// TODO Cache or precalculate this to speed it up because it is used during
-	// movement of floating widget
 	int Result = 0;
 	for (auto DockArea : d->DockAreas)
 	{
-		Result += DockArea->isVisible() ? 1 : 0;
+		Result += DockArea->isHidden() ? 0 : 1;
 	}
 
 	return Result;
+
+	// TODO Cache or precalculate this to speed it up because it is used during
+	// movement of floating widget
+	//return d->visibleDockAreaCount();
 }
 
 
@@ -905,6 +1106,9 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	CDockAreaWidget* DockArea = dockAreaAt(TargetPos);
 	auto dropArea = InvalidDockWidgetArea;
 	auto ContainerDropArea = d->DockManager->containerOverlay()->dropAreaUnderCursor();
+	CDockWidget* FloatingTopLevelDockWidget = FloatingWidget->topLevelDockWidget();
+	CDockWidget* TopLevelDockWidget = topLevelDockWidget();
+
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
@@ -933,6 +1137,20 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 			d->dropIntoContainer(FloatingWidget, dropArea);
 		}
 	}
+
+	// If there was a top level widget before the drop, then it is not top
+	// level widget anymore
+	if (TopLevelDockWidget)
+	{
+		TopLevelDockWidget->emitTopLevelChanged(false);
+	}
+
+	// If we drop a floating widget with only one single dock widget, then we
+	// drop a top level widget that changes from floating to docked now
+	if (FloatingTopLevelDockWidget)
+	{
+		FloatingTopLevelDockWidget->emitTopLevelChanged(false);
+	}
 }
 
 
@@ -942,7 +1160,7 @@ QList<CDockAreaWidget*> CDockContainerWidget::openedDockAreas() const
 	QList<CDockAreaWidget*> Result;
 	for (auto DockArea : d->DockAreas)
 	{
-		if (DockArea->isVisible())
+		if (!DockArea->isHidden())
 		{
 			Result.append(DockArea);
 		}
@@ -958,11 +1176,11 @@ void CDockContainerWidget::saveState(QXmlStreamWriter& s) const
 	qDebug() << "CDockContainerWidget::saveState isFloating "
 		<< isFloating();
 
-	s.writeStartElement("DockContainerWidget");
+	s.writeStartElement("Container");
 	s.writeAttribute("Floating", QString::number(isFloating() ? 1 : 0));
 	if (isFloating())
 	{
-		CFloatingDockContainer* FloatingWidget = internal::findParent<CFloatingDockContainer*>(this);
+		CFloatingDockContainer* FloatingWidget = floatingWidget();
 		QByteArray Geometry = FloatingWidget->saveGeometry();
 		s.writeTextElement("Geometry", Geometry.toHex(' '));
 	}
@@ -980,6 +1198,7 @@ bool CDockContainerWidget::restoreState(QXmlStreamReader& s, bool Testing)
 	QWidget*NewRootSplitter {};
 	if (!Testing)
 	{
+		d->VisibleDockAreaCount = -1;// invalidate the dock area count
 		d->DockAreas.clear();
 	}
 
@@ -993,7 +1212,6 @@ bool CDockContainerWidget::restoreState(QXmlStreamReader& s, bool Testing)
 
 		QByteArray GeometryString = s.readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).toLocal8Bit();
 		QByteArray Geometry = QByteArray::fromHex(GeometryString);
-		std::cout << "Geometry: " << Geometry.toHex(' ').toStdString() << std::endl;
 		if (Geometry.isEmpty())
 		{
 			return false;
@@ -1001,7 +1219,7 @@ bool CDockContainerWidget::restoreState(QXmlStreamReader& s, bool Testing)
 
 		if (!Testing)
 		{
-			CFloatingDockContainer* FloatingWidget = internal::findParent<CFloatingDockContainer*>(this);
+			CFloatingDockContainer* FloatingWidget = floatingWidget();
 			FloatingWidget->restoreGeometry(Geometry);
 		}
 	}
@@ -1020,7 +1238,7 @@ bool CDockContainerWidget::restoreState(QXmlStreamReader& s, bool Testing)
 	// and we need to create a new empty root splitter
 	if (!NewRootSplitter)
 	{
-		NewRootSplitter = internal::newSplitter(Qt::Horizontal);
+		NewRootSplitter = d->newSplitter(Qt::Horizontal);
 	}
 
 	d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
@@ -1040,15 +1258,141 @@ QSplitter* CDockContainerWidget::rootSplitter() const
 
 
 //============================================================================
+void CDockContainerWidget::createRootSplitter()
+{
+	if (d->RootSplitter)
+	{
+		return;
+	}
+	d->RootSplitter = d->newSplitter(Qt::Horizontal);
+	d->Layout->addWidget(d->RootSplitter);
+}
+
+
+//============================================================================
 void CDockContainerWidget::dumpLayout()
 {
+#if (ADS_DEBUG_LEVEL > 0)
 	qDebug("\n\nDumping layout --------------------------");
+	std::cout << "\n\nDumping layout --------------------------" << std::endl;
 	d->dumpRecursive(0, d->RootSplitter);
 	qDebug("--------------------------\n\n");
+	std::cout << "--------------------------\n\n" << std::endl;
+#endif
+}
+
+
+//============================================================================
+CDockAreaWidget* CDockContainerWidget::lastAddedDockAreaWidget(DockWidgetArea area) const
+{
+	return d->LastAddedAreaCache[areaIdToIndex(area)];
+}
+
+
+//============================================================================
+bool CDockContainerWidget::hasTopLevelDockWidget() const
+{
+	if (!isFloating())
+	{
+		return false;
+	}
+
+	auto DockAreas = openedDockAreas();
+	if (DockAreas.count() != 1)
+	{
+		return false;
+	}
+
+	return DockAreas[0]->openDockWidgetsCount() == 1;
+}
+
+
+//============================================================================
+CDockWidget* CDockContainerWidget::topLevelDockWidget() const
+{
+	auto TopLevelDockArea = topLevelDockArea();
+	if (!TopLevelDockArea)
+	{
+		return nullptr;
+	}
+
+	auto DockWidgets = TopLevelDockArea->openedDockWidgets();
+	if (DockWidgets.count() != 1)
+	{
+		return nullptr;
+	}
+
+	return DockWidgets[0];
+
+}
+
+
+//============================================================================
+CDockAreaWidget* CDockContainerWidget::topLevelDockArea() const
+{
+	if (!isFloating())
+	{
+		return nullptr;
+	}
+
+	auto DockAreas = openedDockAreas();
+	if (DockAreas.count() != 1)
+	{
+		return nullptr;
+	}
+
+	return DockAreas[0];
+}
+
+
+//============================================================================
+QList<CDockWidget*> CDockContainerWidget::dockWidgets() const
+{
+	QList<CDockWidget*> Result;
+	for (const auto DockArea : d->DockAreas)
+	{
+		Result.append(DockArea->dockWidgets());
+	}
+
+	return Result;
+}
+
+
+//============================================================================
+CDockWidget::DockWidgetFeatures CDockContainerWidget::features() const
+{
+	CDockWidget::DockWidgetFeatures Features(CDockWidget::AllDockWidgetFeatures);
+	for (const auto DockArea : d->DockAreas)
+	{
+		Features &= DockArea->features();
+	}
+
+	return Features;
+}
+
+
+//============================================================================
+CFloatingDockContainer* CDockContainerWidget::floatingWidget() const
+{
+	return internal::findParent<CFloatingDockContainer*>(this);
+}
+
+
+//============================================================================
+void CDockContainerWidget::closeOtherAreas(CDockAreaWidget* KeepOpenArea)
+{
+	for (const auto DockArea : d->DockAreas)
+	{
+		if (DockArea != KeepOpenArea && DockArea->features().testFlag(CDockWidget::DockWidgetClosable))
+		{
+			DockArea->closeArea();
+		}
+	}
 }
 
 
 } // namespace ads
 
+#include "moc_DockContainerWidget.cpp"
 //---------------------------------------------------------------------------
 // EOF DockContainerWidget.cpp

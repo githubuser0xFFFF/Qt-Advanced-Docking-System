@@ -71,6 +71,15 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1119687795;cdt.managedbuild.toolchain.gnu.mingw.base.1119687795.1949777584;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1947822681;cdt.managedbuild.tool.gnu.cpp.compiler.input.1318830536">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1119687795;cdt.managedbuild.toolchain.gnu.mingw.base.1119687795.1949777584;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.389117097;cdt.managedbuild.tool.gnu.c.compiler.input.1568363924">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 		<buildTargets>
 			<target name="Build all" path=" build" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
@@ -83,6 +92,7 @@
 			</target>
 			<target name="Clean" path=" build" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -99,7 +109,6 @@
 			<target name="qmake" path=" build" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>qmake</buildCommand>
 				<buildArguments>-recursive ../ads.pro</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -122,7 +131,6 @@
 			</target>
 			<target name="Clean" path=" build/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
-				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -139,12 +147,51 @@
 			<target name="qmake" path=" build/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>qmake</buildCommand>
 				<buildArguments>-recursive ../../src/src.pro</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
 			</target>
 			<target name="Release Build" path=" build/src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>mingw32-make</buildCommand>
+				<buildArguments>-j4</buildArguments>
+				<buildTarget>release</buildTarget>
+				<stopOnError>false</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="Build all" path=" build/example" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>mingw32-make</buildCommand>
+				<buildArguments>-j</buildArguments>
+				<buildTarget>all</buildTarget>
+				<stopOnError>false</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="Clean" path=" build/example" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>clean</buildTarget>
+				<stopOnError>false</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="Debug Build" path=" build/example" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>mingw32-make</buildCommand>
+				<buildArguments>-j6</buildArguments>
+				<buildTarget>debug</buildTarget>
+				<stopOnError>false</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="qmake" path=" build/example" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>qmake</buildCommand>
+				<buildArguments>-recursive ../../example/example.pro</buildArguments>
+				<buildTarget/>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="Release Build" path=" build/example" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>mingw32-make</buildCommand>
 				<buildArguments>-j4</buildArguments>
 				<buildTarget>release</buildTarget>
@@ -162,7 +209,6 @@
 			</target>
 			<target name="Clean" path=" build/demo" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
-				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -179,7 +225,6 @@
 			<target name="qmake" path=" build/demo" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>qmake</buildCommand>
 				<buildArguments>-recursive ../../demo/demo.pro</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -202,6 +247,7 @@
 			</target>
 			<target name="Clean" path=" build/AdvancedDockingSystemDemo" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -240,6 +286,7 @@
 			</target>
 			<target name="Clean" path=" build/AdvancedDockingSystemDemo_v2" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -278,6 +325,7 @@
 			</target>
 			<target name="Clean" path=" build/AdvancedDockingSystem" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>make</buildCommand>
+				<buildArguments/>
 				<buildTarget>clean</buildTarget>
 				<stopOnError>false</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
@@ -294,7 +342,6 @@
 			<target name="qmake" path=" build/AdvancedDockingSystem" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>qmake</buildCommand>
 				<buildArguments>-recursive ../../AdvancedDockingSystem/src.pro</buildArguments>
-				<buildTarget/>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
@@ -308,14 +355,5 @@
 				<runAllBuilders>false</runAllBuilders>
 			</target>
 		</buildTargets>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1119687795;cdt.managedbuild.toolchain.gnu.mingw.base.1119687795.1949777584;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1947822681;cdt.managedbuild.tool.gnu.cpp.compiler.input.1318830536">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.mingw.base.1119687795;cdt.managedbuild.toolchain.gnu.mingw.base.1119687795.1949777584;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.389117097;cdt.managedbuild.tool.gnu.c.compiler.input.1568363924">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

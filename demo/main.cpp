@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include <MainWindow.h>
 #include <QString>
 #include <QFile>
@@ -35,6 +37,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	std::shared_ptr<int> b;
 	QApplication a(argc, argv);
 	a.setQuitOnLastWindowClosed(true);

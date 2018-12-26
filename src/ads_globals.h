@@ -32,6 +32,8 @@
 //============================================================================
 #include <QPair>
 #include <QtCore/QtGlobal>
+#include <QPixmap>
+#include <QWidget>
 
 #ifdef ADS_SHARED_EXPORT
 #define ADS_EXPORT Q_DECL_EXPORT
@@ -39,10 +41,14 @@
 #define ADS_EXPORT Q_DECL_IMPORT
 #endif
 
+#define ADS_DEBUG_LEVEL 0
+
 class QSplitter;
 
 namespace ads
 {
+class CDockSplitter;
+
 enum DockWidgetArea
 {
 	NoDockWidgetArea = 0x00,
@@ -59,19 +65,39 @@ enum DockWidgetArea
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 
 
-namespace internal
+enum TitleBarButton
 {
-
+	TitleBarButtonTabsMenu,
+	TitleBarButtonUndock,
+	TitleBarButtonClose
+};
 
 /**
- * Helper function to create new splitter widgets
+ * The different dragging states
  */
-QSplitter* newSplitter(Qt::Orientation orientation, QWidget* parent = 0);
+enum eDragState
+{
+	DraggingInactive,     //!< DraggingInactive
+	DraggingMousePressed, //!< DraggingMousePressed
+	DraggingTab,          //!< DraggingTab
+	DraggingFloatingWidget//!< DraggingFloatingWidget
+};
+
+namespace internal
+{
+static const bool RestoreTesting = true;
+static const bool Restore = false;
 
 /**
  * Replace the from widget in the given splitter with the To widget
  */
 void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To);
+
+/**
+ * This function walks the splitter tree upwards to hides all splitters
+ * that do not have visible content
+ */
+void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 
 /**
  * Convenience class for QPair to provide better naming than first and
@@ -95,6 +121,10 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
  * Searches for the parent widget of the given type.
  * Returns the parent widget of the given widget or 0 if the widget is not
  * child of any widget of type T
+ *
+ * It is not safe to use this function in in CDockWidget because only
+ * the current dock widget has a parent. All dock widgets that are not the
+ * current dock widget in a dock area have no parent.
  */
 template <class T>
 T findParent(const QWidget* w)
@@ -102,7 +132,7 @@ T findParent(const QWidget* w)
 	QWidget* parentWidget = w->parentWidget();
 	while (parentWidget)
 	{
-		T ParentImpl = dynamic_cast<T>(parentWidget);
+		T ParentImpl = qobject_cast<T>(parentWidget);
 		if (ParentImpl)
 		{
 			return ParentImpl;
@@ -111,6 +141,13 @@ T findParent(const QWidget* w)
 	}
 	return 0;
 }
+
+/**
+ * Creates a semi transparent pixmap from the given pixmap Source.
+ * The Opacity parameter defines the opacity from completely transparent (0.0)
+ * to completely opaque (1.0)
+ */
+QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity);
 
 } // namespace internal
 } // namespace ads
