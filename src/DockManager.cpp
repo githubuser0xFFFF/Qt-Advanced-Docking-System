@@ -417,6 +417,12 @@ CDockManager::~CDockManager()
 	{
 		delete FloatingWidget;
 	}
+    auto ContainerWidgets = d->Containers;
+    for (auto ContainerWidget : ContainerWidgets)
+    {
+        if (ContainerWidget != this)
+            delete ContainerWidget;
+    }
 	delete d;
 }
 
@@ -548,11 +554,9 @@ bool CDockManager::restoreState(const QByteArray &state, int version)
 
 
 //============================================================================
-CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
-	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget)
+void CDockManager::registerDockWidget(CDockWidget* Dockwidget)
 {
-	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
-	return CDockContainerWidget::addDockWidget(area, Dockwidget, DockAreaWidget);
+    d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
 }
 
 

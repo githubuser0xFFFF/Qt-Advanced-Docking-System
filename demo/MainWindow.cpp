@@ -57,7 +57,6 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
-#include "AnimatedLabel.h"
 
 
 //============================================================================
@@ -197,6 +196,17 @@ void MainWindowPrivate::createContent()
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), RighDockArea);
 	DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), BottomDockArea);
+
+    //Internal dockContainer test
+    DockWidget = new ads::CDockWidget("Container");
+    ads::CDockContainerWidget* w = new ads::CDockContainerWidget(DockManager, DockManager);
+    DockWidget->setWidget(w);
+    DockWidget->setObjectName(DockWidget->windowTitle());
+    DockWidget->setFeatures(DockWidget->features().setFlag(ads::CDockWidget::DockWidgetClosable, false));
+    DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, BottomDockArea);
+
+    w->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
+
 }
 
 
@@ -284,7 +294,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// Default window geometry
 	resize(800, 600);
 
-	d->restoreState();
+    d->restoreState();
 	d->restorePerspectives();
 }
 

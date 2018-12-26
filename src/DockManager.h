@@ -80,6 +80,11 @@ protected:
 	 */
 	void removeFloatingWidget(CFloatingDockContainer* FloatingWidget);
 
+    /**
+     * Registers the given dock widget
+     */
+    void registerDockWidget(CDockWidget* Dockwidget);
+
 	/**
 	 * Registers the given dock container widget
 	 */
@@ -152,22 +157,6 @@ public:
 	 * Call this function before you create your first dock widget.
 	 */
 	void setConfigFlags(const ConfigFlags Flags);
-
-	/**
-	 * Adds dockwidget into the given area.
-	 * If DockAreaWidget is not null, then the area parameter indicates the area
-	 * into the DockAreaWidget. If DockAreaWidget is null, the Dockwidget will
-	 * be dropped into the container. If you would like to add a dock widget
-	 * tabified, then you need to add it to an existing dock area object
-	 * into the CenterDockWidgetArea. The following code shows this:
-	 * \code
-	 * DockManager->addDockWidget(ads::CenterDockWidgetArea, NewDockWidget,
-	 * 	   ExisitingDockArea);
-	 * \endcode
-	 * \return Returns the dock area widget that contains the new DockWidget
-	 */
-	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget = nullptr);
 
 	/**
 	 * This function will add the given Dockwidget to the given dock area as

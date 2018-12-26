@@ -920,6 +920,9 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 	}
 
 	Dockwidget->setDockManager(d->DockManager);
+
+    d->DockManager->registerDockWidget(Dockwidget);
+
 	if (DockAreaWidget)
 	{
 		return d->dockWidgetIntoDockArea(area, Dockwidget, DockAreaWidget);
