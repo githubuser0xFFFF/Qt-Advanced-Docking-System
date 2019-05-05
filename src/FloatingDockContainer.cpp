@@ -373,7 +373,13 @@ bool CFloatingDockContainer::event(QEvent *e)
 		// It is really great to work around the whole NonClientMouseArea
 		// bugs
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
-		if (e->type() == QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
+        if (
+        #ifdef Q_OS_LINUX
+                e->type() == QEvent::Move
+        #else
+                e->type() == QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/
+        #endif
+                )
 		{
 			qDebug() << "FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type();
 			d->setState(DraggingMousePressed);
