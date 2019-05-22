@@ -32,7 +32,6 @@
 #include <QIcon>
 #include <QLabel>
 #include <QtGlobal>
-#include <QDebug>
 #include <QMap>
 #include <QWindow>
 

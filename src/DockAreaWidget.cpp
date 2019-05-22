@@ -354,7 +354,6 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 //============================================================================
 CDockAreaWidget::~CDockAreaWidget()
 {
-	qDebug() << "~CDockAreaWidget()";
 	delete d->ContentsLayout;
 	delete d;
 }
@@ -407,7 +406,6 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 //============================================================================
 void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 {
-	qDebug() << "CDockAreaWidget::removeDockWidget";
 	auto NextOpenDockWidget = nextOpenDockWidget(DockWidget);
 
 	d->ContentsLayout->removeWidget(DockWidget);
@@ -421,7 +419,6 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 	}
 	else if (d->ContentsLayout->isEmpty() && DockContainer->dockAreaCount() > 1)
 	{
-		qDebug() << "Dock Area empty";
 		DockContainer->removeDockArea(this);
 		this->deleteLater();
 	}
@@ -481,7 +478,6 @@ void CDockAreaWidget::hideAreaWithNoVisibleContent()
 //============================================================================
 void CDockAreaWidget::onTabCloseRequested(int Index)
 {
-	qDebug() << "CDockAreaWidget::onTabCloseRequested " << Index;
 	dockWidget(Index)->toggleView(false);
 }
 
@@ -644,11 +640,9 @@ CDockWidget* CDockAreaWidget::dockWidget(int Index) const
 //============================================================================
 void CDockAreaWidget::reorderDockWidget(int fromIndex, int toIndex)
 {
-	qDebug() << "CDockAreaWidget::reorderDockWidget";
 	if (fromIndex >= d->ContentsLayout->count() || fromIndex < 0
      || toIndex >= d->ContentsLayout->count() || toIndex < 0 || fromIndex == toIndex)
 	{
-		qDebug() << "Invalid index for tab movement" << fromIndex << toIndex;
 		return;
 	}
 
@@ -703,8 +697,6 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	auto CurrentDockWidget = currentDockWidget();
 	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
 	s.writeAttribute("Current", Name);
-	qDebug() << "CDockAreaWidget::saveState TabCount: " << d->ContentsLayout->count()
-			<< " Current: " << Name;
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
 		dockWidget(i)->saveState(s);

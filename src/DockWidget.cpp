@@ -39,7 +39,6 @@
 #include <QTextStream>
 #include <QPointer>
 #include <QEvent>
-#include <QDebug>
 #include <QToolBar>
 #include <QXmlStreamWriter>
 
@@ -224,7 +223,6 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 //============================================================================
 CDockWidget::~CDockWidget()
 {
-	qDebug() << "~CDockWidget()";
 	delete d;
 }
 
