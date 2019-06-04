@@ -257,7 +257,6 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget* DockWidget) :
 //============================================================================
 CFloatingDockContainer::~CFloatingDockContainer()
 {
-	qDebug() << "~CFloatingDockContainer";
 	if (d->DockManager)
 	{
 		d->DockManager->removeFloatingWidget(this);
@@ -279,7 +278,6 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 	if ((event->type() == QEvent::ActivationChange) && isActiveWindow())
     {
-		qDebug() << "FloatingWidget::changeEvent QEvent::ActivationChange ";
 		d->zOrderIndex = ++zOrderCounter;
         return;
     }
@@ -309,7 +307,6 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 //============================================================================
 void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "CFloatingDockContainer closeEvent";
 	d->setState(DraggingInactive);
 
     if (isClosable())
@@ -375,13 +372,11 @@ bool CFloatingDockContainer::event(QEvent *e)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
 		if (e->type() == QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
 		{
-			qDebug() << "FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type();
 			d->setState(DraggingMousePressed);
 		}
 #else
 		if (e->type() == QEvent::NonClientAreaMouseButtonPress && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
 		{
-			qDebug() << "FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type();
 			d->setState(DraggingMousePressed);
 		}
 #endif
@@ -392,7 +387,6 @@ bool CFloatingDockContainer::event(QEvent *e)
 		switch (e->type())
 		{
 		case QEvent::NonClientAreaMouseButtonDblClick:
-			 qDebug() << "FloatingWidget::event QEvent::NonClientAreaMouseButtonDblClick";
 			 d->setState(DraggingInactive);
 			 break;
 
@@ -419,7 +413,6 @@ bool CFloatingDockContainer::event(QEvent *e)
 	case DraggingFloatingWidget:
 		if (e->type() == QEvent::NonClientAreaMouseButtonRelease)
 		{
-			qDebug() << "FloatingWidget::event QEvent::NonClientAreaMouseButtonRelease";
 			d->titleMouseReleaseEvent();
 		}
 	break;
@@ -441,7 +434,6 @@ bool CFloatingDockContainer::eventFilter(QObject *watched, QEvent *event)
 	Q_UNUSED(watched);
 	if (event->type() == QEvent::MouseButtonRelease && d->isState(DraggingFloatingWidget))
 	{
-		qDebug() << "FloatingWidget::eventFilter QEvent::MouseButtonRelease";
 		d->titleMouseReleaseEvent();
 	}
 
@@ -481,7 +473,6 @@ bool CFloatingDockContainer::isClosable() const
 //============================================================================
 void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 {
-	qDebug() << "CFloatingDockContainer::onDockAreasAddedOrRemoved()";
 	auto TopLevelDockArea = d->DockContainer->topLevelDockArea();
 	if (TopLevelDockArea)
 	{

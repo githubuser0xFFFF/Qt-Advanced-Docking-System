@@ -37,7 +37,6 @@
 #include <QStyle>
 #include <QApplication>
 #include <QSplitter>
-#include <QDebug>
 #include <QToolButton>
 #include <QPushButton>
 #include <QMenu>
@@ -192,9 +191,6 @@ void DockWidgetTabPrivate::moveTab(QMouseEvent* ev)
 bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 {
 	auto dockContainer = DockWidget->dockContainer();
-	qDebug() << "isFloating " << dockContainer->isFloating();
-	qDebug() << "areaCount " << dockContainer->dockAreaCount();
-	qDebug() << "widgetCount " << DockWidget->dockAreaWidget()->dockWidgetsCount();
 	// if this is the last dock widget inside of this floating widget,
 	// then it does not make any sense, to make it floating because
 	// it is already floating
@@ -205,7 +201,6 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 		return false;
 	}
 
-	qDebug() << "startFloating";
 	DragState = DraggingState;
 	QSize Size = DockArea->size();
 	CFloatingDockContainer* FloatingWidget = nullptr;
@@ -250,7 +245,6 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 //============================================================================
 CDockWidgetTab::~CDockWidgetTab()
 {
-	qDebug() << "~CDockWidgetTab()";
 	delete d;
 }
 

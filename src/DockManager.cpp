@@ -38,7 +38,6 @@
 #include <QList>
 #include <QMap>
 #include <QVariant>
-#include <QDebug>
 #include <QFile>
 #include <QAction>
 #include <QXmlStreamWriter>
@@ -46,6 +45,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QApplication>
+#include <QTextStream>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -170,7 +170,6 @@ bool DockManagerPrivate::restoreContainer(int Index, QXmlStreamReader& stream, b
 	}
 	else
 	{
-		qDebug() << "d->Containers[i]->restoreState ";
 		auto Container = Containers[Index];
 		if (Container->isFloating())
 		{
@@ -207,7 +206,6 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
     {
     	return false;
     }
-    qDebug() << s.attributes().value("Version");
     bool ok;
     int v = s.attributes().value("Version").toInt(&ok);
     if (!ok || v != version)
@@ -217,7 +215,6 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
 
     bool Result = true;
     int  DockContainers = s.attributes().value("Containers").toInt();
-    qDebug() << DockContainers;
     int DockContainerCount = 0;
     while (s.readNextStartElement())
     {
@@ -340,7 +337,6 @@ bool DockManagerPrivate::restoreState(const QByteArray &state, int version)
 {
     if (!checkFormat(state, version))
     {
-    	qDebug() << "checkFormat: Error checking format!!!!!!!";
     	return false;
     }
 
@@ -350,7 +346,6 @@ bool DockManagerPrivate::restoreState(const QByteArray &state, int version)
 
     if (!restoreStateFromXml(state, version))
     {
-    	qDebug() << "restoreState: Error restoring state!!!!!!!";
     	return false;
     }
 
@@ -425,7 +420,6 @@ CDockManager::~CDockManager()
 void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
 	d->FloatingWidgets.append(FloatingWidget);
-	qDebug() << "d->FloatingWidgets.count() " << d->FloatingWidgets.count();
 }
 
 
