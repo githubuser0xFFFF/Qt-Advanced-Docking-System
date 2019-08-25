@@ -444,7 +444,7 @@ void CDockWidgetTab::setIcon(const QIcon& Icon)
 	d->Icon = Icon;
 	if (d->IconLabel)
 	{
-		d->IconLabel->setPixmap(Icon.pixmap(this->windowHandle(), QSize(16, 16)));
+		d->IconLabel->setPixmap(Icon.pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this)));
 		d->IconLabel->setVisible(true);
 	}
 }
