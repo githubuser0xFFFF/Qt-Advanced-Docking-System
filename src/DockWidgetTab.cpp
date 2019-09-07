@@ -153,7 +153,10 @@ void DockWidgetTabPrivate::createLayout()
 	CloseIcon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
 	CloseButton->setIcon(CloseIcon);
 
-    CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	QSizePolicy spRetain = CloseButton->sizePolicy();
+	spRetain.setRetainSizeWhenHidden(true);
+	CloseButton->setSizePolicy(spRetain);
 	CloseButton->setVisible(false);
 	#ifndef QT_NO_TOOLTIP
 	CloseButton->setToolTip(QObject::tr("Close Tab"));
