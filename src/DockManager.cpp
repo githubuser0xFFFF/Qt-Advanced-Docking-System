@@ -396,7 +396,7 @@ void DockManagerPrivate::addActionToMenu(QAction* Action, QMenu* Menu, bool Inse
 
 
 //============================================================================
-CDockManager::CDockManager(QWidget *parent, bool useInternalStyleSheet) :
+CDockManager::CDockManager(QWidget *parent) :
 	CDockContainerWidget(this, parent),
 	d(new DockManagerPrivate(this))
 {
@@ -411,10 +411,7 @@ CDockManager::CDockManager(QWidget *parent, bool useInternalStyleSheet) :
 	d->DockAreaOverlay = new CDockOverlay(this, CDockOverlay::ModeDockAreaOverlay);
 	d->ContainerOverlay = new CDockOverlay(this, CDockOverlay::ModeContainerOverlay);
 	d->Containers.append(this);
-	if (useInternalStyleSheet)
-	{
-		d->loadStylesheet();
-	}
+	d->loadStylesheet();
 }
 
 //============================================================================

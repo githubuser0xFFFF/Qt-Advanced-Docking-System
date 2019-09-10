@@ -130,12 +130,10 @@ public:
 	 * Default Constructor.
 	 * If the given parent is a QMainWindow, the dock manager sets itself as the
 	 * central widget.
-	 * Loading of the internal stylesheet can be skipped by setting
-	 * useInternalStyleSheet to false.
 	 * Before you create any dock widgets, you should properly setup the
 	 * configuration flags via setConfigFlags()
 	 */
-	CDockManager(QWidget* parent = 0, bool useInternalStyleSheet = true);
+	CDockManager(QWidget* parent = 0);
 
 	/**
 	 * Virtual Destructor
