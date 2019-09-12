@@ -44,6 +44,7 @@
 #include "DockOverlay.h"
 
 #ifdef Q_OS_LINUX
+#include <QScreen>
 #include "linux/FloatingWidgetTitleBar.h"
 #include <xcb/xcb.h>
 #endif
@@ -67,6 +68,7 @@ struct FloatingDockContainerPrivate
 #ifdef Q_OS_LINUX
     QWidget* MouseEventHandler = nullptr;
     CFloatingWidgetTitleBar* TitleBar = nullptr;
+    QRect LastGeometry;
 #endif
 
 	/**
@@ -248,7 +250,10 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
     QDockWidget::setFloating(true);
     QDockWidget::setFeatures(QDockWidget::AllDockWidgetFeatures);
     setTitleBarWidget(d->TitleBar);
+    d->LastGeometry = geometry();
     connect(d->TitleBar, SIGNAL(closeRequested()), SLOT(close()));
+    connect(d->TitleBar, &CFloatingWidgetTitleBar::maximizeRequested,
+            this, &CFloatingDockContainer::onMaximizeRequest);
 #else
 	setWindowFlags(
 	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
@@ -622,6 +627,51 @@ void CFloatingDockContainer::finishDragging()
    }
 #endif
 }
+
+#ifdef Q_OS_LINUX
+void CFloatingDockContainer::onMaximizeRequest()
+{
+    ADS_PRINT("CFloatingDockContainer::onMaximizeRequest()");
+    QRect screenRect;
+    QRect widgetRect;
+    const QScreen *currentScreen = nullptr;
+    int maxArea = 0;
+    // get current screen
+    for (const auto &screen : QGuiApplication::screens())
+    {
+        screenRect = screen->geometry();
+        widgetRect = this->geometry();
+        auto minX = qMax(screenRect.left(), widgetRect.left());
+        auto minY = qMax(screenRect.top(), widgetRect.top());
+        auto maxX = qMin(screenRect.right(), widgetRect.right());
+        auto maxY = qMin(screenRect.bottom(), widgetRect.bottom());
+        auto area = minX < maxX && minY < maxY ? (maxX - minX) * (maxY * minY) : 0;
+        if (area > maxArea)
+        {
+            maxArea = area;
+            currentScreen = screen;
+        }
+    }
+    if (!currentScreen)
+    {
+        return;
+    }
+    ADS_PRINT("CFloatingDockContainer::onMaximizeRequest() current screen: " + currentScreen->name());
+    // get current windows state, if it is maximized and moved or not
+    if (geometry().size() == currentScreen->availableGeometry().size())
+    {
+        setGeometry(d->LastGeometry);
+        d->TitleBar->setMaximizedIcon(false);
+    }
+    else
+    {
+        d->LastGeometry = geometry();
+        setGeometry(currentScreen->availableGeometry());
+        d->TitleBar->setMaximizedIcon(true);
+    }
+}
+#endif
+
 
 } // namespace ads
 
