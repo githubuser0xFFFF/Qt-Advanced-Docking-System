@@ -645,7 +645,7 @@ void CFloatingDockContainer::onMaximizeRequest()
         auto minY = qMax(screenRect.top(), widgetRect.top());
         auto maxX = qMin(screenRect.right(), widgetRect.right());
         auto maxY = qMin(screenRect.bottom(), widgetRect.bottom());
-        auto area = minX < maxX && minY < maxY ? (maxX - minX) * (maxY * minY) : 0;
+        auto area = minX < maxX && minY < maxY ? (maxX - minX) * (maxY - minY) : 0;
         if (area > maxArea)
         {
             maxArea = area;
