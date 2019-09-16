@@ -173,6 +173,7 @@ void CFloatingWidgetTitleBar::mouseMoveEvent(QMouseEvent *ev)
 	// move floating window
 	if (DraggingFloatingWidget == d->DragState)
 	{
+	    d->FloatingWidget->dragToNormalize();
 		d->FloatingWidget->moveFloating();
 		Super::mouseMoveEvent(ev);
 		return;
