@@ -493,10 +493,15 @@ void CFloatingDockContainer::startFloating(const QPoint &DragStartMousePos,
 #ifndef Q_OS_LINUX
 	Q_UNUSED(MouseEventHandler)
 #endif
+#ifdef Q_OS_LINUX
     if (!isMaximized()) {
         resize(Size);
         d->DragStartMousePosition = DragStartMousePos;
     }
+#else
+    resize(Size);
+    d->DragStartMousePosition = DragStartMousePos;
+#endif
     d->setState(DragState);
 #ifdef Q_OS_LINUX
 	// I have not found a way on Linux to display the floating widget behind the
@@ -517,10 +522,15 @@ void CFloatingDockContainer::startFloating(const QPoint &DragStartMousePos,
 		}
 	}
 #endif
+#ifdef Q_OS_LINUX
     if (!isMaximized()) {
         moveFloating();
     }
 	show();
+#else
+    moveFloating();
+	show();
+#endif
 
 }
 
@@ -651,6 +661,7 @@ void CFloatingDockContainer::onMaximizeRequest()
         auto maxX = qMin(screenRect.right(), widgetRect.right());
         auto maxY = qMin(screenRect.bottom(), widgetRect.bottom());
         auto area = minX < maxX && minY < maxY ? (maxX - minX) * (maxY - minY) : 0;
+        qDebug() << screenRect << "area" << area << screen->availableVirtualGeometry();
         if (area > maxArea)
         {
             maxArea = area;
@@ -665,6 +676,10 @@ void CFloatingDockContainer::onMaximizeRequest()
     // get current windows state, if it is maximized and moved or not
     if (geometry().size() == currentScreen->availableGeometry().size())
     {
+        if (d->NormalizedGeometry.width() == 0) {
+            d->NormalizedGeometry = geometry().adjusted(geometry().width()/3, geometry().height()/3,
+                                                        -geometry().width()/3, -geometry().height()/3);
+        }
         setGeometry(d->NormalizedGeometry);
         d->TitleBar->setMaximizedIcon(false);
         d->IsMaximized = false;
@@ -683,16 +698,29 @@ void CFloatingDockContainer::onMaximizeRequest()
     {
         auto cursorPos = QCursor::pos();
         qDebug() << "pos" << cursorPos;
-        auto screen = QGuiApplication::screenAt(QCursor::pos());
-        if (d->IsMaximized) {
+#if QT_VERSION > QT_VERSION_CHECK(5, 10, 0)
+        QScreen *screen = QGuiApplication::screenAt(QCursor::pos());
+#else
+        QScreen *screen = nullptr;
+        for (const auto &sc : QGuiApplication::screens()) {
+            if (sc->geometry().contains(cursorPos)) {
+                screen = sc;
+            }
+        }
+#endif
+        if (screen && d->IsMaximized) {
+            if (d->NormalizedGeometry.width() == 0) {
+                d->NormalizedGeometry = geometry().adjusted(geometry().width()/3, geometry().height()/3,
+                                                            -geometry().width()/3, -geometry().height()/3);
+            }
             auto screenGeometry = screen->availableGeometry();
             QRect r = QRect(cursorPos.x()
                     -(cursorPos.x() - screenGeometry.left())/(double)screenGeometry.width() * d->NormalizedGeometry.width(),
                             cursorPos.y(), d->NormalizedGeometry.width(),d->NormalizedGeometry.height());
             qDebug() << "rect"<<r;
-            move(r.left(), r.top());
-            resize(r.width(), r.height());
+            setGeometry(r);
             d->IsMaximized = false;
+            d->TitleBar->setMaximizedIcon(true);
             qDebug() << "geometry" << geometry();
         }
     }
