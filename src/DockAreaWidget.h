@@ -185,12 +185,12 @@ public:
 	QList<CDockWidget*> dockWidgets() const;
 
 	/**
-	 * Returns the number of dock widgets in this area
+	 * Returns the number of open dock widgets in this area
 	 */
 	int openDockWidgetsCount() const;
 
 	/**
-	 * Returns a list of dock widgets that are not closed
+	 * Returns a list of dock widgets that are not closed.
 	 */
 	QList<CDockWidget*> openedDockWidgets() const;
 
@@ -236,8 +236,10 @@ public:
 	 * This functions returns the dock widget features of all dock widget in
 	 * this area.
 	 * A bitwise and is used to combine the flags of all dock widgets. That
-	 * means, if only dock widget does not support a certain flag, the whole
-	 * dock are does not support the flag.
+	 * means, if only one single dock widget does not support a certain flag,
+	 * the whole dock are does not support the flag. I.e. if one single
+	 * dock widget in this area is not closabe, the whole dock are is not
+	 * closable.
 	 */
 	CDockWidget::DockWidgetFeatures features() const;
 

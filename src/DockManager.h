@@ -53,7 +53,14 @@ struct DockAreaWidgetPrivate;
 /**
  * The central dock manager that maintains the complete docking system.
  * With the configuration flags you can globally control the functionality
- * of the docking system.
+ * of the docking system. The dock manager uses an internal stylesheet to
+ * style its components like splitters, tabs and buttons. If you want to
+ * disable this stylesheet because your application uses its own,
+ * just call the function for settings the stylesheet with an empty
+ * string.
+ * \code
+ * DockManager->setStyleSheet("");
+ * \endcode
  **/
 class ADS_EXPORT CDockManager : public CDockContainerWidget
 {
@@ -116,12 +123,15 @@ public:
 	 */
 	enum eConfigFlag
 	{
-		ActiveTabHasCloseButton = 0x01,    //!< If this flag is set, the active tab in a tab area has a close button
-		DockAreaHasCloseButton = 0x02,     //!< If the flag is set each dock area has a close button
-		DockAreaCloseButtonClosesTab = 0x04,//!< If the flag is set, the dock area close button closes the active tab, if not set, it closes the complete cock area
-		OpaqueSplitterResize = 0x08, //!< See QSplitter::setOpaqueResize() documentation
-		XmlAutoFormattingEnabled = 0x10,//!< If enabled, the XML writer automatically adds line-breaks and indentation to empty sections between elements (ignorable whitespace).
-		XmlCompressionEnabled = 0x20,//!< If enabled, the XML output will be compressed and is not human readable anymore
+		ActiveTabHasCloseButton = 0x0001,    //!< If this flag is set, the active tab in a tab area has a close button
+		DockAreaHasCloseButton = 0x0002,     //!< If the flag is set each dock area has a close button
+		DockAreaCloseButtonClosesTab = 0x0004,//!< If the flag is set, the dock area close button closes the active tab, if not set, it closes the complete cock area
+		OpaqueSplitterResize = 0x0008, //!< See QSplitter::setOpaqueResize() documentation
+		XmlAutoFormattingEnabled = 0x0010,//!< If enabled, the XML writer automatically adds line-breaks and indentation to empty sections between elements (ignorable whitespace).
+		XmlCompressionEnabled = 0x0020,//!< If enabled, the XML output will be compressed and is not human readable anymore
+		TabCloseButtonIsToolButton = 0x0040,//! If enabled the tab close buttons will be QToolButtons instead of QPushButtons - disabled by default
+		AllTabsHaveCloseButton = 0x0080, //!< if this flag is set, then all tabs that are closable show a close button
+		RetainTabSizeWhenCloseButtonHidden = 0x0100, //!< if this flag is set, the space for the close button is reserved even if the close button is not visible
 		DefaultConfig = ActiveTabHasCloseButton | DockAreaHasCloseButton | OpaqueSplitterResize | XmlCompressionEnabled, ///< the default configuration
 	};
 	Q_DECLARE_FLAGS(ConfigFlags, eConfigFlag)
@@ -131,7 +141,7 @@ public:
 	 * If the given parent is a QMainWindow, the dock manager sets itself as the
 	 * central widget.
 	 * Before you create any dock widgets, you should properly setup the
-	 * configuration flags via setConfigFlags()
+	 * configuration flags via setConfigFlags().
 	 */
 	CDockManager(QWidget* parent = 0);
 
@@ -143,13 +153,18 @@ public:
 	/**
 	 * This function returns the global configuration flags
 	 */
-	ConfigFlags configFlags() const;
+	static ConfigFlags configFlags();
 
 	/**
 	 * Sets the global configuration flags for the whole docking system.
 	 * Call this function before you create your first dock widget.
 	 */
-	void setConfigFlags(const ConfigFlags Flags);
+	static void setConfigFlags(const ConfigFlags Flags);
+
+	/**
+	 * Set a certain config flag
+	 */
+	static void setConfigFlag(eConfigFlag Flag, bool On = true);
 
 	/**
 	 * Adds dockwidget into the given area.

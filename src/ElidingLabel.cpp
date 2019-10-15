@@ -27,7 +27,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <ElidingLabel.h>
+#include "ElidingLabel.h"
 #include <QMouseEvent>
 
 
@@ -157,7 +157,11 @@ QSize CElidingLabel::minimumSizeHint() const
         return QLabel::minimumSizeHint();
     }
     const QFontMetrics  &fm = fontMetrics();
-    QSize size(fm.width(d->Text.left(2) + "…"), fm.height());
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+        QSize size(fm.horizontalAdvance(d->Text.left(2) + "…"), fm.height());
+    #else
+        QSize size(fm.width(d->Text.left(2) + "…"), fm.height());
+    #endif
     return size;
 }
 
@@ -170,7 +174,11 @@ QSize CElidingLabel::sizeHint() const
         return QLabel::sizeHint();
     }
     const QFontMetrics& fm = fontMetrics();
-    QSize size(fm.width(d->Text), QLabel::sizeHint().height());
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+        QSize size(fm.horizontalAdvance(d->Text), QLabel::sizeHint().height());
+    #else
+        QSize size(fm.width(d->Text), QLabel::sizeHint().height());
+    #endif
 	return size;
 }
 

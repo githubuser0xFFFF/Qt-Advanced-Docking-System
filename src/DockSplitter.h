@@ -38,7 +38,8 @@ namespace ads
 struct DockSplitterPrivate;
 
 /**
- * Splitter used internally instead of QSplitter
+ * Splitter used internally instead of QSplitter with some additional
+ * fuctionality.
  */
 class ADS_EXPORT CDockSplitter : public QSplitter
 {

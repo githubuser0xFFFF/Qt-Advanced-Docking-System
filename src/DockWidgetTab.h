@@ -53,6 +53,8 @@ class ADS_EXPORT CDockWidgetTab : public QFrame
 private:
 	DockWidgetTabPrivate* d; ///< private data (pimpl)
 	friend struct DockWidgetTabPrivate;
+	friend class CDockWidget;
+	void onDockWidgetFeaturesChanged();
 
 private slots:
 	void onDetachActionTriggered();
@@ -125,7 +127,6 @@ public:
 	 */
 	QString text() const;
 
-
 	/**
 	 * Sets the tab text
 	 */
@@ -136,16 +137,14 @@ public:
 	 */
 	bool isClosable() const;
 
-
 	/**
 	* Track event ToolTipChange and set child ToolTip 
 	*/
 	virtual bool event(QEvent *e) override;
 
+
 public slots:
-
-	  virtual void setVisible(bool visible) override;
-
+	virtual void setVisible(bool visible) override;
 
 signals:
 	void activeTabChanged();

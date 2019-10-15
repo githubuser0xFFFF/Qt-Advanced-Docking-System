@@ -9,7 +9,7 @@ Qt Advanced Docking System lets you create customizable layouts using a full
 featured window docking system similar to what is found in many popular 
 integrated development environements (IDEs) such as Visual Studio. 
 Everything is implemented with standard Qt functionality without any
-platform specific code. Basic usage of QWidgets an QLayouts and using basic 
+platform specific code. Basic usage of QWidgets and QLayouts and using basic 
 styles as much as possible.
 
 This work is based on and inspired by the 

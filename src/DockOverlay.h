@@ -245,9 +245,6 @@ public:
 protected:
 	virtual void showEvent(QShowEvent* e) override;
 	void setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& widgets);
-
-private:
-
 }; // CDockOverlayCross
 
 } // namespace ads

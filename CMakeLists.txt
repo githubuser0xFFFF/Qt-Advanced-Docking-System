@@ -80,11 +80,27 @@ install(FILES
     COMPONENT license
 )
 install(TARGETS qtadvanceddocking
-    EXPORT adsBinary
-    RUNTIME DESTINATION bin COMPONENT library
-    LIBRARY DESTINATION lib COMPONENT library
-    ARCHIVE DESTINATION lib COMPONENT library
+    EXPORT adsTargets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    INCLUDES DESTINATION include
 )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("adsConfigVersion.cmake"
+    VERSION ${ads_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+install(EXPORT adsTargets
+    FILE adsTargets.cmake
+    NAMESPACE ads::
+    DESTINATION lib/cmake/ads
+)
+install(FILES "adsConfig.cmake" "${CMAKE_BINARY_DIR}/adsConfigVersion.cmake"
+    DESTINATION lib/cmake/ads
+)
+
 target_include_directories(qtadvanceddocking PUBLIC 
     "$<BUILD_INTERFACE:${ads_INCLUDE}>"
     $<INSTALL_INTERFACE:include>
@@ -93,7 +109,7 @@ target_link_libraries(qtadvanceddocking PUBLIC ${ads_LIBS})
 target_compile_definitions(qtadvanceddocking PRIVATE ${ads_COMPILE_DEFINE})
 set_target_properties(qtadvanceddocking PROPERTIES 
     VERSION ${ads_VERSION}
-    EXPORT_NAME "Qt Advanced Docking System"
+    EXPORT_NAME "QtAdvancedDockingSystem"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"

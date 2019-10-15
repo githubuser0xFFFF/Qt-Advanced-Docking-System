@@ -28,7 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <DockWidgetTab.h>
+#include "DockWidgetTab.h"
 #include "DockWidget.h"
 
 #include <QBoxLayout>
@@ -289,25 +289,21 @@ CDockWidgetTab* CDockWidget::tabWidget() const
 //============================================================================
 void CDockWidget::setFeatures(DockWidgetFeatures features)
 {
+	if (d->Features == features)
+	{
+		return;
+	}
 	d->Features = features;
+	d->TabWidget->onDockWidgetFeaturesChanged();
 }
 
 
 //============================================================================
 void CDockWidget::setFeature(DockWidgetFeature flag, bool on)
 {
-#if QT_VERSION >= 0x050700
-	d->Features.setFlag(flag, on);
-#else
-    if(on)
-    {
-        d->Features |= flag;
-    }
-    else
-    {
-        d->Features &= ~flag;
-    }
-#endif
+	auto Features = features();
+    internal::setFlag(Features, flag, on);
+    setFeatures(Features);
 }
 
 

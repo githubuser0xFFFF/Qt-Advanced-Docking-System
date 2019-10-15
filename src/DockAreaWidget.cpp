@@ -28,7 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <DockWidgetTab.h>
+#include "DockWidgetTab.h"
 #include "DockAreaWidget.h"
 
 #include <QStackedLayout>
@@ -63,8 +63,11 @@ static const char* const INDEX_PROPERTY = "index";
 static const char* const ACTION_PROPERTY = "action";
 
 /**
- * New dock area layout mimics stack layout but only inserts the current
- * widget into the internal QLayout object
+ * Internal dock area layout mimics stack layout but only inserts the current
+ * widget into the internal QLayout object.
+ * \warning Only the current widget has a parent. All other widgets
+ * do not have a parent. That means, a widget that is in this layout may
+ * return nullptr for its parent() function if it is not the current widget.
  */
 class CDockAreaLayout
 {
@@ -118,7 +121,7 @@ public:
 	}
 
 	/**
-	 * Removes the given widget from the lyout
+	 * Removes the given widget from the layout
 	 */
 	void removeWidget(QWidget* Widget)
 	{

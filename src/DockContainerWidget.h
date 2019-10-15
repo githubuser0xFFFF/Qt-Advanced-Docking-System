@@ -50,7 +50,10 @@ struct FloatingDockContainerPrivate;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
- * or tabyfied dock widgets in each area
+ * or tabyfied dock widgets in each area.
+ * Each window that support docking has a DockContainerWidget. That means
+ * the main application window and all floating windows are ore contain
+ * an DockContainerWidget.
  */
 class ADS_EXPORT CDockContainerWidget : public QFrame
 {

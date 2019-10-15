@@ -45,12 +45,15 @@
 #define ADS_EXPORT
 #endif
 
+// Define ADS_DEBUG_PRINT to enable a lot of debug output
 #ifdef ADS_DEBUG_PRINT
 #define ADS_PRINT(s) qDebug() << s
 #else
 #define ADS_PRINT(s)
 #endif
 
+// Set ADS_DEBUG_LEVEL to enable additional debug output and to enable layout
+// dumps to qDebug and std::cout after layout changes
 #define ADS_DEBUG_LEVEL 0
 
 class QSplitter;
@@ -97,6 +100,8 @@ namespace internal
 {
 static const bool RestoreTesting = true;
 static const bool Restore = false;
+static const char* const ClosedProperty = "close";
+static const char* const DirtyProperty = "dirty";
 
 /**
  * Replace the from widget in the given splitter with the To widget
@@ -158,6 +163,27 @@ T findParent(const QWidget* w)
  * to completely opaque (1.0)
  */
 QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity);
+
+
+/**
+ * Helper function for settings flags in a QFlags instance.
+ */
+template <class T>
+void setFlag(T& Flags, typename T::enum_type flag, bool on = true)
+{
+#if QT_VERSION >= 0x050700
+	Flags.setFlag(flag, on);
+#else
+    if(on)
+    {
+        Flags |= flag;
+    }
+    else
+    {
+        Flags &= ~flag;
+    }
+#endif
+}
 
 } // namespace internal
 } // namespace ads

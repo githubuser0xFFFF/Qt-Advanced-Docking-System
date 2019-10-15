@@ -44,6 +44,10 @@ class CFloatingDockContainer;
  * Custom tabbar implementation for tab area that is shown on top of a
  * dock area widget.
  * The tabbar displays the tab widgets of the contained dock widgets.
+ * We cannot use QTabBar here because it does a lot of fancy animations
+ * that will crash the application if a tab is removed while the animation
+ * has not finished. And we need to remove a tab, if the user drags a
+ * a dock widget out of a group of tabbed widgets
  */
 class CDockAreaTabBar : public QScrollArea
 {
@@ -61,6 +65,7 @@ private slots:
 
 protected:
 	virtual void wheelEvent(QWheelEvent* Event) override;
+
 	/**
 	 * Stores mouse position to detect dragging
 	 */
@@ -96,6 +101,7 @@ protected:
 
 public:
 	using Super = QScrollArea;
+
 	/**
 	 * Default Constructor
 	 */
@@ -149,6 +155,21 @@ public:
 	 * closed
 	 */
 	bool isTabOpen(int Index) const;
+
+	/**
+	 * Overrides the minimumSizeHint() function of QScrollArea
+	 * The minimumSizeHint() is bigger than the sizeHint () for the scroll
+	 * area because even if the scrollbars are invisible, the required speace
+	 * is reserved in the minimumSizeHint(). This override simply returns
+	 * sizeHint();
+	 */
+	virtual QSize minimumSizeHint() const override;
+
+	/**
+	 * The function provides a sizeHint that matches the height of the
+	 * internal viewport.
+	 */
+	virtual QSize sizeHint() const override;
 
 public slots:
 	/**

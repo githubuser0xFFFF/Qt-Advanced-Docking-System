@@ -43,7 +43,9 @@ class CDockAreaWidget;
 struct DockAreaTitleBarPrivate;
 
 /**
- * Title bar of a dock area
+ * Title bar of a dock area.
+ * The title bar contains a tabbar with all tabs for a dock widget group and
+ * with a tabs menu button, a undock button and a close button.
  */
 class CDockAreaTitleBar : public QFrame
 {
@@ -61,6 +63,10 @@ private slots:
 	void showContextMenu(const QPoint& pos);
 
 public slots:
+	/**
+	 * Call this slot to tell the title bar that it should update the tabs menu
+	 * the next time it is shown.
+	 */
 	void markTabsMenuOutdated();
 
 
@@ -87,7 +93,8 @@ public:
 	QAbstractButton* button(TitleBarButton which) const;
 
 	/**
-	 * This function is here for debug reasons
+	 * Marks the tabs menu outdated before it calls its base class
+	 * implementation
 	 */
 	virtual void setVisible(bool Visible) override;
 

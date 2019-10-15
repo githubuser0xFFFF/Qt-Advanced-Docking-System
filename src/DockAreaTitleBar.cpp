@@ -95,12 +95,13 @@ struct DockAreaTitleBarPrivate
 	 */
 	bool testConfigFlag(CDockManager::eConfigFlag Flag) const
 	{
-		return DockArea->dockManager()->configFlags().testFlag(Flag);
+		return CDockManager::configFlags().testFlag(Flag);
 	}
 
     /**
-     * Helper class to set title bar button icons depending on operating system
-     * and to avoid duplicated code
+     * Helper function to set title bar button icons depending on operating
+     * system and to avoid duplicated code. On windows the standard icons
+     * are blurry since Qt 5.11 so we need to do some additional steps
      */
     void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap)
     {
@@ -129,6 +130,7 @@ DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 //============================================================================
 void DockAreaTitleBarPrivate::createButtons()
 {
+	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // Tabs menu button
 	TabsMenuButton = new tTileBarButton();
 	TabsMenuButton->setObjectName("tabsMenuButton");
@@ -136,15 +138,15 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
     setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton);
 	QMenu* TabsMenu = new QMenu(TabsMenuButton);
-	#ifndef QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
 	TabsMenu->setToolTipsVisible(true);
-	#endif
+#endif
 	_this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
 	TabsMenuButton->setMenu(TabsMenu);
-	#ifndef QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
 	TabsMenuButton->setToolTip(QObject::tr("List all tabs"));
-	#endif
-	TabsMenuButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+#endif
+	TabsMenuButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(TabsMenuButton, 0);
 	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
 		SLOT(onTabsMenuActionTriggered(QAction*)));
@@ -154,11 +156,11 @@ void DockAreaTitleBarPrivate::createButtons()
 	UndockButton = new tTileBarButton();
 	UndockButton->setObjectName("undockButton");
 	UndockButton->setAutoRaise(true);
-	#ifndef QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
 	UndockButton->setToolTip(QObject::tr("Detach Group"));
-	#endif
+#endif
     setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton);
-    UndockButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    UndockButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(UndockButton, 0);
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
@@ -168,7 +170,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
     setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton);
-	#ifndef QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
 	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
 		CloseButton->setToolTip(QObject::tr("Close Active Tab"));
@@ -177,10 +179,13 @@ void DockAreaTitleBarPrivate::createButtons()
 	{
 		CloseButton->setToolTip(QObject::tr("Close Group"));
 	}
-	#endif
-	CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+#endif
+	CloseButton->setSizePolicy(ButtonSizePolicy);
 	CloseButton->setIconSize(QSize(16, 16));
-	TopLayout->addWidget(CloseButton, 0);
+	if (testConfigFlag(CDockManager::DockAreaHasCloseButton))
+	{
+		TopLayout->addWidget(CloseButton, 0);
+	}
 	_this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
 }
 

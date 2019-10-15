@@ -23,7 +23,6 @@ HEADERS += \
 FORMS += \
         MainWindow.ui
         
-#RESOURCES += main.qrc
 
 LIBS += -L$${ADS_OUT_ROOT}/lib
 

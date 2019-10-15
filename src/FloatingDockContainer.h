@@ -60,7 +60,8 @@ class CFloatingWidgetTitleBar;
 /**
  * This implements a floating widget that is a dock container that accepts
  * docking of dock widgets like the main window and that can be docked into
- * another dock container
+ * another dock container.
+ * Every floating window of the docking system is a FloatingDockContainer.
  */
 class ADS_EXPORT CFloatingDockContainer : public tFloatingWidgetBase
 {

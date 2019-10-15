@@ -113,7 +113,7 @@ CDockAreaTabBar::CDockAreaTabBar(CDockAreaWidget* parent) :
 	d(new DockAreaTabBarPrivate(this))
 {
 	d->DockArea = parent;
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	setFrameStyle(QFrame::NoFrame);
 	setWidgetResizable(true);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -563,6 +563,23 @@ bool CDockAreaTabBar::isTabOpen(int Index) const
 	}
 
 	return !tab(Index)->isHidden();
+}
+
+
+//===========================================================================
+QSize CDockAreaTabBar::minimumSizeHint() const
+{
+	QSize Size = sizeHint();
+	Size.setWidth(Super::minimumSizeHint().width());// this defines the minimum width of a dock area
+	return Size;
+}
+
+//===========================================================================
+QSize CDockAreaTabBar::sizeHint() const
+{
+	QSize Size = Super::sizeHint();
+	Size.setHeight(d->TabsContainerWidget->sizeHint().height());
+	return Size;
 }
 
 } // namespace ads

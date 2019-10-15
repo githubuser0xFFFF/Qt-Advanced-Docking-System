@@ -28,7 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <ElidingLabel.h>
+#include "ElidingLabel.h"
 #include "DockWidgetTab.h"
 
 #include <QBoxLayout>
@@ -55,7 +55,6 @@ namespace ads
 {
 
 using tTabLabel = CElidingLabel;
-using tCloseButton = QPushButton;
 
 /**
  * Private data class of CDockWidgetTab class (pimpl)
@@ -72,7 +71,7 @@ struct DockWidgetTabPrivate
 	eDragState DragState = DraggingInactive;
 	CFloatingDockContainer* FloatingWidget = nullptr;
 	QIcon Icon;
-	tCloseButton* CloseButton = nullptr;
+	QAbstractButton* CloseButton = nullptr;
 	QSpacerItem* IconTextSpacer;
 
 	/**
@@ -120,7 +119,24 @@ struct DockWidgetTabPrivate
 	 */
 	bool testConfigFlag(CDockManager::eConfigFlag Flag) const
 	{
-		return DockArea->dockManager()->configFlags().testFlag(Flag);
+		return CDockManager::configFlags().testFlag(Flag);
+	}
+
+	/**
+	 * Creates the close button as QPushButton or as QToolButton
+	 */
+	QAbstractButton* createCloseButton() const
+	{
+		if (testConfigFlag(CDockManager::TabCloseButtonIsToolButton))
+		{
+			auto Button = new QToolButton();
+			Button->setAutoRaise(true);
+			return Button;
+		}
+		else
+		{
+			return new QPushButton();
+		}
 	}
 };
 // struct DockWidgetTabPrivate
@@ -143,7 +159,7 @@ void DockWidgetTabPrivate::createLayout()
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
 
-	CloseButton = new tCloseButton();
+	CloseButton = createCloseButton();
 	CloseButton->setObjectName("tabCloseButton");
 	// The standard icons do does not look good on high DPI screens
 	QIcon CloseIcon;
@@ -151,12 +167,11 @@ void DockWidgetTabPrivate::createLayout()
 	CloseIcon.addPixmap(normalPixmap, QIcon::Normal);
 	CloseIcon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
 	CloseButton->setIcon(CloseIcon);
-
     CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	CloseButton->setVisible(false);
-	#ifndef QT_NO_TOOLTIP
+    _this->onDockWidgetFeaturesChanged();
+#ifndef QT_NO_TOOLTIP
 	CloseButton->setToolTip(QObject::tr("Close Tab"));
-	#endif
+#endif
 	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
 
 	QFontMetrics fm(TitleLabel->font());
@@ -373,8 +388,10 @@ bool CDockWidgetTab::isActiveTab() const
 void CDockWidgetTab::setActiveTab(bool active)
 {
 	bool DockWidgetClosable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
-	bool TabHasCloseButton = d->testConfigFlag(CDockManager::ActiveTabHasCloseButton);
-	d->CloseButton->setVisible(active && DockWidgetClosable && TabHasCloseButton);
+	bool ActiveTabHasCloseButton = d->testConfigFlag(CDockManager::ActiveTabHasCloseButton);
+	bool AllTabsHaveCloseButton = d->testConfigFlag(CDockManager::AllTabsHaveCloseButton);
+	bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
+	d->CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
 	if (d->IsActiveTab == active)
 	{
 		return;
@@ -527,6 +544,17 @@ bool CDockWidgetTab::event(QEvent *e)
 	}
 	#endif
 	return Super::event(e);
+}
+
+
+//============================================================================
+void CDockWidgetTab::onDockWidgetFeaturesChanged()
+{
+	auto Features = d->DockWidget->features();
+	auto SizePolicy = d->CloseButton->sizePolicy();
+	SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
+		&& d->testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
+	d->CloseButton->setSizePolicy(SizePolicy);
 }
 
 
