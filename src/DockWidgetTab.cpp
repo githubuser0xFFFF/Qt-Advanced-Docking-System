@@ -55,7 +55,7 @@ namespace ads
 {
 
 using tTabLabel = CElidingLabel;
-using tCloseButton = QToolButton;
+using tCloseButton = QPushButton;
 
 /**
  * Private data class of CDockWidgetTab class (pimpl)
@@ -145,7 +145,6 @@ void DockWidgetTabPrivate::createLayout()
 
 	CloseButton = new tCloseButton();
 	CloseButton->setObjectName("tabCloseButton");
-	CloseButton->setAutoRaise(true); // Required in order to show the QIcon active state icon during hover
 	// The standard icons do does not look good on high DPI screens
 	QIcon CloseIcon;
 	QPixmap normalPixmap = _this->style()->standardPixmap(QStyle::SP_TitleBarCloseButton, 0, CloseButton);
