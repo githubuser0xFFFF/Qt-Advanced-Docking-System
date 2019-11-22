@@ -171,8 +171,8 @@ void DockWidgetTabPrivate::createLayout()
 		CloseIcon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
 	}
 	CloseButton->setIcon(CloseIcon);
-    CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _this->onDockWidgetFeaturesChanged();
+	CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	_this->onDockWidgetFeaturesChanged();
 #ifndef QT_NO_TOOLTIP
 	CloseButton->setToolTip(QObject::tr("Close Tab"));
 #endif
@@ -198,13 +198,13 @@ void DockWidgetTabPrivate::createLayout()
 //============================================================================
 void DockWidgetTabPrivate::moveTab(QMouseEvent* ev)
 {
-    ev->accept();
-    int left, top, right, bottom;
-    _this->getContentsMargins(&left, &top, &right, &bottom);
-    QPoint moveToPos = _this->mapToParent(ev->pos()) - DragStartMousePosition;
-    moveToPos.setY(0);
-    _this->move(moveToPos);
-    _this->raise();
+	ev->accept();
+	int left, top, right, bottom;
+	_this->getContentsMargins(&left, &top, &right, &bottom);
+	QPoint moveToPos = _this->mapToParent(ev->pos()) - DragStartMousePosition;
+	moveToPos.setY(0);
+	_this->move(moveToPos);
+	_this->raise();
 }
 
 
@@ -212,9 +212,9 @@ void DockWidgetTabPrivate::moveTab(QMouseEvent* ev)
 bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 {
 	auto dockContainer = DockWidget->dockContainer();
-    ADS_PRINT("isFloating " << dockContainer->isFloating());
-    ADS_PRINT("areaCount " << dockContainer->dockAreaCount());
-    ADS_PRINT("widgetCount " << DockWidget->dockAreaWidget()->dockWidgetsCount());
+	ADS_PRINT("isFloating " << dockContainer->isFloating());
+	ADS_PRINT("areaCount " << dockContainer->dockAreaCount());
+	ADS_PRINT("widgetCount " << DockWidget->dockAreaWidget()->dockWidgetsCount());
 	// if this is the last dock widget inside of this floating widget,
 	// then it does not make any sense, to make it floating because
 	// it is already floating
@@ -225,7 +225,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 		return false;
 	}
 
-    ADS_PRINT("startFloating");
+	ADS_PRINT("startFloating");
 	DragState = DraggingState;
 	QSize Size = DockArea->size();
 	CFloatingDockContainer* FloatingWidget = nullptr;
@@ -241,18 +241,18 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 		FloatingWidget = new CFloatingDockContainer(DockArea);
 	}
 
-    if (DraggingFloatingWidget == DraggingState)
-    {
-        FloatingWidget->startDragging(DragStartMousePosition, Size, _this);
-    	auto Overlay = DockWidget->dockManager()->containerOverlay();
-    	Overlay->setAllowedAreas(OuterDockAreas);
-    	this->FloatingWidget = FloatingWidget;
-    }
-    else
-    {
-     	FloatingWidget->initFloatingGeometry(DragStartMousePosition, Size);
-    }
-    DockWidget->emitTopLevelChanged(true);
+	if (DraggingFloatingWidget == DraggingState)
+	{
+		FloatingWidget->startDragging(DragStartMousePosition, Size, _this);
+		auto Overlay = DockWidget->dockManager()->containerOverlay();
+		Overlay->setAllowedAreas(OuterDockAreas);
+		this->FloatingWidget = FloatingWidget;
+	}
+	else
+	{
+		FloatingWidget->initFloatingGeometry(DragStartMousePosition, Size);
+	}
+	DockWidget->emitTopLevelChanged(true);
 	return true;
 }
 
@@ -270,7 +270,7 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 //============================================================================
 CDockWidgetTab::~CDockWidgetTab()
 {
-    ADS_PRINT("~CDockWidgetTab()");
+	ADS_PRINT("~CDockWidgetTab()");
 	delete d;
 }
 
@@ -281,9 +281,9 @@ void CDockWidgetTab::mousePressEvent(QMouseEvent* ev)
 	if (ev->button() == Qt::LeftButton)
 	{
 		ev->accept();
-        d->DragStartMousePosition = ev->pos();
-        d->DragState = DraggingMousePressed;
-        emit clicked();
+		d->DragStartMousePosition = ev->pos();
+		d->DragState = DraggingMousePressed;
+		emit clicked();
 		return;
 	}
 	Super::mousePressEvent(ev);
@@ -300,8 +300,8 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 		emit moved(ev->globalPos());
 	}
 
-    d->DragStartMousePosition = QPoint();
-    d->DragState = DraggingInactive;
+	d->DragStartMousePosition = QPoint();
+	d->DragState = DraggingInactive;
 	Super::mouseReleaseEvent(ev);
 }
 
@@ -309,36 +309,36 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 //============================================================================
 void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
 {
-    if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
-    {
-    	d->DragState = DraggingInactive;
-        Super::mouseMoveEvent(ev);
-        return;
-    }
+	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
+	{
+		d->DragState = DraggingInactive;
+		Super::mouseMoveEvent(ev);
+		return;
+	}
 
-    // move floating window
-    if (d->isDraggingState(DraggingFloatingWidget))
-    {
-        d->FloatingWidget->moveFloating();
-        Super::mouseMoveEvent(ev);
-        return;
-    }
+	// move floating window
+	if (d->isDraggingState(DraggingFloatingWidget))
+	{
+		d->FloatingWidget->moveFloating();
+		Super::mouseMoveEvent(ev);
+		return;
+	}
 
-    // move tab
-    if (d->isDraggingState(DraggingTab))
-    {
-        // Moving the tab is always allowed because it does not mean moving the
-    	// dock widget around
-    	d->moveTab(ev);
-    }
+	// move tab
+	if (d->isDraggingState(DraggingTab))
+	{
+		// Moving the tab is always allowed because it does not mean moving the
+		// dock widget around
+		d->moveTab(ev);
+	}
 
-    // Maybe a fixed drag distance is better here ?
-    int DragDistanceY = qAbs(d->DragStartMousePosition.y() - ev->pos().y());
-    if (DragDistanceY >= CDockManager::startDragDistance())
+	// Maybe a fixed drag distance is better here ?
+	int DragDistanceY = qAbs(d->DragStartMousePosition.y() - ev->pos().y());
+	if (DragDistanceY >= CDockManager::startDragDistance())
 	{
 		// If this is the last dock area in a dock container with only
-    	// one single dock widget it does not make  sense to move it to a new
-    	// floating widget and leave this one empty
+		// one single dock widget it does not make  sense to move it to a new
+		// floating widget and leave this one empty
 		if (d->DockArea->dockContainer()->isFloating()
 		 && d->DockArea->openDockWidgetsCount() == 1
 		 && d->DockArea->dockContainer()->visibleDockAreaCount() == 1)
@@ -346,17 +346,17 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
 			return;
 		}
 
-    	// Floating is only allowed for widgets that are movable
-        if (d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
-        {
-            d->startFloating();
-        }
-    	return;
+		// Floating is only allowed for widgets that are movable
+		if (d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+		{
+			d->startFloating();
+		}
+		return;
 	}
-    else if (d->DockArea->openDockWidgetsCount() > 1
-     && (ev->pos() - d->DragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
+	else if (d->DockArea->openDockWidgetsCount() > 1
+	 && (ev->pos() - d->DragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
 	{
-        d->DragState = DraggingTab;
+		d->DragState = DraggingTab;
 		return;
 	}
 

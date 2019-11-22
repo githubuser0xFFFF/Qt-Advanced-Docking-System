@@ -171,7 +171,7 @@ void CDockAreaTabBar::mouseReleaseEvent(QMouseEvent* ev)
 {
 	if (ev->button() == Qt::LeftButton)
 	{
-        ADS_PRINT("CTabsScrollArea::mouseReleaseEvent");
+		ADS_PRINT("CTabsScrollArea::mouseReleaseEvent");
 		ev->accept();
 		d->FloatingWidget = nullptr;
 		d->DragStartMousePos = QPoint();
@@ -215,7 +215,7 @@ void CDockAreaTabBar::mouseMoveEvent(QMouseEvent* ev)
 	int DragDistance = (d->DragStartMousePos - ev->pos()).manhattanLength();
 	if (DragDistance >= CDockManager::startDragDistance())
 	{
-        ADS_PRINT("CTabsScrollArea::startFloating");
+		ADS_PRINT("CTabsScrollArea::startFloating");
 		startFloating(d->DragStartMousePos);
 		auto Overlay = d->DockArea->dockManager()->containerOverlay();
 		Overlay->setAllowedAreas(OuterDockAreas);
@@ -250,7 +250,7 @@ CFloatingDockContainer* CDockAreaTabBar::makeAreaFloating(const QPoint& Offset,
 {
 	QSize Size = d->DockArea->size();
 	CFloatingDockContainer* FloatingWidget = new CFloatingDockContainer(d->DockArea);
-    FloatingWidget->startFloating(Offset, Size, DragState, nullptr);
+	FloatingWidget->startFloating(Offset, Size, DragState, nullptr);
 	auto TopLevelDockWidget = FloatingWidget->topLevelDockWidget();
 	if (TopLevelDockWidget)
 	{
@@ -280,9 +280,9 @@ void CDockAreaTabBar::setCurrentIndex(int index)
 	{
 		qWarning() << Q_FUNC_INFO << "Invalid index" << index;
 		return;
-    }
+	}
 
-    emit currentChanging(index);
+	emit currentChanging(index);
 	d->CurrentIndex = index;
 	d->updateTabs();
 	emit currentChanged(index);
@@ -321,7 +321,7 @@ void CDockAreaTabBar::removeTab(CDockWidgetTab* Tab)
 	{
 		return;
 	}
-    ADS_PRINT("CDockAreaTabBar::removeTab ");
+	ADS_PRINT("CDockAreaTabBar::removeTab ");
 	int NewCurrentIndex = currentIndex();
 	int RemoveIndex = d->TabsLayout->indexOf(Tab);
 	if (count() == 1)
@@ -364,7 +364,7 @@ void CDockAreaTabBar::removeTab(CDockWidgetTab* Tab)
 	d->TabsLayout->removeWidget(Tab);
 	Tab->disconnect(this);
 	Tab->removeEventFilter(this);
-    ADS_PRINT("NewCurrentIndex " << NewCurrentIndex);
+	ADS_PRINT("NewCurrentIndex " << NewCurrentIndex);
 	if (NewCurrentIndex != d->CurrentIndex)
 	{
 		setCurrentIndex(NewCurrentIndex);
@@ -412,7 +412,7 @@ void CDockAreaTabBar::onTabClicked()
 		return;
 	}
 	setCurrentIndex(index);
- 	emit tabBarClicked(index);
+	emit tabBarClicked(index);
 }
 
 
@@ -468,7 +468,7 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 	{
 		CDockWidgetTab* DropTab = tab(i);
 		if (DropTab == MovingTab || !DropTab->isVisibleTo(this)
-		    || !DropTab->geometry().contains(MousePos))
+			|| !DropTab->geometry().contains(MousePos))
 		{
 			continue;
 		}
@@ -492,7 +492,7 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 	{
 		if (MousePos.x() > tab(count() - 1)->geometry().right())
 		{
-            ADS_PRINT("after all tabs");
+			ADS_PRINT("after all tabs");
 			toIndex = count() - 1;
 		}
 		else
@@ -505,7 +505,7 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 	d->TabsLayout->insertWidget(toIndex, MovingTab);
 	if (toIndex >= 0)
 	{
-        ADS_PRINT("tabMoved from " << fromIndex << " to " << toIndex);
+		ADS_PRINT("tabMoved from " << fromIndex << " to " << toIndex);
 		emit tabMoved(fromIndex, toIndex);
 		setCurrentIndex(toIndex);
 	}

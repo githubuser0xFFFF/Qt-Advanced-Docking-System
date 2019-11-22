@@ -149,7 +149,7 @@ void DockManagerPrivate::loadStylesheet()
 {
 	QString Result;
 #ifdef Q_OS_LINUX
-    QFile StyleSheetFile(":ads/stylesheets/default_linux.css");
+	QFile StyleSheetFile(":ads/stylesheets/default_linux.css");
 #else
 	QFile StyleSheetFile(":ads/stylesheets/default.css");
 #endif
@@ -177,7 +177,7 @@ bool DockManagerPrivate::restoreContainer(int Index, QXmlStreamReader& stream, b
 	}
 	else
 	{
-        ADS_PRINT("d->Containers[i]->restoreState ");
+		ADS_PRINT("d->Containers[i]->restoreState ");
 		auto Container = Containers[Index];
 		if (Container->isFloating())
 		{
@@ -196,7 +196,7 @@ bool DockManagerPrivate::restoreContainer(int Index, QXmlStreamReader& stream, b
 //============================================================================
 bool DockManagerPrivate::checkFormat(const QByteArray &state, int version)
 {
-    return restoreStateFromXml(state, version, internal::RestoreTesting);
+	return restoreStateFromXml(state, version, internal::RestoreTesting);
 }
 
 
@@ -204,45 +204,45 @@ bool DockManagerPrivate::checkFormat(const QByteArray &state, int version)
 bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int version,
 	bool Testing)
 {
-    if (state.isEmpty())
-    {
-        return false;
-    }
-    QXmlStreamReader s(state);
-    s.readNextStartElement();
-    if (s.name() != "QtAdvancedDockingSystem")
-    {
-    	return false;
-    }
-    ADS_PRINT(s.attributes().value("Version"));
-    bool ok;
-    int v = s.attributes().value("Version").toInt(&ok);
-    if (!ok || v != version)
-    {
-    	return false;
-    }
+	if (state.isEmpty())
+	{
+		return false;
+	}
+	QXmlStreamReader s(state);
+	s.readNextStartElement();
+	if (s.name() != "QtAdvancedDockingSystem")
+	{
+		return false;
+	}
+	ADS_PRINT(s.attributes().value("Version"));
+	bool ok;
+	int v = s.attributes().value("Version").toInt(&ok);
+	if (!ok || v != version)
+	{
+		return false;
+	}
 
-    bool Result = true;
+	bool Result = true;
 #ifdef ADS_DEBUG_PRINT
-    int  DockContainers = s.attributes().value("Containers").toInt();
+	int  DockContainers = s.attributes().value("Containers").toInt();
 #endif
-    ADS_PRINT(DockContainers);
-    int DockContainerCount = 0;
-    while (s.readNextStartElement())
-    {
-    	if (s.name() == "Container")
-    	{
-    		Result = restoreContainer(DockContainerCount, s, Testing);
+	ADS_PRINT(DockContainers);
+	int DockContainerCount = 0;
+	while (s.readNextStartElement())
+	{
+		if (s.name() == "Container")
+		{
+			Result = restoreContainer(DockContainerCount, s, Testing);
 			if (!Result)
 			{
 				break;
 			}
 			DockContainerCount++;
-    	}
-    }
+		}
+	}
 
-    if (!Testing)
-    {
+	if (!Testing)
+	{
 		// Delete remaining empty floating widgets
 		int FloatingWidgetIndex = DockContainerCount - 1;
 		int DeleteCount = FloatingWidgets.count() - FloatingWidgetIndex;
@@ -251,69 +251,69 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
 			FloatingWidgets[FloatingWidgetIndex + i]->deleteLater();
 			_this->removeDockContainer(FloatingWidgets[FloatingWidgetIndex + i]->dockContainer());
 		}
-    }
+	}
 
-    return Result;
+	return Result;
 }
 
 
 //============================================================================
 void DockManagerPrivate::restoreDockWidgetsOpenState()
 {
-    // All dock widgets, that have not been processed in the restore state
-    // function are invisible to the user now and have no assigned dock area
-    // They do not belong to any dock container, until the user toggles the
-    // toggle view action the next time
-    for (auto DockWidget : DockWidgetsMap)
-    {
-    	if (DockWidget->property(internal::DirtyProperty).toBool())
-    	{
-    		DockWidget->flagAsUnassigned();
-            emit DockWidget->viewToggled(false);
-    	}
-    	else
-    	{
-    		DockWidget->toggleViewInternal(!DockWidget->property(internal::ClosedProperty).toBool());
-    	}
-    }
+	// All dock widgets, that have not been processed in the restore state
+	// function are invisible to the user now and have no assigned dock area
+	// They do not belong to any dock container, until the user toggles the
+	// toggle view action the next time
+	for (auto DockWidget : DockWidgetsMap)
+	{
+		if (DockWidget->property(internal::DirtyProperty).toBool())
+		{
+			DockWidget->flagAsUnassigned();
+			emit DockWidget->viewToggled(false);
+		}
+		else
+		{
+			DockWidget->toggleViewInternal(!DockWidget->property(internal::ClosedProperty).toBool());
+		}
+	}
 }
 
 
 //============================================================================
 void DockManagerPrivate::restoreDockAreasIndices()
 {
-    // Now all dock areas are properly restored and we setup the index of
-    // The dock areas because the previous toggleView() action has changed
-    // the dock area index
-    int Count = 0;
-    for (auto DockContainer : Containers)
-    {
-    	Count++;
-    	for (int i = 0; i < DockContainer->dockAreaCount(); ++i)
-    	{
-    		CDockAreaWidget* DockArea = DockContainer->dockArea(i);
-    		QString DockWidgetName = DockArea->property("currentDockWidget").toString();
-    		CDockWidget* DockWidget = nullptr;
-    		if (!DockWidgetName.isEmpty())
-    		{
-    			DockWidget = _this->findDockWidget(DockWidgetName);
-    		}
+	// Now all dock areas are properly restored and we setup the index of
+	// The dock areas because the previous toggleView() action has changed
+	// the dock area index
+	int Count = 0;
+	for (auto DockContainer : Containers)
+	{
+		Count++;
+		for (int i = 0; i < DockContainer->dockAreaCount(); ++i)
+		{
+			CDockAreaWidget* DockArea = DockContainer->dockArea(i);
+			QString DockWidgetName = DockArea->property("currentDockWidget").toString();
+			CDockWidget* DockWidget = nullptr;
+			if (!DockWidgetName.isEmpty())
+			{
+				DockWidget = _this->findDockWidget(DockWidgetName);
+			}
 
-    		if (!DockWidget || DockWidget->isClosed())
-    		{
-    			int Index = DockArea->indexOfFirstOpenDockWidget();
-    			if (Index < 0)
-    			{
-    				continue;
-    			}
-    			DockArea->setCurrentIndex(Index);
-    		}
-    		else
-    		{
-    			DockArea->internalSetCurrentDockWidget(DockWidget);
-    		}
-    	}
-    }
+			if (!DockWidget || DockWidget->isClosed())
+			{
+				int Index = DockArea->indexOfFirstOpenDockWidget();
+				if (Index < 0)
+				{
+					continue;
+				}
+				DockArea->setCurrentIndex(Index);
+			}
+			else
+			{
+				DockArea->internalSetCurrentDockWidget(DockWidget);
+			}
+		}
+	}
 }
 
 
@@ -321,17 +321,17 @@ void DockManagerPrivate::restoreDockAreasIndices()
 //============================================================================
 void DockManagerPrivate::emitTopLevelEvents()
 {
-    // Finally we need to send the topLevelChanged() signals for all dock
-    // widgets if top level changed
-    for (auto DockContainer : Containers)
-    {
-    	CDockWidget* TopLevelDockWidget = DockContainer->topLevelDockWidget();
-    	if (TopLevelDockWidget)
-    	{
-    		TopLevelDockWidget->emitTopLevelChanged(true);
-    	}
-    	else
-    	{
+	// Finally we need to send the topLevelChanged() signals for all dock
+	// widgets if top level changed
+	for (auto DockContainer : Containers)
+	{
+		CDockWidget* TopLevelDockWidget = DockContainer->topLevelDockWidget();
+		if (TopLevelDockWidget)
+		{
+			TopLevelDockWidget->emitTopLevelChanged(true);
+		}
+		else
+		{
 			for (int i = 0; i < DockContainer->dockAreaCount(); ++i)
 			{
 				auto DockArea = DockContainer->dockArea(i);
@@ -340,8 +340,8 @@ void DockManagerPrivate::emitTopLevelEvents()
 					DockWidget->emitTopLevelChanged(false);
 				}
 			}
-    	}
-    }
+		}
+	}
 }
 
 
@@ -349,27 +349,27 @@ void DockManagerPrivate::emitTopLevelEvents()
 bool DockManagerPrivate::restoreState(const QByteArray& State, int version)
 {
 	QByteArray state = State.startsWith("<?xml") ? State : qUncompress(State);
-    if (!checkFormat(state, version))
-    {
-        ADS_PRINT("checkFormat: Error checking format!!!!!!!");
-    	return false;
-    }
+	if (!checkFormat(state, version))
+	{
+		ADS_PRINT("checkFormat: Error checking format!!!!!!!");
+		return false;
+	}
 
-    // Hide updates of floating widgets from use
-    hideFloatingWidgets();
-    markDockWidgetsDirty();
+	// Hide updates of floating widgets from use
+	hideFloatingWidgets();
+	markDockWidgetsDirty();
 
-    if (!restoreStateFromXml(state, version))
-    {
-        ADS_PRINT("restoreState: Error restoring state!!!!!!!");
-    	return false;
-    }
+	if (!restoreStateFromXml(state, version))
+	{
+		ADS_PRINT("restoreState: Error restoring state!!!!!!!");
+		return false;
+	}
 
-    restoreDockWidgetsOpenState();
-    restoreDockAreasIndices();
-    emitTopLevelEvents();
+	restoreDockWidgetsOpenState();
+	restoreDockAreasIndices();
+	emitTopLevelEvents();
 
-    return true;
+	return true;
 }
 
 
@@ -436,7 +436,7 @@ CDockManager::~CDockManager()
 void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
 	d->FloatingWidgets.append(FloatingWidget);
-    ADS_PRINT("d->FloatingWidgets.count() " << d->FloatingWidgets.count());
+	ADS_PRINT("d->FloatingWidgets.count() " << d->FloatingWidgets.count());
 }
 
 
@@ -502,11 +502,11 @@ unsigned int CDockManager::zOrderIndex() const
 //============================================================================
 QByteArray CDockManager::saveState(int version) const
 {
-    QByteArray xmldata;
-    QXmlStreamWriter s(&xmldata);
-    auto ConfigFlags = CDockManager::configFlags();
+	QByteArray xmldata;
+	QXmlStreamWriter s(&xmldata);
+	auto ConfigFlags = CDockManager::configFlags();
 	s.setAutoFormatting(ConfigFlags.testFlag(XmlAutoFormattingEnabled));
-    s.writeStartDocument();
+	s.writeStartDocument();
 		s.writeStartElement("QtAdvancedDockingSystem");
 		s.writeAttribute("Version", QString::number(version));
 		s.writeAttribute("Containers", QString::number(d->Containers.count()));
@@ -516,10 +516,10 @@ QByteArray CDockManager::saveState(int version) const
 		}
 
 		s.writeEndElement();
-    s.writeEndDocument();
+	s.writeEndDocument();
 
-    return ConfigFlags.testFlag(XmlCompressionEnabled)
-    	? qCompress(xmldata, 9) : xmldata;
+	return ConfigFlags.testFlag(XmlCompressionEnabled)
+		? qCompress(xmldata, 9) : xmldata;
 }
 
 

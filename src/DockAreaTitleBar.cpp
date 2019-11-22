@@ -99,33 +99,33 @@ struct DockAreaTitleBarPrivate
 		return CDockManager::configFlags().testFlag(Flag);
 	}
 
-    /**
-     * Helper function to set title bar button icons depending on operating
-     * system and to avoid duplicated code. On windows the standard icons
-     * are blurry since Qt 5.11 so we need to do some additional steps.
-     * If the global IconPovider of the dockmanager provides a custom
-     * Icon for the given CustomIconId, the this icon will be used.
-     */
-    void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap,
-    	ads::eIcon CustomIconId)
-    {
-    	// First we try to use custom icons if available
-    	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
-    	if (!Icon.isNull())
-    	{
-    		Button->setIcon(Icon);
-    		return;
-    	}
+	/**
+	 * Helper function to set title bar button icons depending on operating
+	 * system and to avoid duplicated code. On windows the standard icons
+	 * are blurry since Qt 5.11 so we need to do some additional steps.
+	 * If the global IconPovider of the dockmanager provides a custom
+	 * Icon for the given CustomIconId, the this icon will be used.
+	 */
+	void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap,
+		ads::eIcon CustomIconId)
+	{
+		// First we try to use custom icons if available
+		QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
+		if (!Icon.isNull())
+		{
+			Button->setIcon(Icon);
+			return;
+		}
 
-    #ifdef Q_OS_LINUX
-        Button->setIcon(_this->style()->standardIcon(StandarPixmap));
-    #else
-        QPixmap normalPixmap = _this->style()->standardPixmap(StandarPixmap, 0, Button);
-        Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
-        Icon.addPixmap(normalPixmap, QIcon::Normal);
-        Button->setIcon(Icon);
-    #endif
-    }
+	#ifdef Q_OS_LINUX
+		Button->setIcon(_this->style()->standardIcon(StandarPixmap));
+	#else
+		QPixmap normalPixmap = _this->style()->standardPixmap(StandarPixmap, 0, Button);
+		Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+		Icon.addPixmap(normalPixmap, QIcon::Normal);
+		Button->setIcon(Icon);
+	#endif
+	}
 };// struct DockAreaTitleBarPrivate
 
 
@@ -142,12 +142,12 @@ DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 void DockAreaTitleBarPrivate::createButtons()
 {
 	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    // Tabs menu button
+	// Tabs menu button
 	TabsMenuButton = new tTileBarButton();
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
-    setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
+	setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
 	QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
 	TabsMenu->setToolTipsVisible(true);
@@ -170,17 +170,17 @@ void DockAreaTitleBarPrivate::createButtons()
 #ifndef QT_NO_TOOLTIP
 	UndockButton->setToolTip(QObject::tr("Detach Group"));
 #endif
-    setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
-    UndockButton->setSizePolicy(ButtonSizePolicy);
+	setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
+	UndockButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(UndockButton, 0);
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
 
-    // Close button
+	// Close button
 	CloseButton = new tTileBarButton();
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
-    setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
+	setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
 #ifndef QT_NO_TOOLTIP
 	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
@@ -292,7 +292,7 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 //============================================================================
 void CDockAreaTitleBar::onCloseButtonClicked()
 {
-    ADS_PRINT("CDockAreaTitleBar::onCloseButtonClicked");
+	ADS_PRINT("CDockAreaTitleBar::onCloseButtonClicked");
 	if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
 		d->TabBar->closeTab(d->TabBar->currentIndex());

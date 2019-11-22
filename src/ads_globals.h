@@ -187,14 +187,14 @@ void setFlag(T& Flags, typename T::enum_type flag, bool on = true)
 #if QT_VERSION >= 0x050700
 	Flags.setFlag(flag, on);
 #else
-    if(on)
-    {
-        Flags |= flag;
-    }
-    else
-    {
-        Flags &= ~flag;
-    }
+	if(on)
+	{
+		Flags |= flag;
+	}
+	else
+	{
+		Flags &= ~flag;
+	}
 #endif
 }
 
