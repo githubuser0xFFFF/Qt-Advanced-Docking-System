@@ -58,46 +58,46 @@ using tTileBarButton = QToolButton;
  */
 struct DockAreaTitleBarPrivate
 {
-	CDockAreaTitleBar* _this;
-	tTileBarButton* TabsMenuButton;
-	tTileBarButton* UndockButton;
-	tTileBarButton* CloseButton;
-	QBoxLayout* TopLayout;
-	CDockAreaWidget* DockArea;
-	CDockAreaTabBar* TabBar;
-	bool MenuOutdated = true;
-	QMenu* TabsMenu;
+    CDockAreaTitleBar* _this;
+    tTileBarButton* TabsMenuButton;
+    tTileBarButton* UndockButton;
+    tTileBarButton* CloseButton;
+    QBoxLayout* TopLayout;
+    CDockAreaWidget* DockArea;
+    CDockAreaTabBar* TabBar;
+    bool MenuOutdated = true;
+    QMenu* TabsMenu;
 
-	/**
-	 * Private data constructor
-	 */
-	DockAreaTitleBarPrivate(CDockAreaTitleBar* _public);
+    /**
+     * Private data constructor
+     */
+    DockAreaTitleBarPrivate(CDockAreaTitleBar* _public);
 
-	/**
-	 * Creates the title bar close and menu buttons
-	 */
-	void createButtons();
+    /**
+     * Creates the title bar close and menu buttons
+     */
+    void createButtons();
 
-	/**
-	 * Creates the internal TabBar
-	 */
-	void createTabBar();
+    /**
+     * Creates the internal TabBar
+     */
+    void createTabBar();
 
-	/**
-	 * Convenience function for DockManager access
-	 */
-	CDockManager* dockManager() const
-	{
-		return DockArea->dockManager();
-	}
+    /**
+     * Convenience function for DockManager access
+     */
+    CDockManager* dockManager() const
+    {
+        return DockArea->dockManager();
+    }
 
-	/**
-	 * Returns true if the given config flag is set
-	 */
-	bool testConfigFlag(CDockManager::eConfigFlag Flag) const
-	{
-		return CDockManager::configFlags().testFlag(Flag);
-	}
+    /**
+     * Returns true if the given config flag is set
+     */
+    bool testConfigFlag(CDockManager::eConfigFlag Flag) const
+    {
+        return CDockManager::configFlags().testFlag(Flag);
+    }
 
     /**
      * Helper function to set title bar button icons depending on operating
@@ -107,15 +107,15 @@ struct DockAreaTitleBarPrivate
      * Icon for the given CustomIconId, the this icon will be used.
      */
     void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap,
-    	ads::eIcon CustomIconId)
+        ads::eIcon CustomIconId)
     {
-    	// First we try to use custom icons if available
-    	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
-    	if (!Icon.isNull())
-    	{
-    		Button->setIcon(Icon);
-    		return;
-    	}
+        // First we try to use custom icons if available
+        QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
+        if (!Icon.isNull())
+        {
+            Button->setIcon(Icon);
+            return;
+        }
 
     #ifdef Q_OS_LINUX
         Button->setIcon(_this->style()->standardIcon(StandarPixmap));
@@ -132,7 +132,7 @@ struct DockAreaTitleBarPrivate
 
 //============================================================================
 DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
-	_this(_public)
+    _this(_public)
 {
 
 }
@@ -141,101 +141,101 @@ DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 //============================================================================
 void DockAreaTitleBarPrivate::createButtons()
 {
-	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     // Tabs menu button
-	TabsMenuButton = new tTileBarButton();
-	TabsMenuButton->setObjectName("tabsMenuButton");
-	TabsMenuButton->setAutoRaise(true);
-	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
+    TabsMenuButton = new tTileBarButton();
+    TabsMenuButton->setObjectName("tabsMenuButton");
+    TabsMenuButton->setAutoRaise(true);
+    TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
     setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
-	QMenu* TabsMenu = new QMenu(TabsMenuButton);
+    QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
-	TabsMenu->setToolTipsVisible(true);
+    TabsMenu->setToolTipsVisible(true);
 #endif
-	_this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
-	TabsMenuButton->setMenu(TabsMenu);
+    _this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
+    TabsMenuButton->setMenu(TabsMenu);
 #ifndef QT_NO_TOOLTIP
-	TabsMenuButton->setToolTip(QObject::tr("List all tabs"));
+    TabsMenuButton->setToolTip(QObject::tr("List all tabs"));
 #endif
-	TabsMenuButton->setSizePolicy(ButtonSizePolicy);
-	TopLayout->addWidget(TabsMenuButton, 0);
-	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
-		SLOT(onTabsMenuActionTriggered(QAction*)));
+    TabsMenuButton->setSizePolicy(ButtonSizePolicy);
+    TopLayout->addWidget(TabsMenuButton, 0);
+    _this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
+        SLOT(onTabsMenuActionTriggered(QAction*)));
 
 
-	// Undock button
-	UndockButton = new tTileBarButton();
-	UndockButton->setObjectName("undockButton");
-	UndockButton->setAutoRaise(true);
+    // Undock button
+    UndockButton = new tTileBarButton();
+    UndockButton->setObjectName("undockButton");
+    UndockButton->setAutoRaise(true);
 #ifndef QT_NO_TOOLTIP
-	UndockButton->setToolTip(QObject::tr("Detach Group"));
+    UndockButton->setToolTip(QObject::tr("Detach Group"));
 #endif
     setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
     UndockButton->setSizePolicy(ButtonSizePolicy);
-	TopLayout->addWidget(UndockButton, 0);
-	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
+    TopLayout->addWidget(UndockButton, 0);
+    _this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
 
     // Close button
-	CloseButton = new tTileBarButton();
-	CloseButton->setObjectName("closeButton");
-	CloseButton->setAutoRaise(true);
+    CloseButton = new tTileBarButton();
+    CloseButton->setObjectName("closeButton");
+    CloseButton->setAutoRaise(true);
     setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
 #ifndef QT_NO_TOOLTIP
-	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
-	{
-		CloseButton->setToolTip(QObject::tr("Close Active Tab"));
-	}
-	else
-	{
-		CloseButton->setToolTip(QObject::tr("Close Group"));
-	}
+    if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
+    {
+        CloseButton->setToolTip(QObject::tr("Close Active Tab"));
+    }
+    else
+    {
+        CloseButton->setToolTip(QObject::tr("Close Group"));
+    }
 #endif
-	CloseButton->setSizePolicy(ButtonSizePolicy);
-	CloseButton->setIconSize(QSize(16, 16));
-	if (testConfigFlag(CDockManager::DockAreaHasCloseButton))
-	{
-		TopLayout->addWidget(CloseButton, 0);
-	}
-	_this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
+    CloseButton->setSizePolicy(ButtonSizePolicy);
+    CloseButton->setIconSize(QSize(16, 16));
+    if (testConfigFlag(CDockManager::DockAreaHasCloseButton))
+    {
+        TopLayout->addWidget(CloseButton, 0);
+    }
+    _this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
 }
 
 
 //============================================================================
 void DockAreaTitleBarPrivate::createTabBar()
 {
-	TabBar = new CDockAreaTabBar(DockArea);
-	TopLayout->addWidget(TabBar);
-	_this->connect(TabBar, SIGNAL(tabClosed(int)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(tabOpened(int)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(tabInserted(int)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(removingTab(int)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
-	_this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
+    TabBar = new CDockAreaTabBar(DockArea);
+    TopLayout->addWidget(TabBar);
+    _this->connect(TabBar, SIGNAL(tabClosed(int)), SLOT(markTabsMenuOutdated()));
+    _this->connect(TabBar, SIGNAL(tabOpened(int)), SLOT(markTabsMenuOutdated()));
+    _this->connect(TabBar, SIGNAL(tabInserted(int)), SLOT(markTabsMenuOutdated()));
+    _this->connect(TabBar, SIGNAL(removingTab(int)), SLOT(markTabsMenuOutdated()));
+    _this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
+    _this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
+    _this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
 
-	TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
-	_this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
-		SLOT(showContextMenu(const QPoint&)));
+    TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
+    _this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
+        SLOT(showContextMenu(const QPoint&)));
 }
 
 
 //============================================================================
 CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
-	QFrame(parent),
-	d(new DockAreaTitleBarPrivate(this))
+    QFrame(parent),
+    d(new DockAreaTitleBarPrivate(this))
 {
-	d->DockArea = parent;
+    d->DockArea = parent;
 
-	setObjectName("dockAreaTitleBar");
-	d->TopLayout = new QBoxLayout(QBoxLayout::LeftToRight);
-	d->TopLayout->setContentsMargins(0, 0, 0, 0);
-	d->TopLayout->setSpacing(0);
-	setLayout(d->TopLayout);
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    setObjectName("dockAreaTitleBar");
+    d->TopLayout = new QBoxLayout(QBoxLayout::LeftToRight);
+    d->TopLayout->setContentsMargins(0, 0, 0, 0);
+    d->TopLayout->setSpacing(0);
+    setLayout(d->TopLayout);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-	d->createTabBar();
-	d->createButtons();
+    d->createTabBar();
+    d->createButtons();
 
 }
 
@@ -243,49 +243,49 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 //============================================================================
 CDockAreaTitleBar::~CDockAreaTitleBar()
 {
-	delete d;
+    delete d;
 }
 
 
 //============================================================================
 CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 {
-	return d->TabBar;
+    return d->TabBar;
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
-	d->MenuOutdated = true;
+    d->MenuOutdated = true;
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::onTabsMenuAboutToShow()
 {
-	if (!d->MenuOutdated)
-	{
-		return;
-	}
+    if (!d->MenuOutdated)
+    {
+        return;
+    }
 
-	QMenu* menu = d->TabsMenuButton->menu();
-	menu->clear();
-	for (int i = 0; i < d->TabBar->count(); ++i)
-	{
-		if (!d->TabBar->isTabOpen(i))
-		{
-			continue;
-		}
-		auto Tab = d->TabBar->tab(i);
-		QAction* Action = menu->addAction(Tab->icon(), Tab->text());
-		#ifndef QT_NO_TOOLTIP
-		Action->setToolTip(Tab->toolTip());
-		#endif
-		Action->setData(i);
-	}
+    QMenu* menu = d->TabsMenuButton->menu();
+    menu->clear();
+    for (int i = 0; i < d->TabBar->count(); ++i)
+    {
+        if (!d->TabBar->isTabOpen(i))
+        {
+            continue;
+        }
+        auto Tab = d->TabBar->tab(i);
+        QAction* Action = menu->addAction(Tab->icon(), Tab->text());
+        #ifndef QT_NO_TOOLTIP
+        Action->setToolTip(Tab->toolTip());
+        #endif
+        Action->setData(i);
+    }
 
-	d->MenuOutdated = false;
+    d->MenuOutdated = false;
 }
 
 
@@ -293,85 +293,85 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 void CDockAreaTitleBar::onCloseButtonClicked()
 {
     ADS_PRINT("CDockAreaTitleBar::onCloseButtonClicked");
-	if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
-	{
-		d->TabBar->closeTab(d->TabBar->currentIndex());
-	}
-	else
-	{
-		d->DockArea->closeArea();
-	}
+    if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
+    {
+        d->TabBar->closeTab(d->TabBar->currentIndex());
+    }
+    else
+    {
+        d->DockArea->closeArea();
+    }
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::onUndockButtonClicked()
 {
-	if (d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
-	{
-		d->TabBar->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
-	}
+    if (d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+    {
+        d->TabBar->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
+    }
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 {
-	int Index = Action->data().toInt();
-	d->TabBar->setCurrentIndex(Index);
-	emit tabBarClicked(Index);
+    int Index = Action->data().toInt();
+    d->TabBar->setCurrentIndex(Index);
+    emit tabBarClicked(Index);
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::onCurrentTabChanged(int Index)
 {
-	if (Index < 0)
-	{
-		return;
-	}
+    if (Index < 0)
+    {
+        return;
+    }
 
-	if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
-	{
-		CDockWidget* DockWidget = d->TabBar->tab(Index)->dockWidget();
-		d->CloseButton->setEnabled(DockWidget->features().testFlag(CDockWidget::DockWidgetClosable));
-	}
+    if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
+    {
+        CDockWidget* DockWidget = d->TabBar->tab(Index)->dockWidget();
+        d->CloseButton->setEnabled(DockWidget->features().testFlag(CDockWidget::DockWidgetClosable));
+    }
 }
 
 
 //============================================================================
 QAbstractButton* CDockAreaTitleBar::button(TitleBarButton which) const
 {
-	switch (which)
-	{
-	case TitleBarButtonTabsMenu: return d->TabsMenuButton;
-	case TitleBarButtonUndock: return d->UndockButton;
-	case TitleBarButtonClose: return d->CloseButton;
-	default:
-		return nullptr;
-	}
+    switch (which)
+    {
+    case TitleBarButtonTabsMenu: return d->TabsMenuButton;
+    case TitleBarButtonUndock: return d->UndockButton;
+    case TitleBarButtonClose: return d->CloseButton;
+    default:
+        return nullptr;
+    }
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::setVisible(bool Visible)
 {
-	Super::setVisible(Visible);
-	markTabsMenuOutdated();
+    Super::setVisible(Visible);
+    markTabsMenuOutdated();
 }
 
 
 //============================================================================
 void CDockAreaTitleBar::showContextMenu(const QPoint& pos)
 {
-	QMenu Menu(this);
-	auto Action = Menu.addAction(tr("Detach Area"), this, SLOT(onUndockButtonClicked()));
-	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
-	Menu.addSeparator();
-	Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
-	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
-	Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
-	Menu.exec(mapToGlobal(pos));
+    QMenu Menu(this);
+    auto Action = Menu.addAction(tr("Detach Area"), this, SLOT(onUndockButtonClicked()));
+    Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
+    Menu.addSeparator();
+    Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
+    Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
+    Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
+    Menu.exec(mapToGlobal(pos));
 }
 
 
