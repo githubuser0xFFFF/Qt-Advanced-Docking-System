@@ -64,25 +64,25 @@ class CDockSplitter;
 
 enum DockWidgetArea
 {
-    NoDockWidgetArea = 0x00,
-    LeftDockWidgetArea = 0x01,
-    RightDockWidgetArea = 0x02,
-    TopDockWidgetArea = 0x04,
-    BottomDockWidgetArea = 0x08,
-    CenterDockWidgetArea = 0x10,
+	NoDockWidgetArea = 0x00,
+	LeftDockWidgetArea = 0x01,
+	RightDockWidgetArea = 0x02,
+	TopDockWidgetArea = 0x04,
+	BottomDockWidgetArea = 0x08,
+	CenterDockWidgetArea = 0x10,
 
-    InvalidDockWidgetArea = NoDockWidgetArea,
-    OuterDockAreas = TopDockWidgetArea | LeftDockWidgetArea | RightDockWidgetArea | BottomDockWidgetArea,
-    AllDockAreas = OuterDockAreas | CenterDockWidgetArea
+	InvalidDockWidgetArea = NoDockWidgetArea,
+	OuterDockAreas = TopDockWidgetArea | LeftDockWidgetArea | RightDockWidgetArea | BottomDockWidgetArea,
+	AllDockAreas = OuterDockAreas | CenterDockWidgetArea
 };
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 
 
 enum TitleBarButton
 {
-    TitleBarButtonTabsMenu,
-    TitleBarButtonUndock,
-    TitleBarButtonClose
+	TitleBarButtonTabsMenu,
+	TitleBarButtonUndock,
+	TitleBarButtonClose
 };
 
 /**
@@ -90,10 +90,10 @@ enum TitleBarButton
  */
 enum eDragState
 {
-    DraggingInactive,     //!< DraggingInactive
-    DraggingMousePressed, //!< DraggingMousePressed
-    DraggingTab,          //!< DraggingTab
-    DraggingFloatingWidget//!< DraggingFloatingWidget
+	DraggingInactive,     //!< DraggingInactive
+	DraggingMousePressed, //!< DraggingMousePressed
+	DraggingTab,          //!< DraggingTab
+	DraggingFloatingWidget//!< DraggingFloatingWidget
 };
 
 /**
@@ -101,12 +101,12 @@ enum eDragState
  */
 enum eIcon
 {
-    TabCloseIcon,      //!< TabCloseIcon
-    DockAreaMenuIcon,  //!< DockAreaMenuIcon
-    DockAreaUndockIcon,//!< DockAreaUndockIcon
-    DockAreaCloseIcon, //!< DockAreaCloseIcon
+	TabCloseIcon,      //!< TabCloseIcon
+	DockAreaMenuIcon,  //!< DockAreaMenuIcon
+	DockAreaUndockIcon,//!< DockAreaUndockIcon
+	DockAreaCloseIcon, //!< DockAreaCloseIcon
 
-    IconCount,         //!< just a delimiter for range checks
+	IconCount,         //!< just a delimiter for range checks
 };
 
 namespace internal
@@ -134,10 +134,10 @@ void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 class CDockInsertParam : public QPair<Qt::Orientation, bool>
 {
 public:
-    using QPair::QPair;
-    Qt::Orientation orientation() const {return this->first;}
-    bool append() const {return this->second;}
-    int insertOffset() const {return append() ? 1 : 0;}
+	using QPair::QPair;
+	Qt::Orientation orientation() const {return this->first;}
+	bool append() const {return this->second;}
+	int insertOffset() const {return append() ? 1 : 0;}
 };
 
 /**
@@ -157,17 +157,17 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
 template <class T>
 T findParent(const QWidget* w)
 {
-    QWidget* parentWidget = w->parentWidget();
-    while (parentWidget)
-    {
-        T ParentImpl = qobject_cast<T>(parentWidget);
-        if (ParentImpl)
-        {
-            return ParentImpl;
-        }
-        parentWidget = parentWidget->parentWidget();
-    }
-    return 0;
+	QWidget* parentWidget = w->parentWidget();
+	while (parentWidget)
+	{
+		T ParentImpl = qobject_cast<T>(parentWidget);
+		if (ParentImpl)
+		{
+			return ParentImpl;
+		}
+		parentWidget = parentWidget->parentWidget();
+	}
+	return 0;
 }
 
 /**
@@ -185,7 +185,7 @@ template <class T>
 void setFlag(T& Flags, typename T::enum_type flag, bool on = true)
 {
 #if QT_VERSION >= 0x050700
-    Flags.setFlag(flag, on);
+	Flags.setFlag(flag, on);
 #else
     if(on)
     {

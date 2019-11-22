@@ -28,30 +28,30 @@ struct IconProviderPrivate;
 class ADS_EXPORT CIconProvider
 {
 private:
-    IconProviderPrivate* d; ///< private data (pimpl)
-    friend class IconProviderPrivate;
+	IconProviderPrivate* d; ///< private data (pimpl)
+	friend class IconProviderPrivate;
 
 public:
-    /**
-     * Default Constructor
-     */
-    CIconProvider();
+	/**
+	 * Default Constructor
+	 */
+	CIconProvider();
 
-    /**
-     * Virtual Destructor
-     */
-    virtual ~CIconProvider();
+	/**
+	 * Virtual Destructor
+	 */
+	virtual ~CIconProvider();
 
-    /**
-     * The function returns a custom icon if one is registered and a null Icon
-     * if no custom icon is registered
-     */
-    QIcon customIcon(eIcon IconId) const;
+	/**
+	 * The function returns a custom icon if one is registered and a null Icon
+	 * if no custom icon is registered
+	 */
+	QIcon customIcon(eIcon IconId) const;
 
-    /**
-     * Registers a custom icon for the given IconId
-     */
-    void registerCustomIcon(eIcon IconId, const QIcon &icon);
+	/**
+	 * Registers a custom icon for the given IconId
+	 */
+	void registerCustomIcon(eIcon IconId, const QIcon &icon);
 }; // class IconProvider
 
 } // namespace ads

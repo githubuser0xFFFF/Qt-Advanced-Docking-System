@@ -18,26 +18,26 @@ namespace ads
  */
 struct IconProviderPrivate
 {
-    CIconProvider *_this;
-    QVector<QIcon> UserIcons{IconCount, QIcon()};
+	CIconProvider *_this;
+	QVector<QIcon> UserIcons{IconCount, QIcon()};
 
-    /**
-     * Private data constructor
-     */
-    IconProviderPrivate(CIconProvider *_public);
+	/**
+	 * Private data constructor
+	 */
+	IconProviderPrivate(CIconProvider *_public);
 };
 // struct LedArrayPanelPrivate
 
 //============================================================================
 IconProviderPrivate::IconProviderPrivate(CIconProvider *_public) :
-    _this(_public)
+	_this(_public)
 {
 
 }
 
 //============================================================================
 CIconProvider::CIconProvider() :
-    d(new IconProviderPrivate(this))
+	d(new IconProviderPrivate(this))
 {
 
 }
@@ -45,23 +45,23 @@ CIconProvider::CIconProvider() :
 //============================================================================
 CIconProvider::~CIconProvider()
 {
-    delete d;
+	delete d;
 }
 
 
 //============================================================================
 QIcon CIconProvider::customIcon(eIcon IconId) const
 {
-    Q_ASSERT(IconId < d->UserIcons.size());
-    return d->UserIcons[IconId];
+	Q_ASSERT(IconId < d->UserIcons.size());
+	return d->UserIcons[IconId];
 }
 
 
 //============================================================================
 void CIconProvider::registerCustomIcon(eIcon IconId, const QIcon &icon)
 {
-    Q_ASSERT(IconId < d->UserIcons.size());
-    d->UserIcons[IconId] = icon;
+	Q_ASSERT(IconId < d->UserIcons.size());
+	d->UserIcons[IconId] = icon;
 }
 
 } // namespace ads
