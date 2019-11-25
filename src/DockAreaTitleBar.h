@@ -47,7 +47,7 @@ struct DockAreaTitleBarPrivate;
  * The title bar contains a tabbar with all tabs for a dock widget group and
  * with a tabs menu button, a undock button and a close button.
  */
-class CDockAreaTitleBar : public QFrame
+class ADS_EXPORT CDockAreaTitleBar : public QFrame
 {
 	Q_OBJECT
 private:

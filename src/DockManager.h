@@ -49,6 +49,7 @@ class CDockAreaTabBar;
 class CDockWidgetTab;
 struct DockWidgetTabPrivate;
 struct DockAreaWidgetPrivate;
+class CIconProvider;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -165,6 +166,13 @@ public:
 	 * Set a certain config flag
 	 */
 	static void setConfigFlag(eConfigFlag Flag, bool On = true);
+
+	/**
+	 * Returns the global icon provider.
+	 * The icon provider enables the use of custom icons in case using
+	 * styleheets for icons is not an option.
+	 */
+	static CIconProvider& iconProvider();
 
 	/**
 	 * Adds dockwidget into the given area.
@@ -383,6 +391,13 @@ signals:
      * perspective
      */
     void perspectiveOpened(const QString& PerspectiveName);
+
+    /**
+     * This signal is emitted, if a new DockArea has been created.
+     * An application can use this signal to set custom icons or custom
+     * tooltips for the DockArea buttons.
+     */
+    void dockAreaCreated(CDockAreaWidget* DockArea);
 }; // class DockManager
 } // namespace ads
 //-----------------------------------------------------------------------------

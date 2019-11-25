@@ -52,6 +52,8 @@
 #include "DockWidget.h"
 #include "ads_globals.h"
 #include "DockAreaWidget.h"
+#include "IconProvider.h"
+
 
 
 namespace ads
@@ -785,6 +787,14 @@ void CDockManager::setConfigFlags(const ConfigFlags Flags)
 void CDockManager::setConfigFlag(eConfigFlag Flag, bool On)
 {
 	internal::setFlag(StaticConfigFlags, Flag, On);
+}
+
+
+//===========================================================================
+CIconProvider& CDockManager::iconProvider()
+{
+	static CIconProvider Instance;
+	return Instance;
 }
 
 

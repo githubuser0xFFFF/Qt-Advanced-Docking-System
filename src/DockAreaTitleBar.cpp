@@ -46,6 +46,7 @@
 #include "DockWidget.h"
 #include "DockWidgetTab.h"
 #include "DockAreaTabBar.h"
+#include "IconProvider.h"
 
 #include <iostream>
 
@@ -101,14 +102,24 @@ struct DockAreaTitleBarPrivate
     /**
      * Helper function to set title bar button icons depending on operating
      * system and to avoid duplicated code. On windows the standard icons
-     * are blurry since Qt 5.11 so we need to do some additional steps
+     * are blurry since Qt 5.11 so we need to do some additional steps.
+     * If the global IconPovider of the dockmanager provides a custom
+     * Icon for the given CustomIconId, the this icon will be used.
      */
-    void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap)
+    void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap,
+    	ads::eIcon CustomIconId)
     {
+    	// First we try to use custom icons if available
+    	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
+    	if (!Icon.isNull())
+    	{
+    		Button->setIcon(Icon);
+    		return;
+    	}
+
     #ifdef Q_OS_LINUX
         Button->setIcon(_this->style()->standardIcon(StandarPixmap));
     #else
-        QIcon Icon;
         QPixmap normalPixmap = _this->style()->standardPixmap(StandarPixmap, 0, Button);
         Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
         Icon.addPixmap(normalPixmap, QIcon::Normal);
@@ -136,7 +147,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
-    setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton);
+    setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
 	QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
 	TabsMenu->setToolTipsVisible(true);
@@ -159,7 +170,7 @@ void DockAreaTitleBarPrivate::createButtons()
 #ifndef QT_NO_TOOLTIP
 	UndockButton->setToolTip(QObject::tr("Detach Group"));
 #endif
-    setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton);
+    setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
     UndockButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(UndockButton, 0);
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
@@ -169,7 +180,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton = new tTileBarButton();
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
-    setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton);
+    setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
 #ifndef QT_NO_TOOLTIP
 	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{

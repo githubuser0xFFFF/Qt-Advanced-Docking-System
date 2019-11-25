@@ -525,8 +525,8 @@ void CDockAreaTabBar::closeTab(int Index)
 	{
 		return;
 	}
-	emit tabCloseRequested(Index);
 	Tab->hide();
+	emit tabCloseRequested(Index);
 }
 
 

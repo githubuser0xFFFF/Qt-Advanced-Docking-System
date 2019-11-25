@@ -48,6 +48,7 @@
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
 #include "DockManager.h"
+#include "IconProvider.h"
 
 #include <iostream>
 
@@ -161,11 +162,14 @@ void DockWidgetTabPrivate::createLayout()
 
 	CloseButton = createCloseButton();
 	CloseButton->setObjectName("tabCloseButton");
-	// The standard icons do does not look good on high DPI screens
-	QIcon CloseIcon;
-	QPixmap normalPixmap = _this->style()->standardPixmap(QStyle::SP_TitleBarCloseButton, 0, CloseButton);
-	CloseIcon.addPixmap(normalPixmap, QIcon::Normal);
-	CloseIcon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+	QIcon CloseIcon = CDockManager::iconProvider().customIcon(TabCloseIcon);
+	if (CloseIcon.isNull())
+	{
+		// The standard icons do does not look good on high DPI screens
+		QPixmap normalPixmap = _this->style()->standardPixmap(QStyle::SP_TitleBarCloseButton, 0, CloseButton);
+		CloseIcon.addPixmap(normalPixmap, QIcon::Normal);
+		CloseIcon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+	}
 	CloseButton->setIcon(CloseIcon);
     CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     _this->onDockWidgetFeaturesChanged();

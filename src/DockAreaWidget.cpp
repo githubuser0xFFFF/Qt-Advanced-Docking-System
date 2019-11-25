@@ -354,6 +354,10 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 
 	d->createTitleBar();
 	d->ContentsLayout = new DockAreaLayout(d->Layout);
+	if (d->DockManager)
+	{
+		emit d->DockManager->dockAreaCreated(this);
+	}
 }
 
 //============================================================================

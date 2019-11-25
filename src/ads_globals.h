@@ -96,6 +96,19 @@ enum eDragState
 	DraggingFloatingWidget//!< DraggingFloatingWidget
 };
 
+/**
+ * The different icons used in the UI
+ */
+enum eIcon
+{
+	TabCloseIcon,      //!< TabCloseIcon
+	DockAreaMenuIcon,  //!< DockAreaMenuIcon
+	DockAreaUndockIcon,//!< DockAreaUndockIcon
+	DockAreaCloseIcon, //!< DockAreaCloseIcon
+
+	IconCount,         //!< just a delimiter for range checks
+};
+
 namespace internal
 {
 static const bool RestoreTesting = true;

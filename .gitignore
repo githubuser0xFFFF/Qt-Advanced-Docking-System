@@ -1,5 +1,5 @@
 *.pro.user
-/ build
+/build
 *.o
 *.dylib
 *.app
@@ -10,3 +10,9 @@ Makefile
 
 # IDEs
 .idea
+
+# Python
+.eggs
+*.pyc
+*.pyd
+__pycache__
