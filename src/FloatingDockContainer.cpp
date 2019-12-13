@@ -339,6 +339,7 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 
 	case DraggingFloatingWidget:
 		d->updateDropOverlays(QCursor::pos());
+		QApplication::setActiveWindow(this);
 		break;
 	default:
 		break;
