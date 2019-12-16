@@ -63,6 +63,7 @@ private:
 	friend struct DockWidgetPrivate;
 	friend class CDockWidget;
 	friend struct DockManagerPrivate;
+	friend class CDockManager;
 
 private slots:
 	void onTabCloseRequested(int Index);
@@ -129,7 +130,6 @@ protected:
 	 * and by the dock manager when restoring the state
 	 */
 	void internalSetCurrentDockWidget(CDockWidget* DockWidget);
-
 
 	/**
 	 * Marks tabs menu to update

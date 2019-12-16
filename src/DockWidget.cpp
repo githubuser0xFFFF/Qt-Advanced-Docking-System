@@ -726,6 +726,25 @@ QSize CDockWidget::minimumSizeHint() const
 }
 
 
+//============================================================================
+void CDockWidget::setFloating()
+{
+	if (isClosed())
+	{
+		return;
+	}
+	d->TabWidget->detachDockWidget();
+}
+
+
+//============================================================================
+void CDockWidget::deleteDockWidget()
+{
+	dockManager()->removeDockWidget(this);
+	deleteLater();
+}
+
+
 } // namespace ads
 
 //---------------------------------------------------------------------------

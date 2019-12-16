@@ -20,6 +20,8 @@ HEADERS += \
 
 FORMS += \
 	mainwindow.ui
+	
+RESOURCES += demo.qrc
 
 
 LIBS += -L$${ADS_OUT_ROOT}/lib

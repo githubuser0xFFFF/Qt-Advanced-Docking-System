@@ -31,6 +31,8 @@
 //============================================================================
 #include "ads_globals.h"
 
+#include <QRubberBand>
+
 #ifdef Q_OS_LINUX
 #include <QDockWidget>
 #define tFloatingWidgetBase QDockWidget
@@ -39,7 +41,7 @@
 #define tFloatingWidgetBase QWidget
 #endif
 
-class QXmlStreamReader;
+class CDockingStateReader;
 
 namespace ads
 {
@@ -56,6 +58,29 @@ struct DockWidgetTabPrivate;
 class CDockAreaTitleBar;
 struct DockAreaTitleBarPrivate;
 class CFloatingWidgetTitleBar;
+class CDockingStateReader;
+
+/**
+ * Pure virtual interface for floating widgets
+ */
+class IFloatingWidget
+{
+public:
+	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
+        eDragState DragState, QWidget* MouseEventHandler) = 0;
+
+	/**
+	 * Moves the widget to a new position relative to the position given when
+	 * startFloating() was called
+	 */
+	virtual void moveFloating() = 0;
+
+	/**
+	 * Tells the widget that to finish dragging if the mouse is released
+	 */
+	virtual void finishDragging() = 0;
+};
+
 
 /**
  * This implements a floating widget that is a dock container that accepts
@@ -63,7 +88,7 @@ class CFloatingWidgetTitleBar;
  * another dock container.
  * Every floating window of the docking system is a FloatingDockContainer.
  */
-class ADS_EXPORT CFloatingDockContainer : public tFloatingWidgetBase
+class ADS_EXPORT CFloatingDockContainer : public tFloatingWidgetBase, public IFloatingWidget
 {
 	Q_OBJECT
 private:
@@ -90,8 +115,8 @@ protected:
 	 * Use moveToGlobalPos() to move the widget to a new position
 	 * depending on the start position given in Pos parameter
 	 */
-	void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
-        eDragState DragState, QWidget* MouseEventHandler);
+	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
+        eDragState DragState, QWidget* MouseEventHandler) override;
 
 	/**
 	 * Call this function to start dragging the floating widget
@@ -103,10 +128,10 @@ protected:
 	}
 
 	/**
-	 * Call this function if you explecitely want to signal that dragging has
+	 * Call this function if you explicitly want to signal that dragging has
 	 * finished
 	 */
-	void finishDragging();
+	virtual void finishDragging() override;
 
 	/**
 	 * Call this function if you just want to initialize the position
@@ -129,7 +154,7 @@ protected:
 	 * stream but does not restore anything. You can use this check for
 	 * faulty files before you start restoring the state
 	 */
-	bool restoreState(QXmlStreamReader& Stream, bool Testing);
+	bool restoreState(CDockingStateReader& Stream, bool Testing);
 
 	/**
 	 * Call this function to update the window title
@@ -144,13 +169,12 @@ protected: // reimplements QWidget
 	virtual void closeEvent(QCloseEvent *event) override;
 	virtual void hideEvent(QHideEvent *event) override;
 	virtual void showEvent(QShowEvent *event) override;
-	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 public:
 	using Super = QWidget;
 
 	/**
-	 * Create empty flatingb widget - required for restore state
+	 * Create empty floating widget - required for restore state
 	 */
 	CFloatingDockContainer(CDockManager* DockManager);
 

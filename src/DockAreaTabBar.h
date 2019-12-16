@@ -39,6 +39,7 @@ class CDockWidgetTab;
 struct DockAreaTabBarPrivate;
 class CDockAreaTitleBar;
 class CFloatingDockContainer;
+class IFloatingWidget;
 
 /**
  * Custom tabbar implementation for tab area that is shown on top of a
@@ -95,8 +96,7 @@ protected:
 	/**
 	 * Makes the dock area floating
 	 */
-	CFloatingDockContainer* makeAreaFloating(const QPoint& Offset,
-		eDragState DragState);
+	IFloatingWidget* makeAreaFloating(const QPoint& Offset, eDragState DragState);
 
 
 public:

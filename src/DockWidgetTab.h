@@ -57,7 +57,7 @@ private:
 	void onDockWidgetFeaturesChanged();
 
 private slots:
-	void onDetachActionTriggered();
+	void detachDockWidget();
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* ev) override;

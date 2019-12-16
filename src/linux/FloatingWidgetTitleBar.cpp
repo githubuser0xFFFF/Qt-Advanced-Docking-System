@@ -77,7 +77,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 	TitleLabel->setElideMode(Qt::ElideRight);
 	TitleLabel->setText("DockWidget->windowTitle()");
 	TitleLabel->setObjectName("floatingTitleLabel");
-	TitleLabel->setAlignment(Qt::AlignLeft);
+    TitleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
 	CloseButton = new tCloseButton();
 	CloseButton->setObjectName("floatingTitleCloseButton");
@@ -145,6 +145,10 @@ void CFloatingWidgetTitleBar::mousePressEvent(QMouseEvent *ev)
 void CFloatingWidgetTitleBar::mouseReleaseEvent(QMouseEvent *ev)
 {
 	d->DragState = DraggingInactive;
+    if (d->FloatingWidget)
+    {
+        d->FloatingWidget->finishDragging();
+    }
 	Super::mouseReleaseEvent(ev);
 }
 

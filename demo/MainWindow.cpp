@@ -50,6 +50,9 @@
 #include <QWidgetAction>
 #include <QComboBox>
 #include <QInputDialog>
+#include <QRubberBand>
+#include <QPlainTextEdit>
+#include <QTableWidget>
 
 #include <QMap>
 #include <QElapsedTimer>
@@ -57,6 +60,7 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
+#include "FloatingDockContainer.h"
 
 
 //============================================================================
@@ -113,6 +117,18 @@ static void appendFeaturStringToWindowTitle(ads::CDockWidget* DockWidget)
 		+  QString(" (%1)").arg(featuresString(DockWidget)));
 }
 
+/**
+ * Helper function to create an SVG icon
+ */
+static QIcon svgIcon(const QString& File)
+{
+	// This is a workaround, because because in item views SVG icons are not
+	// properly scaled an look blurry or pixelate
+	QIcon SvgIcon(File);
+	SvgIcon.addPixmap(SvgIcon.pixmap(92));
+	return SvgIcon;
+}
+
 
 //============================================================================
 static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
@@ -122,6 +138,7 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
 	DockWidget->setWidget(w);
 	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
+	DockWidget->setIcon(svgIcon(":/adsdemo/images/date_range.svg"));
 	ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
 }
@@ -141,6 +158,45 @@ static ads::CDockWidget* createFileSystemTreeDockWidget(QMenu* ViewMenu)
 	DockWidget->setWidget(w);
 	ViewMenu->addAction(DockWidget->toggleViewAction());
     return DockWidget;
+}
+
+//============================================================================
+static ads::CDockWidget* createEditorWidget(QMenu* ViewMenu)
+{
+	static int EditorCount = 0;
+	QPlainTextEdit* w = new QPlainTextEdit();
+	w->setPlaceholderText("This is an editor. If you close the editor, it will be "
+		"deleted. Enter your text here.");
+	w->setStyleSheet("border: none");
+	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Editor %1").arg(EditorCount++));
+	DockWidget->setWidget(w);
+	DockWidget->setIcon(svgIcon(":/adsdemo/images/edit.svg"));
+	ViewMenu->addAction(DockWidget->toggleViewAction());
+	return DockWidget;
+}
+
+//============================================================================
+static ads::CDockWidget* createTableWidget(QMenu* ViewMenu)
+{
+   static int TableCount = 0;
+   QTableWidget* w = new QTableWidget();
+   ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Table %1").arg(TableCount++));
+   static int colCount = 5;
+   static int rowCount = 30;
+   w->setColumnCount(colCount);
+   w->setRowCount(rowCount);
+   for (int col = 0; col < colCount; ++col)
+   {
+      w->setHorizontalHeaderItem(col, new QTableWidgetItem(QString("Col %1").arg(col+1)));
+      for (int row = 0; row < rowCount; ++row)
+      {
+         w->setItem(row, col, new QTableWidgetItem(QString("T %1-%2").arg(row + 1).arg(col+1)));
+      }
+   }
+   DockWidget->setWidget(w);
+   DockWidget->setIcon(svgIcon(":/adsdemo/images/grid_on.svg"));
+   ViewMenu->addAction(DockWidget->toggleViewAction());
+   return DockWidget;
 }
 
 
@@ -197,7 +253,6 @@ void MainWindowPrivate::createContent()
 	// Test container docking
 	QMenu* ViewMenu = ui.menuView;
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setIcon(_this->style()->standardIcon(QStyle::SP_DialogOpenButton));
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
@@ -226,8 +281,9 @@ void MainWindowPrivate::createContent()
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), RighDockArea);
 	DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), BottomDockArea);
-    //DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), BottomDockArea);
-    //DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), BottomDockArea);
+
+    auto Action = ui.menuView->addAction(QString("Set %1 floating").arg(DockWidget->windowTitle()));
+    DockWidget->connect(Action, SIGNAL(triggered()), SLOT(setFloating()));
 
 	for (auto DockWidget : DockManager->dockWidgetsMap())
 	{
@@ -240,11 +296,13 @@ void MainWindowPrivate::createContent()
 void MainWindowPrivate::createActions()
 {
 	ui.toolBar->addAction(ui.actionSaveState);
-	ui.actionSaveState->setIcon(_this->style()->standardIcon(QStyle::SP_DialogSaveButton));
+	ui.toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	ui.actionSaveState->setIcon(svgIcon(":/adsdemo/images/save.svg"));
 	ui.toolBar->addAction(ui.actionRestoreState);
-	ui.actionRestoreState->setIcon(_this->style()->standardIcon(QStyle::SP_DialogOpenButton));
+	ui.actionRestoreState->setIcon(svgIcon(":/adsdemo/images/restore.svg"));
 
-	SavePerspectiveAction = new QAction("Save Perspective", _this);
+	SavePerspectiveAction = new QAction("Create Perspective", _this);
+	SavePerspectiveAction->setIcon(svgIcon(":/adsdemo/images/picture_in_picture.svg"));
 	_this->connect(SavePerspectiveAction, SIGNAL(triggered()), SLOT(savePerspective()));
 	PerspectiveListAction = new QWidgetAction(_this);
 	PerspectiveComboBox = new QComboBox(_this);
@@ -254,6 +312,16 @@ void MainWindowPrivate::createActions()
 	ui.toolBar->addSeparator();
 	ui.toolBar->addAction(PerspectiveListAction);
 	ui.toolBar->addAction(SavePerspectiveAction);
+
+	QAction* a = ui.toolBar->addAction("Create Editor");
+	a->setToolTip("Creates floating dynamic dockable editor windows that are deleted on close");
+	a->setIcon(svgIcon(":/adsdemo/images/note_add.svg"));
+	_this->connect(a, SIGNAL(triggered()), SLOT(createEditor()));
+
+	a = ui.toolBar->addAction("Create Table");
+	a->setToolTip("Creates floating dynamic dockable table with millions of entries");
+	a->setIcon(svgIcon(":/adsdemo/images/grid_on.svg"));
+	_this->connect(a, SIGNAL(triggered()), SLOT(createTable()));
 }
 
 
@@ -310,9 +378,13 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// a QToolButton instead of a QPushButton
 	// CDockManager::setConfigFlags(CDockManager::configFlags() | CDockManager::TabCloseButtonIsToolButton);
 
-	// uncomment the following line if you wand a fixed tab width that does
+    // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes
-	// CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
+    // CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
+
+    // uncomment the follwing line if you want to use non opaque undocking and splitter
+    // moevements
+    // CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
@@ -328,7 +400,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// Default window geometry
     resize(1280, 720);
 
-	d->restoreState();
+	//d->restoreState();
 	d->restorePerspectives();
 }
 
@@ -393,5 +465,25 @@ void CMainWindow::onViewToggled(bool Open)
 	}
 
 	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+}
+
+
+//============================================================================
+void CMainWindow::createEditor()
+{
+	auto DockWidget = createEditorWidget(d->ui.menuView);
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+	auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
+    FloatingWidget->move(QPoint(20, 20));
+}
+
+
+//============================================================================
+void CMainWindow::createTable()
+{
+	auto DockWidget = createTableWidget(d->ui.menuView);
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+	auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
+    FloatingWidget->move(QPoint(40, 40));
 }
 

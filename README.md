@@ -3,11 +3,12 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 
-
-
 Qt Advanced Docking System lets you create customizable layouts using a full 
 featured window docking system similar to what is found in many popular 
-integrated development environements (IDEs) such as Visual Studio. 
+integrated development environments (IDEs) such as Visual Studio. 
+
+[![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
+
 Everything is implemented with standard Qt functionality without any
 platform specific code. Basic usage of QWidgets and QLayouts and using basic 
 styles as much as possible.
@@ -17,10 +18,6 @@ This work is based on and inspired by the
 from Manuel Freiholz. I did an almost complete rewrite of his code to improve
 code quality, readibility and to fix all issues from the issue tracker 
 of his docking system project.
-
-The following video gives a first impression what is possible with the Advanced Docking System for Qt.
-
-[![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
 ## Features
 ### Docking everywhere - no central widget
@@ -73,6 +70,7 @@ The application can be compiled for macOS. A user reported, that the library wor
 
 ### Linux
 Ubuntu [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
+[![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
 The application can be compiled for Linux and has been developed and tested with **Kubuntu 18.04**.
 
@@ -161,3 +159,17 @@ MainWindow::~MainWindow()
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 This project uses the [LGPLv2.1 license](gnu-lgpl-v2.1.md)
 
+## Alternative Docking System Implementations
+If this Qt Advanced Docking System does not fit to your needs you may consider some of the alternative docking system solutions for Qt.
+
+### KDDockWidgets
+This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
+
+- [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
+- [GitHub project](https://github.com/KDAB/KDDockWidgets)
+
+
+### QtitanDocking
+This is a commercial component from [Developer Machines](https://www.devmachines.com/) for Qt Framework that allows to create a Microsoft like dockable user interface. They also offer a lot of other interesting and useful components for Qt.
+
+- [Product page](https://www.devmachines.com/qtitandocking-overview.html)

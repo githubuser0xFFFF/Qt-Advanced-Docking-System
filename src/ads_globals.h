@@ -34,6 +34,7 @@
 #include <QtCore/QtGlobal>
 #include <QPixmap>
 #include <QWidget>
+#include <QDebug>
 
 #ifndef ADS_STATIC
 #ifdef ADS_SHARED_EXPORT
@@ -60,6 +61,13 @@ class QSplitter;
 
 namespace ads
 {
+enum eStateFileVersion
+{
+	InitialVerison = 0,
+	Version1 = 1,
+	CurrentVersion = Version1
+};
+
 class CDockSplitter;
 
 enum DockWidgetArea

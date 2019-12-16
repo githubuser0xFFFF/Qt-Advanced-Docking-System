@@ -36,7 +36,7 @@
 #include "DockWidget.h"
 
 class QXmlStreamWriter;
-class QXmlStreamReader;
+
 
 namespace ads
 {
@@ -47,6 +47,9 @@ class CDockManager;
 struct DockManagerPrivate;
 class CFloatingDockContainer;
 struct FloatingDockContainerPrivate;
+class CFloatingOverlay;
+struct FloatingOverlayPrivate;
+class CDockingStateReader;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
@@ -68,6 +71,9 @@ private:
 	friend class CFloatingDockContainer;
 	friend struct FloatingDockContainerPrivate;
 	friend class CDockWidget;
+	friend class CFloatingOverlay;
+	friend struct FloatingOverlayPrivate;
+
 protected:
 	/**
 	 * Handles activation events to update zOrderIndex
@@ -90,6 +96,11 @@ protected:
 	void dropFloatingWidget(CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
 
 	/**
+	 * Drop a dock area or a dock widget given in widget parameter
+	 */
+	void dropWidget(QWidget* Widget, const QPoint& TargetPos);
+
+	/**
 	 * Adds the given dock area to this container widget
 	 */
 	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = CenterDockWidgetArea);
@@ -110,7 +121,7 @@ protected:
 	 * stream but does not restore anything. You can use this check for
 	 * faulty files before you start restoring the state
 	 */
-	bool restoreState(QXmlStreamReader& Stream, bool Testing);
+	bool restoreState(CDockingStateReader& Stream, bool Testing);
 
 	/**
 	 * This function returns the last added dock area widget for the given

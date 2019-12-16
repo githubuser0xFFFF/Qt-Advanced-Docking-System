@@ -98,6 +98,11 @@ public:
 	void enableDropPreview(bool Enable);
 
 	/**
+	 * Returns true if drop preview is enabled
+	 */
+	bool dropPreviewEnabled() const;
+
+	/**
 	 * The drop overlay rectangle for the target area
 	 */
 	QRect dropOverlayRect() const;
