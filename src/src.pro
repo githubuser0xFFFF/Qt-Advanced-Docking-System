@@ -38,7 +38,7 @@ HEADERS += \
     DockWidgetTab.h \ 
     DockingStateReader.h \
     FloatingDockContainer.h \
-    FloatingOverlay.h \
+    FloatingDragPreview.h \
     DockOverlay.h \
     DockSplitter.h \
     DockAreaTitleBar.h \
@@ -56,7 +56,7 @@ SOURCES += \
     DockingStateReader.cpp \
     DockWidgetTab.cpp \
     FloatingDockContainer.cpp \
-    FloatingOverlay.cpp \
+    FloatingDragPreview.cpp \
     DockOverlay.cpp \
     DockSplitter.cpp \
     DockAreaTitleBar.cpp \

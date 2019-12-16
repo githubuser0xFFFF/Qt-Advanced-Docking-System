@@ -47,8 +47,8 @@ class CDockManager;
 struct DockManagerPrivate;
 class CFloatingDockContainer;
 struct FloatingDockContainerPrivate;
-class CFloatingOverlay;
-struct FloatingOverlayPrivate;
+class CFloatingDragPreview;
+struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
 
 /**
@@ -71,8 +71,8 @@ private:
 	friend class CFloatingDockContainer;
 	friend struct FloatingDockContainerPrivate;
 	friend class CDockWidget;
-	friend class CFloatingOverlay;
-	friend struct FloatingOverlayPrivate;
+	friend class CFloatingDragPreview;
+	friend struct FloatingDragPreviewPrivate;
 
 protected:
 	/**

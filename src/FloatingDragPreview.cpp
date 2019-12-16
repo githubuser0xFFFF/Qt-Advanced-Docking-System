@@ -1,20 +1,20 @@
 //============================================================================
-/// \file   FloatingOverlay.cpp
+/// \file   FloatingDragPreview.cpp
 /// \author Uwe Kindler
 /// \date   26.11.2019
-/// \brief  Implementation of CFloatingOverlay
+/// \brief  Implementation of CFloatingDragPreview
 //============================================================================
 
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include "FloatingOverlay.h"
-
+#include "FloatingDragPreview.h"
 #include <iostream>
 
 #include <QEvent>
 #include <QApplication>
 #include <QPainter>
+#include <QKeyEvent>
 
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
@@ -28,9 +28,9 @@ namespace ads
 /**
  * Private data class (pimpl)
  */
-struct FloatingOverlayPrivate
+struct FloatingDragPreviewPrivate
 {
-	CFloatingOverlay *_this;
+	CFloatingDragPreview *_this;
 	QWidget* Content;
 	CDockAreaWidget* ContentSourceArea = nullptr;
 	CDockContainerWidget* ContenSourceContainer = nullptr;
@@ -45,7 +45,7 @@ struct FloatingOverlayPrivate
 	/**
 	 * Private data constructor
 	 */
-	FloatingOverlayPrivate(CFloatingOverlay *_public);
+	FloatingDragPreviewPrivate(CFloatingDragPreview *_public);
 	void updateDropOverlays(const QPoint &GlobalPos);
 
 	void setHidden(bool Value)
@@ -53,12 +53,23 @@ struct FloatingOverlayPrivate
 		Hidden = Value;
 		_this->update();
 	}
+
+	/**
+	 * Cancel dragging and emit the draggingCanceled event
+	 */
+	void cancelDragging()
+	{
+		emit _this->draggingCanceled();
+		DockManager->containerOverlay()->hideOverlay();
+		DockManager->dockAreaOverlay()->hideOverlay();
+		_this->close();
+	}
 };
 // struct LedArrayPanelPrivate
 
 
 //============================================================================
-void FloatingOverlayPrivate::updateDropOverlays(const QPoint &GlobalPos)
+void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 {
 	if (!_this->isVisible() || !DockManager)
 	{
@@ -151,16 +162,16 @@ void FloatingOverlayPrivate::updateDropOverlays(const QPoint &GlobalPos)
 
 
 //============================================================================
-FloatingOverlayPrivate::FloatingOverlayPrivate(CFloatingOverlay *_public) :
+FloatingDragPreviewPrivate::FloatingDragPreviewPrivate(CFloatingDragPreview *_public) :
 	_this(_public)
 {
 
 }
 
 //============================================================================
-CFloatingOverlay::CFloatingOverlay(QWidget* Content, QWidget* parent) :
+CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 	QWidget(parent),
-	d(new FloatingOverlayPrivate(this))
+	d(new FloatingDragPreviewPrivate(this))
 {
 	d->Content = Content;
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -192,12 +203,22 @@ CFloatingOverlay::CFloatingOverlay(QWidget* Content, QWidget* parent) :
 		d->ContentPreviewPixmap = QPixmap(Content->size());
 		Content->render(&d->ContentPreviewPixmap);
 	}
+
+	connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
+		SLOT(onApplicationStateChanged(Qt::ApplicationState)));
+
+#ifdef Q_OS_LINUX
+    // In Windows this widget directly receives the escape key press events
+    // in Linux we need to install an event filter for the given Content
+    // widget to receive the escape key press
+    Content->installEventFilter(this);
+#endif
 }
 
 
 //============================================================================
-CFloatingOverlay::CFloatingOverlay(CDockWidget* Content)
-	: CFloatingOverlay((QWidget*)Content, Content->dockManager())
+CFloatingDragPreview::CFloatingDragPreview(CDockWidget* Content)
+	: CFloatingDragPreview((QWidget*)Content, Content->dockManager())
 {
 	d->DockManager = Content->dockManager();
 	if (Content->dockAreaWidget()->openDockWidgetsCount() == 1)
@@ -210,8 +231,8 @@ CFloatingOverlay::CFloatingOverlay(CDockWidget* Content)
 
 
 //============================================================================
-CFloatingOverlay::CFloatingOverlay(CDockAreaWidget* Content)
-	: CFloatingOverlay((QWidget*)Content, Content->dockManager())
+CFloatingDragPreview::CFloatingDragPreview(CDockAreaWidget* Content)
+	: CFloatingDragPreview((QWidget*)Content, Content->dockManager())
 {
 	d->DockManager = Content->dockManager();
 	d->ContentSourceArea = Content;
@@ -221,14 +242,14 @@ CFloatingOverlay::CFloatingOverlay(CDockAreaWidget* Content)
 
 
 //============================================================================
-CFloatingOverlay::~CFloatingOverlay()
+CFloatingDragPreview::~CFloatingDragPreview()
 {
 	delete d;
 }
 
 
 //============================================================================
-void CFloatingOverlay::moveFloating()
+void CFloatingDragPreview::moveFloating()
 {
 	int BorderSize = (frameSize().width() - size().width()) / 2;
 	const QPoint moveToPos = QCursor::pos() - d->DragStartMousePosition
@@ -238,7 +259,7 @@ void CFloatingOverlay::moveFloating()
 
 
 //============================================================================
-void CFloatingOverlay::startFloating(const QPoint &DragStartMousePos,
+void CFloatingDragPreview::startFloating(const QPoint &DragStartMousePos,
     const QSize &Size, eDragState DragState, QWidget *MouseEventHandler)
 {
 	Q_UNUSED(MouseEventHandler)
@@ -252,7 +273,7 @@ void CFloatingOverlay::startFloating(const QPoint &DragStartMousePos,
 
 
 //============================================================================
-void CFloatingOverlay::moveEvent(QMoveEvent *event)
+void CFloatingDragPreview::moveEvent(QMoveEvent *event)
 {
 	QWidget::moveEvent(event);
 	d->updateDropOverlays(QCursor::pos());
@@ -260,9 +281,9 @@ void CFloatingOverlay::moveEvent(QMoveEvent *event)
 
 
 //============================================================================
-void CFloatingOverlay::finishDragging()
+void CFloatingDragPreview::finishDragging()
 {
-	ADS_PRINT("CFloatingOverlay::finishDragging");
+	ADS_PRINT("CFloatingDragPreview::finishDragging");
 	auto DockDropArea = d->DockManager->dockAreaOverlay()->dropAreaUnderCursor();
 	auto ContainerDropArea = d->DockManager->containerOverlay()->dropAreaUnderCursor();
 	bool DropPossible = (DockDropArea != InvalidDockWidgetArea) || (ContainerDropArea != InvalidDockWidgetArea);
@@ -302,7 +323,7 @@ void CFloatingOverlay::finishDragging()
 
 
 //============================================================================
-void CFloatingOverlay::paintEvent(QPaintEvent* event)
+void CFloatingDragPreview::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
 	if (d->Hidden)
@@ -316,7 +337,7 @@ void CFloatingOverlay::paintEvent(QPaintEvent* event)
 		painter.drawPixmap(QPoint(0, 0), d->ContentPreviewPixmap);
 	}
 
-	// If we do not have a window frame then we paint a QRubberBadn like
+	// If we do not have a window frame then we paint a QRubberBand like
 	// frameless window
 	if (!CDockManager::configFlags().testFlag(CDockManager::DragPreviewHasWindowFrame))
 	{
@@ -335,8 +356,50 @@ void CFloatingOverlay::paintEvent(QPaintEvent* event)
 }
 
 
+//============================================================================
+void CFloatingDragPreview::keyPressEvent(QKeyEvent *event)
+{
+	Super::keyPressEvent(event);
+	if (event->key() == Qt::Key_Escape)
+	{
+		d->cancelDragging();
+	}
+}
+
+
+//============================================================================
+void CFloatingDragPreview::onApplicationStateChanged(Qt::ApplicationState state)
+{
+	if (state != Qt::ApplicationActive)
+	{
+		disconnect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
+			this, SLOT(onApplicationStateChanged(Qt::ApplicationState)));
+		d->cancelDragging();
+	}
+}
+
+
+//============================================================================
+bool CFloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
+{
+	Q_UNUSED(watched);
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* e = static_cast<QKeyEvent*>(event);
+        if (e->key() == Qt::Key_Escape)
+        {
+            d->Content->removeEventFilter(this);
+            d->cancelDragging();
+        }
+    }
+
+    return false;
+}
+
+
+
 
 } // namespace ads
 
 //---------------------------------------------------------------------------
-// EOF FloatingOverlay.cpp
+// EOF FloatingDragPreview.cpp

@@ -40,7 +40,7 @@ set(ads_SRCS
 	src/DockingStateReader.cpp
     src/ElidingLabel.cpp
     src/FloatingDockContainer.cpp
-	src/FloatingOverlay.cpp
+	src/FloatingDragPreview.cpp
 	src/IconProvider.cpp
     src/ads.qrc
     src/linux/FloatingWidgetTitleBar.cpp
@@ -59,7 +59,7 @@ set(ads_INSTALL_INCLUDE
 	src/DockingStateReader.h
     src/ElidingLabel.h
     src/FloatingDockContainer.h
-	src/FloatingOverlay.h
+	src/FloatingDragPreview.h
 	src/IconProvider.h
     src/linux/FloatingWidgetTitleBar.h
 )

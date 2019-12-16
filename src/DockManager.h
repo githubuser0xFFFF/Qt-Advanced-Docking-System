@@ -86,8 +86,8 @@ private:
 	friend class CDockWidgetTab;
 	friend struct DockAreaWidgetPrivate;
 	friend struct DockWidgetTabPrivate;
-	friend class CFloatingOverlay;
-	friend struct FloatingOverlayPrivate;
+	friend class CFloatingDragPreview;
+	friend struct FloatingDragPreviewPrivate;
 
 protected:
 	/**

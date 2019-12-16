@@ -61,22 +61,33 @@ class CFloatingWidgetTitleBar;
 class CDockingStateReader;
 
 /**
- * Pure virtual interface for floating widgets
+ * Pure virtual interface for floating widgets.
+ * This interface is used for opaque and non-opaque undocking. If opaque
+ * undocking is used, the a real CFloatingDockContainer widget will be created
  */
 class IFloatingWidget
 {
 public:
+	/**
+	 * Starts floating.
+	 * This function should get called typically from a mouse press event
+	 * handler
+	 */
 	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
         eDragState DragState, QWidget* MouseEventHandler) = 0;
 
 	/**
 	 * Moves the widget to a new position relative to the position given when
-	 * startFloating() was called
+	 * startFloating() was called.
+	 * This function should be called from a mouse mouve event handler to
+	 * move the floating widget on mouse move events.
 	 */
 	virtual void moveFloating() = 0;
 
 	/**
-	 * Tells the widget that to finish dragging if the mouse is released
+	 * Tells the widget that to finish dragging if the mouse is released.
+	 * This function should be called from a mouse release event handler
+	 * to finish the dragging
 	 */
 	virtual void finishDragging() = 0;
 };

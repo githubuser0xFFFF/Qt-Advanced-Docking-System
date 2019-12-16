@@ -28,6 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <FloatingDragPreview.h>
 #include "ElidingLabel.h"
 #include "DockWidgetTab.h"
 
@@ -46,7 +47,6 @@
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
 #include "FloatingDockContainer.h"
-#include "FloatingOverlay.h"
 #include "DockOverlay.h"
 #include "DockManager.h"
 #include "IconProvider.h"
@@ -95,7 +95,7 @@ struct DockWidgetTabPrivate
 	/**
 	 * Test function for current drag state
 	 */
-	bool isDraggingState(eDragState dragState)
+	bool isDraggingState(eDragState dragState) const
 	{
 		return this->DragState == dragState;
 	}
@@ -151,7 +151,12 @@ struct DockWidgetTabPrivate
 		}
 		else
 		{
-			return new CFloatingOverlay(Widget);
+			auto w = new CFloatingDragPreview(Widget);
+			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
+			{
+				DragState = DraggingInactive;
+			});
+			return w;
 		}
 	}
 };
@@ -246,6 +251,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 	IFloatingWidget* FloatingWidget = nullptr;
 	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
+
 	// If section widget has multiple tabs, we take only one tab
 	// If it has only one single tab, we can move the complete
 	// dock area into floating widget

@@ -27,6 +27,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <FloatingDragPreview.h>
 #include "DockAreaTabBar.h"
 
 #include <QMouseEvent>
@@ -36,7 +37,6 @@
 #include <QApplication>
 
 #include "FloatingDockContainer.h"
-#include "FloatingOverlay.h"
 #include "DockAreaWidget.h"
 #include "DockOverlay.h"
 #include "DockManager.h"
@@ -60,6 +60,7 @@ struct DockAreaTabBarPrivate
 	QWidget* TabsContainerWidget;
 	QBoxLayout* TabsLayout;
 	int CurrentIndex = -1;
+	eDragState DragState = DraggingInactive;
 
 	/**
 	 * Private data constructor
@@ -71,6 +72,14 @@ struct DockAreaTabBarPrivate
 	 * The function reassigns the stylesheet to update the tabs
 	 */
 	void updateTabs();
+
+	/**
+	 * Test function for current drag state
+	 */
+	bool isDraggingState(eDragState dragState) const
+	{
+		return this->DragState == dragState;
+	}
 };
 // struct DockAreaTabBarPrivate
 
@@ -161,6 +170,7 @@ void CDockAreaTabBar::mousePressEvent(QMouseEvent* ev)
 	{
 		ev->accept();
 		d->DragStartMousePos = ev->pos();
+		d->DragState = DraggingMousePressed;
 		return;
 	}
 	QScrollArea::mousePressEvent(ev);
@@ -174,12 +184,12 @@ void CDockAreaTabBar::mouseReleaseEvent(QMouseEvent* ev)
 	{
         ADS_PRINT("CDockAreaTabBar::mouseReleaseEvent");
 		ev->accept();
+		auto CurrentDragState = d->DragState;
 		d->DragStartMousePos = QPoint();
-		if (d->FloatingWidget)
+		d->DragState = DraggingInactive;
+		if (DraggingFloatingWidget == CurrentDragState)
 		{
-			auto FloatingWidget = d->FloatingWidget;
-			d->FloatingWidget = nullptr;
-			FloatingWidget->finishDragging();
+			d->FloatingWidget->finishDragging();
 		}
 		return;
 	}
@@ -191,16 +201,18 @@ void CDockAreaTabBar::mouseReleaseEvent(QMouseEvent* ev)
 void CDockAreaTabBar::mouseMoveEvent(QMouseEvent* ev)
 {
 	QScrollArea::mouseMoveEvent(ev);
-	if (ev->buttons() != Qt::LeftButton)
+	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
 	{
+		d->DragState = DraggingInactive;
 		return;
 	}
 
-	if (d->FloatingWidget)
-	{
-		d->FloatingWidget->moveFloating();
-		return;
-	}
+    // move floating window
+    if (d->isDraggingState(DraggingFloatingWidget))
+    {
+        d->FloatingWidget->moveFloating();
+        return;
+    }
 
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
@@ -254,6 +266,7 @@ void CDockAreaTabBar::mouseDoubleClickEvent(QMouseEvent *event)
 IFloatingWidget* CDockAreaTabBar::makeAreaFloating(const QPoint& Offset, eDragState DragState)
 {
 	QSize Size = d->DockArea->size();
+	d->DragState = DragState;
 	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DragState);
 	CFloatingDockContainer* FloatingDockContainer = nullptr;
@@ -264,7 +277,12 @@ IFloatingWidget* CDockAreaTabBar::makeAreaFloating(const QPoint& Offset, eDragSt
 	}
 	else
 	{
-		FloatingWidget = new CFloatingOverlay(d->DockArea);
+		auto w = new CFloatingDragPreview(d->DockArea);
+		connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
+		{
+			d->DragState = DraggingInactive;
+		});
+		FloatingWidget = w;
 	}
 
     FloatingWidget->startFloating(Offset, Size, DragState, nullptr);

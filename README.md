@@ -68,13 +68,19 @@ macOS [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Dockin
 
 The application can be compiled for macOS. A user reported, that the library works on macOS. If have not tested it.
 
+![Advanced Docking on macOS](doc/macos.png)
+
 ### Linux
 Ubuntu [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-The application can be compiled for Linux and has been developed and tested with **Kubuntu 18.04**.
+The application can be compiled for Linux and has been developed and tested with **Kubuntu 18.04** and **Kubuntu 19.10**.
 
-![Advanced Docking on Linux](doc/linux_kubuntu_1804.png)
+![Advanced Docking on Kubuntu Linux](doc/linux_kubuntu_1804.png)
+
+and with **Ubuntu 19.10**
+
+![Advanced Docking on Ubuntu Linux](doc/linux_ubuntu_1910.png)
 
 ## Build
 Open the `ads.pro` with QtCreator and start the build, that's it.
