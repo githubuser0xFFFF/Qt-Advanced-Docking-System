@@ -579,7 +579,7 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 		{
 			OldDockArea->removeDockWidget(DroppedDockWidget);
 		}
-		TargetArea->insertDockWidget(0, DroppedDockWidget, false);
+		TargetArea->insertDockWidget(0, DroppedDockWidget, true);
 	}
 	else
 	{
