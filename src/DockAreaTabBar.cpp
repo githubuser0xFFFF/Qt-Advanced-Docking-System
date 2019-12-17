@@ -173,7 +173,7 @@ void CDockAreaTabBar::mousePressEvent(QMouseEvent* ev)
 		d->DragState = DraggingMousePressed;
 		return;
 	}
-	QScrollArea::mousePressEvent(ev);
+	Super::mousePressEvent(ev);
 }
 
 
@@ -193,14 +193,14 @@ void CDockAreaTabBar::mouseReleaseEvent(QMouseEvent* ev)
 		}
 		return;
 	}
-	QScrollArea::mouseReleaseEvent(ev);
+	Super::mouseReleaseEvent(ev);
 }
 
 
 //============================================================================
 void CDockAreaTabBar::mouseMoveEvent(QMouseEvent* ev)
 {
-	QScrollArea::mouseMoveEvent(ev);
+	Super::mouseMoveEvent(ev);
 	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
 	{
 		d->DragState = DraggingInactive;
@@ -618,12 +618,20 @@ QSize CDockAreaTabBar::minimumSizeHint() const
 	return Size;
 }
 
+
 //===========================================================================
 QSize CDockAreaTabBar::sizeHint() const
 {
 	QSize Size = Super::sizeHint();
 	Size.setHeight(d->TabsContainerWidget->sizeHint().height());
 	return Size;
+}
+
+
+//===========================================================================
+eDragState CDockAreaTabBar::dragState() const
+{
+	return d->DragState;
 }
 
 } // namespace ads

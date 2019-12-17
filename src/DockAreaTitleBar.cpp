@@ -364,6 +364,11 @@ void CDockAreaTitleBar::setVisible(bool Visible)
 //============================================================================
 void CDockAreaTitleBar::showContextMenu(const QPoint& pos)
 {
+	if (d->TabBar->dragState() == DraggingFloatingWidget)
+	{
+		return;
+	}
+
 	QMenu Menu(this);
 	auto Action = Menu.addAction(tr("Detach Area"), this, SLOT(onUndockButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));

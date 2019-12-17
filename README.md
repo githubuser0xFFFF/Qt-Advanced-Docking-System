@@ -20,6 +20,17 @@ code quality, readibility and to fix all issues from the issue tracker
 of his docking system project.
 
 ## Features
+### Overview
+- [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
+- [Docking inside floating windows](#docking-inside-floating-windows)
+- [Grouped dragging](#grouped-dragging)
+- [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
+- [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
+- [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
+- [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
+- [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
+- [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+
 ### Docking everywhere - no central widget
 There is no central widget like in the Qt docking system. You can dock on every
 border of the main window or you can dock into each dock area - so you are
@@ -56,6 +67,31 @@ main window layout.
 ![Perspective](doc/perspectives.png)\
 \
 ![Perspective](doc/perspectives_dark.png)
+
+### Opaque and non-opaque splitter resizing
+The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters. If this flag is cleared, the widget resizing is deferred until the mouse button is released - this is some kind of lazy resizing separator.
+
+### Opaque and non-opaque undocking
+By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
+
+The drag preview widget can be configured by a number of global dock manager flags:
+- `DragPreviewIsDynamic`: if this flag is enabled, the preview will be adjusted dynamically to the drop area
+- `DragPreviewShowsContentPixmap`: the created drag preview window shows a static copy of the content of the dock widget / dock are that is dragged
+- `DragPreviewHasWindowFrame`: this flag configures if the drag preview is frameless like a QRubberBand or looks like a real window
+
+The best way to test non-opaque undocking is to set the standard flags: `CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig)`.
+
+### Tab-menu for easy handling of many tabbed dock widgets
+Tabs are a good way to quickly switch between dockwidgets in a dockarea. However, if the number of dockwidgets in a dockarea is too large, this may affect the usability of the tab bar. To keep track in this situation, you can use the tab menu. The menu allows you to quickly select the dockwidget you want to activate from a drop down menu.
+
+### Many different ways to detach dock widgets
+You can detach dock widgets and also dock areas in the following ways:
+- by dragging the dock widget tab or the dock area title bar
+- by double clicking the tab or title bar
+- by using the detach menu entry from the tab and title bar drop down menu
+
+### Supports deletion of dynamically created dock widgets
+Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the toggleView() action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
 
 ## Tested Compatible Environments
 ### Windows

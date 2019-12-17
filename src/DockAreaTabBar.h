@@ -98,6 +98,11 @@ protected:
 	 */
 	IFloatingWidget* makeAreaFloating(const QPoint& Offset, eDragState DragState);
 
+	/**
+	 * Returns the current drag state
+	 */
+	eDragState dragState() const;
+
 
 public:
 	using Super = QScrollArea;

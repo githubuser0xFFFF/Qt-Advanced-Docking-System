@@ -317,26 +317,29 @@ void CDockWidgetTab::mousePressEvent(QMouseEvent* ev)
 //============================================================================
 void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 {
-	auto CurrentDragState = d->DragState;
-    d->DragStartMousePosition = QPoint();
-    d->DragState = DraggingInactive;
+	if (ev->button() == Qt::LeftButton)
+	{
+		auto CurrentDragState = d->DragState;
+		d->DragStartMousePosition = QPoint();
+		d->DragState = DraggingInactive;
 
-    switch (CurrentDragState)
-    {
-    case DraggingTab:
-		// End of tab moving, emit signal
-		if (d->DockArea)
+		switch (CurrentDragState)
 		{
-			emit moved(ev->globalPos());
+		case DraggingTab:
+			// End of tab moving, emit signal
+			if (d->DockArea)
+			{
+				emit moved(ev->globalPos());
+			}
+			break;
+
+		case DraggingFloatingWidget:
+			 d->FloatingWidget->finishDragging();
+			 break;
+
+		default:; // do nothing
 		}
-    	break;
-
-    case DraggingFloatingWidget:
-    	 d->FloatingWidget->finishDragging();
-    	 break;
-
-    default:; // do nothing
-    }
+	}
 
 	Super::mouseReleaseEvent(ev);
 }
@@ -416,6 +419,10 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
 void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 {
 	ev->accept();
+	if (d->isDraggingState(DraggingFloatingWidget))
+	{
+		return;
+	}
 
 	d->DragStartMousePosition = ev->pos();
 	QMenu Menu(this);
