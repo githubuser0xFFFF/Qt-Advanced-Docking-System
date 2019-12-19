@@ -7,8 +7,9 @@ import glob
 import versioneer
 
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py
 from setuptools.extension import Extension
-from distutils import sysconfig, dir_util, spawn, log
+from distutils import sysconfig, dir_util, spawn, log, cmd
 from distutils.dep_util import newer
 import sipdistutils
 import sipconfig
@@ -217,6 +218,31 @@ class build_ext(sipdistutils.build_ext):
         
         sipdistutils.build_ext.build_extension(self, ext)
 
+
+class ProcessResourceCommand(cmd.Command):
+    """A custom command to compile the resource file into a Python file"""
+
+    description = "Compile the qrc file into a python file"
+
+    def initialize_options(self):
+        return
+
+    def finalize_options(self):
+        return
+
+    def run(self):
+        processResourceFile([os.path.join('src', 'ads.qrc')],
+                            os.path.join(SRC_PATH, 'rc.py'), False)
+
+
+class BuildPyCommand(build_py):
+    """Custom build command to include ProcessResource command"""
+
+    def run(self):
+        self.run_command("process_resource")
+        build_py.run(self)
+
+
 setup_requires = ["PyQt5"] if REQUIRE_PYQT else []
 cpp_sources = glob.glob(os.path.join('src', '*.cpp'))
 sip_sources = [os.path.join('sip', MODULE_NAME + '.sip')]
@@ -229,8 +255,6 @@ if sys.platform == 'win32':
     install_requires.append("pywin32")
     
 
-processResourceFile([os.path.join('src', 'ads.qrc')],
-                    os.path.join(SRC_PATH, 'rc.py'), False)
 with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()
 
@@ -260,7 +284,9 @@ setup(
                    "Programming Language :: Python :: 3.6",
                    "Programming Language :: Python :: 3.7"],
     ext_modules = ext_modules,
-    cmdclass = versioneer.get_cmdclass({'build_ext': build_ext}),
+    cmdclass = versioneer.get_cmdclass({'process_resource': ProcessResourceCommand,
+                                        'build_py': BuildPyCommand,
+                                        'build_ext': build_ext}),
     packages = find_packages(),
     setup_requires = setup_requires,
     install_requires = install_requires,
