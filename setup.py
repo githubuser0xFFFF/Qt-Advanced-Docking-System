@@ -4,6 +4,8 @@ import shlex
 import subprocess
 import glob
 
+import versioneer
+
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from distutils import sysconfig, dir_util, spawn, log
@@ -13,11 +15,6 @@ import sipconfig
 from PyQt5.QtCore import PYQT_CONFIGURATION
 from PyQt5.pyrcc_main import processResourceFile
 
-MAJOR = 2
-MINOR = 7
-MICRO = 0
-ISRELEASED = True
-VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 MODULE_NAME = "ads"
 SRC_PATH = "PyQtAds"
     
@@ -220,74 +217,6 @@ class build_ext(sipdistutils.build_ext):
         
         sipdistutils.build_ext.build_extension(self, ext)
 
-        
-def git_version():
-    '''Return the git revision as a string'''
-    
-    def _minimal_ext_cmd(cmd):
-        # construct minimal environment
-        env = {}
-        for k in ['SYSTEMROOT', 'PATH', 'HOME']:
-            v = os.environ.get(k)
-            if v is not None:
-                env[k] = v
-        # LANGUAGE is used on win32
-        env['LANGUAGE'] = 'C'
-        env['LANG'] = 'C'
-        env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env).communicate()[0]
-        return out
-
-    try:
-        out = _minimal_ext_cmd(['git', 'rev-parse', 'HEAD'])
-        GIT_REVISION = out.strip().decode('ascii')
-    except OSError:
-        GIT_REVISION = "Unknown"
-
-    return GIT_REVISION
-  
-
-def get_version_info():
-    # Adding the git rev number needs to be done inside write_version_py(),
-    # otherwise the import of numpy.version messes up the build under Python 3.
-    FULLVERSION = VERSION
-    if os.path.exists('.git'):
-        GIT_REVISION = git_version()
-    elif os.path.exists(os.path.join(SRC_PATH, 'version.py')):
-        # must be a source distribution, use existing version file
-        try:
-            from PyQtAds.version import git_revision as GIT_REVISION
-        except ImportError:
-            raise ImportError("Unable to import git_revision. Try removing " \
-                              "%(module)/version.py and the build directory " \
-                              "before building." % {'module': SRC_PATH})
-    else:
-        GIT_REVISION = "Unknown"
-
-    if not ISRELEASED:
-        FULLVERSION += '.dev0+' + GIT_REVISION[:7]
-
-    return FULLVERSION, GIT_REVISION
-    
-
-def write_version_py(filename=os.path.join(SRC_PATH, '_version.py')):
-    cnt = ("# THIS FILE IS GENERATED FROM %(module)s SETUP.PY\n\n"
-           "short_version = '%(version)s'\n"
-           "version = '%(version)s'\n"
-           "full_version = '%(full_version)s'\n"
-           "git_revision = '%(git_revision)s'\n"
-           "release = %(isrelease)s\n"
-           "if not release:\n"
-           "    version = full_version\n")
-    FULLVERSION, GIT_REVISION = get_version_info()
-
-    with open(filename, 'w') as f:
-        f.write(cnt % {'module': SRC_PATH,
-                       'version': VERSION,
-                       'full_version': FULLVERSION,
-                       'git_revision': GIT_REVISION,
-                       'isrelease': str(ISRELEASED)})
-  
 setup_requires = ["PyQt5"] if REQUIRE_PYQT else []
 cpp_sources = glob.glob(os.path.join('src', '*.cpp'))
 sip_sources = [os.path.join('sip', MODULE_NAME + '.sip')]
@@ -300,18 +229,17 @@ if sys.platform == 'win32':
     install_requires.append("pywin32")
     
 
-write_version_py(os.path.join(SRC_PATH, '_version.py'))
 processResourceFile([os.path.join('src', 'ads.qrc')],
                     os.path.join(SRC_PATH, 'rc.py'), False)
 with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()
-    
+
 setup(
     name = SRC_PATH,
     author = "Nicolas Elie",
     author_email = "nicolas.elie@cnrs.fr",
     url = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System",
-    version = get_version_info()[0],
+    version = versioneer.get_version(),
     description = "Advanced Docking System for Qt",
     long_description = LONG_DESCRIPTION,
     keywords = ["qt"],
@@ -332,9 +260,7 @@ setup(
                    "Programming Language :: Python :: 3.6",
                    "Programming Language :: Python :: 3.7"],
     ext_modules = ext_modules,
-    cmdclass = {
-        'build_ext': build_ext,
-    },
+    cmdclass = versioneer.get_cmdclass({'build_ext': build_ext}),
     packages = find_packages(),
     setup_requires = setup_requires,
     install_requires = install_requires,
