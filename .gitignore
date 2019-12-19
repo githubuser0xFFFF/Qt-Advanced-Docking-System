@@ -16,3 +16,4 @@ Makefile
 *.pyc
 *.pyd
 __pycache__
+PyQtAds/rc.py
