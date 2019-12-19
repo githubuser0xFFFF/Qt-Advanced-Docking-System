@@ -294,6 +294,7 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 		return;
 	}
 	d->Features = features;
+    emit featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
 }
 
@@ -450,7 +451,7 @@ void CDockWidget::toggleViewInternal(bool Open)
 	}
 	d->Closed = !Open;
 	d->ToggleViewAction->blockSignals(true);
-	d->ToggleViewAction->setChecked(Open);
+    d->ToggleViewAction->setChecked(Open);
 	d->ToggleViewAction->blockSignals(false);
 	if (d->DockArea)
 	{
@@ -515,23 +516,36 @@ void CDockWidget::flagAsUnassigned()
 //============================================================================
 bool CDockWidget::event(QEvent *e)
 {
-	if (e->type() == QEvent::WindowTitleChange)
-	{
-		const auto title = windowTitle();
-		if (d->TabWidget)
-		{
-			d->TabWidget->setText(title);
-		}
-		if (d->ToggleViewAction)
-		{
-			d->ToggleViewAction->setText(title);
-		}
-		if (d->DockArea)
-		{
-			d->DockArea->markTitleBarMenuOutdated();//update tabs menu
-		}
-		emit titleChanged(title);
-	}
+    switch (e->type())
+    {
+#ifndef QT_NO_ACTION
+        case QEvent::Hide:
+            emit visibilityChanged(false);
+            break;
+        case QEvent::Show:
+            emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+            break;
+#endif
+        case QEvent::WindowTitleChange: {
+            const auto title = windowTitle();
+            if (d->TabWidget)
+            {
+                d->TabWidget->setText(title);
+            }
+            if (d->ToggleViewAction)
+            {
+                d->ToggleViewAction->setText(title);
+            }
+            if (d->DockArea)
+            {
+                d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+            }
+            emit titleChanged(title);
+            break;
+        }
+        default:
+            break;
+    }
 	return Super::event(e);
 }
 

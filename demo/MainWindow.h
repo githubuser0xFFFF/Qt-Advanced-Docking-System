@@ -61,6 +61,7 @@ private slots:
 	void onViewToggled(bool Open);
 	void createEditor();
 	void createTable();
+    void onViewVisibilityChanged(bool Open);
 };
 
 #endif // MAINWINDOW_H
