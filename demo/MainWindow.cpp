@@ -288,6 +288,7 @@ void MainWindowPrivate::createContent()
 	for (auto DockWidget : DockManager->dockWidgetsMap())
 	{
 		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
+        _this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
 	}
 }
 
@@ -485,5 +486,17 @@ void CMainWindow::createTable()
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
 	auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
     FloatingWidget->move(QPoint(40, 40));
+}
+
+//============================================================================
+void CMainWindow::onViewVisibilityChanged(bool Open)
+{
+    auto DockWidget = qobject_cast<ads::CDockWidget*>(sender());
+    if (!DockWidget)
+    {
+        return;
+    }
+
+    qDebug() << DockWidget->objectName() << " visibilityChanged(" << Open << ")";
 }
 

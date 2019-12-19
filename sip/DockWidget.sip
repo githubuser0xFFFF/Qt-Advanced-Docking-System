@@ -97,6 +97,8 @@ signals:
 	void closed();
 	void titleChanged(const QString& Title);
 	void topLevelChanged(bool topLevel);
+    void visibilityChanged(bool visible);
+    void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 };
 
 };
