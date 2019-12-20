@@ -42,6 +42,9 @@
 #include <QDebug>
 #include <QToolBar>
 #include <QXmlStreamWriter>
+#include <QWindow>
+#include <QScreen>
+#include <QGuiApplication>
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
@@ -518,14 +521,20 @@ bool CDockWidget::event(QEvent *e)
 {
     switch (e->type())
     {
-#ifndef QT_NO_ACTION
         case QEvent::Hide:
             emit visibilityChanged(false);
             break;
-        case QEvent::Show:
-            emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+        case QEvent::Show: {
+            QPoint parentTopLeft(0, 0);
+            if (isWindow()) {
+                if (const QWindow *window = windowHandle())
+                    parentTopLeft = window->screen()->availableVirtualGeometry().topLeft();
+                else
+                    parentTopLeft = QGuiApplication::primaryScreen()->availableVirtualGeometry().topLeft();
+            }
+            emit visibilityChanged(geometry().right() >= parentTopLeft.x() && geometry().bottom() >= parentTopLeft.y());
+        }
             break;
-#endif
         case QEvent::WindowTitleChange: {
             const auto title = windowTitle();
             if (d->TabWidget)
