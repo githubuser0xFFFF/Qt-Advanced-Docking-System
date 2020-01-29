@@ -3,17 +3,17 @@
 /*******************************************************************************
 ** Qt Advanced Docking System
 ** Copyright (C) 2017 Uwe Kindler
-** 
+**
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Lesser General Public
 ** License as published by the Free Software Foundation; either
 ** version 2.1 of the License, or (at your option) any later version.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
@@ -33,25 +33,46 @@
 #include <QFrame>
 
 #include "ads_globals.h"
+#include "DockWidget.h"
+
+class QXmlStreamWriter;
+
 
 namespace ads
 {
-struct DockContainerWidgetPrivate;
+class DockContainerWidgetPrivate;
 class CDockAreaWidget;
 class CDockWidget;
 class CDockManager;
+struct DockManagerPrivate;
 class CFloatingDockContainer;
+struct FloatingDockContainerPrivate;
+class CFloatingDragPreview;
+struct FloatingDragPreviewPrivate;
+class CDockingStateReader;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
- * or tabyfied dock widgets in each area
+ * or tabyfied dock widgets in each area.
+ * Each window that support docking has a DockContainerWidget. That means
+ * the main application window and all floating windows are ore contain
+ * an DockContainerWidget.
  */
-class CDockContainerWidget : public QFrame
+class ADS_EXPORT CDockContainerWidget : public QFrame
 {
 	Q_OBJECT
 private:
 	DockContainerWidgetPrivate* d; ///< private data (pimpl)
-	friend class DockContainerWidgetPrivate;
+    friend class DockContainerWidgetPrivate;
+	friend class CDockManager;
+	friend struct DockManagerPrivate;
+	friend class CDockAreaWidget;
+	friend struct DockAreaWidgetPrivate;
+	friend class CFloatingDockContainer;
+	friend struct FloatingDockContainerPrivate;
+	friend class CDockWidget;
+	friend class CFloatingDragPreview;
+	friend struct FloatingDragPreviewPrivate;
 
 protected:
 	/**
@@ -63,6 +84,80 @@ protected:
 	 * Access function for the internal root splitter
 	 */
 	QSplitter* rootSplitter() const;
+
+	/**
+	 * Helper function for creation of the root splitter
+	 */
+	void createRootSplitter();
+
+	/**
+	 * Drop floating widget into the container
+	 */
+	void dropFloatingWidget(CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
+
+	/**
+	 * Drop a dock area or a dock widget given in widget parameter
+	 */
+	void dropWidget(QWidget* Widget, const QPoint& TargetPos);
+
+	/**
+	 * Adds the given dock area to this container widget
+	 */
+	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = CenterDockWidgetArea);
+
+	/**
+	 * Removes the given dock area from this container
+	 */
+	void removeDockArea(CDockAreaWidget* area);
+
+	/**
+	 * Saves the state into the given stream
+	 */
+	void saveState(QXmlStreamWriter& Stream) const;
+
+	/**
+	 * Restores the state from given stream.
+	 * If Testing is true, the function only parses the data from the given
+	 * stream but does not restore anything. You can use this check for
+	 * faulty files before you start restoring the state
+	 */
+	bool restoreState(CDockingStateReader& Stream, bool Testing);
+
+	/**
+	 * This function returns the last added dock area widget for the given
+	 * area identifier or 0 if no dock area widget has been added for the given
+	 * area
+	 */
+	CDockAreaWidget* lastAddedDockAreaWidget(DockWidgetArea area) const;
+
+	/**
+	 * This function returns true if this dock area has only one single
+	 * visible dock widget.
+	 * A top level widget is a real floating widget. Only the isFloating()
+	 * function of top level widgets may returns true.
+	 */
+	bool hasTopLevelDockWidget() const;
+
+	/**
+	 * If hasSingleVisibleDockWidget() returns true, this function returns the
+	 * one and only visible dock widget. Otherwise it returns a nullptr.
+	 */
+	CDockWidget* topLevelDockWidget() const;
+
+	/**
+	 * Returns the top level dock area.
+	 */
+	CDockAreaWidget* topLevelDockArea() const;
+
+    /**
+     * This function returns a list of all dock widgets in this floating widget.
+     * It may be possible, depending on the implementation, that dock widgets,
+     * that are not visible to the user have no parent widget. Therefore simply
+     * calling findChildren() would not work here. Therefore this function
+     * iterates over all dock areas and creates a list that contains all
+     * dock widgets returned from all dock areas.
+     */
+    QList<CDockWidget*> dockWidgets() const;
 
 public:
 	/**
@@ -76,11 +171,6 @@ public:
 	virtual ~CDockContainerWidget();
 
 	/**
-	 * Drop floating widget into the container
-	 */
-	void dropFloatingWidget(CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
-
-	/**
 	 * Adds dockwidget into the given area.
 	 * If DockAreaWidget is not null, then the area parameter indicates the area
 	 * into the DockAreaWidget. If DockAreaWidget is null, the Dockwidget will
@@ -91,14 +181,9 @@ public:
 		CDockAreaWidget* DockAreaWidget = nullptr);
 
 	/**
-	 * Adds the given dock area to this container widget
+	 * Removes dockwidget
 	 */
-	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = CenterDockWidgetArea);
-
-	/**
-	 * Removes the given dock area from this container
-	 */
-	void removeDockArea(CDockAreaWidget* area);
+	void removeDockWidget(CDockWidget* Dockwidget);
 
 	/**
 	 * Returns the current zOrderIndex
@@ -145,22 +230,30 @@ public:
 	bool isFloating() const;
 
 	/**
-	 * Saves the state into the given stream
-	 */
-	void saveState(QDataStream& Stream) const;
-
-	/**
-	 * Restores the state from given stream.
-	 * If Testing is true, the function only parses the data from the given
-	 * stream but does not restore anything. You can use this check for
-	 * faulty files before you start restoring the state
-	 */
-	bool restoreState(QDataStream& Stream, bool Testing);
-
-	/**
 	 * Dumps the layout for debugging purposes
 	 */
 	void dumpLayout();
+
+	/**
+	 * This functions returns the dock widget features of all dock widget in
+	 * this container.
+	 * A bitwise and is used to combine the flags of all dock widgets. That
+	 * means, if only dock widget does not support a certain flag, the whole
+	 * dock are does not support the flag.
+	 */
+	CDockWidget::DockWidgetFeatures features() const;
+
+	/**
+	 * If this dock container is in a floating widget, this function returns
+	 * the floating widget.
+	 * Else, it returns a nullptr.
+	 */
+	CFloatingDockContainer* floatingWidget() const;
+
+	/**
+	 * Call this function to close all dock areas except the KeepOpenArea
+	 */
+	void closeOtherAreas(CDockAreaWidget* KeepOpenArea);
 
 signals:
 	/**
@@ -174,6 +267,12 @@ signals:
 	 * This signal is emitted if one or multiple dock areas has been removed
 	 */
 	void dockAreasRemoved();
+
+	/**
+	 * This signal is emitted if a dock area is opened or closed via
+	 * toggleView() function
+	 */
+	void dockAreaViewToggled(CDockAreaWidget* DockArea, bool Open);
 }; // class DockContainerWidget
 } // namespace ads
 //-----------------------------------------------------------------------------

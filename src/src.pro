@@ -1,26 +1,24 @@
-ADS_ROOT = $${PWD}/..
 ADS_OUT_ROOT = $${OUT_PWD}/..
-
-TARGET = $$qtLibraryTarget(AdvancedDockingSystem)
+CONFIG += c++14
+CONFIG += debug_and_release
+TARGET = $$qtLibraryTarget(qtadvanceddocking)
+DEFINES += QT_DEPRECATED_WARNINGS
 TEMPLATE = lib
 DESTDIR = $${ADS_OUT_ROOT}/lib
 QT += core gui widgets
 
-CONFIG += adsBuildShared
-
-
-adsBuildShared {
+!adsBuildStatic {
 	CONFIG += shared
-	DEFINES += ADS_EXPORT
+    DEFINES += ADS_SHARED_EXPORT
 }
-!adsBuildShared {
+adsBuildStatic {
 	CONFIG += staticlib
+    DEFINES += ADS_STATIC
 }
 
 windows {
 	# MinGW
 	*-g++* {
-		QMAKE_CXXFLAGS += -std=c++11
 		QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 	}
 	# MSVC
@@ -33,23 +31,51 @@ RESOURCES += ads.qrc
 HEADERS += \
     ads_globals.h \
     DockAreaWidget.h \
+    DockAreaTabBar.h \
     DockContainerWidget.h \
     DockManager.h \
     DockWidget.h \
-    DockWidgetTitleBar.h \
+    DockWidgetTab.h \ 
+    DockingStateReader.h \
     FloatingDockContainer.h \
+    FloatingDragPreview.h \
     DockOverlay.h \
-    DockSplitter.h
-    
-    
-    
+    DockSplitter.h \
+    DockAreaTitleBar.h \
+    ElidingLabel.h \
+    IconProvider.h
+
+
 SOURCES += \
     ads_globals.cpp \
     DockAreaWidget.cpp \
+    DockAreaTabBar.cpp \
     DockContainerWidget.cpp \
     DockManager.cpp \
     DockWidget.cpp \
-    DockWidgetTitleBar.cpp \
+    DockingStateReader.cpp \
+    DockWidgetTab.cpp \
     FloatingDockContainer.cpp \
+    FloatingDragPreview.cpp \
     DockOverlay.cpp \
-    DockSplitter.cpp
+    DockSplitter.cpp \
+    DockAreaTitleBar.cpp \
+    ElidingLabel.cpp \
+    IconProvider.cpp
+
+
+unix {
+HEADERS += linux/FloatingWidgetTitleBar.h
+SOURCES += linux/FloatingWidgetTitleBar.cpp
+}
+
+isEmpty(PREFIX){
+	PREFIX=..\installed
+	warning("Install Prefix not set")
+}
+headers.path=$$PREFIX/include
+headers.files=$$HEADERS
+target.path=$$PREFIX/lib
+INSTALLS += headers target
+
+DISTFILES +=

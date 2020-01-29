@@ -52,7 +52,8 @@ CDockSplitter::CDockSplitter(QWidget *parent)
 	: QSplitter(parent),
 	  d(new DockSplitterPrivate(this))
 {
-
+	setProperty("ads-splitter", true);
+	setChildrenCollapsible(false);
 }
 
 
@@ -67,7 +68,7 @@ CDockSplitter::CDockSplitter(Qt::Orientation orientation, QWidget *parent)
 //============================================================================
 CDockSplitter::~CDockSplitter()
 {
-	qDebug() << "~CDockSplitter";
+    ADS_PRINT("~CDockSplitter");
 	delete d;
 }
 
@@ -78,7 +79,7 @@ bool CDockSplitter::hasVisibleContent() const
 	// TODO Cache or precalculate this to speed up
 	for (int i = 0; i < count(); ++i)
 	{
-		if (widget(i)->isVisibleTo(this))
+		if (!widget(i)->isHidden())
 		{
 			return true;
 		}

@@ -25,26 +25,28 @@ ads--CDockAreaWidget #tabsMenuButton::menu-indicator
     image: none;
 }
 
-ads--CDockWidgetTitleBar
+
+ads--CDockWidgetTab
 {
     background: palette(window);
     border-color: palette(light);
     border-style: solid;
     border-width: 0 1px 0 0;
-    padding: 0 9px;
+    padding: 0 0px;
 }
 
-ads--CDockWidgetTitleBar[activeTab="true"]
+ads--CDockWidgetTab[activeTab="true"]
 {
     background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.5, stop:0 palette(window), stop:1 palette(light));
+    /*background: palette(highlight);*/
 }
 
-ads--CDockWidgetTitleBar QLabel
+ads--CDockWidgetTab QLabel
 {
     color: palette(dark);
 }
 
-ads--CDockWidgetTitleBar[activeTab="true"] QLabel
+ads--CDockWidgetTab[activeTab="true"] QLabel
 {
     color: palette(foreground);
 }
@@ -57,10 +59,38 @@ ads--CDockWidget
     border-width: 1px 0 0 0;
 }
 
-QPushButton#closeButton,
-QPushButton#tabsMenuButton
+#tabsMenuButton,
+#closeButton,
+#undockButton
 {
-	padding: 2px;
+	padding: 0px -2px;
+}
+
+
+QScrollArea#dockWidgetScrollArea
+{
+	padding: 0px;
+	border: none;
+}
+
+
+#tabCloseButton
+{
+	margin-top: 2px;
+	background: none;
+	border: none;
+	padding: 0px -2px;
+}
+
+#tabCloseButton:hover
+{
+	border: 1px solid rgba(0, 0, 0, 32);
+	background: rgba(0, 0, 0, 16);
+}
+
+#tabCloseButton:pressed
+{
+	background: rgba(0, 0, 0, 32);
 }
 
 

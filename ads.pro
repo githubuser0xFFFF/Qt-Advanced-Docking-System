@@ -2,4 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
 	src \
-	demo
+	demo \
+	example
+
+demo.depends = src
+example.depends = src

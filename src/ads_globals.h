@@ -31,11 +31,45 @@
 //                                   INCLUDES
 //============================================================================
 #include <QPair>
+#include <QtCore/QtGlobal>
+#include <QPixmap>
+#include <QWidget>
+#include <QDebug>
+
+#ifndef ADS_STATIC
+#ifdef ADS_SHARED_EXPORT
+#define ADS_EXPORT Q_DECL_EXPORT
+#else
+#define ADS_EXPORT Q_DECL_IMPORT
+#endif
+#else
+#define ADS_EXPORT
+#endif
+
+// Define ADS_DEBUG_PRINT to enable a lot of debug output
+#ifdef ADS_DEBUG_PRINT
+#define ADS_PRINT(s) qDebug() << s
+#else
+#define ADS_PRINT(s)
+#endif
+
+// Set ADS_DEBUG_LEVEL to enable additional debug output and to enable layout
+// dumps to qDebug and std::cout after layout changes
+#define ADS_DEBUG_LEVEL 0
 
 class QSplitter;
 
 namespace ads
 {
+enum eStateFileVersion
+{
+	InitialVerison = 0,
+	Version1 = 1,
+	CurrentVersion = Version1
+};
+
+class CDockSplitter;
+
 enum DockWidgetArea
 {
 	NoDockWidgetArea = 0x00,
@@ -52,19 +86,63 @@ enum DockWidgetArea
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 
 
-namespace internal
+enum TitleBarButton
 {
-
+	TitleBarButtonTabsMenu,
+	TitleBarButtonUndock,
+	TitleBarButtonClose
+};
 
 /**
- * Helper function to create new splitter widgets
+ * The different dragging states
  */
-QSplitter* newSplitter(Qt::Orientation orientation, QWidget* parent = 0);
+enum eDragState
+{
+	DraggingInactive,     //!< DraggingInactive
+	DraggingMousePressed, //!< DraggingMousePressed
+	DraggingTab,          //!< DraggingTab
+	DraggingFloatingWidget//!< DraggingFloatingWidget
+};
+
+/**
+ * The different icons used in the UI
+ */
+enum eIcon
+{
+	TabCloseIcon,      //!< TabCloseIcon
+	DockAreaMenuIcon,  //!< DockAreaMenuIcon
+	DockAreaUndockIcon,//!< DockAreaUndockIcon
+	DockAreaCloseIcon, //!< DockAreaCloseIcon
+
+	IconCount,         //!< just a delimiter for range checks
+};
+
+/**
+ * For bitwise combination of dock wdget features
+ */
+enum eBitwiseOperator
+{
+	BitwiseAnd,
+	BitwiseOr
+};
+
+namespace internal
+{
+static const bool RestoreTesting = true;
+static const bool Restore = false;
+static const char* const ClosedProperty = "close";
+static const char* const DirtyProperty = "dirty";
 
 /**
  * Replace the from widget in the given splitter with the To widget
  */
 void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To);
+
+/**
+ * This function walks the splitter tree upwards to hides all splitters
+ * that do not have visible content
+ */
+void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 
 /**
  * Convenience class for QPair to provide better naming than first and
@@ -88,6 +166,10 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
  * Searches for the parent widget of the given type.
  * Returns the parent widget of the given widget or 0 if the widget is not
  * child of any widget of type T
+ *
+ * It is not safe to use this function in in CDockWidget because only
+ * the current dock widget has a parent. All dock widgets that are not the
+ * current dock widget in a dock area have no parent.
  */
 template <class T>
 T findParent(const QWidget* w)
@@ -95,7 +177,7 @@ T findParent(const QWidget* w)
 	QWidget* parentWidget = w->parentWidget();
 	while (parentWidget)
 	{
-		T ParentImpl = dynamic_cast<T>(parentWidget);
+		T ParentImpl = qobject_cast<T>(parentWidget);
 		if (ParentImpl)
 		{
 			return ParentImpl;
@@ -103,6 +185,34 @@ T findParent(const QWidget* w)
 		parentWidget = parentWidget->parentWidget();
 	}
 	return 0;
+}
+
+/**
+ * Creates a semi transparent pixmap from the given pixmap Source.
+ * The Opacity parameter defines the opacity from completely transparent (0.0)
+ * to completely opaque (1.0)
+ */
+QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity);
+
+
+/**
+ * Helper function for settings flags in a QFlags instance.
+ */
+template <class T>
+void setFlag(T& Flags, typename T::enum_type flag, bool on = true)
+{
+#if QT_VERSION >= 0x050700
+	Flags.setFlag(flag, on);
+#else
+    if(on)
+    {
+        Flags |= flag;
+    }
+    else
+    {
+        Flags &= ~flag;
+    }
+#endif
 }
 
 } // namespace internal

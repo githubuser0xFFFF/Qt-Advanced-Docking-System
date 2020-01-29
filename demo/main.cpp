@@ -1,3 +1,4 @@
+#include <MainWindow.h>
 #include <QString>
 #include <QFile>
 #include <QApplication>
@@ -5,7 +6,6 @@
 
 #include <memory>
 
-#include "mainwindow.h"
 
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -35,13 +35,17 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#if QT_VERSION >= 0x050600
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 	std::shared_ptr<int> b;
 	QApplication a(argc, argv);
 	a.setQuitOnLastWindowClosed(true);
 	qInstallMessageHandler(myMessageOutput);
 	qDebug() << "Message handler test";
 
-	MainWindow mw;
+	CMainWindow mw;
 	mw.show();
 	return a.exec();
 }
