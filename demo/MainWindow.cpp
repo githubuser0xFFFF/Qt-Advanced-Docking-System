@@ -69,6 +69,8 @@
 #include "DockAreaWidget.h"
 #include "FloatingDockContainer.h"
 
+#include "DockWidgetTab.h"
+
 
 //============================================================================
 static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
@@ -275,8 +277,19 @@ void MainWindowPrivate::createContent()
 	// Test container docking
 	QMenu* ViewMenu = ui.menuView;
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+    auto SpecialDockArea = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+
+    // very Special Dock Area:
+    {
+        DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+        DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+        DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+        DockWidget->tabWidget()->setVisible(false);
+
+        SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
+        //SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
+    }
+
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
 	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	auto ToolBar = FileSystemWidget->createDefaultToolBar();

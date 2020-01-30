@@ -254,6 +254,10 @@ public:
 	 */
 	virtual void setVisible(bool Visible) override;
 
+    void setAllowedAreas(DockWidgetAreas areas);
+
+    DockWidgetAreas allowedAreas() const;
+
 public slots:
 	/**
 	 * This activates the tab for the given tab index.
