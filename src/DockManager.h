@@ -156,6 +156,7 @@ public:
 		DragPreviewIsDynamic = 0x0400,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
 		DragPreviewShowsContentPixmap = 0x0800,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
 		DragPreviewHasWindowFrame = 0x1000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
+        AlwaysShowTabs = 0x2000,
 		DefaultConfig = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
 		              | OpaqueSplitterResize

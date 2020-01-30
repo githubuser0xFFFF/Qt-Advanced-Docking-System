@@ -702,6 +702,11 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		return;
 	}
 
+    if (CDockManager::configFlags().testFlag(CDockManager::AlwaysShowTabs))
+    {
+        return;
+    }
+
 	if (d->TitleBar)
 	{
 		d->TitleBar->setVisible(!Container->isFloating() || !Container->hasTopLevelDockWidget());
