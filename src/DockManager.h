@@ -156,18 +156,26 @@ public:
 		DragPreviewIsDynamic = 0x0400,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
 		DragPreviewShowsContentPixmap = 0x0800,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
 		DragPreviewHasWindowFrame = 0x1000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
-		DefaultConfig = ActiveTabHasCloseButton
+        DockAreaHasUndockButton = 0x2000,     //!< If the flag is set each dock area has an undock button
+        DockAreaHasTabsMenuButton = 0x4000,     //!< If the flag is set each dock area has a tabs menu button
+        DefaultConfig = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-		              | OpaqueSplitterResize
+                      | DockAreaHasUndockButton
+                      | DockAreaHasTabsMenuButton
+                      | OpaqueSplitterResize
 		              | XmlCompressionEnabled
 		              | OpaqueUndocking, ///< the default configuration
 		DefaultNonOpaqueConfig = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-		              | XmlCompressionEnabled
+                      | DockAreaHasUndockButton
+                      | DockAreaHasTabsMenuButton
+                      | XmlCompressionEnabled
 		              | DragPreviewShowsContentPixmap, ///< the default configuration for non opaque operations
 		NonOpaqueWithWindowFrame = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-		              | XmlCompressionEnabled
+                      | DockAreaHasUndockButton
+                      | DockAreaHasTabsMenuButton
+                      | XmlCompressionEnabled
 		              | DragPreviewShowsContentPixmap
 		              | DragPreviewHasWindowFrame ///< the default configuration for non opaque operations that show a real window with frame
 	};

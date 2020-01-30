@@ -416,6 +416,8 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// not change if the visibility of the close button changes
     //CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
 
+    // uncomment the following line if you don't want close button on DockArea's title bar
+    // CDockManager::setConfigFlag(CDockManager::DockAreaHasCloseButton, false);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
