@@ -131,14 +131,6 @@ protected:
 	CDockAreaWidget* lastAddedDockAreaWidget(DockWidgetArea area) const;
 
 	/**
-	 * This function returns true if this dock area has only one single
-	 * visible dock widget.
-	 * A top level widget is a real floating widget. Only the isFloating()
-	 * function of top level widgets may returns true.
-	 */
-	bool hasTopLevelDockWidget() const;
-
-	/**
 	 * If hasSingleVisibleDockWidget() returns true, this function returns the
 	 * one and only visible dock widget. Otherwise it returns a nullptr.
 	 */
@@ -213,6 +205,14 @@ public:
 	 * If all dock widgets in a dock area are closed, the dock area will be closed
 	 */
 	QList<CDockAreaWidget*> openedDockAreas() const;
+
+    /**
+     * This function returns true if this dock area has only one single
+     * visible dock widget.
+     * A top level widget is a real floating widget. Only the isFloating()
+     * function of top level widgets may returns true.
+     */
+    bool hasTopLevelDockWidget() const;
 
 	/**
 	 * Returns the number of dock areas in this container

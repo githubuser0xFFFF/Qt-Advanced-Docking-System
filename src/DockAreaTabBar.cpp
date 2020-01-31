@@ -345,7 +345,7 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	connect(Tab, SIGNAL(moved(const QPoint&)), this, SLOT(onTabWidgetMoved(const QPoint&)));
 	Tab->installEventFilter(this);
 	emit tabInserted(Index);
-	if (Index <= d->CurrentIndex)
+	if (Index <= d->CurrentIndex || d->CurrentIndex == -1)
 	{
 		setCurrentIndex(d->CurrentIndex + 1);
 	}
