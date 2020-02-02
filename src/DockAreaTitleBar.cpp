@@ -62,11 +62,11 @@ struct DockAreaTitleBarPrivate
 	tTileBarButton* TabsMenuButton;
 	tTileBarButton* UndockButton;
 	tTileBarButton* CloseButton;
+	tTileBarButton* WidgetActionsMenuButton = nullptr;
 	QBoxLayout* TopLayout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
 	bool MenuOutdated = true;
-	QMenu* TabsMenu;
 
 	/**
 	 * Private data constructor
@@ -106,7 +106,7 @@ struct DockAreaTitleBarPrivate
      * If the global IconPovider of the dockmanager provides a custom
      * Icon for the given CustomIconId, the this icon will be used.
      */
-    void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandarPixmap,
+	void setTitleBarButtonIcon(tTileBarButton* Button, QStyle::StandardPixmap StandardPixmap,
     	ads::eIcon CustomIconId)
     {
     	// First we try to use custom icons if available
@@ -120,12 +120,15 @@ struct DockAreaTitleBarPrivate
     #ifdef Q_OS_LINUX
         Button->setIcon(_this->style()->standardIcon(StandarPixmap));
     #else
-        QPixmap normalPixmap = _this->style()->standardPixmap(StandarPixmap, 0, Button);
+		QPixmap normalPixmap = _this->style()->standardPixmap(StandardPixmap, 0, Button);
         Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
         Icon.addPixmap(normalPixmap, QIcon::Normal);
         Button->setIcon(Icon);
     #endif
-    }
+	}
+
+	void createWidgetActionsButton();
+
 };// struct DockAreaTitleBarPrivate
 
 
@@ -162,6 +165,9 @@ void DockAreaTitleBarPrivate::createButtons()
 	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
 		SLOT(onTabsMenuActionTriggered(QAction*)));
 
+	if (CDockManager::configFlags().testFlag(CDockManager::DockAreaHasWidgetActionsMenuButton)){
+		createWidgetActionsButton();
+	}
 
 	// Undock button
 	UndockButton = new tTileBarButton();
@@ -198,6 +204,40 @@ void DockAreaTitleBarPrivate::createButtons()
 		TopLayout->addWidget(CloseButton, 0);
 	}
 	_this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
+}
+
+void DockAreaTitleBarPrivate::createWidgetActionsButton() {
+	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+
+	WidgetActionsMenuButton = new tTileBarButton();
+	WidgetActionsMenuButton->setObjectName("widgetActionsMenuButton");
+	WidgetActionsMenuButton->setAutoRaise(true);
+	WidgetActionsMenuButton->setPopupMode(QToolButton::InstantPopup);
+
+	// First we try to use custom icons if available
+	QIcon Icon = CDockManager::iconProvider().customIcon(ads::eIcon::DockAreaWidgetActionsMenuIcon);
+	if (!Icon.isNull())
+	{
+		WidgetActionsMenuButton->setIcon(Icon);
+		return;
+	}
+
+	QPixmap normalPixmap(":/ads/images/menu.svg");
+	Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+	Icon.addPixmap(normalPixmap, QIcon::Normal);
+	WidgetActionsMenuButton->setIcon(Icon);
+
+	QMenu* WidgetActionsMenu = new QMenu(WidgetActionsMenuButton);
+#ifndef QT_NO_TOOLTIP
+	WidgetActionsMenu->setToolTipsVisible(true);
+#endif
+	_this->connect(WidgetActionsMenu, &QMenu::aboutToShow, _this, &CDockAreaTitleBar::onWidgetActionsMenuAboutToShow);
+	WidgetActionsMenuButton->setMenu(WidgetActionsMenu);
+#ifndef QT_NO_TOOLTIP
+	WidgetActionsMenuButton->setToolTip(QObject::tr("Options"));
+#endif
+	WidgetActionsMenuButton->setSizePolicy(ButtonSizePolicy);
+	TopLayout->addWidget(WidgetActionsMenuButton, 0);
 }
 
 
@@ -286,6 +326,39 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 	}
 
 	d->MenuOutdated = false;
+}
+
+//============================================================================
+void CDockAreaTitleBar::onWidgetActionsMenuAboutToShow()
+{
+	QMenu* menu = d->WidgetActionsMenuButton->menu();
+	menu->clear();
+
+	CDockWidgetTab* currentTab = d->TabBar->currentTab();
+	if (!currentTab)
+	{
+		return;
+	}
+
+	CDockWidget* currentDockWidget = currentTab->dockWidget();
+	if (!currentDockWidget)
+	{
+		return;
+	}
+
+	QWidget* currentContentWidget = currentDockWidget->widget();
+	if (!currentContentWidget)
+	{
+		return;
+	}
+
+	menu->addActions(currentContentWidget->actions());
+
+	if (!menu->actions().isEmpty()) {
+		menu->addSeparator();
+	}
+
+	menu->addActions(currentTab->createContextMenuActions(menu));
 }
 
 

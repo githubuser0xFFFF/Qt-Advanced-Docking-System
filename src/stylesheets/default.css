@@ -25,6 +25,10 @@ ads--CDockAreaWidget #tabsMenuButton::menu-indicator
     image: none;
 }
 
+ads--CDockAreaWidget #widgetActionsMenuButton::menu-indicator
+{
+	image: none;
+}
 
 ads--CDockWidgetTab
 {

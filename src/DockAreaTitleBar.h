@@ -56,6 +56,7 @@ private:
 
 private slots:
 	void onTabsMenuAboutToShow();
+	void onWidgetActionsMenuAboutToShow();
 	void onCloseButtonClicked();
 	void onUndockButtonClicked();
 	void onTabsMenuActionTriggered(QAction* Action);
