@@ -216,15 +216,13 @@ void DockAreaTitleBarPrivate::createWidgetActionsButton() {
 
 	// First we try to use custom icons if available
 	QIcon Icon = CDockManager::iconProvider().customIcon(ads::eIcon::DockAreaWidgetActionsMenuIcon);
-	if (!Icon.isNull())
+	if (Icon.isNull())
 	{
-		WidgetActionsMenuButton->setIcon(Icon);
-		return;
+		// use default menu icon
+		QPixmap normalPixmap(":/ads/images/menu.svg");
+		Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+		Icon.addPixmap(normalPixmap, QIcon::Normal);
 	}
-
-	QPixmap normalPixmap(":/ads/images/menu.svg");
-	Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
-	Icon.addPixmap(normalPixmap, QIcon::Normal);
 	WidgetActionsMenuButton->setIcon(Icon);
 
 	QMenu* WidgetActionsMenu = new QMenu(WidgetActionsMenuButton);
