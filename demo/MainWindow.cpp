@@ -142,6 +142,13 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 {
 	static int CalendarCount = 0;
 	QCalendarWidget* w = new QCalendarWidget();
+
+	QAction* hideCalendarWidgetAction = new QAction("Hide calendar widget", w);
+	hideCalendarWidgetAction->setCheckable(true);
+	hideCalendarWidgetAction->setChecked(true);
+	w->connect(hideCalendarWidgetAction, &QAction::toggled, w, [w](bool visible){ w->setVisible(visible); });
+	w->addAction(hideCalendarWidgetAction);
+
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
 	DockWidget->setWidget(w);
 	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
@@ -416,6 +423,8 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// not change if the visibility of the close button changes
     //CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
 
+	// uncomment the following line to show the widget actions menu
+	//CDockManager::setConfigFlag(CDockManager::DockAreaHasWidgetActionsMenuButton, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
