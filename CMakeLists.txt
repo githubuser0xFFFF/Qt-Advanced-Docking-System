@@ -80,7 +80,7 @@ install(FILES ${ads_INSTALL_INCLUDE}
     COMPONENT headers
 )
 install(FILES 
-    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md"
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
     "${CMAKE_CURRENT_SOURCE_DIR}/gnu-lgpl-v2.1.md"
     DESTINATION license 
     COMPONENT license
