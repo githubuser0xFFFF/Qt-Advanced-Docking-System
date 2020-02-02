@@ -283,7 +283,14 @@ void MainWindowPrivate::createContent()
 	QMenu* ViewMenu = ui.menuView;
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+	auto SpecialDockArea = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+
+	// For this Special Dock Area we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
+	{
+		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
+		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
+	}
+
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
 	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	auto ToolBar = FileSystemWidget->createDefaultToolBar();
@@ -423,7 +430,16 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// not change if the visibility of the close button changes
     //CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
 
-	// uncomment the following line to show the widget actions menu
+	// uncomment the following line if you don't want close button on DockArea's title bar
+	//CDockManager::setConfigFlag(CDockManager::DockAreaHasCloseButton, false);
+
+	// uncomment the following line if you don't want undock button on DockArea's title bar
+	//CDockManager::setConfigFlag(CDockManager::DockAreaHasUndockButton, false);
+
+	// uncomment the following line if you don't want tabs menu button on DockArea's title bar
+	//CDockManager::setConfigFlag(CDockManager::DockAreaHasTabsMenuButton, false);
+
+  // uncomment the following line to show the widget actions menu
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasWidgetActionsMenuButton, true);
 
 	// Now create the dock manager and its content

@@ -334,7 +334,7 @@ eDropMode DockContainerWidgetPrivate::getDropMode(const QPoint& TargetPos)
 	if (DockArea)
 	{
 		auto dropOverlay = DockManager->dockAreaOverlay();
-		dropOverlay->setAllowedAreas(AllDockAreas);
+		dropOverlay->setAllowedAreas(DockArea->allowedAreas());
 		dropArea = dropOverlay->showOverlay(DockArea);
 		if (ContainerDropArea != InvalidDockWidgetArea &&
 			ContainerDropArea != dropArea)
@@ -1392,7 +1392,7 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
-		dropOverlay->setAllowedAreas(AllDockAreas);
+		dropOverlay->setAllowedAreas(DockArea->allowedAreas());
 		dropArea = dropOverlay->showOverlay(DockArea);
 		if (ContainerDropArea != InvalidDockWidgetArea &&
 			ContainerDropArea != dropArea)
@@ -1447,7 +1447,7 @@ void CDockContainerWidget::dropWidget(QWidget* Widget, const QPoint& TargetPos)
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
-		dropOverlay->setAllowedAreas(AllDockAreas);
+		dropOverlay->setAllowedAreas(DockArea->allowedAreas());
 		dropArea = dropOverlay->showOverlay(DockArea);
 		if (ContainerDropArea != InvalidDockWidgetArea &&
 			ContainerDropArea != dropArea)

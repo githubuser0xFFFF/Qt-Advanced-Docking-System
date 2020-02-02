@@ -100,15 +100,6 @@ struct DockWidgetTabPrivate
 		return this->DragState == dragState;
 	}
 
-	/**
-	 * Returns true if the given global point is inside the title area geometry
-	 * rectangle.
-	 * The position is given as global position.
-	 */
-	bool titleAreaGeometryContains(const QPoint& GlobalPos) const
-	{
-		return DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(GlobalPos));
-	}
 
 	/**
 	 * Starts floating of the dock widget that belongs to this title bar

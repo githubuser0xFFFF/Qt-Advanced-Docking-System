@@ -245,6 +245,7 @@ struct DockAreaWidgetPrivate
 	CDockAreaTitleBar*	TitleBar		= nullptr;
 	CDockManager*		DockManager		= nullptr;
 	bool UpdateTitleBarButtons = false;
+	DockWidgetAreas		AllowedAreas	= AllDockAreas;
 
 	/**
 	 * Private data constructor
@@ -812,6 +813,15 @@ void CDockAreaWidget::setVisible(bool Visible)
 	}
 }
 
+void CDockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
+{
+	d->AllowedAreas = areas;
+}
+
+DockWidgetAreas CDockAreaWidget::allowedAreas() const
+{
+	return d->AllowedAreas;
+}
 
 //============================================================================
 QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
