@@ -89,6 +89,7 @@ Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 enum TitleBarButton
 {
 	TitleBarButtonTabsMenu,
+	TitleBarButtonWidgetActionsMenu,
 	TitleBarButtonUndock,
 	TitleBarButtonClose
 };
@@ -109,10 +110,11 @@ enum eDragState
  */
 enum eIcon
 {
-	TabCloseIcon,      //!< TabCloseIcon
-	DockAreaMenuIcon,  //!< DockAreaMenuIcon
-	DockAreaUndockIcon,//!< DockAreaUndockIcon
-	DockAreaCloseIcon, //!< DockAreaCloseIcon
+	TabCloseIcon,					//!< TabCloseIcon
+	DockAreaMenuIcon,				//!< DockAreaMenuIcon
+	DockAreaWidgetActionsMenuIcon,	//!< DockAreaWidgetActionsMenuIcon
+	DockAreaUndockIcon,				//!< DockAreaUndockIcon
+	DockAreaCloseIcon,				//!< DockAreaCloseIcon
 
 	IconCount,         //!< just a delimiter for range checks
 };
