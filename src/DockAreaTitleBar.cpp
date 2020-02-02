@@ -198,7 +198,8 @@ void DockAreaTitleBarPrivate::createButtons()
 		TabsMenuButton = new CInvisibleButton();
 	}
 
-	if (CDockManager::configFlags().testFlag(CDockManager::DockAreaHasWidgetActionsMenuButton)){
+	if (testConfigFlag(CDockManager::DockAreaHasWidgetActionsMenuButton))
+	{
 		createWidgetActionsButton();
 	}
 
@@ -249,7 +250,8 @@ void DockAreaTitleBarPrivate::createButtons()
 	}
 }
 
-void DockAreaTitleBarPrivate::createWidgetActionsButton() {
+void DockAreaTitleBarPrivate::createWidgetActionsButton()
+{
 	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
 	WidgetActionsMenuButton = new tTileBarButton();
