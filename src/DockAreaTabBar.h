@@ -63,6 +63,8 @@ private slots:
 	void onTabCloseRequested();
 	void onCloseOtherTabsRequested();
 	void onTabWidgetMoved(const QPoint& GlobalPos);
+	void onTabWidgeTitleChanged(const QString &title);
+	void onElidedChanged(bool elided);
 
 protected:
 	virtual void wheelEvent(QWheelEvent* Event) override;
@@ -239,6 +241,8 @@ signals:
 	 * This signal is emitted if a tab has been inserted
 	 */
 	void tabInserted(int index);
+
+	void elidedChanged(bool elided);
 }; // class CDockAreaTabBar
 } // namespace ads
 //-----------------------------------------------------------------------------

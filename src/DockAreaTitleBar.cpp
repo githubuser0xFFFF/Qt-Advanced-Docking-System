@@ -231,6 +231,8 @@ void DockAreaTitleBarPrivate::createTabBar()
 	_this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
 	_this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
+	//_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(markTabsMenuOutdated()));
+	_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(onElidedChanged(bool)));
 
 	TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 	_this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -286,12 +288,31 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 }
 
 
+void CDockAreaTitleBar::onElidedChanged(bool)
+{
+	markTabsMenuOutdated();
+}
+
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
-	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDisableSingleItemTabsMenuButton))
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
-		d->TabsMenuButton->setEnabled(d->TabBar->count() > 1);
+		bool atLeastOneTabTitleElided = false;
+		for (int i = 0; i < d->TabBar->count(); ++i)
+		{
+			if (!d->TabBar->isTabOpen(i))
+			{
+				continue;
+			}
+			CDockWidgetTab* Tab = d->TabBar->tab(i);
+			if(Tab->isTitleElided())
+			{
+				atLeastOneTabTitleElided = true;
+				break;
+			}
+		}
+		d->TabsMenuButton->setEnabled(atLeastOneTabTitleElided && (d->TabBar->count() > 1));
 	}
 	d->MenuOutdated = true;
 }
@@ -410,7 +431,7 @@ void CDockAreaTitleBar::showContextMenu(const QPoint& pos)
 	Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
 	Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
-	Menu.exec(mapToGlobal(pos));
+    Menu.exec(mapToGlobal(pos));
 }
 
 

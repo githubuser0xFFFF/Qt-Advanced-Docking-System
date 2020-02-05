@@ -438,7 +438,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to disable tabs menu button on DockArea's title bar when there is only one tab in the area
-	//CDockManager::setConfigFlag(CDockManager::DockAreaDisableSingleItemTabsMenuButton, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
