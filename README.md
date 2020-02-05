@@ -1,10 +1,3 @@
-This repository is the fork of [Advanced Docking System for Qt](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System) from Uwe Kindler, which is in turn fork of [Advanced Docking System for Qt](https://github.com/mfreiholz/Qt-Advanced-Docking-System) 
-from Manuel Freiholz.
-
-I use it to make minor customizations needed for my application(s) and make small contributions to the parent repository.
-
-Below is the content of README from the Uwe's repository (I will try to keep them in sync):
-
 # Advanced Docking System for Qt
 
 [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
