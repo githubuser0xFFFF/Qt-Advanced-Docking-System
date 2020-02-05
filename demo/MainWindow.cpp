@@ -56,6 +56,7 @@
 #include <QScreen>
 #include <QStyle>
 #include <QMessageBox>
+#include <QPushButton>
 
 #ifdef Q_OS_WIN
 #include <QAxWidget>
@@ -248,6 +249,11 @@ struct MainWindowPrivate
 	void createContent();
 
 	/**
+	 * Creates a plus button in the tab bar.
+	 */
+	QWidget* createPlusButton(ads::CDockAreaWidget* area);
+
+	/**
 	 * Saves the dock manager state and the main window geometry
 	 */
 	void saveState();
@@ -268,12 +274,32 @@ struct MainWindowPrivate
 	void restorePerspectives();
 };
 
+//============================================================================
+QWidget* MainWindowPrivate::createPlusButton(ads::CDockAreaWidget* area)
+{
+	auto button = new QPushButton("+", area);
+	button->setMaximumWidth(30);
+
+	QObject::connect(button, &QPushButton::clicked, DockManager, [this, area]() {
+		auto filesystem = createFileSystemTreeDockWidget(ui.menuView);
+		DockManager->addDockWidgetTabToArea(filesystem, area);
+	});
+
+	return button;
+}
 
 //============================================================================
 void MainWindowPrivate::createContent()
 {
 	// Test container docking
 	QMenu* ViewMenu = ui.menuView;
+
+	const auto creator =
+		[this](ads::CDockAreaWidget* area) -> QWidget* {
+			return MainWindowPrivate::createPlusButton(area);
+		};
+	DockManager->setCustomTabWidgetCreator(creator);
+
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
