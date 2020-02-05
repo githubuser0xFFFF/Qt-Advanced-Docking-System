@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QBoxLayout>
 #include <QApplication>
+#include <QMetaObject>
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -107,7 +108,13 @@ void DockAreaTabBarPrivate::updateTabs()
 		{
 			TabWidget->show();
 			TabWidget->setActiveTab(true);
-			_this->ensureWidgetVisible(TabWidget);
+
+		// Calling ensureWidgetVisible immediately is not enough because
+		// QScrollArea needs to adjust its size first.
+		QMetaObject::invokeMethod(
+			_this,
+			[this, TabWidget] { _this->ensureWidgetVisible(TabWidget); },
+			Qt::QueuedConnection);
 		}
 		else
 		{
@@ -136,7 +143,6 @@ CDockAreaTabBar::CDockAreaTabBar(CDockAreaWidget* parent) :
 	d->TabsLayout = new QBoxLayout(QBoxLayout::LeftToRight);
 	d->TabsLayout->setContentsMargins(0, 0, 0, 0);
 	d->TabsLayout->setSpacing(0);
-	d->TabsLayout->addStretch(1);
 	d->TabsContainerWidget->setLayout(d->TabsLayout);
 }
 
@@ -330,8 +336,7 @@ void CDockAreaTabBar::setCurrentIndex(int index)
 //============================================================================
 int CDockAreaTabBar::count() const
 {
-	// The tab bar contains a stretch item as last item
-	return d->TabsLayout->count() - 1;
+	return d->TabsLayout->count();
 }
 
 
@@ -349,6 +354,8 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	{
 		setCurrentIndex(d->CurrentIndex + 1);
 	}
+
+	updateGeometry();
 }
 
 
@@ -411,6 +418,8 @@ void CDockAreaTabBar::removeTab(CDockWidgetTab* Tab)
 	{
 		d->updateTabs();
 	}
+
+	updateGeometry();
 }
 
 
@@ -578,6 +587,8 @@ void CDockAreaTabBar::closeTab(int Index)
 	}
 	//Tab->hide();
 	emit tabCloseRequested(Index);
+
+	updateGeometry();
 }
 
 
@@ -629,9 +640,7 @@ QSize CDockAreaTabBar::minimumSizeHint() const
 //===========================================================================
 QSize CDockAreaTabBar::sizeHint() const
 {
-	QSize Size = Super::sizeHint();
-	Size.setHeight(d->TabsContainerWidget->sizeHint().height());
-	return Size;
+	return d->TabsContainerWidget->sizeHint();
 }
 
 

@@ -223,6 +223,8 @@ void DockAreaTitleBarPrivate::createButtons()
 void DockAreaTitleBarPrivate::createTabBar()
 {
 	TabBar = new CDockAreaTabBar(DockArea);
+    // tab shouldn't occupy more horizontal space than needed
+	TabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 	TopLayout->addWidget(TabBar);
 	_this->connect(TabBar, SIGNAL(tabClosed(int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(tabOpened(int)), SLOT(markTabsMenuOutdated()));
@@ -253,6 +255,8 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	d->createTabBar();
+	// moved from DockAreaTabBar to ensure the custom widget is next to the tab bar
+	d->TopLayout->addStretch(1);
 	d->createButtons();
 
 }
@@ -388,6 +392,24 @@ void CDockAreaTitleBar::setVisible(bool Visible)
 {
 	Super::setVisible(Visible);
 	markTabsMenuOutdated();
+}
+
+//============================================================================
+void CDockAreaTitleBar::mousePressEvent(QMouseEvent * ev)
+{
+	d->TabBar->mousePressEvent(ev);
+}
+
+//============================================================================
+void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent * ev)
+{
+	d->TabBar->mouseReleaseEvent(ev);
+}
+
+//============================================================================
+void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent * ev)
+{
+	d->TabBar->mouseMoveEvent(ev);
 }
 
 
