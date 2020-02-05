@@ -77,6 +77,7 @@ struct DockManagerPrivate
 	CDockManager::eViewMenuInsertionOrder MenuInsertionOrder = CDockManager::MenuAlphabeticallySorted;
 	bool RestoringState = false;
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
+	CDockManager::CustomTabWidgetCreator CustomTabWidgetCreator = [](CDockAreaWidget*) { return nullptr; };
 
 	/**
 	 * Private data constructor
@@ -849,6 +850,18 @@ CIconProvider& CDockManager::iconProvider()
 {
 	static CIconProvider Instance;
 	return Instance;
+}
+
+//===========================================================================
+void CDockManager::setCustomTabWidgetCreator(const CustomTabWidgetCreator Creator)
+{
+	d->CustomTabWidgetCreator = Creator;
+}
+
+//===========================================================================
+const CDockManager::CustomTabWidgetCreator& CDockManager::customTabWidgetCreator() const
+{
+	return d->CustomTabWidgetCreator;
 }
 
 

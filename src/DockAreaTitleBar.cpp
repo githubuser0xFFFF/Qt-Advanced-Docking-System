@@ -255,6 +255,11 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	d->createTabBar();
+	const auto creator = d->DockArea->dockManager()->customTabWidgetCreator();
+	if (QWidget* widget = creator(d->DockArea))
+	{
+		d->TopLayout->addWidget(widget);
+	}
 	// moved from DockAreaTabBar to ensure the custom widget is next to the tab bar
 	d->TopLayout->addStretch(1);
 	d->createButtons();

@@ -130,6 +130,7 @@ protected:
 
 public:
 	using Super = CDockContainerWidget;
+	using CustomTabWidgetCreator = std::function<QWidget*(CDockAreaWidget*)>;
 
 	enum eViewMenuInsertionOrder
 	{
@@ -400,6 +401,22 @@ public:
 	 * hold down before a dock widget start floating
 	 */
 	static int startDragDistance();
+
+	/**
+	 * Sets a creator function that is used to create a custom tab widget.
+	 * The custom tab widget will be placed at the right hand side of the tab bar.
+	 * The creator function will be called with a CDockAreaWidget as the only
+	 * parameter. It should return a new instance of the custom tab widget.
+	 *
+	 * This creator function can be used to create a plus button to add new
+	 * tabs, similar to Google Chrome. See the demo for an example.
+	 */
+	void setCustomTabWidgetCreator(const CustomTabWidgetCreator Creator);
+
+	/**
+	 * Returns the current creator function for the custom tab widget.
+	 */
+	const CDockManager::CustomTabWidgetCreator& customTabWidgetCreator() const;
 
 public slots:
 	/**
