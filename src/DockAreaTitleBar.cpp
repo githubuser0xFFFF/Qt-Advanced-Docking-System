@@ -38,6 +38,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QPointer>
+#include <QTimer>
 
 #include "ads_globals.h"
 #include "FloatingDockContainer.h"
@@ -128,6 +129,7 @@ public:
 	 */
 	virtual void setVisible(bool visible) override
 	{
+        qDebug() << "CTitleBarButton::setVisible: " << visible;
 		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
 		visible = visible && this->Visible;
 
@@ -137,6 +139,7 @@ public:
 			visible = isEnabled();
 		}
 
+        qDebug() << "CTitleBarButton::setVisible: " << visible;
 		Super::setVisible(visible);
 	}
 	
@@ -148,11 +151,24 @@ protected:
 	{
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
 		{
-			// force setVisible() call 
-			setVisible(isEnabled());
-		}
+			qDebug() << "QEvent::EnabledChange: " << isEnabled();
 
-		return Super::event(ev);;
+			// force setVisible() call 
+			//setVisible(isEnabled()); // Calling setVisible() directly here doesn't work well when button is expected to be shown first time (todo: investigate the reason and correct WA)
+            QTimer::singleShot(0, [this]() { setVisible(isEnabled()); } );
+		}
+		if(QEvent::Show == ev->type()){qDebug() << "QEvent::Show";}
+		if(QEvent::Hide == ev->type()){qDebug() << "QEvent::Hide";}
+
+		return Super::event(ev);
+	}
+	void showEvent(QShowEvent * event) override
+	{
+		qDebug() << "QShowEvent, spontaneous: " << event->spontaneous();
+	}
+	void hideEvent(QHideEvent * event) override
+	{
+		qDebug() << "QHideEvent, spontaneous: " << event->spontaneous();
 	}
 };
 
@@ -296,6 +312,7 @@ void CDockAreaTitleBar::onElidedChanged(bool)
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
+    qDebug() << "markTabsMenuOutdated";
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
 		bool atLeastOneTabTitleElided = false;
@@ -306,13 +323,16 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 				continue;
 			}
 			CDockWidgetTab* Tab = d->TabBar->tab(i);
+            qDebug() << "tab # " << i << " elided: " << Tab->isTitleElided();
 			if(Tab->isTitleElided())
 			{
 				atLeastOneTabTitleElided = true;
 				break;
 			}
 		}
-		d->TabsMenuButton->setEnabled(atLeastOneTabTitleElided && (d->TabBar->count() > 1));
+        bool enable = (atLeastOneTabTitleElided && (d->TabBar->count() > 1));
+        qDebug() << "atLeastOneTabTitleElided:" << atLeastOneTabTitleElided << ", count():" << d->TabBar->count() << ", enable:" << enable;
+        d->TabsMenuButton->setEnabled(enable);
 	}
 	d->MenuOutdated = true;
 }

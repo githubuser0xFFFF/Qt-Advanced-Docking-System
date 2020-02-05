@@ -435,7 +435,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasTabsMenuButton, false);
 
 	// uncomment the following line if you don't want disabled buttons to appear on DockArea's title bar
-	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to disable tabs menu button on DockArea's title bar when there is only one tab in the area
 	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
