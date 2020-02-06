@@ -282,7 +282,6 @@ void MainWindowPrivate::createContent()
 
 	// For this Special Dock Area we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
 	{
-        DockWidget->tabWidget()->setVisible(false);
 		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
@@ -436,9 +435,9 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasTabsMenuButton, false);
 
 	// uncomment the following line if you don't want disabled buttons to appear on DockArea's title bar
-	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
+	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
-	// uncomment the following line if you want to disable tabs menu button on DockArea's title bar when there is only one tab in the area
+	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
 	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content

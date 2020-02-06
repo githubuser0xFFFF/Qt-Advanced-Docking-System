@@ -38,7 +38,6 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QPointer>
-#include <QTimer>
 
 #include "ads_globals.h"
 #include "FloatingDockContainer.h"
@@ -129,7 +128,6 @@ public:
 	 */
 	virtual void setVisible(bool visible) override
 	{
-        qDebug() << "CTitleBarButton::setVisible: " << visible;
 		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
 		visible = visible && this->Visible;
 
@@ -139,7 +137,6 @@ public:
 			visible = isEnabled();
 		}
 
-        qDebug() << "CTitleBarButton::setVisible: " << visible;
 		Super::setVisible(visible);
 	}
 	
@@ -151,24 +148,12 @@ protected:
 	{
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
 		{
-			qDebug() << "QEvent::EnabledChange: " << isEnabled();
-
 			// force setVisible() call 
-			//setVisible(isEnabled()); // Calling setVisible() directly here doesn't work well when button is expected to be shown first time (todo: investigate the reason and correct WA)
-			QTimer::singleShot(0, [this]() { setVisible(isEnabled()); } );
+			//setVisible(isEnabled()); // Calling setVisible() directly here doesn't work well when button is expected to be shown first time
+			QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
 		}
-		if(QEvent::Show == ev->type()){qDebug() << "QEvent::Show";}
-		if(QEvent::Hide == ev->type()){qDebug() << "QEvent::Hide";}
 
 		return Super::event(ev);
-	}
-	void showEvent(QShowEvent * event) override
-	{
-		qDebug() << "QShowEvent, spontaneous: " << event->spontaneous();
-	}
-	void hideEvent(QHideEvent * event) override
-	{
-		qDebug() << "QHideEvent, spontaneous: " << event->spontaneous();
 	}
 };
 
@@ -247,8 +232,7 @@ void DockAreaTitleBarPrivate::createTabBar()
 	_this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
 	_this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
-	//_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(markTabsMenuOutdated()));
-	_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(onElidedChanged(bool)));
+	_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(markTabsMenuOutdated()));
 
 	TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 	_this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -303,19 +287,13 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 	return d->TabBar;
 }
 
-
-void CDockAreaTitleBar::onElidedChanged(bool)
-{
-	markTabsMenuOutdated();
-}
-
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
 	qDebug() << "markTabsMenuOutdated";
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
-		bool atLeastOneTabTitleElided = false;
+		bool hasElidedTabTitle = false;
 		for (int i = 0; i < d->TabBar->count(); ++i)
 		{
 			if (!d->TabBar->isTabOpen(i))
@@ -323,17 +301,14 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 				continue;
 			}
 			CDockWidgetTab* Tab = d->TabBar->tab(i);
-			qDebug() << "tab # " << i << " elided: " << Tab->isTitleElided();
 			if(Tab->isTitleElided())
 			{
-				atLeastOneTabTitleElided = true;
+				hasElidedTabTitle = true;
 				break;
 			}
 		}
-		bool visible = (atLeastOneTabTitleElided && (d->TabBar->count() > 1));
-		qDebug() << "atLeastOneTabTitleElided:" << atLeastOneTabTitleElided << ", count():" << d->TabBar->count() << ", enable:" << visible;
-		//d->TabsMenuButton->setVisible(visible);// Calling setVisible() directly here doesn't work well when button is expected to be shown first time (todo: investigate the reason and correct WA)
-		QTimer::singleShot(0, [this, visible]() { d->TabsMenuButton->setVisible(visible); } );
+		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
 	d->MenuOutdated = true;
 }
