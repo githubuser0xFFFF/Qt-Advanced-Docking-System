@@ -155,7 +155,7 @@ protected:
 
 			// force setVisible() call 
 			//setVisible(isEnabled()); // Calling setVisible() directly here doesn't work well when button is expected to be shown first time (todo: investigate the reason and correct WA)
-            QTimer::singleShot(0, [this]() { setVisible(isEnabled()); } );
+			QTimer::singleShot(0, [this]() { setVisible(isEnabled()); } );
 		}
 		if(QEvent::Show == ev->type()){qDebug() << "QEvent::Show";}
 		if(QEvent::Hide == ev->type()){qDebug() << "QEvent::Hide";}
@@ -312,7 +312,7 @@ void CDockAreaTitleBar::onElidedChanged(bool)
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
-    qDebug() << "markTabsMenuOutdated";
+	qDebug() << "markTabsMenuOutdated";
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
 		bool atLeastOneTabTitleElided = false;
@@ -323,20 +323,20 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 				continue;
 			}
 			CDockWidgetTab* Tab = d->TabBar->tab(i);
-            qDebug() << "tab # " << i << " elided: " << Tab->isTitleElided();
+			qDebug() << "tab # " << i << " elided: " << Tab->isTitleElided();
 			if(Tab->isTitleElided())
 			{
 				atLeastOneTabTitleElided = true;
 				break;
 			}
 		}
-        bool enable = (atLeastOneTabTitleElided && (d->TabBar->count() > 1));
-        qDebug() << "atLeastOneTabTitleElided:" << atLeastOneTabTitleElided << ", count():" << d->TabBar->count() << ", enable:" << enable;
-        d->TabsMenuButton->setEnabled(enable);
+		bool visible = (atLeastOneTabTitleElided && (d->TabBar->count() > 1));
+		qDebug() << "atLeastOneTabTitleElided:" << atLeastOneTabTitleElided << ", count():" << d->TabBar->count() << ", enable:" << visible;
+		//d->TabsMenuButton->setVisible(visible);// Calling setVisible() directly here doesn't work well when button is expected to be shown first time (todo: investigate the reason and correct WA)
+		QTimer::singleShot(0, [this, visible]() { d->TabsMenuButton->setVisible(visible); } );
 	}
 	d->MenuOutdated = true;
 }
-
 
 //============================================================================
 void CDockAreaTitleBar::onTabsMenuAboutToShow()
