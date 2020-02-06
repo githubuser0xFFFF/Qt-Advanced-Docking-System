@@ -268,7 +268,6 @@ struct MainWindowPrivate
 	void restorePerspectives();
 };
 
-#include "DockWidgetTab.h" // Needed for "DockWidget->tabWidget()->setVisible(false);"
 //============================================================================
 void MainWindowPrivate::createContent()
 {
@@ -438,7 +437,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
-	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+	//CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);

@@ -426,7 +426,7 @@ void CDockAreaTitleBar::showContextMenu(const QPoint& pos)
 	Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
 	Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
-    Menu.exec(mapToGlobal(pos));
+	Menu.exec(mapToGlobal(pos));
 }
 
 
