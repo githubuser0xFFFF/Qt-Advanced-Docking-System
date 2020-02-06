@@ -149,7 +149,7 @@ protected:
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
 		{
 			// force setVisible() call 
-			//setVisible(isEnabled()); // Calling setVisible() directly here doesn't work well when button is expected to be shown first time
+			// Calling setVisible() directly here doesn't work well when button is expected to be shown first time
 			QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
 		}
 
@@ -290,7 +290,6 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
-	qDebug() << "markTabsMenuOutdated";
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
 	{
 		bool hasElidedTabTitle = false;

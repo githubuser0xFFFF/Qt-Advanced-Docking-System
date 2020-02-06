@@ -63,7 +63,6 @@ private slots:
 	void onTabCloseRequested();
 	void onCloseOtherTabsRequested();
 	void onTabWidgetMoved(const QPoint& GlobalPos);
-	void onTabWidgeTitleChanged(const QString &title);
 
 protected:
 	virtual void wheelEvent(QWheelEvent* Event) override;
