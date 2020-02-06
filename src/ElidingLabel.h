@@ -73,6 +73,10 @@ public:
 	 */
 	void setElideMode(Qt::TextElideMode mode);
 
+	/**
+	 * This function indicates whether the text on this label is currently elided
+	 */
+	bool isElided() const;
 
 public: // reimplements QLabel ----------------------------------------------
 	virtual QSize minimumSizeHint() const override;
@@ -91,6 +95,11 @@ signals:
 	 * This signal is emitted if the user does a double click on the label
 	 */
 	void doubleClicked();
+    
+    /**
+	 * This signal is emitted when isElided() state of this label is changed
+	 */
+	void elidedChanged(bool elided);
 }; //class CElidingLabel
 
 } // namespace QtLabb
