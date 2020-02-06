@@ -170,6 +170,8 @@ void DockWidgetTabPrivate::createLayout()
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
+	_this->connect(TitleLabel, SIGNAL(elidedChanged(bool)), SIGNAL(elidedChanged(bool)));
+
 
 	CloseButton = createCloseButton();
 	CloseButton->setObjectName("tabCloseButton");
@@ -554,6 +556,11 @@ void CDockWidgetTab::setVisible(bool visible)
 void CDockWidgetTab::setText(const QString& title)
 {
 	d->TitleLabel->setText(title);
+}
+
+bool CDockWidgetTab::isTitleElided() const
+{
+	return d->TitleLabel->isElided();
 }
 
 

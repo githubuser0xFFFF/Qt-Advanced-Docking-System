@@ -151,10 +151,11 @@ protected:
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
 		{
 			// force setVisible() call 
-			setVisible(isEnabled());
+			// Calling setVisible() directly here doesn't work well when button is expected to be shown first time
+			QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
 		}
 
-		return Super::event(ev);;
+		return Super::event(ev);
 	}
 };
 
@@ -232,6 +233,7 @@ void DockAreaTitleBarPrivate::createTabBar()
 	_this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
 	_this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
+	_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(markTabsMenuOutdated()));
 
 	TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 	_this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -286,13 +288,30 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 	return d->TabBar;
 }
 
-
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
+	{
+		bool hasElidedTabTitle = false;
+		for (int i = 0; i < d->TabBar->count(); ++i)
+		{
+			if (!d->TabBar->isTabOpen(i))
+			{
+				continue;
+			}
+			CDockWidgetTab* Tab = d->TabBar->tab(i);
+			if(Tab->isTitleElided())
+			{
+				hasElidedTabTitle = true;
+				break;
+			}
+		}
+		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
+	}
 	d->MenuOutdated = true;
 }
-
 
 //============================================================================
 void CDockAreaTitleBar::onTabsMenuAboutToShow()

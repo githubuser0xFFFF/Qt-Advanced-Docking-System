@@ -41,6 +41,7 @@ struct ElidingLabelPrivate
 	CElidingLabel* _this;
 	Qt::TextElideMode ElideMode = Qt::ElideNone;
 	QString Text;
+	bool IsElided = false;
 
 	ElidingLabelPrivate(CElidingLabel* _public) : _this(_public) {}
 
@@ -68,6 +69,12 @@ void ElidingLabelPrivate::elideText(int Width)
     if (str == "…")
     {
     	str = Text.at(0);
+    }
+    bool WasElided = IsElided;
+    IsElided = str != Text;
+    if(IsElided != WasElided)
+    {
+        emit _this->elidedChanged(IsElided);
     }
     _this->QLabel::setText(str);
 }
@@ -111,6 +118,12 @@ void CElidingLabel::setElideMode(Qt::TextElideMode mode)
 {
 	d->ElideMode = mode;
 	d->elideText(size().width());
+}
+
+//============================================================================
+bool CElidingLabel::isElided() const
+{
+	return d->IsElided;
 }
 
 
