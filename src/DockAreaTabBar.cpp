@@ -560,7 +560,7 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
         ADS_PRINT("tabMoved from " << fromIndex << " to " << toIndex);
 		emit tabMoved(fromIndex, toIndex);
 		setCurrentIndex(toIndex);
-    }
+	}
 }
 
 //===========================================================================

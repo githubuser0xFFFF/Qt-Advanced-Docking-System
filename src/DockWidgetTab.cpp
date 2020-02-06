@@ -555,7 +555,7 @@ void CDockWidgetTab::setVisible(bool visible)
 //============================================================================
 void CDockWidgetTab::setText(const QString& title)
 {
-    d->TitleLabel->setText(title);
+	d->TitleLabel->setText(title);
 }
 
 bool CDockWidgetTab::isTitleElided() const
