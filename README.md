@@ -1,4 +1,5 @@
-# Advanced Docking System for Qt 
+# Advanced Docking System for Qt
+
 [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
@@ -20,18 +21,36 @@ code quality, readibility and to fix all issues from the issue tracker
 of his docking system project.
 
 ## Features
+
 ### Overview
-- [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
-- [Docking inside floating windows](#docking-inside-floating-windows)
-- [Grouped dragging](#grouped-dragging)
-- [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
-- [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
-- [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
-- [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
-- [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
-- [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+
+- [Advanced Docking System for Qt](#advanced-docking-system-for-qt)
+  - [Features](#features)
+    - [Overview](#overview)
+    - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
+    - [Docking inside floating windows](#docking-inside-floating-windows)
+    - [Grouped dragging](#grouped-dragging)
+    - [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
+    - [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
+    - [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
+    - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
+    - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
+    - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+  - [Tested Compatible Environments](#tested-compatible-environments)
+    - [Windows](#windows)
+    - [macOS](#macos)
+    - [Linux](#linux)
+  - [Build](#build)
+  - [Getting started / Example](#getting-started--example)
+  - [Developers](#developers)
+  - [License information](#license-information)
+  - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
+    - [KDDockWidgets](#kddockwidgets)
+    - [QtitanDocking](#qtitandocking)
+  - [Donation](#donation)
 
 ### Docking everywhere - no central widget
+
 There is no central widget like in the Qt docking system. You can dock on every
 border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
@@ -41,6 +60,7 @@ free to dock almost everywhere.
 ![Dropping widgets](doc/preview-dragndrop_dark.png)
 
 ### Docking inside floating windows
+
 There is no difference between the main window and a floating window. Docking
 into floating windows is supported.
 
@@ -49,6 +69,7 @@ into floating windows is supported.
 ![Docking inside floating windows](doc/floating-widget-dragndrop_dark.png)
 
 ### Grouped dragging
+
 When dragging the titlebar of a dock, all the tabs that are tabbed with it are 
 going to be dragged. So you can move complete groups of tabbed widgets into
 a floating widget or from one dock area to another one.
@@ -58,6 +79,7 @@ a floating widget or from one dock area to another one.
 ![Grouped dragging](doc/grouped-dragging_dark.png)
 
 ### Perspectives for fast switching of the complete main window layout
+
 A perspective defines the set and layout of dock windows in the main
 window. You can save the current layout of the dockmanager into a named
 perspective to make your own custom perspective. Later you can simply
@@ -69,6 +91,7 @@ main window layout.
 ![Perspective](doc/perspectives_dark.png)
 
 ### Opaque and non-opaque splitter resizing
+
 The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters. 
 
 ![Opaque resizing](doc/opaque_resizing.gif)
@@ -78,6 +101,7 @@ If this flag is cleared, the widget resizing is deferred until the mouse button 
 ![Non-opaque resizing](doc/non_opaque_resizing.gif)
 
 ### Opaque and non-opaque undocking
+
 By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
 
 The drag preview widget can be configured by a number of global dock manager flags:
@@ -88,26 +112,33 @@ The drag preview widget can be configured by a number of global dock manager fla
 The best way to test non-opaque undocking is to set the standard flags: `CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig)`.
 
 ### Tab-menu for easy handling of many tabbed dock widgets
+
 Tabs are a good way to quickly switch between dockwidgets in a dockarea. However, if the number of dockwidgets in a dockarea is too large, this may affect the usability of the tab bar. To keep track in this situation, you can use the tab menu. The menu allows you to quickly select the dockwidget you want to activate from a drop down menu.
 
 ![Tab menu](doc/tab_menu.gif)
 
 ### Many different ways to detach dock widgets
+
 You can detach dock widgets and also dock areas in the following ways:
+
 - by dragging the dock widget tab or the dock area title bar
 - by double clicking the tab or title bar
 - by using the detach menu entry from the tab and title bar drop down menu
 
 ### Supports deletion of dynamically created dock widgets
+
 Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the toggleView() action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
 
 ## Tested Compatible Environments
+
 ### Windows
+
 Windows 10 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 
 The library was developed on and for Windows. It is used in a commercial Windows application and is therefore constantly tested.
 
 ### macOS
+
 macOS [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 
 The application can be compiled for macOS. A user reported, that the library works on macOS. If have not tested it.
@@ -115,6 +146,7 @@ The application can be compiled for macOS. A user reported, that the library wor
 ![Advanced Docking on macOS](doc/macos.png)
 
 ### Linux
+
 Ubuntu [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
@@ -127,10 +159,12 @@ and with **Ubuntu 19.10**
 ![Advanced Docking on Ubuntu Linux](doc/linux_ubuntu_1910.png)
 
 ## Build
+
 Open the `ads.pro` with QtCreator and start the build, that's it.
 You can run the demo project and test it yourself.
 
 ## Getting started / Example
+
 The following example shows the minimum code required to use the advanced Qt docking system.
 
 *MainWindow.h*
@@ -158,7 +192,9 @@ private:
     ads::CDockManager* m_DockManager;
 };
 ```
+
 *MainWindow.cpp*
+
 ```cpp
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -202,17 +238,22 @@ MainWindow::~MainWindow()
 ```
 
 ## Developers
+
 - Uwe Kindler, Project Maintainer
 - Manuel Freiholz 
 
 ## License information
+
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 This project uses the [LGPLv2.1 license](gnu-lgpl-v2.1.md)
 
+
 ## Alternative Docking System Implementations
+
 If this Qt Advanced Docking System does not fit to your needs you may consider some of the alternative docking system solutions for Qt.
 
 ### KDDockWidgets
+
 This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
 
 - [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
@@ -220,6 +261,15 @@ This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/).
 
 
 ### QtitanDocking
+
 This is a commercial component from [Developer Machines](https://www.devmachines.com/) for Qt Framework that allows to create a Microsoft like dockable user interface. They also offer a lot of other interesting and useful components for Qt.
 
 - [Product page](https://www.devmachines.com/qtitandocking-overview.html)
+
+## Donation
+
+If this project help you reduce time to develop or if you just like it, you can give me a cup of coffee :coffee::wink:.
+
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=85R64TMMSY9T6">
+  <img src="doc/donate.png" alt="Donate with PayPal" width="160"/>
+</a>

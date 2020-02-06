@@ -80,6 +80,7 @@ struct DockWidgetPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	bool IsFloatingTopLevel = false;
+	QList<QAction*> TitleBarActions;
 
 	/**
 	 * Private data constructor
@@ -814,6 +815,20 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
     }
 
 	return true;
+}
+
+
+//============================================================================
+void CDockWidget::setTitleBarActions(QList<QAction*> actions)
+{
+	d->TitleBarActions = actions;
+}
+
+
+//============================================================================
+QList<QAction*> CDockWidget::titleBarActions() const
+{
+	return d->TitleBarActions;
 }
 
 

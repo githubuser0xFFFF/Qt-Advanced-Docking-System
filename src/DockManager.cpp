@@ -58,7 +58,7 @@
 
 namespace ads
 {
-static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultConfig;
+static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultOpaqueConfig;
 
 /**
  * Private data class of CDockManager class (pimpl)
@@ -835,6 +835,12 @@ void CDockManager::setConfigFlags(const ConfigFlags Flags)
 void CDockManager::setConfigFlag(eConfigFlag Flag, bool On)
 {
 	internal::setFlag(StaticConfigFlags, Flag, On);
+}
+
+//===========================================================================
+bool CDockManager::testConfigFlag(eConfigFlag Flag)
+{
+    return configFlags().testFlag(Flag);
 }
 
 

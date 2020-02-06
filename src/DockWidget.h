@@ -401,6 +401,22 @@ public:
      */
     QSize toolBarIconSize(eState State) const;
 
+    /**
+     * Set the actions that will be shown in the dock area title bar
+     * if this dock widget is the active tab.
+     * You should not add to many actions to the title bar, because this
+     * will remove the available space for the tabs. If you have a number
+     * of actions, just add an action with a menu to show a popup menu
+     * button in the title bar.
+     */
+    void setTitleBarActions(QList<QAction*> actions);
+
+    /**
+     * Returns a list of actions that will be inserted into the dock area title
+     * bar if this dock widget becomes the current widget
+     */
+    virtual QList<QAction*> titleBarActions() const;
+
 
 #ifndef QT_NO_TOOLTIP
     /**

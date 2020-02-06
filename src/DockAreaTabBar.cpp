@@ -576,7 +576,6 @@ void CDockAreaTabBar::closeTab(int Index)
 	{
 		return;
 	}
-	//Tab->hide();
 	emit tabCloseRequested(Index);
 }
 
@@ -642,6 +641,7 @@ eDragState CDockAreaTabBar::dragState() const
 }
 
 } // namespace ads
+
 
 //---------------------------------------------------------------------------
 // EOF DockAreaTabBar.cpp

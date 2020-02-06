@@ -386,7 +386,8 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return Result;
 	}
 
-	if (DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(QCursor::pos())))
+	if (DockArea->allowedAreas().testFlag(CenterDockWidgetArea)
+	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(QCursor::pos())))
 	{
 		return CenterDockWidgetArea;
 	}

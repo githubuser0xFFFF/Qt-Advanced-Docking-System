@@ -254,6 +254,16 @@ public:
 	 */
 	virtual void setVisible(bool Visible) override;
 
+	/**
+	 * Configures the areas of this particular dock area that are allowed for docking
+	 */
+	void setAllowedAreas(DockWidgetAreas areas);
+
+	/**
+	 * Returns flags with all allowed drop areas of this particular dock area
+	 */
+	DockWidgetAreas allowedAreas() const;
+
 public slots:
 	/**
 	 * This activates the tab for the given tab index.

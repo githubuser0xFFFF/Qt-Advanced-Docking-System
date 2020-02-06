@@ -88,9 +88,7 @@ CElidingLabel::CElidingLabel(const QString& text, QWidget* parent, Qt::WindowFla
 	  d(new ElidingLabelPrivate(this))
 {
 	d->Text = text;
-#ifndef QT_NO_TOOLTIP
-	setToolTip(text);
-#endif
+	internal::setToolTip(this, text);
 }
 
 
@@ -193,9 +191,7 @@ void CElidingLabel::setText(const QString &text)
 	else
 	{
 		d->Text = text;
-#ifndef QT_NO_TOOLTIP
-		setToolTip( text );
-#endif
+		internal::setToolTip(this, text);
 		d->elideText(this->size().width());
 	}
 }

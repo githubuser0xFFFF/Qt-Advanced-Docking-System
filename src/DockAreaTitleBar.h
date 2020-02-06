@@ -93,6 +93,11 @@ public:
 	QAbstractButton* button(TitleBarButton which) const;
 
 	/**
+	 * Updates the visibility of the dock widget actions in the title bar
+	 */
+	void updateDockWidgetActionsButtons();
+
+	/**
 	 * Marks the tabs menu outdated before it calls its base class
 	 * implementation
 	 */
