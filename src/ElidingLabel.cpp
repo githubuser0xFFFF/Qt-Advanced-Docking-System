@@ -117,7 +117,7 @@ Qt::TextElideMode CElidingLabel::elideMode() const
 void CElidingLabel::setElideMode(Qt::TextElideMode mode)
 {
 	d->ElideMode = mode;
-    d->elideText(size().width());
+	d->elideText(size().width());
 }
 
 //============================================================================

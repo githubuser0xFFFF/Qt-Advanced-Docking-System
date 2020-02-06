@@ -157,7 +157,7 @@ signals:
 	void closeRequested();
 	void closeOtherTabsRequested();
 	void moved(const QPoint& GlobalPos);
-    void elidedChanged(bool elided);
+	void elidedChanged(bool elided);
 }; // class DockWidgetTab
 }
  // namespace ads
