@@ -127,7 +127,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		DockAreaOverlay->enableDropPreview(true);
 		DockAreaOverlay->setAllowedAreas(
-		    (VisibleDockAreas == 1) ? NoDockWidgetArea : AllDockAreas);
+		    (VisibleDockAreas == 1) ? NoDockWidgetArea : DockArea->allowedAreas());
 		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea);
 
 		// A CenterDockWidgetArea for the dockAreaOverlay() indicates that

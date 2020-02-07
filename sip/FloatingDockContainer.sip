@@ -5,7 +5,22 @@
 namespace ads
 {
 
-class CFloatingDockContainer : QWidget
+class IFloatingWidget
+{
+    %TypeHeaderCode
+    #include <FloatingDockContainer.h>
+    %End
+
+public:
+	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
+        ads::eDragState DragState, QWidget* MouseEventHandler) = 0;
+
+	virtual void moveFloating() = 0;
+	virtual void finishDragging() = 0;
+};
+
+
+class CFloatingDockContainer : QWidget, ads::IFloatingWidget
 {
     
     %TypeHeaderCode
@@ -13,14 +28,14 @@ class CFloatingDockContainer : QWidget
     %End
     
 protected:
-	void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
+	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
         ads::eDragState DragState, QWidget* MouseEventHandler);
     void startDragging(const QPoint& DragStartMousePos, const QSize& Size,
         QWidget* MouseEventHandler);
-	void finishDragging();
+	virtual void finishDragging();
 	void initFloatingGeometry(const QPoint& DragStartMousePos, const QSize& Size);
 	void moveFloating();
-	bool restoreState(QXmlStreamReader& Stream, bool Testing);
+	bool restoreState(ads::CDockingStateReader& Stream, bool Testing);
 	void updateWindowTitle();
 
 

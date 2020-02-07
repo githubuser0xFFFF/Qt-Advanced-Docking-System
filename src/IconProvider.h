@@ -29,7 +29,7 @@ class ADS_EXPORT CIconProvider
 {
 private:
 	IconProviderPrivate* d; ///< private data (pimpl)
-	friend class IconProviderPrivate;
+	friend struct IconProviderPrivate;
 
 public:
 	/**

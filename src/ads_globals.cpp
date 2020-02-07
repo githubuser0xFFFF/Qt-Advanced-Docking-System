@@ -30,8 +30,11 @@
 //============================================================================
 #include <QVariant>
 #include <QPainter>
+#include <QAbstractButton>
 
 #include "DockSplitter.h"
+#include "DockManager.h"
+#include "IconProvider.h"
 #include "ads_globals.h"
 
 
@@ -88,6 +91,31 @@ void hideEmptyParentSplitters(CDockSplitter* Splitter)
 		}
 		Splitter = internal::findParent<CDockSplitter*>(Splitter);
 	}
+}
+
+
+//============================================================================
+void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap,
+	ads::eIcon CustomIconId)
+{
+	// First we try to use custom icons if available
+	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
+	if (!Icon.isNull())
+	{
+		Button->setIcon(Icon);
+		return;
+	}
+
+#ifdef Q_OS_LINUX
+	Button->setIcon(Button->style()->standardIcon(StandarPixmap));
+#else
+	// The standard icons does not look good on high DPI screens so we create
+	// our own "standard" icon here.
+	QPixmap normalPixmap = Button->style()->standardPixmap(StandarPixmap, 0, Button);
+	Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
+	Icon.addPixmap(normalPixmap, QIcon::Normal);
+	Button->setIcon(Icon);
+#endif
 }
 
 } // namespace internal

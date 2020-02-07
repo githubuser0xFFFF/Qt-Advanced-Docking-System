@@ -39,6 +39,16 @@ namespace ads
         DraggingFloatingWidget
     };
 
+    enum eIcon
+    {
+        TabCloseIcon,
+        DockAreaMenuIcon,
+        DockAreaUndockIcon,
+        DockAreaCloseIcon,
+
+        IconCount,
+    };
+
 };
 
 %End

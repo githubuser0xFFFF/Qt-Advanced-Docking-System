@@ -30,7 +30,7 @@ class CFloatingDragPreview : public QWidget, public IFloatingWidget
 	Q_OBJECT
 private:
 	FloatingDragPreviewPrivate* d;
-	friend class FloatingDragPreviewPrivate;
+	friend struct FloatingDragPreviewPrivate;
 
 private slots:
 	/**

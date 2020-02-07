@@ -18,9 +18,10 @@ protected:
 	virtual void mouseMoveEvent(QMouseEvent* ev);
 	virtual void mouseDoubleClickEvent(QMouseEvent *event);
 	void startFloating(const QPoint& Offset);
-	ads::CFloatingDockContainer* makeAreaFloating(const QPoint& Offset,
+	ads::IFloatingWidget* makeAreaFloating(const QPoint& Offset,
 		ads::eDragState DragState);
-    
+    ads::eDragState dragState() const;
+
 public:
 	CDockAreaTabBar(ads::CDockAreaWidget* parent /TransferThis/);
 	virtual ~CDockAreaTabBar();

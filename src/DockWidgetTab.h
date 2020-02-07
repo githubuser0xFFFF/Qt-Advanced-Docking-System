@@ -133,7 +133,12 @@ public:
 	void setText(const QString& title);
 
 	/**
-	 * This function returns true if the assigned dock widget is closeable
+	 * Returns true if text is elided on the tab's title
+	 */
+	bool isTitleElided() const;
+
+	/**
+	 * This function returns true if the assigned dock widget is closable
 	 */
 	bool isClosable() const;
 
@@ -152,6 +157,7 @@ signals:
 	void closeRequested();
 	void closeOtherTabsRequested();
 	void moved(const QPoint& GlobalPos);
+	void elidedChanged(bool elided);
 }; // class DockWidgetTab
 }
  // namespace ads

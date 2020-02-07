@@ -152,7 +152,13 @@ public:
 		TabCloseButtonIsToolButton,
 		AllTabsHaveCloseButton,
 		RetainTabSizeWhenCloseButtonHidden,
+        OpaqueUndocking,
+        DragPreviewIsDynamic,
+        DragPreviewShowsContentPixmap,
+        DragPreviewHasWindowFrame,
 		DefaultConfig,
+        DefaultNonOpaqueConfig,
+        NonOpaqueWithWindowFrame,
 	};
     typedef QFlags<ads::CDockManager::eConfigFlag> ConfigFlags;
 
@@ -161,20 +167,22 @@ public:
 	static ads::CDockManager::ConfigFlags configFlags();
 	static void setConfigFlags(const ads::CDockManager::ConfigFlags Flags);
 	static void setConfigFlag(ads::CDockManager::eConfigFlag Flag, bool On = true);
+    static ads::CIconProvider& iconProvider();
 	ads::CDockAreaWidget* addDockWidget(ads::DockWidgetArea area, ads::CDockWidget* Dockwidget /Transfer/,
 		ads::CDockAreaWidget* DockAreaWidget /Transfer/ = 0);
 	ads::CDockAreaWidget* addDockWidgetTab(ads::DockWidgetArea area,
 		ads::CDockWidget* Dockwidget /Transfer/);
 	ads::CDockAreaWidget* addDockWidgetTabToArea(ads::CDockWidget* Dockwidget /Transfer/,
 		ads::CDockAreaWidget* DockAreaWidget /Transfer/);
+    ads::CFloatingDockContainer* addDockWidgetFloating(ads::CDockWidget* DockWidget /Transfer/);
 	ads::CDockWidget* findDockWidget(const QString& ObjectName) const;
 	void removeDockWidget(ads::CDockWidget* Dockwidget) /TransferBack/;
 	QMap<QString, ads::CDockWidget*> dockWidgetsMap() const;
 	const QList<ads::CDockContainerWidget*> dockContainers() const;
 	const QList<ads::CFloatingDockContainer*> floatingWidgets() const;
 	virtual unsigned int zOrderIndex() const;
-	QByteArray saveState(int version = 0) const;
-	bool restoreState(const QByteArray &state, int version = 0);
+	QByteArray saveState(int version = 1) const;
+	bool restoreState(const QByteArray &state, int version = 1);
 	void addPerspective(const QString& UniquePrespectiveName);
 	void removePerspective(const QString& Name);
 	void removePerspectives(const QStringList& Names);
@@ -198,6 +206,9 @@ signals:
     void stateRestored();
     void openingPerspective(const QString& PerspectiveName);
     void perspectiveOpened(const QString& PerspectiveName);
+    void dockAreaCreated(ads::CDockAreaWidget* DockArea);
+    void dockWidgetAboutToBeRemoved(ads::CDockWidget* DockWidget);
+    void dockWidgetRemoved(ads::CDockWidget* DockWidget);
 };
 
 };

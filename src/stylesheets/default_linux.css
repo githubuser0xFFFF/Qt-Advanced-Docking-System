@@ -59,12 +59,12 @@ ads--CDockWidget
     border-width: 1px 0 0 0;
 }
 
-#tabsMenuButton,
-#closeButton,
-#undockButton
+
+ads--CTitleBarButton
 {
-	padding: 0px -2px;
+	padding: 0px 0px;
 }
+
 
 
 QScrollArea#dockWidgetScrollArea

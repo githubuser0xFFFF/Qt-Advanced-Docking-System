@@ -9,12 +9,15 @@
 %Include DockAreaTitleBar.sip
 %Include DockAreaWidget.sip
 %Include DockContainerWidget.sip
+%Include DockingStateReader.sip
 %Include DockManager.sip
 %Include DockOverlay.sip
 %Include DockSplitter.sip
 %Include DockWidgetTab.sip
 %Include ElidingLabel.sip
 %Include FloatingDockContainer.sip
+%Include FloatingDragPreview.sip
+%Include IconProvider.sip
 %If (Linux)
     %Include linux/FloatingWidgetTitleBar.sip
 %End

@@ -343,9 +343,10 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	connect(Tab, SIGNAL(closeRequested()), this, SLOT(onTabCloseRequested()));
 	connect(Tab, SIGNAL(closeOtherTabsRequested()), this, SLOT(onCloseOtherTabsRequested()));
 	connect(Tab, SIGNAL(moved(const QPoint&)), this, SLOT(onTabWidgetMoved(const QPoint&)));
+	connect(Tab, SIGNAL(elidedChanged(bool)), this, SIGNAL(elidedChanged(bool)));
 	Tab->installEventFilter(this);
 	emit tabInserted(Index);
-	if (Index <= d->CurrentIndex)
+	if (Index <= d->CurrentIndex || d->CurrentIndex == -1)
 	{
 		setCurrentIndex(d->CurrentIndex + 1);
 	}
@@ -478,7 +479,14 @@ void CDockAreaTabBar::onCloseOtherTabsRequested()
 			int Offset = Tab->dockWidget()->features().testFlag(
 				CDockWidget::DockWidgetDeleteOnClose) ? 1 : 0;
 			closeTab(i);
-			i -= Offset;
+
+			// If the the dock widget blocks closing, i.e. if the flag
+			// CustomCloseHandling is set, and the dock widget is still open,
+			// then we do not need to correct the index
+			if (Tab->dockWidget()->isClosed())
+			{
+				i -= Offset;
+			}
 		}
 	}
 }
@@ -555,7 +563,6 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 	}
 }
 
-
 //===========================================================================
 void CDockAreaTabBar::closeTab(int Index)
 {
@@ -569,7 +576,6 @@ void CDockAreaTabBar::closeTab(int Index)
 	{
 		return;
 	}
-	Tab->hide();
 	emit tabCloseRequested(Index);
 }
 
@@ -635,6 +641,7 @@ eDragState CDockAreaTabBar::dragState() const
 }
 
 } // namespace ads
+
 
 //---------------------------------------------------------------------------
 // EOF DockAreaTabBar.cpp

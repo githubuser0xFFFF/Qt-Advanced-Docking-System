@@ -42,6 +42,13 @@ int main(int argc, char *argv[])
 	std::shared_ptr<int> b;
 	QApplication a(argc, argv);
 	a.setQuitOnLastWindowClosed(true);
+
+	QFile StyleSheetFile(":/adsdemo/app.css");
+	StyleSheetFile.open(QIODevice::ReadOnly);
+	QTextStream StyleSheetStream(&StyleSheetFile);
+	a.setStyleSheet(StyleSheetStream.readAll());
+	StyleSheetFile.close();
+
 	qInstallMessageHandler(myMessageOutput);
 	qDebug() << "Message handler test";
 

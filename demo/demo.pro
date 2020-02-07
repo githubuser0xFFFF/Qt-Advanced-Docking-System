@@ -3,6 +3,11 @@ ADS_OUT_ROOT = $${OUT_PWD}/..
 TARGET = AdvancedDockingSystemDemo
 DESTDIR = $${ADS_OUT_ROOT}/lib
 QT += core gui widgets
+
+win32 {
+QT += axcontainer
+}
+
 CONFIG += c++14
 CONFIG += debug_and_release
 DEFINES += QT_DEPRECATED_WARNINGS

@@ -239,6 +239,11 @@ signals:
 	 * This signal is emitted if a tab has been inserted
 	 */
 	void tabInserted(int index);
+
+	/**
+	 * This signal is emitted when a tab title elide state has been changed
+	 */
+	void elidedChanged(bool elided);
 }; // class CDockAreaTabBar
 } // namespace ads
 //-----------------------------------------------------------------------------

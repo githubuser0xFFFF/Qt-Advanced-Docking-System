@@ -19,6 +19,12 @@ set(ads_demo_COMPILE_DEFINE ${ads_demo_COMPILE_DEFINE} ${Qt5Gui_COMPILE_DEFINITI
 set(ads_demo_LIBS ${ads_demo_LIBS} ${Qt5Widgets_LIBRARIES})
 set(ads_demo_INCLUDE ${ads_demo_INCLUDE} ${Qt5Widgets_INCLUDE_DIRS})
 set(ads_demo_COMPILE_DEFINE ${ads_demo_COMPILE_DEFINE} ${Qt5Widgets_COMPILE_DEFINITIONS})
+if(WIN32)
+	find_package(Qt5AxContainer ${REQUIRED_QT_VERSION} REQUIRED)
+	set(ads_demo_LIBS ${ads_demo_LIBS} ${Qt5AxContainer_LIBRARIES})
+	set(ads_demo_INCLUDE ${ads_demo_INCLUDE} ${Qt5AxContainer_INCLUDE_DIRS})
+	set(ads_demo_COMPILE_DEFINE ${ads_demo_COMPILE_DEFINE} ${Qt5AxContainer_COMPILE_DEFINITIONS})
+endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(ads_demo_SRCS
     main.cpp

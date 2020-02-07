@@ -238,10 +238,10 @@ public:
 	 * A bitwise and is used to combine the flags of all dock widgets. That
 	 * means, if only one single dock widget does not support a certain flag,
 	 * the whole dock are does not support the flag. I.e. if one single
-	 * dock widget in this area is not closabe, the whole dock are is not
+	 * dock widget in this area is not closable, the whole dock are is not
 	 * closable.
 	 */
-	CDockWidget::DockWidgetFeatures features() const;
+	CDockWidget::DockWidgetFeatures features(eBitwiseOperator Mode = BitwiseAnd) const;
 
 	/**
 	 * Returns the title bar button corresponding to the given title bar
@@ -253,6 +253,16 @@ public:
 	 * Update the close button if visibility changed
 	 */
 	virtual void setVisible(bool Visible) override;
+
+	/**
+	 * Configures the areas of this particular dock area that are allowed for docking
+	 */
+	void setAllowedAreas(DockWidgetAreas areas);
+
+	/**
+	 * Returns flags with all allowed drop areas of this particular dock area
+	 */
+	DockWidgetAreas allowedAreas() const;
 
 public slots:
 	/**

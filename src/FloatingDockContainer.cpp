@@ -28,6 +28,8 @@
 //============================================================================
 #include "FloatingDockContainer.h"
 
+#include <iostream>
+
 #include <QBoxLayout>
 #include <QApplication>
 #include <QMouseEvent>
@@ -205,7 +207,7 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		DockAreaOverlay->enableDropPreview(true);
 		DockAreaOverlay->setAllowedAreas(
-		    (VisibleDockAreas == 1) ? NoDockWidgetArea : AllDockAreas);
+		    (VisibleDockAreas == 1) ? NoDockWidgetArea : DockArea->allowedAreas());
 		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea);
 
 		// A CenterDockWidgetArea for the dockAreaOverlay() indicates that
@@ -352,14 +354,17 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 {
 	ADS_PRINT("CFloatingDockContainer closeEvent");
 	d->setState(DraggingInactive);
+	event->ignore();
 
 	if (isClosable())
 	{
 		auto TopLevelDockWidget = topLevelDockWidget();
 		if (TopLevelDockWidget && TopLevelDockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
 		{
-			TopLevelDockWidget->deleteDockWidget();
-			this->deleteLater();
+			if (!TopLevelDockWidget->closeDockWidgetInternal())
+			{
+				return;
+			}
 		}
 
 		// In Qt version after 5.9.2 there seems to be a bug that causes the
@@ -371,20 +376,7 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 		// Starting from Qt version 5.12.2 this seems to work again. But
 		// now the QEvent::NonClientAreaMouseButtonPress function returns always
 		// Qt::RightButton even if the left button was pressed
-#ifndef Q_OS_LINUX
-#if (QT_VERSION > QT_VERSION_CHECK(5, 9, 2) && QT_VERSION < QT_VERSION_CHECK(5, 12, 2))
-        event->ignore();
         this->hide();
-#else
-		Super::closeEvent(event);
-#endif
-#else // Q_OS_LINUX
-        Super::closeEvent(event);
-#endif
-	}
-	else
-	{
-		event->ignore();
 	}
 }
 

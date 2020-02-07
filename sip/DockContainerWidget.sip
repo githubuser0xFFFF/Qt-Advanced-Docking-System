@@ -23,10 +23,11 @@ protected:
 	QSplitter* rootSplitter() const;
 	void createRootSplitter();
 	void dropFloatingWidget(ads::CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
+    void dropWidget(QWidget* widget, const QPoint& TargetPos);
 	void addDockArea(ads::CDockAreaWidget* DockAreaWidget /Transfer/, ads::DockWidgetArea area = ads::CenterDockWidgetArea);
 	void removeDockArea(ads::CDockAreaWidget* area /Transfer/);
 	void saveState(QXmlStreamWriter& Stream) const;
-	bool restoreState(QXmlStreamReader& Stream, bool Testing);
+	bool restoreState(CDockingStateReader& Stream, bool Testing);
 	ads::CDockAreaWidget* lastAddedDockAreaWidget(ads::DockWidgetArea area) const;
 	bool hasTopLevelDockWidget() const;
 	ads::CDockWidget* topLevelDockWidget() const;
