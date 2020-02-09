@@ -320,7 +320,7 @@ void MainWindowPrivate::createContent()
 	appendFeaturStringToWindowTitle(FileSystemWidget);
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 
-	// We create a calender widget and clear all flags to prevent the dock area
+	// We create a calendar widget and clear all flags to prevent the dock area
 	// from closing
 	DockWidget = createCalendarDockWidget(ViewMenu);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);

@@ -537,8 +537,9 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 	if (TopLevelDockArea)
 	{
 		d->SingleDockArea = TopLevelDockArea;
-		d->setWindowTitle(
-		    d->SingleDockArea->currentDockWidget()->windowTitle());
+		CDockWidget* CurrentWidget = d->SingleDockArea->currentDockWidget();
+		d->setWindowTitle(CurrentWidget->windowTitle());
+		setWindowIcon(CurrentWidget->icon());
 		connect(d->SingleDockArea, SIGNAL(currentChanged(int)), this,
 		    SLOT(onDockAreaCurrentChanged(int)));
 	}
@@ -551,6 +552,7 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			d->SingleDockArea = nullptr;
 		}
 		d->setWindowTitle(qApp->applicationDisplayName());
+		setWindowIcon(QApplication::windowIcon());
 	}
 }
 
@@ -560,11 +562,14 @@ void CFloatingDockContainer::updateWindowTitle()
 	auto TopLevelDockArea = d->DockContainer->topLevelDockArea();
 	if (TopLevelDockArea)
 	{
-		d->setWindowTitle(TopLevelDockArea->currentDockWidget()->windowTitle());
+		CDockWidget* CurrentWidget = TopLevelDockArea->currentDockWidget();
+		d->setWindowTitle(CurrentWidget->windowTitle());
+		setWindowIcon(CurrentWidget->icon());
 	}
 	else
 	{
 		d->setWindowTitle(qApp->applicationDisplayName());
+		setWindowIcon(QApplication::windowIcon());
 	}
 }
 
@@ -572,7 +577,9 @@ void CFloatingDockContainer::updateWindowTitle()
 void CFloatingDockContainer::onDockAreaCurrentChanged(int Index)
 {
 	Q_UNUSED(Index);
-	d->setWindowTitle(d->SingleDockArea->currentDockWidget()->windowTitle());
+	CDockWidget* CurrentWidget = d->SingleDockArea->currentDockWidget();
+	d->setWindowTitle(CurrentWidget->windowTitle());
+	setWindowIcon(CurrentWidget->icon());
 }
 
 //============================================================================
