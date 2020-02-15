@@ -450,9 +450,16 @@ signals:
 
     /**
      * This signal is emitted if the dock manager finished opening a
-     * perspective
+     * perspective.
      */
     void perspectiveOpened(const QString& PerspectiveName);
+
+	/**
+	 * This signal is emitted, if a new floating widget has been created.
+	 * An application can use this signal to e.g. subscribe to events of
+	 * the newly created window.
+	 */
+	void floatingWidgetCreated(CFloatingDockContainer* FloatingWidget);
 
     /**
      * This signal is emitted, if a new DockArea has been created.
