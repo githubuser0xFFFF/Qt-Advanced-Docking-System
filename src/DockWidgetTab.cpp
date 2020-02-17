@@ -368,8 +368,13 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
 			return;
 		}
 
-    	// Floating is only allowed for widgets that are movable
-        if (d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+
+    	// Floating is only allowed for widgets that are floatable
+		// If we do non opaque undocking, then can create the drag preview
+		// if the widget is movable.
+		auto Features = d->DockWidget->features();
+        if (Features.testFlag(CDockWidget::DockWidgetFloatable)
+        || (Features.testFlag(CDockWidget::DockWidgetMovable) && !CDockManager::testConfigFlag(CDockManager::OpaqueUndocking)))
         {
         	// If we undock, we need to restore the initial position of this
         	// tab because it looks strange if it remains on its dragged position
@@ -451,6 +456,7 @@ void CDockWidgetTab::setActiveTab(bool active)
 	d->TitleLabel->style()->unpolish(d->TitleLabel);
 	d->TitleLabel->style()->polish(d->TitleLabel);
 	update();
+	updateGeometry();
 
 	emit activeTabChanged();
 }

@@ -74,6 +74,7 @@ protected:
     friend class CDockAreaTabBar;
     friend class CDockWidgetTab;
     friend struct DockWidgetTabPrivate;
+    friend struct DockAreaTitleBarPrivate;
 
     /**
      * Assigns the dock manager that manages this dock widget

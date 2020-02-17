@@ -157,7 +157,7 @@ protected:
 	 * Moves the widget to a new position relative to the position given when
 	 * startFloating() was called
 	 */
-	void moveFloating();
+	void moveFloating() override;
 
 	/**
 	 * Restores the state from given stream.

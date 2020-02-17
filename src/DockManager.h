@@ -59,6 +59,7 @@ class CDockWidgetTab;
 struct DockWidgetTabPrivate;
 struct DockAreaWidgetPrivate;
 class CIconProvider;
+class CDockComponentsFactory;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -88,6 +89,7 @@ private:
 	friend struct DockWidgetTabPrivate;
 	friend class CFloatingDragPreview;
 	friend struct FloatingDragPreviewPrivate;
+	friend class CDockAreaTitleBar;
 
 protected:
 	/**
@@ -161,6 +163,8 @@ public:
 		DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
 		DockAreaHideDisabledButtons = 0x10000,    //!< If the flag is set disabled dock area buttons will not appear on the tollbar at all (enabling them will bring them back)
 		DockAreaDynamicTabsMenuButtonVisibility = 0x20000,     //!< If the flag is set dock area will disable a tabs menu button when there is only one tab in the area
+		FloatingContainerHasWidgetTitle = 0x40000,
+		FloatingContainerHasWidgetIcon = 0x80000,
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
@@ -169,7 +173,8 @@ public:
 
 		DefaultBaseConfig = DefaultDockAreaButtons
 		                  | ActiveTabHasCloseButton
-		                  | XmlCompressionEnabled,///< default base configuration settings
+		                  | XmlCompressionEnabled
+		                  | FloatingContainerHasWidgetTitle,///< default base configuration settings
 
         DefaultOpaqueConfig = DefaultBaseConfig
 		                    | OpaqueSplitterResize
@@ -296,7 +301,7 @@ public:
 	 * This function always return 0 because the main window is always behind
 	 * any floating widget
 	 */
-	virtual unsigned int zOrderIndex() const;
+	unsigned int zOrderIndex() const override;
 
 	/**
 	 * Saves the current state of the dockmanger and all its dock widgets

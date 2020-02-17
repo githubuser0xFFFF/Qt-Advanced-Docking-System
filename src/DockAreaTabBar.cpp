@@ -54,13 +54,10 @@ namespace ads
 struct DockAreaTabBarPrivate
 {
 	CDockAreaTabBar* _this;
-	QPoint DragStartMousePos;
 	CDockAreaWidget* DockArea;
-	IFloatingWidget* FloatingWidget = nullptr;
 	QWidget* TabsContainerWidget;
 	QBoxLayout* TabsLayout;
 	int CurrentIndex = -1;
-	eDragState DragState = DraggingInactive;
 
 	/**
 	 * Private data constructor
@@ -72,14 +69,6 @@ struct DockAreaTabBarPrivate
 	 * The function reassigns the stylesheet to update the tabs
 	 */
 	void updateTabs();
-
-	/**
-	 * Test function for current drag state
-	 */
-	bool isDraggingState(eDragState dragState) const
-	{
-		return this->DragState == dragState;
-	}
 };
 // struct DockAreaTabBarPrivate
 
@@ -123,22 +112,23 @@ CDockAreaTabBar::CDockAreaTabBar(CDockAreaWidget* parent) :
 	d(new DockAreaTabBarPrivate(this))
 {
 	d->DockArea = parent;
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setFrameStyle(QFrame::NoFrame);
 	setWidgetResizable(true);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	d->TabsContainerWidget = new QWidget();
+	d->TabsContainerWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	d->TabsContainerWidget->setObjectName("tabsContainerWidget");
-	setWidget(d->TabsContainerWidget);
-
 	d->TabsLayout = new QBoxLayout(QBoxLayout::LeftToRight);
 	d->TabsLayout->setContentsMargins(0, 0, 0, 0);
 	d->TabsLayout->setSpacing(0);
 	d->TabsLayout->addStretch(1);
 	d->TabsContainerWidget->setLayout(d->TabsLayout);
+	setWidget(d->TabsContainerWidget);
 }
+
 
 //============================================================================
 CDockAreaTabBar::~CDockAreaTabBar()
@@ -164,149 +154,6 @@ void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 
 
 //============================================================================
-void CDockAreaTabBar::mousePressEvent(QMouseEvent* ev)
-{
-	if (ev->button() == Qt::LeftButton)
-	{
-		ev->accept();
-		d->DragStartMousePos = ev->pos();
-		d->DragState = DraggingMousePressed;
-		return;
-	}
-	Super::mousePressEvent(ev);
-}
-
-
-//============================================================================
-void CDockAreaTabBar::mouseReleaseEvent(QMouseEvent* ev)
-{
-	if (ev->button() == Qt::LeftButton)
-	{
-        ADS_PRINT("CDockAreaTabBar::mouseReleaseEvent");
-		ev->accept();
-		auto CurrentDragState = d->DragState;
-		d->DragStartMousePos = QPoint();
-		d->DragState = DraggingInactive;
-		if (DraggingFloatingWidget == CurrentDragState)
-		{
-			d->FloatingWidget->finishDragging();
-		}
-		return;
-	}
-	Super::mouseReleaseEvent(ev);
-}
-
-
-//============================================================================
-void CDockAreaTabBar::mouseMoveEvent(QMouseEvent* ev)
-{
-	Super::mouseMoveEvent(ev);
-	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
-	{
-		d->DragState = DraggingInactive;
-		return;
-	}
-
-    // move floating window
-    if (d->isDraggingState(DraggingFloatingWidget))
-    {
-        d->FloatingWidget->moveFloating();
-        return;
-    }
-
-	// If this is the last dock area in a dock container it does not make
-	// sense to move it to a new floating widget and leave this one
-	// empty
-	if (d->DockArea->dockContainer()->isFloating()
-	 && d->DockArea->dockContainer()->visibleDockAreaCount() == 1)
-	{
-		return;
-	}
-
-	// If one single dock widget in this area is not floatable then the whole
-	// area is not floatable
-	if (!d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
-	{
-		return;
-	}
-
-	int DragDistance = (d->DragStartMousePos - ev->pos()).manhattanLength();
-	if (DragDistance >= CDockManager::startDragDistance())
-	{
-        ADS_PRINT("CTabsScrollArea::startFloating");
-		startFloating(d->DragStartMousePos);
-		auto Overlay = d->DockArea->dockManager()->containerOverlay();
-		Overlay->setAllowedAreas(OuterDockAreas);
-	}
-
-	return;
-}
-
-
-//============================================================================
-void CDockAreaTabBar::mouseDoubleClickEvent(QMouseEvent *event)
-{
-	// If this is the last dock area in a dock container it does not make
-	// sense to move it to a new floating widget and leave this one
-	// empty
-	if (d->DockArea->dockContainer()->isFloating() && d->DockArea->dockContainer()->dockAreaCount() == 1)
-	{
-		return;
-	}
-
-	if (!d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
-	{
-		return;
-	}
-	makeAreaFloating(event->pos(), DraggingInactive);
-}
-
-
-//============================================================================
-IFloatingWidget* CDockAreaTabBar::makeAreaFloating(const QPoint& Offset, eDragState DragState)
-{
-	QSize Size = d->DockArea->size();
-	d->DragState = DragState;
-	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
-		(DraggingFloatingWidget != DragState);
-	CFloatingDockContainer* FloatingDockContainer = nullptr;
-	IFloatingWidget* FloatingWidget;
-	if (OpaqueUndocking)
-	{
-		FloatingWidget = FloatingDockContainer = new CFloatingDockContainer(d->DockArea);
-	}
-	else
-	{
-		auto w = new CFloatingDragPreview(d->DockArea);
-		connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
-		{
-			d->DragState = DraggingInactive;
-		});
-		FloatingWidget = w;
-	}
-
-    FloatingWidget->startFloating(Offset, Size, DragState, nullptr);
-    if (FloatingDockContainer)
-    {
-		auto TopLevelDockWidget = FloatingDockContainer->topLevelDockWidget();
-		if (TopLevelDockWidget)
-		{
-			TopLevelDockWidget->emitTopLevelChanged(true);
-		}
-    }
-
-	return FloatingWidget;
-}
-
-
-//============================================================================
-void CDockAreaTabBar::startFloating(const QPoint& Offset)
-{
-	d->FloatingWidget = makeAreaFloating(Offset, DraggingFloatingWidget);
-}
-
-
-//============================================================================
 void CDockAreaTabBar::setCurrentIndex(int index)
 {
 	if (index == d->CurrentIndex)
@@ -323,6 +170,7 @@ void CDockAreaTabBar::setCurrentIndex(int index)
     emit currentChanging(index);
 	d->CurrentIndex = index;
 	d->updateTabs();
+	updateGeometry();
 	emit currentChanged(index);
 }
 
@@ -350,6 +198,8 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	{
 		setCurrentIndex(d->CurrentIndex + 1);
 	}
+
+	updateGeometry();
 }
 
 
@@ -412,6 +262,8 @@ void CDockAreaTabBar::removeTab(CDockWidgetTab* Tab)
 	{
 		d->updateTabs();
 	}
+
+	updateGeometry();
 }
 
 
@@ -593,9 +445,15 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
 	switch (event->type())
 	{
 	case QEvent::Hide:
-		 emit tabClosed(d->TabsLayout->indexOf(Tab)); break;
+		 emit tabClosed(d->TabsLayout->indexOf(Tab));
+		 updateGeometry();
+		 break;
+
 	case QEvent::Show:
-		 emit tabOpened(d->TabsLayout->indexOf(Tab)); break;
+		 emit tabOpened(d->TabsLayout->indexOf(Tab));
+		 updateGeometry();
+		 break;
+
 	default:
 		break;
 	}
@@ -620,7 +478,7 @@ bool CDockAreaTabBar::isTabOpen(int Index) const
 QSize CDockAreaTabBar::minimumSizeHint() const
 {
 	QSize Size = sizeHint();
-	Size.setWidth(Super::minimumSizeHint().width());// this defines the minimum width of a dock area
+	Size.setWidth(10);
 	return Size;
 }
 
@@ -628,16 +486,7 @@ QSize CDockAreaTabBar::minimumSizeHint() const
 //===========================================================================
 QSize CDockAreaTabBar::sizeHint() const
 {
-	QSize Size = Super::sizeHint();
-	Size.setHeight(d->TabsContainerWidget->sizeHint().height());
-	return Size;
-}
-
-
-//===========================================================================
-eDragState CDockAreaTabBar::dragState() const
-{
-	return d->DragState;
+	return d->TabsContainerWidget->sizeHint();
 }
 
 } // namespace ads

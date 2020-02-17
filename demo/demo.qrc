@@ -11,5 +11,7 @@
         <file>images/grid_on.svg</file>
         <file>images/custom-menu-button.svg</file>
         <file>app.css</file>
+        <file>images/plus.svg</file>
+        <file>images/help_outline.svg</file>
     </qresource>
 </RCC>

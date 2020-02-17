@@ -67,42 +67,6 @@ private slots:
 protected:
 	virtual void wheelEvent(QWheelEvent* Event) override;
 
-	/**
-	 * Stores mouse position to detect dragging
-	 */
-	virtual void mousePressEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Stores mouse position to detect dragging
-	 */
-	virtual void mouseReleaseEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Starts floating the complete docking area including all dock widgets,
-	 * if it is not the last dock area in a floating widget
-	 */
-	virtual void mouseMoveEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Double clicking the title bar also starts floating of the complete area
-	 */
-	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-	/**
-	 * Starts floating
-	 */
-	void startFloating(const QPoint& Offset);
-
-	/**
-	 * Makes the dock area floating
-	 */
-	IFloatingWidget* makeAreaFloating(const QPoint& Offset, eDragState DragState);
-
-	/**
-	 * Returns the current drag state
-	 */
-	eDragState dragState() const;
-
 
 public:
 	using Super = QScrollArea;

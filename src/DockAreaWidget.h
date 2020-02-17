@@ -44,6 +44,7 @@ struct DockAreaWidgetPrivate;
 class CDockManager;
 class CDockContainerWidget;
 class DockContainerWidgetPrivate;
+class CDockAreaTitleBar;
 
 
 /**
@@ -263,6 +264,11 @@ public:
 	 * Returns flags with all allowed drop areas of this particular dock area
 	 */
 	DockWidgetAreas allowedAreas() const;
+
+	/**
+	 * Returns the title bar of this dock area
+	 */
+	CDockAreaTitleBar* titleBar() const;
 
 public slots:
 	/**
