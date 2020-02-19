@@ -206,10 +206,6 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 
 	connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
 		SLOT(onApplicationStateChanged(Qt::ApplicationState)));
-
-	// We need to install an event filter for the given Content
-	// widget to receive the escape key press
-	Content->installEventFilter(this);
 }
 
 
@@ -224,6 +220,10 @@ CFloatingDragPreview::CFloatingDragPreview(CDockWidget* Content)
 		d->ContenSourceContainer = Content->dockContainer();
 	}
 	setWindowTitle(Content->windowTitle());
+
+	// We need to install an event filter for the given Content
+	// widget to receive the escape key press
+	Content->dockAreaWidget()->installEventFilter(this);
 }
 
 
@@ -235,6 +235,10 @@ CFloatingDragPreview::CFloatingDragPreview(CDockAreaWidget* Content)
 	d->ContentSourceArea = Content;
 	d->ContenSourceContainer = Content->dockContainer();
 	setWindowTitle(Content->currentDockWidget()->windowTitle());
+
+	// We need to install an event filter for the given Content
+	// widget to receive the escape key press
+	Content->installEventFilter(this);
 }
 
 
@@ -381,7 +385,7 @@ bool CFloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
         QKeyEvent* e = static_cast<QKeyEvent*>(event);
         if (e->key() == Qt::Key_Escape)
         {
-            d->Content->removeEventFilter(this);
+            watched->removeEventFilter(this);
             d->cancelDragging();
         }
     }

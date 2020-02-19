@@ -440,6 +440,7 @@ CDockManager::~CDockManager()
 void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
 	d->FloatingWidgets.append(FloatingWidget);
+	emit floatingWidgetCreated(FloatingWidget);
     ADS_PRINT("d->FloatingWidgets.count() " << d->FloatingWidgets.count());
 }
 

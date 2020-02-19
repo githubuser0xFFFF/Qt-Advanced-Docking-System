@@ -632,7 +632,7 @@ void CDockOverlayCross::updateOverlayIcons()
 	{
 		d->updateDropIndicatorIcon(Widget);
 	}
-#if QT_VESION >= 0x050600
+#if QT_VERSION >= 0x050600
 	d->LastDevicePixelRatio = devicePixelRatioF();
 #else
     d->LastDevicePixelRatio = devicePixelRatio();
