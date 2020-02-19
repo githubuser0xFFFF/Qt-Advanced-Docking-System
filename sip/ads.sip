@@ -8,6 +8,7 @@
 %Include DockAreaTabBar.sip
 %Include DockAreaTitleBar.sip
 %Include DockAreaWidget.sip
+%Include DockComponentsFactory.sip
 %Include DockContainerWidget.sip
 %Include DockingStateReader.sip
 %Include DockManager.sip

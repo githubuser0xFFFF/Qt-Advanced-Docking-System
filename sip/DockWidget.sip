@@ -12,15 +12,16 @@ class CDockWidget : QFrame
     %End
     
 protected:
-	void setDockManager(ads::CDockManager* DockManager /Transfer/);
-	void setDockArea(ads::CDockAreaWidget* DockArea /Transfer/);
-	void setToggleViewActionChecked(bool Checked);
-	void saveState(QXmlStreamWriter& Stream) const;
-	void flagAsUnassigned();
-	static void emitTopLevelEventForWidget(ads::CDockWidget* TopLevelDockWidget, bool Floating);
-	void emitTopLevelChanged(bool Floating);
-	void setClosedState(bool Closed);
-	void toggleViewInternal(bool Open);
+    void setDockManager(ads::CDockManager* DockManager /Transfer/ );
+    void setDockArea(ads::CDockAreaWidget* DockArea /Transfer/ );
+    void setToggleViewActionChecked(bool Checked);
+    void saveState(QXmlStreamWriter& Stream) const;
+    void flagAsUnassigned();
+    static void emitTopLevelEventForWidget(ads::CDockWidget* TopLevelDockWidget, bool Floating);
+    void emitTopLevelChanged(bool Floating);
+    void setClosedState(bool Closed);
+    void toggleViewInternal(bool Open);
+    bool closeDockWidgetInternal(bool ForceClose = false);
     
 public:
 	enum DockWidgetFeature

@@ -29,7 +29,6 @@ protected:
 	void saveState(QXmlStreamWriter& Stream) const;
 	bool restoreState(CDockingStateReader& Stream, bool Testing);
 	ads::CDockAreaWidget* lastAddedDockAreaWidget(ads::DockWidgetArea area) const;
-	bool hasTopLevelDockWidget() const;
 	ads::CDockWidget* topLevelDockWidget() const;
 	ads::CDockAreaWidget* topLevelDockArea() const;
     QList<ads::CDockWidget*> dockWidgets() const;
@@ -88,6 +87,7 @@ public:
 	 * If all dock widgets in a dock area are closed, the dock area will be closed
 	 */
 	QList<ads::CDockAreaWidget*> openedDockAreas() const;
+	bool hasTopLevelDockWidget() const;
 
 	/**
 	 * Returns the number of dock areas in this container

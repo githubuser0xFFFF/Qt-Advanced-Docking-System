@@ -46,7 +46,6 @@ protected:
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void hideEvent(QHideEvent *event);
 	virtual void showEvent(QShowEvent *event);
-	virtual bool eventFilter(QObject *watched, QEvent *event);
 
 public:
 	CFloatingDockContainer(ads::CDockManager* DockManager /TransferThis/);

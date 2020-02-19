@@ -49,6 +49,12 @@ namespace ads
         IconCount,
     };
 
+    enum eBitwiseOperator
+    {
+        BitwiseAnd,
+        BitwiseOr
+    };
+
 };
 
 %End

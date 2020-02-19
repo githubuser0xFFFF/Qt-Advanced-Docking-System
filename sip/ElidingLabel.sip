@@ -22,7 +22,7 @@ public:
 	virtual ~CElidingLabel();
 	Qt::TextElideMode elideMode() const;
 	void setElideMode(Qt::TextElideMode mode);
-
+	bool isElided() const;
 
 public:
 	virtual QSize minimumSizeHint() const;
@@ -33,6 +33,7 @@ public:
 signals:
 	void clicked();
 	void doubleClicked();
+	void elidedChanged(bool elided);
 };
 
 };
