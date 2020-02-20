@@ -192,30 +192,39 @@ class build_ext(sipdistutils.build_ext):
                 extension.extra_compile_args += ['-std=c++11']
 
         return super().swig_sources(sources, extension)
-        
+
     def build_extension(self, ext):
         cppsources = [source for source in ext.sources if source.endswith(".cpp")]
-        
+
         dir_util.mkpath(self.build_temp, dry_run=self.dry_run)
 
         # Run moc on all header files.
         for source in cppsources:
+            # *.cpp -> *.moc
+            moc_file = os.path.basename(source).replace(".cpp", ".moc")
+            out_file = os.path.join(self.build_temp, moc_file)
+
+            if newer(source, out_file) or self.force:
+                call_arg = ["moc", "-o", out_file, source]
+                spawn.spawn(call_arg, dry_run=self.dry_run)
+
             header = source.replace(".cpp", ".h")
             if os.path.exists(header):
+                # *.h -> moc_*.cpp
                 moc_file = "moc_" + os.path.basename(header).replace(".h", ".cpp")
                 out_file = os.path.join(self.build_temp, moc_file)
-                
+
                 if newer(header, out_file) or self.force:
                     call_arg = ["moc", "-o", out_file, header]
                     spawn.spawn(call_arg, dry_run=self.dry_run)
-                    
+
                 if os.path.getsize(out_file) > 0:
                     ext.sources.append(out_file)
 
         # Add the temp build directory to include path, for compiler to find
         # the created .moc files
         ext.include_dirs += [self._sip_output_dir()]
-        
+
         sipdistutils.build_ext.build_extension(self, ext)
 
 
