@@ -25,7 +25,7 @@ protected:
 	void dropFloatingWidget(ads::CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
     void dropWidget(QWidget* widget, const QPoint& TargetPos);
 	void addDockArea(ads::CDockAreaWidget* DockAreaWidget /Transfer/, ads::DockWidgetArea area = ads::CenterDockWidgetArea);
-	void removeDockArea(ads::CDockAreaWidget* area /Transfer/);
+	void removeDockArea(ads::CDockAreaWidget* area /TransferBack/);
 	void saveState(QXmlStreamWriter& Stream) const;
 	bool restoreState(CDockingStateReader& Stream, bool Testing);
 	ads::CDockAreaWidget* lastAddedDockAreaWidget(ads::DockWidgetArea area) const;

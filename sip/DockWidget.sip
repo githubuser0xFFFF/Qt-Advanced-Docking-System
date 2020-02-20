@@ -78,7 +78,7 @@ public:
 	QIcon icon() const;
 	QToolBar* toolBar() const;
 	QToolBar* createDefaultToolBar();
-	void setToolBar(QToolBar* ToolBar);
+	void setToolBar(QToolBar* ToolBar /Transfer/ );
 	void setToolBarStyle(Qt::ToolButtonStyle Style, ads::CDockWidget::eState State);
 	Qt::ToolButtonStyle toolBarStyle(ads::CDockWidget::eState State) const;
 	void setToolBarIconSize(const QSize& IconSize, ads::CDockWidget::eState State);
