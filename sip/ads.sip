@@ -16,9 +16,12 @@
 %Include DockSplitter.sip
 %Include DockWidgetTab.sip
 %Include ElidingLabel.sip
-%Include FloatingDockContainer.sip
 %Include FloatingDragPreview.sip
 %Include IconProvider.sip
 %If (Linux)
+    %Include linux/FloatingDockContainer.sip
     %Include linux/FloatingWidgetTitleBar.sip
+%End
+%If (!Linux)
+%Include FloatingDockContainer.sip
 %End

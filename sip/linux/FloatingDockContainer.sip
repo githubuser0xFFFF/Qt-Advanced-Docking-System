@@ -1,5 +1,5 @@
-// NOTE: there is a separate sip/linux/FloatingDockContainer.sip as the base
-// class for CFloatingDockContainer changes for Linux.
+// NOTE: this is the Linux version, with QDockWidget as the
+// CFloatingDockContainer base class.
 
 %Import QtWidgets/QtWidgetsmod.sip
 
@@ -23,7 +23,7 @@ public:
 };
 
 
-class CFloatingDockContainer : QWidget, ads::IFloatingWidget
+class CFloatingDockContainer : QDockWidget, ads::IFloatingWidget
 {
     
     %TypeHeaderCode
