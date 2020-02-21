@@ -134,6 +134,8 @@ protected:
 	ads::CDockOverlay* containerOverlay() const;
 	ads::CDockOverlay* dockAreaOverlay() const;
 
+    virtual void showEvent(QShowEvent *event);
+
 public:
 	enum eViewMenuInsertionOrder
 	{

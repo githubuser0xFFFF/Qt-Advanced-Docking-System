@@ -30,7 +30,9 @@ public:
 		DockWidgetMovable,
 		DockWidgetFloatable,
 		DockWidgetDeleteOnClose,
-		AllDockWidgetFeatures,
+        CustomCloseHandling,
+        DefaultDockWidgetFeatures,
+        AllDockWidgetFeatures,
 		NoDockWidgetFeatures
 	};
     typedef QFlags<ads::CDockWidget::DockWidgetFeature> DockWidgetFeatures;
@@ -83,6 +85,9 @@ public:
 	Qt::ToolButtonStyle toolBarStyle(ads::CDockWidget::eState State) const;
 	void setToolBarIconSize(const QSize& IconSize, ads::CDockWidget::eState State);
 	QSize toolBarIconSize(eState State) const;
+    void setTitleBarActions(QList<QAction*> actions);
+    virtual QList<QAction*> titleBarActions() const;
+
 	void setTabToolTip(const QString &text);
 
 public:
@@ -92,12 +97,14 @@ public slots:
 	void toggleView(bool Open = true);
     void setFloating();
     void deleteDockWidget();
+    void closeDockWidget();
 
 signals:
 	void viewToggled(bool Open);
 	void closed();
 	void titleChanged(const QString& Title);
 	void topLevelChanged(bool topLevel);
+    void closeRequested();
 	void visibilityChanged(bool visible);
     void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 };
