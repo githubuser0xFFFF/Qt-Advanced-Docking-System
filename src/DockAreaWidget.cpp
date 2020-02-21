@@ -28,8 +28,9 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include "DockWidgetTab.h"
 #include "DockAreaWidget.h"
+
+#include <iostream>
 
 #include <QStackedLayout>
 #include <QScrollBar>
@@ -53,8 +54,8 @@
 #include "DockAreaTabBar.h"
 #include "DockSplitter.h"
 #include "DockAreaTitleBar.h"
-
-#include <iostream>
+#include "DockComponentsFactory.h"
+#include "DockWidgetTab.h"
 
 
 namespace ads
@@ -262,7 +263,7 @@ struct DockAreaWidgetPrivate
 	 */
 	CDockWidget* dockWidgetAt(int index)
 	{
-		return dynamic_cast<CDockWidget*>(ContentsLayout->widget(index));
+		return qobject_cast<CDockWidget*>(ContentsLayout->widget(index));
 	}
 
 	/**
@@ -317,7 +318,7 @@ DockAreaWidgetPrivate::DockAreaWidgetPrivate(CDockAreaWidget* _public) :
 //============================================================================
 void DockAreaWidgetPrivate::createTitleBar()
 {
-	TitleBar = new CDockAreaTitleBar(_this);
+	TitleBar = componentsFactory()->createDockAreaTitleBar(_this);
 	Layout->addWidget(TitleBar);
 	QObject::connect(tabBar(), &CDockAreaTabBar::tabCloseRequested, _this, &CDockAreaWidget::onTabCloseRequested);
 	QObject::connect(TitleBar, &CDockAreaTitleBar::tabBarClicked, _this, &CDockAreaWidget::setCurrentIndex);
@@ -855,6 +856,13 @@ void CDockAreaWidget::closeArea()
 void CDockAreaWidget::closeOtherAreas()
 {
 	dockContainer()->closeOtherAreas(this);
+}
+
+
+//============================================================================
+CDockAreaTitleBar* CDockAreaWidget::titleBar() const
+{
+	return d->TitleBar;
 }
 } // namespace ads
 

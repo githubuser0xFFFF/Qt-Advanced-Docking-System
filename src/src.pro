@@ -43,7 +43,8 @@ HEADERS += \
     DockSplitter.h \
     DockAreaTitleBar.h \
     ElidingLabel.h \
-    IconProvider.h
+    IconProvider.h \
+    DockComponentsFactory.h 
 
 
 SOURCES += \
@@ -61,7 +62,8 @@ SOURCES += \
     DockSplitter.cpp \
     DockAreaTitleBar.cpp \
     ElidingLabel.cpp \
-    IconProvider.cpp
+    IconProvider.cpp \
+    DockComponentsFactory.cpp
 
 
 unix {

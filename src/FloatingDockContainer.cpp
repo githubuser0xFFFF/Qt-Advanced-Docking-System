@@ -80,6 +80,14 @@ struct FloatingDockContainerPrivate
 	void updateDropOverlays(const QPoint &GlobalPos);
 
 	/**
+	 * Returns true if the given config flag is set
+	 */
+	static bool testConfigFlag(CDockManager::eConfigFlag Flag)
+	{
+		return CDockManager::configFlags().testFlag(Flag);
+	}
+
+	/**
 	 * Tests is a certain state is active
 	 */
 	bool isState(eDragState StateId) const
@@ -99,6 +107,31 @@ struct FloatingDockContainerPrivate
 #else
 		_this->setWindowTitle(Text);
 #endif
+	}
+
+	void reflectCurrentWidget(CDockWidget* CurrentWidget)
+	{
+		// reflect CurrentWidget's title if configured to do so, otherwise display application name as window title
+		if (testConfigFlag(CDockManager::FloatingContainerHasWidgetTitle))
+		{
+			setWindowTitle(CurrentWidget->windowTitle());
+		}
+		else
+		{
+			setWindowTitle(qApp->applicationDisplayName());
+		}
+
+		// reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
+		QIcon CurrentWidgetIcon = CurrentWidget->icon();
+		if (testConfigFlag(CDockManager::FloatingContainerHasWidgetIcon)
+				&& !CurrentWidgetIcon.isNull())
+		{
+			_this->setWindowIcon(CurrentWidget->icon());
+		}
+		else
+		{
+			_this->setWindowIcon(QApplication::windowIcon());
+		}
 	}
 };
 // struct FloatingDockContainerPrivate
@@ -537,8 +570,8 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 	if (TopLevelDockArea)
 	{
 		d->SingleDockArea = TopLevelDockArea;
-		d->setWindowTitle(
-		    d->SingleDockArea->currentDockWidget()->windowTitle());
+		CDockWidget* CurrentWidget = d->SingleDockArea->currentDockWidget();
+		d->reflectCurrentWidget(CurrentWidget);
 		connect(d->SingleDockArea, SIGNAL(currentChanged(int)), this,
 		    SLOT(onDockAreaCurrentChanged(int)));
 	}
@@ -551,6 +584,7 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			d->SingleDockArea = nullptr;
 		}
 		d->setWindowTitle(qApp->applicationDisplayName());
+		setWindowIcon(QApplication::windowIcon());
 	}
 }
 
@@ -560,11 +594,13 @@ void CFloatingDockContainer::updateWindowTitle()
 	auto TopLevelDockArea = d->DockContainer->topLevelDockArea();
 	if (TopLevelDockArea)
 	{
-		d->setWindowTitle(TopLevelDockArea->currentDockWidget()->windowTitle());
+		CDockWidget* CurrentWidget = TopLevelDockArea->currentDockWidget();
+		d->reflectCurrentWidget(CurrentWidget);
 	}
 	else
 	{
 		d->setWindowTitle(qApp->applicationDisplayName());
+		setWindowIcon(QApplication::windowIcon());
 	}
 }
 
@@ -572,7 +608,8 @@ void CFloatingDockContainer::updateWindowTitle()
 void CFloatingDockContainer::onDockAreaCurrentChanged(int Index)
 {
 	Q_UNUSED(Index);
-	d->setWindowTitle(d->SingleDockArea->currentDockWidget()->windowTitle());
+	CDockWidget* CurrentWidget = d->SingleDockArea->currentDockWidget();
+	d->reflectCurrentWidget(CurrentWidget);
 }
 
 //============================================================================

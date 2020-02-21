@@ -54,6 +54,7 @@
 #include "DockManager.h"
 #include "FloatingDockContainer.h"
 #include "DockSplitter.h"
+#include "DockComponentsFactory.h"
 #include "ads_globals.h"
 
 
@@ -220,7 +221,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	setWindowTitle(title);
 	setObjectName(title);
 
-	d->TabWidget = new CDockWidgetTab(this);
+	d->TabWidget = componentsFactory()->createDockWidgetTab(this);
     d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,

@@ -380,7 +380,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return Result;
 	}
 
-	CDockAreaWidget* DockArea = dynamic_cast<CDockAreaWidget*>(d->TargetWidget.data());
+	CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea)
 	{
 		return Result;
@@ -632,7 +632,7 @@ void CDockOverlayCross::updateOverlayIcons()
 	{
 		d->updateDropIndicatorIcon(Widget);
 	}
-#if QT_VESION >= 0x050600
+#if QT_VERSION >= 0x050600
 	d->LastDevicePixelRatio = devicePixelRatioF();
 #else
     d->LastDevicePixelRatio = devicePixelRatio();

@@ -50,11 +50,6 @@ protected:
 	virtual void paintEvent(QPaintEvent *e) override;
 
 	/**
-	 * Cancel non opaque undocking with escape key
-	 */
-	virtual void keyPressEvent(QKeyEvent *event) override;
-
-	/**
 	 * The content is a DockArea or a DockWidget
 	 */
 	CFloatingDragPreview(QWidget* Content, QWidget* parent);

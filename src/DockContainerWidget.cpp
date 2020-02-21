@@ -736,7 +736,7 @@ void DockContainerWidgetPrivate::appendDockAreas(const QList<CDockAreaWidget*> N
 //============================================================================
 void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter& s, QWidget* Widget)
 {
-	QSplitter* Splitter = dynamic_cast<QSplitter*>(Widget);
+	QSplitter* Splitter = qobject_cast<QSplitter*>(Widget);
 	if (Splitter)
 	{
 		s.writeStartElement("Splitter");
@@ -759,7 +759,7 @@ void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter& s, QWidge
 	}
 	else
 	{
-		CDockAreaWidget* DockArea = dynamic_cast<CDockAreaWidget*>(Widget);
+		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(Widget);
 		if (DockArea)
 		{
 			DockArea->saveState(s);
@@ -1046,7 +1046,7 @@ void DockContainerWidgetPrivate::addDockArea(CDockAreaWidget* NewDockArea, DockW
 void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 {
 #if defined(QT_DEBUG)
-	QSplitter* Splitter = dynamic_cast<QSplitter*>(widget);
+	QSplitter* Splitter = qobject_cast<QSplitter*>(widget);
 	QByteArray buf;
     buf.fill(' ', level * 4);
 	if (Splitter)
@@ -1069,7 +1069,7 @@ void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 	}
 	else
 	{
-		CDockAreaWidget* DockArea = dynamic_cast<CDockAreaWidget*>(widget);
+		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(widget);
 		if (!DockArea)
 		{
 			return;
@@ -1285,7 +1285,7 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 		}
 
 		QWidget* widget = Splitter->widget(0);
-		QSplitter* ChildSplitter = dynamic_cast<QSplitter*>(widget);
+		QSplitter* ChildSplitter = qobject_cast<QSplitter*>(widget);
 		// If the one and only content widget of the splitter is not a splitter
 		// then we are finished
 		if (!ChildSplitter)
@@ -1573,7 +1573,7 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 
 	d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
 	QSplitter* OldRoot = d->RootSplitter;
-	d->RootSplitter = dynamic_cast<QSplitter*>(NewRootSplitter);
+	d->RootSplitter = qobject_cast<QSplitter*>(NewRootSplitter);
 	OldRoot->deleteLater();
 
 	return true;

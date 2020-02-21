@@ -42,6 +42,7 @@ set(ads_SRCS
     src/FloatingDockContainer.cpp
 	src/FloatingDragPreview.cpp
 	src/IconProvider.cpp
+	src/DockComponentsFactory.cpp
     src/ads.qrc
     src/linux/FloatingWidgetTitleBar.cpp
 )
@@ -61,6 +62,7 @@ set(ads_INSTALL_INCLUDE
     src/FloatingDockContainer.h
 	src/FloatingDragPreview.h
 	src/IconProvider.h
+	src/DockComponentsFactory.h
     src/linux/FloatingWidgetTitleBar.h
 )
 if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
