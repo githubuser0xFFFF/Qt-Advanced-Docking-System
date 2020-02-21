@@ -173,6 +173,12 @@ void DockWidgetPrivate::updateParentDockArea()
 		return;
 	}
 
+	// we don't need to change the current tab if the
+	// current dock widget is not the one being closed
+	if (DockArea->currentDockWidget() != _this){
+		return;
+	}
+
 	auto NextDockWidget = DockArea->nextOpenDockWidget(_this);
 	if (NextDockWidget)
 	{
