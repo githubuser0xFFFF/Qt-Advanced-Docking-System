@@ -198,6 +198,11 @@ class build_ext(sipdistutils.build_ext):
 
         dir_util.mkpath(self.build_temp, dry_run=self.dry_run)
 
+        def get_moc_args(out_file, source):
+            if sys.platform.startswith('linux'):
+                return ["moc", "-D", "Q_OS_LINUX=1", "-o", out_file, source]
+            return ["moc", "-o", out_file, source]
+
         # Run moc on all header files.
         for source in cppsources:
             # *.cpp -> *.moc
@@ -205,8 +210,7 @@ class build_ext(sipdistutils.build_ext):
             out_file = os.path.join(self.build_temp, moc_file)
 
             if newer(source, out_file) or self.force:
-                call_arg = ["moc", "-o", out_file, source]
-                spawn.spawn(call_arg, dry_run=self.dry_run)
+                spawn.spawn(get_moc_args(out_file, source), dry_run=self.dry_run)
 
             header = source.replace(".cpp", ".h")
             if os.path.exists(header):
@@ -215,8 +219,7 @@ class build_ext(sipdistutils.build_ext):
                 out_file = os.path.join(self.build_temp, moc_file)
 
                 if newer(header, out_file) or self.force:
-                    call_arg = ["moc", "-o", out_file, header]
-                    spawn.spawn(call_arg, dry_run=self.dry_run)
+                    spawn.spawn(get_moc_args(out_file, header), dry_run=self.dry_run)
 
                 if os.path.getsize(out_file) > 0:
                     ext.sources.append(out_file)
