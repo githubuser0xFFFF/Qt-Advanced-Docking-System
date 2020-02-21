@@ -201,6 +201,8 @@ class build_ext(sipdistutils.build_ext):
         def get_moc_args(out_file, source):
             if sys.platform.startswith('linux'):
                 return ["moc", "-D", "Q_OS_LINUX=1", "-o", out_file, source]
+            if sys.platform.startswith('darwin'):
+                return ["moc", "-D", "Q_OS_MACOS=1", "-o", out_file, source]
             return ["moc", "-o", out_file, source]
 
         # Run moc on all header files.
