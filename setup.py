@@ -203,6 +203,8 @@ class build_ext(sipdistutils.build_ext):
                 return ["moc", "-D", "Q_OS_LINUX=1", "-o", out_file, source]
             if sys.platform.startswith('darwin'):
                 return ["moc", "-D", "Q_OS_MACOS=1", "-o", out_file, source]
+            if sys.platform.startswith('win'):
+                return ["moc", "-D", "Q_OS_WIN=1", "-o", out_file, source]
             return ["moc", "-o", out_file, source]
 
         # Run moc on all header files.
