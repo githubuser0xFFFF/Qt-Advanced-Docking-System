@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QApplication, QLabel
 
 from PyQtAds import QtAds
 
-UI_FILE = os.path.join(os.path.dirname(__file__), 'mainwindow.ui')
+UI_FILE = os.path.join(os.path.dirname(__file__), 'MainWindow.ui')
 MainWindowUI, MainWindowBase = uic.loadUiType(UI_FILE)
 
 
