@@ -5,9 +5,11 @@
 
 %If (Qt_5_0_0 -)
 
-typedef QWidget tFloatingWidgetBase;
 %If (WS_X11)
     typedef QDockWidget tFloatingWidgetBase;
+%End
+%If (!WS_X11)
+    typedef QWidget tFloatingWidgetBase;
 %End
 
 namespace ads
