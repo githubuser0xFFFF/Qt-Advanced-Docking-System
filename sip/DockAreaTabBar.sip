@@ -13,14 +13,6 @@ class CDockAreaTabBar : QScrollArea
     
 protected:
 	virtual void wheelEvent(QWheelEvent* Event);
-	virtual void mousePressEvent(QMouseEvent* ev);
-	virtual void mouseReleaseEvent(QMouseEvent* ev);
-	virtual void mouseMoveEvent(QMouseEvent* ev);
-	virtual void mouseDoubleClickEvent(QMouseEvent *event);
-	void startFloating(const QPoint& Offset);
-	ads::IFloatingWidget* makeAreaFloating(const QPoint& Offset,
-		ads::eDragState DragState);
-    ads::eDragState dragState() const;
 
 public:
 	CDockAreaTabBar(ads::CDockAreaWidget* parent /TransferThis/);
@@ -35,6 +27,7 @@ public:
 	bool isTabOpen(int Index) const;
 	virtual QSize minimumSizeHint() const;
 	virtual QSize sizeHint() const;
+ 	void elidedChanged(bool elided);
 
 public slots:
 	void setCurrentIndex(int Index);

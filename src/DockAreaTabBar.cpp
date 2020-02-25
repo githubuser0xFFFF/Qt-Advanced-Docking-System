@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QBoxLayout>
 #include <QApplication>
+#include <QtGlobal>
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -69,6 +70,16 @@ struct DockAreaTabBarPrivate
 	 * The function reassigns the stylesheet to update the tabs
 	 */
 	void updateTabs();
+
+	/**
+	 * Convenience function to access first tab
+	 */
+	CDockWidgetTab* firstTab() const {return _this->tab(0);}
+
+	/**
+	 * Convenience function to access last tab
+	 */
+	CDockWidgetTab* lastTab() const {return _this->tab(_this->count() - 1);}
 };
 // struct DockAreaTabBarPrivate
 
@@ -366,6 +377,8 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 
 	int fromIndex = d->TabsLayout->indexOf(MovingTab);
 	auto MousePos = mapFromGlobal(GlobalPos);
+	MousePos.rx() = qMax(d->firstTab()->geometry().left(), MousePos.x());
+	MousePos.rx() = qMin(d->lastTab()->geometry().right(), MousePos.x());
 	int toIndex = -1;
 	// Find tab under mouse
 	for (int i = 0; i < count(); ++i)
@@ -381,37 +394,22 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 		if (toIndex == fromIndex)
 		{
 			toIndex = -1;
-			continue;
-		}
-
-		if (toIndex < 0)
-		{
-			toIndex = 0;
 		}
 		break;
 	}
 
-	// Now check if the mouse is behind the last tab
-	if (toIndex < 0)
+	if (toIndex > -1)
 	{
-		if (MousePos.x() > tab(count() - 1)->geometry().right())
-		{
-            ADS_PRINT("after all tabs");
-			toIndex = count() - 1;
-		}
-		else
-		{
-			toIndex = fromIndex;
-		}
-	}
-
-	d->TabsLayout->removeWidget(MovingTab);
-	d->TabsLayout->insertWidget(toIndex, MovingTab);
-	if (toIndex >= 0)
-	{
+		d->TabsLayout->removeWidget(MovingTab);
+		d->TabsLayout->insertWidget(toIndex, MovingTab);
         ADS_PRINT("tabMoved from " << fromIndex << " to " << toIndex);
 		emit tabMoved(fromIndex, toIndex);
 		setCurrentIndex(toIndex);
+	}
+	else
+	{
+		// Ensure that the moved tab is reset to its start position
+		d->TabsLayout->update();
 	}
 }
 

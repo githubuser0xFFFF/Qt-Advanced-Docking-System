@@ -42,11 +42,15 @@ public:
 	int currentIndex() const;
 	int indexOfFirstOpenDockWidget() const;
 	ads::CDockWidget* currentDockWidget() const;
-	void setCurrentDockWidget(ads::CDockWidget* DockWidget /Transfer/);
+	void setCurrentDockWidget(ads::CDockWidget* DockWidget);
 	void saveState(QXmlStreamWriter& Stream) const;
-	ads::CDockWidget::DockWidgetFeatures features() const;
+ 	ads::CDockWidget::DockWidgetFeatures features(ads::eBitwiseOperator Mode = ads::BitwiseAnd) const;
 	QAbstractButton* titleBarButton(ads::TitleBarButton which) const;
 	virtual void setVisible(bool Visible);
+
+	void setAllowedAreas(DockWidgetAreas areas);
+	DockWidgetAreas allowedAreas() const;
+	CDockAreaTitleBar* titleBar() const;
 
 public slots:
 	void setCurrentIndex(int index);
