@@ -8,6 +8,13 @@ namespace ads
     #include <ads_globals.h>
     %End
 
+    enum eStateFileVersion
+    {
+        InitialVerison,
+        Version1,
+        CurrentVersion
+    };
+
     enum DockWidgetArea
     {
         NoDockWidgetArea,

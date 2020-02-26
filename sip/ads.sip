@@ -1,7 +1,6 @@
 %Module(name=PyQtAds.QtAds.ads, call_super_init=True, keyword_arguments="Optional", use_limited_api=True)
 %Import QtCore/QtCoremod.sip
 %DefaultSupertype sip.simplewrapper
-%Platforms {Linux macOS Windows}
 
 %Include ads_globals.sip
 %Include DockWidget.sip
@@ -16,12 +15,9 @@
 %Include DockSplitter.sip
 %Include DockWidgetTab.sip
 %Include ElidingLabel.sip
+%Include FloatingDockContainer.sip
 %Include FloatingDragPreview.sip
 %Include IconProvider.sip
-%If (Linux)
-    %Include linux/FloatingDockContainer.sip
+%If (WS_X11)
     %Include linux/FloatingWidgetTitleBar.sip
-%End
-%If (!Linux)
-%Include FloatingDockContainer.sip
 %End

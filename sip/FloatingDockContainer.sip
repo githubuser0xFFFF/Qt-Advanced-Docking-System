@@ -5,6 +5,13 @@
 
 %If (Qt_5_0_0 -)
 
+%If (WS_X11)
+    typedef QDockWidget tFloatingWidgetBase;
+%End
+%If (!WS_X11)
+    typedef QWidget tFloatingWidgetBase;
+%End
+
 namespace ads
 {
 
@@ -23,7 +30,7 @@ public:
 };
 
 
-class CFloatingDockContainer : QWidget, ads::IFloatingWidget
+class CFloatingDockContainer : tFloatingWidgetBase, ads::IFloatingWidget
 {
     
     %TypeHeaderCode
