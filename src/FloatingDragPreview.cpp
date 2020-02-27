@@ -40,6 +40,7 @@ struct FloatingDragPreviewPrivate
 	qreal WindowOpacity;
 	bool Hidden = false;
 	QPixmap ContentPreviewPixmap;
+	bool Canceled = false;
 
 
 	/**
@@ -59,6 +60,7 @@ struct FloatingDragPreviewPrivate
 	 */
 	void cancelDragging()
 	{
+		Canceled = true;
 		emit _this->draggingCanceled();
 		DockManager->containerOverlay()->hideOverlay();
 		DockManager->dockAreaOverlay()->hideOverlay();
@@ -84,11 +86,6 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		{
 			continue;
 		}
-
-		/*if (DockContainer == ContainerWidget)
-		{
-			continue;
-		}*/
 
 		QPoint MappedPos = ContainerWidget->mapFromGlobal(GlobalPos);
 		if (ContainerWidget->rect().contains(MappedPos))
@@ -207,10 +204,9 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 	connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
 		SLOT(onApplicationStateChanged(Qt::ApplicationState)));
 
-	// The focused object will receive key press events and therefore we
-	// install the event filter on it to receive escape key press for drag
-	// canceling
-	qApp->focusObject()->installEventFilter(this);
+	// The only safe way to receive escape key presses is to install an event
+	// filter for the application object
+	qApp->installEventFilter(this);
 }
 
 
@@ -377,7 +373,7 @@ void CFloatingDragPreview::onApplicationStateChanged(Qt::ApplicationState state)
 bool CFloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
 {
 	Q_UNUSED(watched);
-    if (event->type() == QEvent::KeyPress)
+    if (!d->Canceled && event->type() == QEvent::KeyPress)
     {
         QKeyEvent* e = static_cast<QKeyEvent*>(event);
         if (e->key() == Qt::Key_Escape)
