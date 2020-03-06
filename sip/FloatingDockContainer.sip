@@ -1,6 +1,16 @@
+// NOTE: there is a separate sip/linux/FloatingDockContainer.sip as the base
+// class for CFloatingDockContainer changes for Linux.
+
 %Import QtWidgets/QtWidgetsmod.sip
 
 %If (Qt_5_0_0 -)
+
+%If (WS_X11)
+    typedef QDockWidget tFloatingWidgetBase;
+%End
+%If (!WS_X11)
+    typedef QWidget tFloatingWidgetBase;
+%End
 
 namespace ads
 {
@@ -20,7 +30,7 @@ public:
 };
 
 
-class CFloatingDockContainer : QWidget, ads::IFloatingWidget
+class CFloatingDockContainer : tFloatingWidgetBase, ads::IFloatingWidget
 {
     
     %TypeHeaderCode
@@ -46,7 +56,6 @@ protected:
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void hideEvent(QHideEvent *event);
 	virtual void showEvent(QShowEvent *event);
-	virtual bool eventFilter(QObject *watched, QEvent *event);
 
 public:
 	CFloatingDockContainer(ads::CDockManager* DockManager /TransferThis/);

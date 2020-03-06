@@ -12,15 +12,16 @@ class CDockWidget : QFrame
     %End
     
 protected:
-	void setDockManager(ads::CDockManager* DockManager /Transfer/);
-	void setDockArea(ads::CDockAreaWidget* DockArea /Transfer/);
-	void setToggleViewActionChecked(bool Checked);
-	void saveState(QXmlStreamWriter& Stream) const;
-	void flagAsUnassigned();
-	static void emitTopLevelEventForWidget(ads::CDockWidget* TopLevelDockWidget, bool Floating);
-	void emitTopLevelChanged(bool Floating);
-	void setClosedState(bool Closed);
-	void toggleViewInternal(bool Open);
+    void setDockManager(ads::CDockManager* DockManager /Transfer/ );
+    void setDockArea(ads::CDockAreaWidget* DockArea /Transfer/ );
+    void setToggleViewActionChecked(bool Checked);
+    void saveState(QXmlStreamWriter& Stream) const;
+    void flagAsUnassigned();
+    static void emitTopLevelEventForWidget(ads::CDockWidget* TopLevelDockWidget, bool Floating);
+    void emitTopLevelChanged(bool Floating);
+    void setClosedState(bool Closed);
+    void toggleViewInternal(bool Open);
+    bool closeDockWidgetInternal(bool ForceClose = false);
     
 public:
 	enum DockWidgetFeature
@@ -29,7 +30,9 @@ public:
 		DockWidgetMovable,
 		DockWidgetFloatable,
 		DockWidgetDeleteOnClose,
-		AllDockWidgetFeatures,
+        CustomCloseHandling,
+        DefaultDockWidgetFeatures,
+        AllDockWidgetFeatures,
 		NoDockWidgetFeatures
 	};
     typedef QFlags<ads::CDockWidget::DockWidgetFeature> DockWidgetFeatures;
@@ -77,11 +80,14 @@ public:
 	QIcon icon() const;
 	QToolBar* toolBar() const;
 	QToolBar* createDefaultToolBar();
-	void setToolBar(QToolBar* ToolBar);
+	void setToolBar(QToolBar* ToolBar /Transfer/ );
 	void setToolBarStyle(Qt::ToolButtonStyle Style, ads::CDockWidget::eState State);
 	Qt::ToolButtonStyle toolBarStyle(ads::CDockWidget::eState State) const;
 	void setToolBarIconSize(const QSize& IconSize, ads::CDockWidget::eState State);
 	QSize toolBarIconSize(eState State) const;
+    void setTitleBarActions(QList<QAction*> actions);
+    virtual QList<QAction*> titleBarActions() const;
+
 	void setTabToolTip(const QString &text);
 
 public:
@@ -91,12 +97,14 @@ public slots:
 	void toggleView(bool Open = true);
     void setFloating();
     void deleteDockWidget();
+    void closeDockWidget();
 
 signals:
 	void viewToggled(bool Open);
 	void closed();
 	void titleChanged(const QString& Title);
 	void topLevelChanged(bool topLevel);
+    void closeRequested();
 	void visibilityChanged(bool visible);
     void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 };

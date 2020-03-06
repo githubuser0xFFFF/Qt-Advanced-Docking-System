@@ -23,13 +23,14 @@ public:
 	virtual ~CDockWidgetTab();
 	bool isActiveTab() const;
 	void setActiveTab(bool active);
-	ads::CDockWidget* dockWidget() const;
 	void setDockAreaWidget(ads::CDockAreaWidget* DockArea /Transfer/);
 	ads::CDockAreaWidget* dockAreaWidget() const;
+	ads::CDockWidget* dockWidget() const;
 	void setIcon(const QIcon& Icon);
 	const QIcon& icon() const;
 	QString text() const;
 	void setText(const QString& title);
+	bool isTitleElided() const;
 	bool isClosable() const;
 	virtual bool event(QEvent *e);
 
@@ -43,6 +44,7 @@ signals:
 	void closeRequested();
 	void closeOtherTabsRequested();
 	void moved(const QPoint& GlobalPos);
+	void elidedChanged(bool elided);
 }; // class DockWidgetTab
 };
  // namespace ads

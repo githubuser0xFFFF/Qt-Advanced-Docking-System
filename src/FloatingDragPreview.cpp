@@ -40,6 +40,7 @@ struct FloatingDragPreviewPrivate
 	qreal WindowOpacity;
 	bool Hidden = false;
 	QPixmap ContentPreviewPixmap;
+	bool Canceled = false;
 
 
 	/**
@@ -59,6 +60,7 @@ struct FloatingDragPreviewPrivate
 	 */
 	void cancelDragging()
 	{
+		Canceled = true;
 		emit _this->draggingCanceled();
 		DockManager->containerOverlay()->hideOverlay();
 		DockManager->dockAreaOverlay()->hideOverlay();
@@ -84,11 +86,6 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		{
 			continue;
 		}
-
-		/*if (DockContainer == ContainerWidget)
-		{
-			continue;
-		}*/
 
 		QPoint MappedPos = ContainerWidget->mapFromGlobal(GlobalPos);
 		if (ContainerWidget->rect().contains(MappedPos))
@@ -148,6 +145,14 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	else
 	{
 		DockAreaOverlay->hideOverlay();
+		// If there is only one single visible dock area in a container, then
+		// it does not make sense to show a dock overlay because the dock area
+		// would be removed and inserted at the same position
+		if (1 <= VisibleDockAreas)
+		{
+			ContainerOverlay->hide();
+		}
+
 		if (DockArea == ContentSourceArea && InvalidDockWidgetArea == ContainerDropArea)
 		{
 			DropContainer = nullptr;
@@ -206,6 +211,10 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 
 	connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
 		SLOT(onApplicationStateChanged(Qt::ApplicationState)));
+
+	// The only safe way to receive escape key presses is to install an event
+	// filter for the application object
+	qApp->installEventFilter(this);
 }
 
 
@@ -220,10 +229,6 @@ CFloatingDragPreview::CFloatingDragPreview(CDockWidget* Content)
 		d->ContenSourceContainer = Content->dockContainer();
 	}
 	setWindowTitle(Content->windowTitle());
-
-	// We need to install an event filter for the given Content
-	// widget to receive the escape key press
-	Content->dockAreaWidget()->installEventFilter(this);
 }
 
 
@@ -235,10 +240,6 @@ CFloatingDragPreview::CFloatingDragPreview(CDockAreaWidget* Content)
 	d->ContentSourceArea = Content;
 	d->ContenSourceContainer = Content->dockContainer();
 	setWindowTitle(Content->currentDockWidget()->windowTitle());
-
-	// We need to install an event filter for the given Content
-	// widget to receive the escape key press
-	Content->installEventFilter(this);
 }
 
 
@@ -380,7 +381,7 @@ void CFloatingDragPreview::onApplicationStateChanged(Qt::ApplicationState state)
 bool CFloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
 {
 	Q_UNUSED(watched);
-    if (event->type() == QEvent::KeyPress)
+    if (!d->Canceled && event->type() == QEvent::KeyPress)
     {
         QKeyEvent* e = static_cast<QKeyEvent*>(event);
         if (e->key() == Qt::Key_Escape)
@@ -392,7 +393,6 @@ bool CFloatingDragPreview::eventFilter(QObject *watched, QEvent *event)
 
     return false;
 }
-
 
 
 

@@ -18,7 +18,7 @@ from PyQt5.pyrcc_main import processResourceFile
 
 MODULE_NAME = "ads"
 SRC_PATH = "PyQtAds"
-    
+
 REQUIRE_PYQT = True
 if "--conda-recipe" in sys.argv:
     REQUIRE_PYQT = False
@@ -40,7 +40,7 @@ class HostPythonConfiguration(object):
         else:
             self.data_dir = sys.prefix + '/share'
             self.lib_dir = sys.prefix + '/lib'
-            
+
 
 class TargetQtConfiguration(object):
     def __init__(self, qmake):
@@ -63,12 +63,12 @@ class TargetQtConfiguration(object):
             setattr(self, name, value)
 
         pipe.close()
-        
+
 
 class build_ext(sipdistutils.build_ext):
-    
+
     description = "Builds the " + MODULE_NAME + " module."
-    
+
     user_options = sipdistutils.build_ext.user_options + [
         ('qmake-bin=', None, "Path to qmake binary"),
         ('sip-bin=', None, "Path to sip binary"),
@@ -78,7 +78,7 @@ class build_ext(sipdistutils.build_ext):
         ('sip-dir=', None, "Path to module's SIP files"),
         ('inc-dir=', None, "Path to module's include files")
     ]
-    
+
     def initialize_options (self):
         super().initialize_options()
         self.qmake_bin = 'qmake'
@@ -92,16 +92,16 @@ class build_ext(sipdistutils.build_ext):
         self.inc_dir = None
         self.pyconfig = HostPythonConfiguration()
         self.qtconfig = TargetQtConfiguration(self.qmake_bin)
-        self.config = sipconfig.Configuration()    
+        self.config = sipconfig.Configuration()
         self.config.default_mod_dir = ("/usr/local/lib/python%i.%i/dist-packages" %
                                       (sys.version_info.major, sys.version_info.minor))
-        
+
     def finalize_options (self):
         super().finalize_options()
 
         if not self.qt_include_dir:
             self.qt_include_dir = self.qtconfig.QT_INSTALL_HEADERS
-            
+
         if not self.qt_libinfix:
             try:
                 with open(os.path.join(self.qtconfig.QT_INSTALL_PREFIX, 'mkspecs', 'qconfig.pri'), 'r') as f:
@@ -113,16 +113,16 @@ class build_ext(sipdistutils.build_ext):
 
         if not self.pyqt_sip_dir:
             self.pyqt_sip_dir = os.path.join(self.pyconfig.data_dir, 'sip', 'PyQt5')
-            
+
         if not self.pyqt_sip_flags:
             self.pyqt_sip_flags = PYQT_CONFIGURATION.get('sip_flags', '')
-            
+
         if not self.sip_files_dir:
             self.sip_files_dir = os.path.abspath(os.path.join(".", "sip"))
-            
+
         if not self.sip_inc_dir:
             self.sip_inc_dir = self.pyconfig.venv_inc_dir
-            
+
         if not self.inc_dir:
             self.inc_dir = os.path.abspath(os.path.join(".", "src"))
 
@@ -138,12 +138,12 @@ class build_ext(sipdistutils.build_ext):
         if not self.pyqt_sip_flags:
             raise SystemExit('Could not find PyQt SIP flags. '
                              'Please specify via --pyqt-sip-flags=')
-        
+
     def _find_sip(self):
         """override _find_sip to allow for manually speficied sip path."""
         return self.sip_bin or super()._find_sip()
-        
-    def _sip_compile(self, sip_bin, source, sbf): 
+
+    def _sip_compile(self, sip_bin, source, sbf):
         cmd = [sip_bin]
         if hasattr(self, 'sip_opts'):
             cmd += self.sip_opts
@@ -157,11 +157,11 @@ class build_ext(sipdistutils.build_ext):
             "-c", self._sip_output_dir(),
             "-b", sbf,
             "-w", "-o"]
-        
+
         cmd += shlex.split(self.pyqt_sip_flags)  # use same SIP flags as for PyQt5
         cmd.append(source)
         self.spawn(cmd)
-        
+
     def swig_sources (self, sources, extension=None):
         if not self.extensions:
             return
@@ -179,7 +179,7 @@ class build_ext(sipdistutils.build_ext):
             extension.libraries += ['Qt5Core' + self.qt_libinfix,
                                     'Qt5Gui' + self.qt_libinfix,
                                     'Qt5Widgets' + self.qt_libinfix]
-            
+
             if sys.platform == 'win32':
                 extension.library_dirs += [self.qtconfig.QT_INSTALL_LIBS,
                                        self.inc_dir, self._sip_output_dir()]
@@ -192,30 +192,46 @@ class build_ext(sipdistutils.build_ext):
                 extension.extra_compile_args += ['-std=c++11']
 
         return super().swig_sources(sources, extension)
-        
+
     def build_extension(self, ext):
         cppsources = [source for source in ext.sources if source.endswith(".cpp")]
-        
+
         dir_util.mkpath(self.build_temp, dry_run=self.dry_run)
+
+        def get_moc_args(out_file, source):
+            if sys.platform.startswith('linux'):
+                return ["moc", "-D", "Q_OS_LINUX=1", "-o", out_file, source]
+            if sys.platform.startswith('darwin'):
+                return ["moc", "-D", "Q_OS_MACOS=1", "-o", out_file, source]
+            if sys.platform.startswith('win'):
+                return ["moc", "-D", "Q_OS_WIN=1", "-o", out_file, source]
+            return ["moc", "-o", out_file, source]
 
         # Run moc on all header files.
         for source in cppsources:
+            # *.cpp -> *.moc
+            moc_file = os.path.basename(source).replace(".cpp", ".moc")
+            out_file = os.path.join(self.build_temp, moc_file)
+
+            if newer(source, out_file) or self.force:
+                spawn.spawn(get_moc_args(out_file, source), dry_run=self.dry_run)
+
             header = source.replace(".cpp", ".h")
             if os.path.exists(header):
+                # *.h -> moc_*.cpp
                 moc_file = "moc_" + os.path.basename(header).replace(".h", ".cpp")
                 out_file = os.path.join(self.build_temp, moc_file)
-                
+
                 if newer(header, out_file) or self.force:
-                    call_arg = ["moc", "-o", out_file, header]
-                    spawn.spawn(call_arg, dry_run=self.dry_run)
-                    
+                    spawn.spawn(get_moc_args(out_file, header), dry_run=self.dry_run)
+
                 if os.path.getsize(out_file) > 0:
                     ext.sources.append(out_file)
 
         # Add the temp build directory to include path, for compiler to find
         # the created .moc files
         ext.include_dirs += [self._sip_output_dir()]
-        
+
         sipdistutils.build_ext.build_extension(self, ext)
 
 
@@ -253,7 +269,7 @@ ext_modules = [Extension('PyQtAds.QtAds.ads', cpp_sources + sip_sources)]
 install_requires = ["PyQt5"]
 if sys.platform == 'win32':
     install_requires.append("pywin32")
-    
+
 
 with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()

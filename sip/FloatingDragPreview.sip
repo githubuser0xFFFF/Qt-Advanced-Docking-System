@@ -12,6 +12,10 @@ class CFloatingDragPreview : QWidget, ads::IFloatingWidget
     #include <FloatingDragPreview.h>
     %End
 
+protected:
+	virtual void moveEvent(QMoveEvent *event);
+	virtual void paintEvent(QPaintEvent *e);
+	CFloatingDragPreview(QWidget* Content /TransferThis/, QWidget* parent /TransferThis/);
 
 public:
     CFloatingDragPreview(ads::CDockWidget* Content /TransferThis/ );
@@ -21,6 +25,7 @@ public:
 
     virtual bool eventFilter(QObject* watched, QEvent* event);
 
+public: // implements IFloatingWidget
     virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
         ads::eDragState DragState, QWidget* MouseEventHandler);
 
