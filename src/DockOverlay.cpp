@@ -397,6 +397,20 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 
 
 //============================================================================
+DockWidgetArea CDockOverlay::visibleDropAreaUnderCursor() const
+{
+	if (isHidden() || !d->DropPreviewEnabled)
+	{
+		return InvalidDockWidgetArea;
+	}
+	else
+	{
+		return dropAreaUnderCursor();
+	}
+}
+
+
+//============================================================================
 DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 {
 	if (d->TargetWidget == target)

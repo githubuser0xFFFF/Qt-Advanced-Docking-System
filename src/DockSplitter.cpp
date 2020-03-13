@@ -88,6 +88,20 @@ bool CDockSplitter::hasVisibleContent() const
 	return false;
 }
 
+
+//============================================================================
+QWidget* CDockSplitter::firstWidget() const
+{
+	return (count() > 0) ? widget(0) : nullptr;
+}
+
+
+//============================================================================
+QWidget* CDockSplitter::lastWidget() const
+{
+	return (count() > 0) ? widget(count() - 1) : nullptr;
+}
+
 } // namespace ads
 
 //---------------------------------------------------------------------------

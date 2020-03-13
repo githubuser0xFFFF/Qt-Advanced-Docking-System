@@ -145,6 +145,14 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	else
 	{
 		DockAreaOverlay->hideOverlay();
+		// If there is only one single visible dock area in a container, then
+		// it does not make sense to show a dock overlay because the dock area
+		// would be removed and inserted at the same position
+		if (VisibleDockAreas <= 1)
+		{
+			ContainerOverlay->hide();
+		}
+
 		if (DockArea == ContentSourceArea && InvalidDockWidgetArea == ContainerDropArea)
 		{
 			DropContainer = nullptr;
@@ -278,12 +286,15 @@ void CFloatingDragPreview::moveEvent(QMoveEvent *event)
 void CFloatingDragPreview::finishDragging()
 {
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
-	auto DockDropArea = d->DockManager->dockAreaOverlay()->dropAreaUnderCursor();
-	auto ContainerDropArea = d->DockManager->containerOverlay()->dropAreaUnderCursor();
-	bool DropPossible = (DockDropArea != InvalidDockWidgetArea) || (ContainerDropArea != InvalidDockWidgetArea);
-	if (d->DropContainer && DropPossible)
+	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
+	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
+	if (d->DropContainer && (DockDropArea != InvalidDockWidgetArea))
 	{
-		d->DropContainer->dropWidget(d->Content, QCursor::pos());
+		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
+	}
+	else if (d->DropContainer && (ContainerDropArea != InvalidDockWidgetArea))
+	{
+		d->DropContainer->dropWidget(d->Content, ContainerDropArea, nullptr);
 	}
 	else
 	{

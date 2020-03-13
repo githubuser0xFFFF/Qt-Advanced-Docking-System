@@ -778,6 +778,10 @@ QAction* CDockManager::addToggleViewActionToMenu(QAction* ToggleViewAction,
 			d->addActionToMenu(GroupMenu->menuAction(), d->ViewMenu, AlphabeticallySorted);
 			d->ViewMenuGroups.insert(Group, GroupMenu);
 		}
+		else if (GroupMenu->icon().isNull() && !GroupIcon.isNull())
+		{
+			GroupMenu->setIcon(GroupIcon);
+		}
 
 		d->addActionToMenu(ToggleViewAction, GroupMenu, AlphabeticallySorted);
 		return GroupMenu->menuAction();

@@ -196,12 +196,12 @@ public:
 	 * Before you create any dock widgets, you should properly setup the
 	 * configuration flags via setConfigFlags().
 	 */
-	CDockManager(QWidget* parent = 0);
+	CDockManager(QWidget* parent = nullptr);
 
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CDockManager();
+	virtual ~CDockManager() override;
 
 	/**
 	 * This function returns the global configuration flags
