@@ -24,6 +24,7 @@ public:
 	void setAllowedAreas(ads::DockWidgetAreas areas);
 	ads::DockWidgetAreas allowedAreas() const;
 	ads::DockWidgetArea dropAreaUnderCursor() const;
+    ads::DockWidgetArea visibleDropAreaUnderCursor() const;
 	ads::DockWidgetArea showOverlay(QWidget* target);
 	void hideOverlay();
 	void enableDropPreview(bool Enable);
