@@ -346,13 +346,10 @@ public:
     QIcon icon() const;
 
     /**
-     * If the WithToolBar layout flag is enabled, then this function returns
-     * the dock widget toolbar. If the flag is disabled, the function returns
-     * a nullptr.
      * This function returns the dock widget top tool bar.
      * If no toolbar is assigned, this function returns nullptr. To get a vaild
      * toolbar you either need to create a default empty toolbar via
-     * createDefaultToolBar() function or you need to assign you custom
+     * createDefaultToolBar() function or you need to assign your custom
      * toolbar via setToolBar().
      */
     QToolBar* toolBar() const;

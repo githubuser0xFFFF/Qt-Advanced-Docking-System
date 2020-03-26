@@ -497,7 +497,6 @@ void CDockAreaWidget::onTabCloseRequested(int Index)
     auto* DockWidget = dockWidget(Index);
     if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
     {
-    	//DockWidget->deleteDockWidget();
     	DockWidget->closeDockWidgetInternal();
     }
     else

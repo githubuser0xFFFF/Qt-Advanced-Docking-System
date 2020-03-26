@@ -815,6 +815,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 			}
 		}
 		deleteDockWidget();
+		emit closed();
     }
     else
     {
