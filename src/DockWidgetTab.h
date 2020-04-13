@@ -147,6 +147,11 @@ public:
 	*/
 	virtual bool event(QEvent *e) override;
 
+	/**
+	 * Sets the text elide mode
+	 */
+	void setElideMode(Qt::TextElideMode mode);
+
 
 public slots:
 	virtual void setVisible(bool visible) override;

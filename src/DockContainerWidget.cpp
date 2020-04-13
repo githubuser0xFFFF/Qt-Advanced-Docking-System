@@ -1614,11 +1614,6 @@ CDockAreaWidget* CDockContainerWidget::lastAddedDockAreaWidget(DockWidgetArea ar
 //============================================================================
 bool CDockContainerWidget::hasTopLevelDockWidget() const
 {
-	if (!isFloating())
-	{
-		return false;
-	}
-
 	auto DockAreas = openedDockAreas();
 	if (DockAreas.count() != 1)
 	{
@@ -1652,11 +1647,6 @@ CDockWidget* CDockContainerWidget::topLevelDockWidget() const
 //============================================================================
 CDockAreaWidget* CDockContainerWidget::topLevelDockArea() const
 {
-	if (!isFloating())
-	{
-		return nullptr;
-	}
-
 	auto DockAreas = openedDockAreas();
 	if (DockAreas.count() != 1)
 	{

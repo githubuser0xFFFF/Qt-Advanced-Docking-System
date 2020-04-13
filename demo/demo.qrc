@@ -13,5 +13,6 @@
         <file>app.css</file>
         <file>images/plus.svg</file>
         <file>images/help_outline.svg</file>
+        <file>images/fullscreen.svg</file>
     </qresource>
 </RCC>

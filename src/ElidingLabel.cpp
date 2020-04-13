@@ -197,13 +197,13 @@ QSize CElidingLabel::sizeHint() const
 //============================================================================
 void CElidingLabel::setText(const QString &text)
 {
+	d->Text = text;
 	if (d->isModeElideNone())
 	{
 		Super::setText(text);
 	}
 	else
 	{
-		d->Text = text;
 		internal::setToolTip(this, text);
 		d->elideText(this->size().width());
 	}

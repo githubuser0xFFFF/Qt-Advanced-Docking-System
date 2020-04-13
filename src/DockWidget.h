@@ -189,6 +189,23 @@ public:
         ForceNoScrollArea
     };
 
+
+    /**
+     * The mode of the minimumSizeHint() that is returned by the DockWidget
+     * minimumSizeHint() function.
+     * To ensure, that a dock widget does not block resizing, the dock widget
+     * reimplements minimumSizeHint() function to return a very small minimum
+     * size hint. If you would like to adhere the minimumSizeHint() from the
+     * content widget, the set the minimumSizeHintMode() to
+     * MinimumSizeHintFromContent.
+     */
+    enum eMinimumSizeHintMode
+    {
+    	MinimumSizeHintFromDockWidget,
+    	MinimumSizeHintFromContent
+    };
+
+
     /**
      * This mode configures the behavior of the toggle view action.
      * If the mode if ActionModeToggle, then the toggle view action is
@@ -225,7 +242,8 @@ public:
     virtual ~CDockWidget();
 
     /**
-     * We return a fixed minimum size hint for all dock widgets
+     * We return a fixed minimum size hint or the size hint of the content
+     * widget if minimum size hint mode is MinimumSizeHintFromContent
      */
     virtual QSize minimumSizeHint() const override;
 
@@ -335,6 +353,13 @@ public:
     void setToggleViewActionMode(eToggleViewActionMode Mode);
 
     /**
+     * Configures the minimum size hint that is returned by the
+     * minimumSizeHint() function.
+     * \see eMinimumSizeHintMode for a detailed description
+     */
+    void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
+
+    /**
      * Sets the dock widget icon that is shown in tabs and in toggle view
      * actions
      */
@@ -424,6 +449,12 @@ public:
     void setTabToolTip(const QString &text);
 #endif
 
+    /**
+     * Returns true if the dock widget is floating and if the floating dock
+     * container is full screen
+     */
+    bool isFullScreen() const;
+
 public: // reimplements QFrame -----------------------------------------------
     /**
      * Emits titleChanged signal if title change event occurs
@@ -452,6 +483,26 @@ public slots:
      * Closes the dock widget
      */
     void closeDockWidget();
+
+    /**
+     * Shows the widget in full-screen mode.
+     * Normally this function only affects windows. To make the interface
+     * compatible to QDockWidget, this function also maximizes a floating
+     * dock widget.
+     *
+     * \note Full-screen mode works fine under Windows, but has certain
+     * problems (doe not work) under X (Linux). These problems are due to
+     * limitations of the ICCCM protocol that specifies the communication
+     * between X11 clients and the window manager. ICCCM simply does not
+     * understand the concept of non-decorated full-screen windows.
+     */
+    void showFullScreen();
+
+    /**
+     * This function complements showFullScreen() to restore the widget
+     * after it has been in full screen mode.
+     */
+    void showNormal();
 
 
 signals:

@@ -50,6 +50,12 @@ public:
 		ForceScrollArea,
 		ForceNoScrollArea
 	};
+	
+    enum eMinimumSizeHintMode
+    {
+    	MinimumSizeHintFromDockWidget,
+    	MinimumSizeHintFromContent
+    };
 
 	enum eToggleViewActionMode
 	{
@@ -76,6 +82,7 @@ public:
 	bool isClosed() const;
 	QAction* toggleViewAction() const;
 	void setToggleViewActionMode(ads::CDockWidget::eToggleViewActionMode Mode);
+	void setMinimumSizeHintMode(ads::CDockWidget::eMinimumSizeHintMode Mode);
 	void setIcon(const QIcon& Icon);
 	QIcon icon() const;
 	QToolBar* toolBar() const;

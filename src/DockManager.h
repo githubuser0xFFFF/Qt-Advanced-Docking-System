@@ -30,18 +30,11 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <ads_globals.h>
-#include <DockContainerWidget.h>
-#include <DockWidget.h>
-#include <FloatingDockContainer.h>
-#include <qbytearray.h>
-#include <qflags.h>
-#include <qlist.h>
-#include <qmap.h>
-#include <qobjectdefs.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <QtGui/qicon.h>
+#include "ads_globals.h"
+#include "DockContainerWidget.h"
+#include "DockWidget.h"
+#include "FloatingDockContainer.h"
+
 
 class QSettings;
 class QMenu;
@@ -163,9 +156,11 @@ public:
 		DockAreaHasUndockButton = 0x4000,     //!< If the flag is set each dock area has an undock button
 		DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
 		DockAreaHideDisabledButtons = 0x10000,    //!< If the flag is set disabled dock area buttons will not appear on the tollbar at all (enabling them will bring them back)
-		DockAreaDynamicTabsMenuButtonVisibility = 0x20000,     //!< If the flag is set dock area will disable a tabs menu button when there is only one tab in the area
-		FloatingContainerHasWidgetTitle = 0x40000,
-		FloatingContainerHasWidgetIcon = 0x80000,
+		DockAreaDynamicTabsMenuButtonVisibility = 0x20000, //!< If the flag is set dock area will disable a tabs menu button when there is only one tab in the area
+		FloatingContainerHasWidgetTitle = 0x40000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays application name as window title
+		FloatingContainerHasWidgetIcon = 0x80000, //!< If set, the Floating Widget icon reflects the icon of the current dock widget otherwise it displays application icon
+		HideSingleCentralWidgetTitleBar = 0x100000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
+		                                            //!< this only makes sense for non draggable and non floatable widgets and enables the creation of some kind of "central" widget
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton

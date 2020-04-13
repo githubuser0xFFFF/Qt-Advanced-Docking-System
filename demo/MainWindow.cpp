@@ -169,7 +169,12 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 	static int CalendarCount = 0;
 	QCalendarWidget* w = new QCalendarWidget();
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
+	// The following lines are for testing the setWidget() and takeWidget()
+	// functionality
 	DockWidget->setWidget(w);
+	DockWidget->setWidget(w); // what happens if we set a widget if a widget is already set
+	DockWidget->takeWidget(); // we remove the widget
+	DockWidget->setWidget(w); // and set the widget again - there should be no error
 	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
 	DockWidget->setIcon(svgIcon(":/adsdemo/images/date_range.svg"));
 	ViewMenu->addAction(DockWidget->toggleViewAction());
@@ -224,11 +229,27 @@ static ads::CDockWidget* createEditorWidget(QMenu* ViewMenu)
 }
 
 
+//===========================================================================
+/**
+ * Custom QTableWidget with a minimum size hint to test CDockWidget
+ * setMinimumSizeHintMode() function of CDockWidget
+ */
+class CMinSizeTableWidget : public QTableWidget
+{
+public:
+	using QTableWidget::QTableWidget;
+	virtual QSize minimumSizeHint() const override
+	{
+		return QSize(300, 100);
+	}
+};
+
+
 //============================================================================
 static ads::CDockWidget* createTableWidget(QMenu* ViewMenu)
 {
 	static int TableCount = 0;
-	QTableWidget* w = new QTableWidget();
+	auto w = new CMinSizeTableWidget();
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Table %1").arg(TableCount++));
 	static int colCount = 5;
 	static int rowCount = 30;
@@ -244,6 +265,20 @@ static ads::CDockWidget* createTableWidget(QMenu* ViewMenu)
 	}
 	DockWidget->setWidget(w);
 	DockWidget->setIcon(svgIcon(":/adsdemo/images/grid_on.svg"));
+	DockWidget->setMinimumSizeHintMode(ads::CDockWidget::MinimumSizeHintFromContent);
+	auto ToolBar = DockWidget->createDefaultToolBar();
+	auto Action = ToolBar->addAction(svgIcon(":/adsdemo/images/fullscreen.svg"), "Toggle Fullscreen");
+	QObject::connect(Action, &QAction::triggered, [=]()
+		{
+			if (DockWidget->isFullScreen())
+			{
+				DockWidget->showNormal();
+			}
+			else
+			{
+				DockWidget->showFullScreen();
+			}
+		});
 	ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
 }
@@ -351,7 +386,6 @@ void MainWindowPrivate::createContent()
 	// We create a calendar widget and clear all flags to prevent the dock area
 	// from closing
 	DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
@@ -488,7 +522,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
     // uncomment the following line if you want to use opaque undocking and
 	// opaque splitter resizing
-    //CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
+    // CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
 
     // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes
@@ -514,6 +548,11 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
 	// uncomment the following line if you want floating container to show active dock widget's icon instead of always showing application icon
 	//CDockManager::setConfigFlag(CDockManager::FloatingContainerHasWidgetIcon, true);
+
+	// uncomment the following line if you want a central widget in the main dock container (the dock manager) without a titlebar
+	// If you enable this code, you can test it in the demo with the Calendar 0
+	// dock widget.
+	// CDockManager::setConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
@@ -646,5 +685,12 @@ void CMainWindow::createTable()
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
 	auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
     FloatingWidget->move(QPoint(40, 40));
+}
+
+
+//============================================================================
+void CMainWindow::onFullscreenActionTriggered()
+{
+	std::cout << "CMainWindow::onFullscreenActionTriggered()" << std::endl;
 }
 

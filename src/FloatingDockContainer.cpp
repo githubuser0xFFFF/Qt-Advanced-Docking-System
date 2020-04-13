@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QAbstractButton>
 #include <QElapsedTimer>
+#include <QTime>
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
@@ -66,6 +67,7 @@ struct FloatingDockContainerPrivate
 	QPoint DragStartMousePosition;
 	CDockContainerWidget *DropContainer = nullptr;
 	CDockAreaWidget *SingleDockArea = nullptr;
+	QPoint DragStartPos;
 #ifdef Q_OS_LINUX
     QWidget* MouseEventHandler = nullptr;
     CFloatingWidgetTitleBar* TitleBar = nullptr;
@@ -109,6 +111,10 @@ struct FloatingDockContainerPrivate
 #endif
 	}
 
+	/**
+	 * Reflect the current dock widget title in the floating widget windowTitle()
+	 * depending on the CDockManager::FloatingContainerHasWidgetTitle flag
+	 */
 	void reflectCurrentWidget(CDockWidget* CurrentWidget)
 	{
 		// reflect CurrentWidget's title if configured to do so, otherwise display application name as window title
@@ -133,6 +139,11 @@ struct FloatingDockContainerPrivate
 			_this->setWindowIcon(QApplication::windowIcon());
 		}
 	}
+
+	/**
+	 * Handles escape key press when dragging around the floating widget
+	 */
+	void handleEscapeKey();
 };
 // struct FloatingDockContainerPrivate
 
@@ -264,6 +275,17 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	}
 }
 
+
+//============================================================================
+void FloatingDockContainerPrivate::handleEscapeKey()
+{
+	ADS_PRINT("FloatingDockContainerPrivate::handleEscapeKey()");
+	setState(DraggingInactive);
+	DockManager->containerOverlay()->hideOverlay();
+	DockManager->dockAreaOverlay()->hideOverlay();
+}
+
+
 //============================================================================
 CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	tFloatingWidgetBase(DockManager),
@@ -363,6 +385,9 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	switch (d->DraggingState)
 	{
 	case DraggingMousePressed:
+#ifdef Q_OS_WIN
+		qApp->installEventFilter(this);
+#endif
 		d->setState(DraggingFloatingWidget);
 		d->updateDropOverlays(QCursor::pos());
 		break;
@@ -380,6 +405,8 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	default:
 		break;
 	}
+
+
 }
 
 //============================================================================
@@ -443,6 +470,7 @@ void CFloatingDockContainer::showEvent(QShowEvent *event)
 	Super::showEvent(event);
 }
 
+
 //============================================================================
 bool CFloatingDockContainer::event(QEvent *e)
 {
@@ -458,21 +486,17 @@ bool CFloatingDockContainer::event(QEvent *e)
 		// It is really great to work around the whole NonClientMouseArea
 		// bugs
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 2))
-		if (e->type()
-		    == QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
-		{
-			ADS_PRINT("FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type());
-			d->setState(DraggingMousePressed);
-		}
+		if (e->type() == QEvent::NonClientAreaMouseButtonPress /*&& QGuiApplication::mouseButtons().testFlag(Qt::LeftButton)*/)
 #else
 		if (e->type() == QEvent::NonClientAreaMouseButtonPress && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
+#endif
 		{
-            ADS_PRINT("FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type());
+			ADS_PRINT("FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type());
+			d->DragStartPos = pos();
 			d->setState(DraggingMousePressed);
 		}
-#endif
 	}
-		break;
+	break;
 
 	case DraggingMousePressed:
 		switch (e->type())
@@ -515,9 +539,46 @@ bool CFloatingDockContainer::event(QEvent *e)
 	}
 
 #if (ADS_DEBUG_LEVEL > 0)
-	qDebug() << "CFloatingDockContainer::event " << e->type();
+	qDebug() << QTime::currentTime() << "CFloatingDockContainer::event " << e->type();
 #endif
 	return QWidget::event(e);
+}
+
+
+//============================================================================
+bool CFloatingDockContainer::eventFilter(QObject *watched, QEvent *e)
+{
+	Q_UNUSED(watched);
+	// I have not found a way to detect non client area key press events to
+	// handle escape key presses. On Windows, if the escape key is pressed while
+	// dragging around a widget, the widget position is reset to its start position
+	// which in turn generates a QEvent::NonClientAreaMouseButtonRelease event
+	// if the mouse is outside of the widget after the move to its initial position
+	// or a QEvent::MouseButtonRelease event, if the mouse is inside of teh widget
+	// after the position has been reset.
+	// So we can install an event filter on the application to get these events
+	// here to properly cancel dragging and hide the overlays.
+	// If we are in DraggingFloatingWidget state, it means the widget
+	// has been dragged already but if the position is the same like
+	// the start position, then this is an indication that the escape
+	// key has been pressed.
+	if (e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::NonClientAreaMouseButtonRelease)
+	{
+		ADS_PRINT("CFloatingDockContainer::eventFilter QEvent::MouseButtonRelease or"
+			"QEvent::NonClientAreaMouseButtonRelease" << "d->DragggingState " << d->DraggingState);
+		qApp->removeEventFilter(this);
+		if (d->DragStartPos == pos())
+		{
+			d->handleEscapeKey();
+			return true;
+		}
+		return false;
+	}
+
+#if (ADS_DEBUG_LEVEL > 0)
+	qDebug() << QTime::currentTime() << "CFloatingDockContainer::eventFilter " << e->type();
+#endif
+	return false;
 }
 
 

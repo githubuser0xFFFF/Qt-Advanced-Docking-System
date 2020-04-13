@@ -164,6 +164,13 @@ public:
 	 */
 	CDockContainerWidget* dockContainer() const;
 
+    /**
+     * Returns the largest minimumSizeHint() of the dock widgets in this
+     * area.
+     * The minimum size hint is updated if a dock widget is removed or added.
+     */
+    virtual QSize minimumSizeHint() const override;
+
 	/**
 	 * Returns the rectangle of the title area
 	 */

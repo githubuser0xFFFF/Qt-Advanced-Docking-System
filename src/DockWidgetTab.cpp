@@ -176,7 +176,7 @@ DockWidgetTabPrivate::DockWidgetTabPrivate(CDockWidgetTab* _public) :
 void DockWidgetTabPrivate::createLayout()
 {
 	TitleLabel = new tTabLabel();
-	TitleLabel->setElideMode(Qt::ElideRight);
+	TitleLabel->setElideMode(Qt::ElideNone);
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
@@ -578,6 +578,8 @@ void CDockWidgetTab::setText(const QString& title)
 	d->TitleLabel->setText(title);
 }
 
+
+//============================================================================
 bool CDockWidgetTab::isTitleElided() const
 {
 	return d->TitleLabel->isElided();
@@ -627,6 +629,13 @@ void CDockWidgetTab::onDockWidgetFeaturesChanged()
 	SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
 		&& d->testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
 	d->CloseButton->setSizePolicy(SizePolicy);
+}
+
+
+//============================================================================
+void CDockWidgetTab::setElideMode(Qt::TextElideMode mode)
+{
+	d->TitleLabel->setElideMode(mode);
 }
 
 
