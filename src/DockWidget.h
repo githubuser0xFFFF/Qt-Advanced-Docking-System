@@ -455,6 +455,20 @@ public:
      */
     bool isFullScreen() const;
 
+    /**
+     * Returns true if this dock widget is in a dock area, that contains at
+     * least 2 opened dock widgets
+     */
+    bool isTabbed() const;
+
+    /**
+     * Returns true if this dock widget is the current one in the dock
+     * area widget that contains it.
+     * If the dock widget is the only opened dock widget in a dock area,
+     * the true is returned
+     */
+    bool isCurrentTab() const;
+
 public: // reimplements QFrame -----------------------------------------------
     /**
      * Emits titleChanged signal if title change event occurs
@@ -467,6 +481,23 @@ public slots:
      * The toogleViewAction triggers this slot
      */
     void toggleView(bool Open = true);
+
+    /**
+     * Makes this dock widget the current tab in its dock area.
+     * The function only has an effect, if the dock widget is open. A call
+     * to this function will not toggle the view, so if it is closed,
+     * nothing will happen
+     */
+    void setAsCurrentTab();
+
+    /**
+     * Brings the dock widget to the front
+     * This means:
+     * 	- If the dock widget is tabbed with other dock widgets but its tab is not current, it's made current.
+     * 	- If the dock widget is floating, QWindow::raise() is called.
+     * 	This only applies if the dock widget is already open. If closed, does nothing.
+     */
+    void raise();
 
     /**
      * This function will make a docked widget floating

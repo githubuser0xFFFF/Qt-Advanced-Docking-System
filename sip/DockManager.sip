@@ -170,6 +170,7 @@ public:
         DefaultOpaqueConfig,
 		DefaultNonOpaqueConfig,
 		NonOpaqueWithWindowFrame,
+		HideSingleCentralWidgetTitleBar,
 	};
     typedef QFlags<ads::CDockManager::eConfigFlag> ConfigFlags;
 

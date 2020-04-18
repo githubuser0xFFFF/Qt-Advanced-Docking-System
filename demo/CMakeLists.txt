@@ -30,6 +30,8 @@ set(ads_demo_SRCS
     main.cpp
     MainWindow.cpp
     mainwindow.ui
+    StatusDialog.cpp
+    StatusDialog.ui
 	demo.qrc
 )
 add_executable(AdvancedDockingSystemDemo WIN32 ${ads_demo_SRCS})

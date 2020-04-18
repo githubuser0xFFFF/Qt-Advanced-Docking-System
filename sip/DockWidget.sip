@@ -96,15 +96,22 @@ public:
     virtual QList<QAction*> titleBarActions() const;
 
 	void setTabToolTip(const QString &text);
+    bool isFullScreen() const;
+    bool isTabbed() const;
+    bool isCurrentTab() const;
 
 public:
 	virtual bool event(QEvent *e);
 
 public slots:
 	void toggleView(bool Open = true);
+	void setAsCurrentTab();
+	void raise();
     void setFloating();
     void deleteDockWidget();
     void closeDockWidget();
+    void showFullScreen();
+    void showNormal();
 
 signals:
 	void viewToggled(bool Open);

@@ -44,6 +44,7 @@
 #include <QDebug>
 #include <QToolBar>
 #include <QXmlStreamWriter>
+#include <QWindow>
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -914,6 +915,49 @@ bool CDockWidget::isFullScreen() const
 	else
 	{
 		return Super::isFullScreen();
+	}
+}
+
+
+//============================================================================
+void CDockWidget::setAsCurrentTab()
+{
+	if (d->DockArea && !isClosed())
+	{
+		d->DockArea->setCurrentDockWidget(this);
+	}
+}
+
+
+//============================================================================
+bool CDockWidget::isTabbed() const
+{
+	return d->DockArea && (d->DockArea->openDockWidgetsCount() > 1);
+}
+
+
+
+//============================================================================
+bool CDockWidget::isCurrentTab() const
+{
+	return d->DockArea && (d->DockArea->currentDockWidget() == this);
+}
+
+
+//============================================================================
+void CDockWidget::raise()
+{
+	if (isClosed())
+	{
+		return;
+	}
+
+	setAsCurrentTab();
+	if (isInFloatingContainer())
+	{
+		auto FloatingWindow = window();
+		FloatingWindow->raise();
+		FloatingWindow->activateWindow();
 	}
 }
 

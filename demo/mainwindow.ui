@@ -31,7 +31,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionExit"/>
     <addaction name="actionSaveState"/>
     <addaction name="actionRestoreState"/>
    </widget>
@@ -45,8 +44,14 @@
      <string>About</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTests">
+    <property name="title">
+     <string>Tests</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuTests"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="toolBar">

@@ -63,7 +63,7 @@ private slots:
 	void createEditor();
 	void createTable();
 	void onEditorCloseRequested();
-	void onFullscreenActionTriggered();
+	void showStatusDialog();
 };
 
 #endif // MAINWINDOW_H

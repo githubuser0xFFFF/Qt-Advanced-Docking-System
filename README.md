@@ -4,6 +4,9 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 
+[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) •
+[Documentation](doc/user-guide.md)
+
 Qt Advanced Docking System lets you create customizable layouts using a full 
 featured window docking system similar to what is found in many popular 
 integrated development environments (IDEs) such as Visual Studio. 

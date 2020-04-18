@@ -18,13 +18,16 @@ adsBuildStatic {
 
 SOURCES += \
 	main.cpp \
-	MainWindow.cpp
+	MainWindow.cpp \
+	StatusDialog.cpp
 
 HEADERS += \
-	MainWindow.h
+	MainWindow.h \
+	StatusDialog.h
 
 FORMS += \
-	mainwindow.ui
+	mainwindow.ui \
+	StatusDialog.ui
 	
 RESOURCES += demo.qrc
 
