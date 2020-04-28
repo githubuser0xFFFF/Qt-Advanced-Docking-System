@@ -68,6 +68,8 @@ class CDockingStateReader;
 class IFloatingWidget
 {
 public:
+    virtual ~IFloatingWidget() = default;
+
 	/**
 	 * Starts floating.
 	 * This function should get called typically from a mouse press event
