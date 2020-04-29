@@ -37,6 +37,7 @@
 #include <QWindow>
 
 #include "DockAreaWidget.h"
+#include "DockAreaTitleBar.h"
 
 #include <iostream>
 
@@ -387,6 +388,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	}
 
 	if (DockArea->allowedAreas().testFlag(CenterDockWidgetArea)
+	 && !DockArea->titleBar()->isHidden()
 	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(QCursor::pos())))
 	{
 		return CenterDockWidgetArea;

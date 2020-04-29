@@ -51,6 +51,7 @@ of his docking system project.
   - [QtitanDocking](#qtitandocking)
 - [Donation](#donation)
 - [Showcase](#showcase)
+  - [Qt Creator IDE](#qt-creator-ide)
   - [Qt Design Studio](#qt-design-studio)
   - [QmixElements](#qmixelements)
 
@@ -280,6 +281,13 @@ If this project help you reduce time to develop or if you just like it, you can 
 </a>
 
 ## Showcase
+
+### [Qt Creator IDE](https://www.qt.io/development-tools)
+
+From version 4.12 on, Qt Creator uses the Advanced Docking Framework for its
+Qt Quick Designer. This improves the usability when using multiple screens.
+
+![Qt Creator](doc/qtcreator.png)
 
 ### [Qt Design Studio](https://www.qt.io/ui-design-tools)
 

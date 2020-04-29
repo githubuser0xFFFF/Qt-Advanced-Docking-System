@@ -55,6 +55,20 @@
 #include "DockingStateReader.h"
 
 
+/**
+ * Initializes the resources specified by the .qrc file with the specified base
+ * name. Normally, when resources are built as part of the application, the
+ * resources are loaded automatically at startup. The Q_INIT_RESOURCE() macro
+ * is necessary on some platforms for resources stored in a static library.
+ * Because GCC caues a linker error if we put Q_INIT_RESOURCE into the
+ * loadStyleSheet() function, we place it into a function outside of the ads
+ * namespace
+ */
+static void initResource()
+{
+	Q_INIT_RESOURCE(ads);
+}
+
 
 namespace ads
 {
@@ -148,6 +162,7 @@ DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 //============================================================================
 void DockManagerPrivate::loadStylesheet()
 {
+	initResource();
 	QString Result;
 #ifdef Q_OS_LINUX
     QFile StyleSheetFile(":ads/stylesheets/default_linux.css");

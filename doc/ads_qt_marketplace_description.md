@@ -14,18 +14,17 @@ styles as much as possible.
 
 ### Overview
 
-- [Advanced Docking System for Qt](#advanced-docking-system-for-qt)
-  - [Features](#features)
-    - [Overview](#overview)
-    - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
-    - [Docking inside floating windows](#docking-inside-floating-windows)
-    - [Grouped dragging](#grouped-dragging)
-    - [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
-    - [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
-    - [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
-    - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
-    - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
-    - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
+- [Features](#features)
+  - [Overview](#overview)
+  - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
+  - [Docking inside floating windows](#docking-inside-floating-windows)
+  - [Grouped dragging](#grouped-dragging)
+  - [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
+  - [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
+  - [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
+  - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
+  - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
+  - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
 
 ### Docking everywhere - no central widget
 
@@ -33,8 +32,8 @@ There is no central widget like in the Qt docking system. You can dock on every
 border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
 
-![Dropping widgets](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/preview-dragndrop.png)\
-\
+![Dropping widgets](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/preview-dragndrop.png)
+
 ![Dropping widgets](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/preview-dragndrop_dark.png)
 
 ### Docking inside floating windows
@@ -42,8 +41,8 @@ free to dock almost everywhere.
 There is no difference between the main window and a floating window. Docking
 into floating windows is supported.
 
-![Docking inside floating windows](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/floating-widget-dragndrop.png)\
-\
+![Docking inside floating windows](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/floating-widget-dragndrop.png)
+
 ![Docking inside floating windows](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/floating-widget-dragndrop_dark.png)
 
 ### Grouped dragging
@@ -52,8 +51,8 @@ When dragging the titlebar of a dock, all the tabs that are tabbed with it are
 going to be dragged. So you can move complete groups of tabbed widgets into
 a floating widget or from one dock area to another one.
 
-![Grouped dragging](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/grouped-dragging.gif)\
-\
+![Grouped dragging](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/grouped-dragging.gif)
+
 ![Grouped dragging](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/grouped-dragging_dark.png)
 
 ### Perspectives for fast switching of the complete main window layout
@@ -64,8 +63,8 @@ perspective to make your own custom perspective. Later you can simply
 select a perspective from the perspective list to quickly switch the complete 
 main window layout.
 
-![Perspective](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/perspectives.gif)\
-\
+![Perspective](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/perspectives.gif)
+
 ![Perspective](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/perspectives_dark.png)
 
 ### Opaque and non-opaque splitter resizing

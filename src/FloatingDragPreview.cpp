@@ -66,6 +66,12 @@ struct FloatingDragPreviewPrivate
 		DockManager->dockAreaOverlay()->hideOverlay();
 		_this->close();
 	}
+
+	/**
+	 * Creates the real floating widget in case the mouse is released outside
+	 * outside of any drop area
+	 */
+	void createFloatingWidget();
 };
 // struct LedArrayPanelPrivate
 
@@ -150,7 +156,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		// would be removed and inserted at the same position
 		if (VisibleDockAreas <= 1)
 		{
-			ContainerOverlay->hide();
+			ContainerOverlay->hideOverlay();
 		}
 
 		if (DockArea == ContentSourceArea && InvalidDockWidgetArea == ContainerDropArea)
@@ -172,6 +178,40 @@ FloatingDragPreviewPrivate::FloatingDragPreviewPrivate(CFloatingDragPreview *_pu
 {
 
 }
+
+
+//============================================================================
+void FloatingDragPreviewPrivate::createFloatingWidget()
+{
+	CDockWidget* DockWidget = qobject_cast<CDockWidget*>(Content);
+	CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(Content);
+
+	CFloatingDockContainer* FloatingWidget = nullptr;
+
+	if (DockWidget && DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+	{
+		FloatingWidget = new CFloatingDockContainer(DockWidget);
+	}
+	else if (DockArea && DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+	{
+		FloatingWidget = new CFloatingDockContainer(DockArea);
+	}
+
+	if (FloatingWidget)
+	{
+		FloatingWidget->setGeometry(_this->geometry());
+		FloatingWidget->show();
+		if (!CDockManager::configFlags().testFlag(CDockManager::DragPreviewHasWindowFrame))
+		{
+			QApplication::processEvents();
+			int FrameHeight = FloatingWidget->frameGeometry().height() - FloatingWidget->geometry().height();
+			QRect FixedGeometry = _this->geometry();
+			FixedGeometry.adjust(0, FrameHeight, 0, 0);
+			FloatingWidget->setGeometry(FixedGeometry);
+		}
+	}
+}
+
 
 //============================================================================
 CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
@@ -288,44 +328,25 @@ void CFloatingDragPreview::finishDragging()
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
 	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
 	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
-	if (d->DropContainer && (DockDropArea != InvalidDockWidgetArea))
+	if (!d->DropContainer)
+	{
+		d->createFloatingWidget();
+	}
+	else if (DockDropArea != InvalidDockWidgetArea)
 	{
 		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
 	}
-	else if (d->DropContainer && (ContainerDropArea != InvalidDockWidgetArea))
+	else if (ContainerDropArea != InvalidDockWidgetArea)
 	{
-		d->DropContainer->dropWidget(d->Content, ContainerDropArea, nullptr);
-	}
-	else
-	{
-		CDockWidget* DockWidget = qobject_cast<CDockWidget*>(d->Content);
-		CFloatingDockContainer* FloatingWidget = nullptr;
-
-		if (DockWidget && DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+		// If there is only one single dock area, and we drop into the center
+		// then we tabify the dropped widget into the only visible dock area
+		if (d->DropContainer->visibleDockAreaCount() <= 1 && CenterDockWidgetArea == ContainerDropArea)
 		{
-			FloatingWidget = new CFloatingDockContainer(DockWidget);
+			d->DropContainer->dropWidget(d->Content, ContainerDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
 		}
 		else
 		{
-			CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(d->Content);
-			if (DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
-			{
-				FloatingWidget = new CFloatingDockContainer(DockArea);
-			}
-		}
-
-		if (FloatingWidget)
-		{
-			FloatingWidget->setGeometry(this->geometry());
-			FloatingWidget->show();
-			if (!CDockManager::configFlags().testFlag(CDockManager::DragPreviewHasWindowFrame))
-			{
-				QApplication::processEvents();
-				int FrameHeight = FloatingWidget->frameGeometry().height() - FloatingWidget->geometry().height();
-				QRect FixedGeometry = this->geometry();
-				FixedGeometry.adjust(0, FrameHeight, 0, 0);
-				FloatingWidget->setGeometry(FixedGeometry);
-			}
+			d->DropContainer->dropWidget(d->Content, ContainerDropArea, nullptr);
 		}
 	}
 

@@ -169,14 +169,14 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 	    || DockManager->containerOverlay()->dropAreaUnderCursor()
 	        != InvalidDockWidgetArea)
 	{
-		// Resize the floating widget to the size of the highlighted drop area
-		// rectangle
 		CDockOverlay *Overlay = DockManager->containerOverlay();
 		if (!Overlay->dropOverlayRect().isValid())
 		{
 			Overlay = DockManager->dockAreaOverlay();
 		}
 
+		// Resize the floating widget to the size of the highlighted drop area
+		// rectangle
 		QRect Rect = Overlay->dropOverlayRect();
 		int FrameWidth = (_this->frameSize().width() - _this->rect().width())
 		    / 2;

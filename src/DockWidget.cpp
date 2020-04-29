@@ -263,7 +263,7 @@ void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 		takeWidget();
 	}
 
-	QScrollArea* ScrollAreaWidget = qobject_cast<QScrollArea*>(widget);
+	auto ScrollAreaWidget = qobject_cast<QAbstractScrollArea*>(widget);
 	if (ScrollAreaWidget || ForceNoScrollArea == InsertMode)
 	{
 		d->Layout->addWidget(widget);

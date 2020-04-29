@@ -176,7 +176,7 @@ DockWidgetTabPrivate::DockWidgetTabPrivate(CDockWidgetTab* _public) :
 void DockWidgetTabPrivate::createLayout()
 {
 	TitleLabel = new tTabLabel();
-	TitleLabel->setElideMode(Qt::ElideNone);
+	TitleLabel->setElideMode(Qt::ElideRight);
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
@@ -241,7 +241,6 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
-	QSize Size = DockArea->size();
 	IFloatingWidget* FloatingWidget = nullptr;
 	bool OpaqueUndocking = CDockManager::configFlags().testFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
@@ -249,13 +248,16 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 	// If section widget has multiple tabs, we take only one tab
 	// If it has only one single tab, we can move the complete
 	// dock area into floating widget
+	QSize Size;
 	if (DockArea->dockWidgetsCount() > 1)
 	{
 		FloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
+		Size = DockWidget->size();
 	}
 	else
 	{
 		FloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
+		Size = DockArea->size();
 	}
 
     if (DraggingFloatingWidget == DraggingState)

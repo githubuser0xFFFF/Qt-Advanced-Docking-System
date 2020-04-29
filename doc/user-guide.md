@@ -15,6 +15,13 @@
   - [`DragPreviewIsDynamic`](#dragpreviewisdynamic)
   - [`DragPreviewShowsContentPixmap`](#dragpreviewshowscontentpixmap)
   - [`DragPreviewHasWindowFrame`](#dragpreviewhaswindowframe)
+  - [`AlwaysShowTabs`](#alwaysshowtabs)
+  - [`DockAreaHasUndockButton`](#dockareahasundockbutton)
+  - [`DockAreaHasTabsMenuButton`](#dockareahastabsmenubutton)
+  - [`DockAreaHideDisabledButtons`](#dockareahidedisabledbuttons)
+  - [`DockAreaDynamicTabsMenuButtonVisibility`](#dockareadynamictabsmenubuttonvisibility)
+  - [`FloatingContainerHasWidgetTitle`](#floatingcontainerhaswidgettitle)
+  - [`FloatingContainerHasWidgetIcon`](#floatingcontainerhaswidgeticon)
 
 ## Configuration Flags
 
@@ -196,3 +203,78 @@ preview is frameless (default) or looks like a real window. If it is enabled,
 then the drag preview is a transparent window with a system window frame.
 
 ![DragPreviewHasWindowFrame true](cfg_flag_DragPreviewHasWindowFrame_true.png)
+
+### `AlwaysShowTabs`
+
+If this option is enabled, the tab of a dock widget is always displayed - even
+if it is the only visible dock widget in a floating widget. In the image below
+on the left side, the flag is disabled (default) and on the right side it is
+enabled.
+
+![AlwaysShowTabs false true](cfg_flag_AlwaysShowTabs_false_true.png)
+
+### `DockAreaHasUndockButton`
+
+If the flag is set (default) each dock area has an undock button (right
+image). If the flag is cleared, a dock area has no undock button (left image)
+
+![DockAreaHasUndockButton false true](cfg_flag_DockAreaHasUndockButton_false_true.png)
+
+### `DockAreaHasTabsMenuButton`
+
+Tabs are a good way to quickly switch between dockwidgets in a dockarea.
+However, if the number of dockwidgets in a dockarea is too large, this may affect
+the usability of the tab bar. To keep track in this situation, you can use the
+tab menu. The menu allows you to quickly select the dockwidget you want to
+activate from a drop down menu. This flag shows / hides the tabs menu button
+in the dock area title bar. On the left side, the tabs menu button flag
+is cleared.
+
+![DockAreaHasTabsMenuButton false true](cfg_flag_DockAreaHasTabsMenuButton_false_true.png)
+
+### `DockAreaHideDisabledButtons`
+
+If certain flags of a dock widget are disabled, like `DockWidgetClosable` or
+`DockWidgetFloatable`, then the corresponding dock area buttons like close
+button or detach button are disabled (greyed out). This is the default
+setting.
+
+![DockAreaHideDisabledButtons false](cfg_flag_DockAreaHideDisabledButtons_false.png)
+
+If the flag is set, disabled dock area buttons will not appear on the toolbar at
+all - they are hidden.
+
+![DockAreaHideDisabledButtons true](cfg_flag_DockAreaHideDisabledButtons_true.png)
+
+### `DockAreaDynamicTabsMenuButtonVisibility`
+
+If this flag is cleared, the the tabs menu button is always visible. This is
+the default setting. If the flag is set, the tabs menu button will be shown
+only when it is required - that means, if the tabs are elided.
+
+![DockAreaDynamicTabsMenuButtonVisibility false](cfg_flag_DockAreaDynamicTabsMenuButtonVisibility_true_visible.png)
+
+If the tabs are not elided, the tabs menu button is hidden.
+
+![DockAreaDynamicTabsMenuButtonVisibility false](cfg_flag_DockAreaDynamicTabsMenuButtonVisibility_true_hidden.png)
+
+### `FloatingContainerHasWidgetTitle`
+
+If set (default), the floating widget window title reflects the title of the
+current dock widget.
+
+![FloatingContainerHasWidgetTitle true](cfg_flag_FloatingContainerHasWidgetTitle_true.png)
+
+otherwise it displays application name as window title.
+
+![FloatingContainerHasWidgetTitle false](cfg_flag_FloatingContainerHasWidgetTitle_false.png)
+
+### `FloatingContainerHasWidgetIcon`
+
+If set, the floating widget icon reflects the icon of the current dock widget
+
+![FloatingContainerHasWidgetIcon true](cfg_flag_FloatingContainerHasWidgetIcon_true.png)
+
+otherwise (default setting) it displays application icon.
+
+![FloatingContainerHasWidgetIcon false](cfg_flag_FloatingContainerHasWidgetIcon_false.png)

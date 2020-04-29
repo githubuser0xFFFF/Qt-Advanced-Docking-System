@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 #endif
 	std::shared_ptr<int> b;
 	QApplication a(argc, argv);
+	a.setApplicationName("Advanced Docking System Demo");
 	a.setQuitOnLastWindowClosed(true);
 
 	QFile StyleSheetFile(":/adsdemo/app.css");
