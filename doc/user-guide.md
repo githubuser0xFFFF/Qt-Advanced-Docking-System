@@ -22,6 +22,7 @@
   - [`DockAreaDynamicTabsMenuButtonVisibility`](#dockareadynamictabsmenubuttonvisibility)
   - [`FloatingContainerHasWidgetTitle`](#floatingcontainerhaswidgettitle)
   - [`FloatingContainerHasWidgetIcon`](#floatingcontainerhaswidgeticon)
+  - [`HideSingleCentralWidgetTitleBar`](#hidesinglecentralwidgettitlebar)
 
 ## Configuration Flags
 
@@ -278,3 +279,20 @@ If set, the floating widget icon reflects the icon of the current dock widget
 otherwise (default setting) it displays application icon.
 
 ![FloatingContainerHasWidgetIcon false](cfg_flag_FloatingContainerHasWidgetIcon_false.png)
+
+### `HideSingleCentralWidgetTitleBar`
+
+If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden.
+This only makes sense for non draggable and non floatable dock widgets and enables
+the creation of some kind of "central" static widget. Because the titlebar is
+hidden, it is not possible to drag out the central widget to make it floating
+or to close it via the close button.
+
+![HideSingleCentralWidgetTitleBar true](cfg_flag_HideSingleCentralWidgetTitleBar_true.png)
+
+The Advanced Docking System is meant for applications without a static central
+widget and normally does not know anything about a central static widget.
+Therefore this flag is disabled by default and a central single dock widget
+still has a titlebar to drag it out of the main window.
+
+![HideSingleCentralWidgetTitleBar false](cfg_flag_HideSingleCentralWidgetTitleBar_false.png)
