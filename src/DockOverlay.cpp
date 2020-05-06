@@ -38,31 +38,12 @@
 
 #include "DockAreaWidget.h"
 #include "DockAreaTitleBar.h"
+#include "DockManager.h"
 
 #include <iostream>
 
 namespace ads
 {
-
-/**
- * Private data class of CDockOverlay
- */
-struct DockOverlayPrivate
-{
-	CDockOverlay* _this;
-	DockWidgetAreas AllowedAreas = InvalidDockWidgetArea;
-	CDockOverlayCross* Cross;
-	QPointer<QWidget> TargetWidget;
-	DockWidgetArea LastLocation = InvalidDockWidgetArea;
-	bool DropPreviewEnabled = true;
-	CDockOverlay::eMode Mode = CDockOverlay::ModeDockAreaOverlay;
-	QRect DropAreaRect;
-
-	/**
-	 * Private data constructor
-	 */
-	DockOverlayPrivate(CDockOverlay* _public) : _this(_public) {}
-};
 
 /**
  * Private data of CDockOverlayCross class
@@ -166,19 +147,19 @@ struct DockOverlayCrossPrivate
 	}
 
 	//============================================================================
-	void updateDropIndicatorIcon(QWidget* DropIndicatorWidget)
+    void updateDropIndicatorIcon(QWidget* DropIndicatorWidget, bool hover = false)
 	{
 		QLabel* l = qobject_cast<QLabel*>(DropIndicatorWidget);
         const qreal metric = dropIndicatiorWidth(l);
 		const QSizeF size(metric, metric);
 
 		int Area = l->property("dockWidgetArea").toInt();
-		l->setPixmap(createHighDpiDropIndicatorPixmap(size, (DockWidgetArea)Area, Mode));
+        l->setPixmap(createHighDpiDropIndicatorPixmap(size, (DockWidgetArea)Area, Mode, hover));
 	}
 
 	//============================================================================
 	QPixmap createHighDpiDropIndicatorPixmap(const QSizeF& size, DockWidgetArea DockWidgetArea,
-		CDockOverlay::eMode Mode)
+        CDockOverlay::eMode Mode, bool hover = false)
 	{
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
@@ -199,12 +180,26 @@ struct DockOverlayCrossPrivate
 		baseRect.setSize(ShadowRect.size() * 0.7);
 		baseRect.moveCenter(ShadowRect.center());
 
+        constexpr static int maxAlpha = 255;
+        constexpr static int defaultAlpha = 64;
+        constexpr static int hoverDiffAlpha = 50;
+
 		// Fill
 		QColor ShadowColor = iconColor(CDockOverlayCross::ShadowColor);
-		if (ShadowColor.alpha() == 255)
+        if (ShadowColor.alpha() == maxAlpha)
 		{
-			ShadowColor.setAlpha(64);
+            ShadowColor.setAlpha(defaultAlpha);
 		}
+
+        if (CDockManager::configFlags().testFlag(CDockManager::DropIndicatorsHoverEnabled))
+        {
+            ShadowColor.setAlpha(std::min(ShadowColor.alpha(), maxAlpha - hoverDiffAlpha));
+            if (hover)
+            {
+                ShadowColor.setAlpha(ShadowColor.alpha() + hoverDiffAlpha);
+            }
+        }
+
 		p.fillRect(ShadowRect, ShadowColor);
 
 		// Drop area rect.
@@ -325,6 +320,54 @@ struct DockOverlayCrossPrivate
 
 };
 
+/**
+ * Private data class of CDockOverlay
+ */
+struct DockOverlayPrivate
+{
+    CDockOverlay* _this;
+    DockWidgetAreas AllowedAreas = InvalidDockWidgetArea;
+    CDockOverlayCross* Cross;
+    QPointer<QWidget> TargetWidget;
+    DockWidgetArea LastLocation = InvalidDockWidgetArea;
+    bool DropPreviewEnabled = true;
+    CDockOverlay::eMode Mode = CDockOverlay::ModeDockAreaOverlay;
+    QRect DropAreaRect;
+
+    /**
+     * Private data constructor
+     */
+    DockOverlayPrivate(CDockOverlay* _public) : _this(_public) {}
+
+    void hoverDropIndicatorIcon(const DockWidgetArea area)
+    {
+        updateDropIndicatorIcon(area, true);
+    }
+
+    void unhoverDropIndicatorIcon(const DockWidgetArea area)
+    {
+        updateDropIndicatorIcon(area, false);
+    }
+
+private:
+    void updateDropIndicatorIcon(const DockWidgetArea area, bool hover)
+    {
+        if (!CDockManager::configFlags().testFlag(CDockManager::DropIndicatorsHoverEnabled))
+        {
+            return;
+        }
+
+        if (area != DockWidgetArea::NoDockWidgetArea && area != DockWidgetArea::InvalidDockWidgetArea)
+        {
+            const auto widget = Cross->d->DropIndicatorWidgets[area];
+            if (widget != nullptr)
+            {
+                Cross->d->updateDropIndicatorIcon(widget, hover);
+                Cross->update();
+            }
+        }
+    }
+};
 
 //============================================================================
 CDockOverlay::CDockOverlay(QWidget* parent, eMode Mode) :
@@ -421,11 +464,15 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 		DockWidgetArea da = dropAreaUnderCursor();
 		if (da != d->LastLocation)
 		{
-			repaint();
+            d->hoverDropIndicatorIcon(da);
+            d->unhoverDropIndicatorIcon(d->LastLocation);
+            repaint();
 			d->LastLocation = da;
 		}
 		return da;
 	}
+
+    d->unhoverDropIndicatorIcon(d->LastLocation);
 
 	d->TargetWidget = target;
 	d->LastLocation = InvalidDockWidgetArea;
@@ -445,7 +492,8 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 void CDockOverlay::hideOverlay()
 {
 	hide();
-	d->TargetWidget.clear();
+    d->unhoverDropIndicatorIcon(d->LastLocation);
+    d->TargetWidget.clear();
 	d->LastLocation = InvalidDockWidgetArea;
 	d->DropAreaRect = QRect();
 }
@@ -729,7 +777,6 @@ void CDockOverlayCross::setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& wi
 	}
 	reset();
 }
-
 
 //============================================================================
 DockWidgetArea CDockOverlayCross::cursorLocation() const

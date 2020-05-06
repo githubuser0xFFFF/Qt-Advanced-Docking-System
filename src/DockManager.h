@@ -148,18 +148,19 @@ public:
 		TabCloseButtonIsToolButton = 0x0040,//! If enabled the tab close buttons will be QToolButtons instead of QPushButtons - disabled by default
 		AllTabsHaveCloseButton = 0x0080, //!< if this flag is set, then all tabs that are closable show a close button
 		RetainTabSizeWhenCloseButtonHidden = 0x0100, //!< if this flag is set, the space for the close button is reserved even if the close button is not visible
-		OpaqueUndocking = 0x0200,///< If enabled, the widgets are immediately undocked into floating widgets, if disabled, only a draw preview is undocked and the real undocking is deferred until the mouse is released
-		DragPreviewIsDynamic = 0x0400,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
-		DragPreviewShowsContentPixmap = 0x0800,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
-		DragPreviewHasWindowFrame = 0x1000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
-		AlwaysShowTabs = 0x2000,///< If this option is enabled, the tab of a dock widget is always displayed - even if it is the only visible dock widget in a floating widget.
-		DockAreaHasUndockButton = 0x4000,     //!< If the flag is set each dock area has an undock button
-		DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
-		DockAreaHideDisabledButtons = 0x10000,    //!< If the flag is set disabled dock area buttons will not appear on the toolbar at all (enabling them will bring them back)
-		DockAreaDynamicTabsMenuButtonVisibility = 0x20000, //!< If the flag is set, the tabs menu button will be shown only when it is required - that means, if the tabs are elided. If the tabs are not elided, it is hidden
-		FloatingContainerHasWidgetTitle = 0x40000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays application name as window title
-		FloatingContainerHasWidgetIcon = 0x80000, //!< If set, the Floating Widget icon reflects the icon of the current dock widget otherwise it displays application icon
-		HideSingleCentralWidgetTitleBar = 0x100000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
+		DropIndicatorsHoverEnabled = 0x0200, ///< If enabled, small drop indicators will have hover effect
+		OpaqueUndocking = 0x0400,///< If enabled, the widgets are immediately undocked into floating widgets, if disabled, only a draw preview is undocked and the real undocking is deferred until the mouse is released
+		DragPreviewIsDynamic = 0x0800,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
+		DragPreviewShowsContentPixmap = 0x1000,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
+		DragPreviewHasWindowFrame = 0x2000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
+		AlwaysShowTabs = 0x4000,///< If this option is enabled, the tab of a dock widget is always displayed - even if it is the only visible dock widget in a floating widget.
+		DockAreaHasUndockButton = 0x8000,     //!< If the flag is set each dock area has an undock button
+		DockAreaHasTabsMenuButton = 0x10000,     //!< If the flag is set each dock area has a tabs menu button
+		DockAreaHideDisabledButtons = 0x20000,    //!< If the flag is set disabled dock area buttons will not appear on the toolbar at all (enabling them will bring them back)
+		DockAreaDynamicTabsMenuButtonVisibility = 0x40000, //!< If the flag is set, the tabs menu button will be shown only when it is required - that means, if the tabs are elided. If the tabs are not elided, it is hidden
+		FloatingContainerHasWidgetTitle = 0x80000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays application name as window title
+		FloatingContainerHasWidgetIcon = 0x100000, //!< If set, the Floating Widget icon reflects the icon of the current dock widget otherwise it displays application icon
+		HideSingleCentralWidgetTitleBar = 0x200000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
 		                                            //!< this only makes sense for non draggable and non floatable widgets and enables the creation of some kind of "central" widget
 
 
@@ -170,6 +171,7 @@ public:
 		DefaultBaseConfig = DefaultDockAreaButtons
 		                  | ActiveTabHasCloseButton
 		                  | XmlCompressionEnabled
+                          | DropIndicatorsHoverEnabled
 		                  | FloatingContainerHasWidgetTitle,///< default base configuration settings
 
         DefaultOpaqueConfig = DefaultBaseConfig

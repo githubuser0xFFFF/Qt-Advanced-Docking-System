@@ -175,6 +175,7 @@ private:
 	DockOverlayCrossPrivate* d;
 	friend struct DockOverlayCrossPrivate;
 	friend class CDockOverlay;
+    friend struct DockOverlayPrivate;
 
 protected:
 	/**
