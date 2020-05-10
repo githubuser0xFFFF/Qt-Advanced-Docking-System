@@ -296,3 +296,4 @@ Therefore this flag is disabled by default and a central single dock widget
 still has a titlebar to drag it out of the main window.
 
 ![HideSingleCentralWidgetTitleBar false](cfg_flag_HideSingleCentralWidgetTitleBar_false.png)
+
