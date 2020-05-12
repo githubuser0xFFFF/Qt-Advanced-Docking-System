@@ -127,6 +127,7 @@ protected:
 
 
 struct DockOverlayCrossPrivate;
+class CDropIndicatorWidget;
 /*!
  * DockOverlayCross shows a cross with 5 different drop area possibilities.
  * I could have handled everything inside DockOverlay, but because of some
@@ -257,7 +258,7 @@ public:
 
 protected:
 	virtual void showEvent(QShowEvent* e) override;
-	void setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& widgets);
+	void setAreaWidgets(const QHash<DockWidgetArea, ads::CDropIndicatorWidget*>& widgets);
 }; // CDockOverlayCross
 
 } // namespace ads
