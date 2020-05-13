@@ -10,7 +10,7 @@ namespace ads
 
     enum eStateFileVersion
     {
-        InitialVerison,
+        InitialVersion,
         Version1,
         CurrentVersion
     };

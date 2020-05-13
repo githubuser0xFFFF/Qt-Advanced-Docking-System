@@ -165,12 +165,12 @@ public:
 		DockAreaDynamicTabsMenuButtonVisibility,
 		FloatingContainerHasWidgetTitle,
 		FloatingContainerHasWidgetIcon,
+		HideSingleCentralWidgetTitleBar,
         DefaultDockAreaButtons,
 		DefaultBaseConfig,
         DefaultOpaqueConfig,
 		DefaultNonOpaqueConfig,
 		NonOpaqueWithWindowFrame,
-		HideSingleCentralWidgetTitleBar,
 	};
     typedef QFlags<ads::CDockManager::eConfigFlag> ConfigFlags;
 
