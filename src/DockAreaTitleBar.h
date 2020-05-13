@@ -34,7 +34,7 @@
 
 #include "ads_globals.h"
 
-class QAbstractButton;
+QT_FORWARD_DECLARE_CLASS(QAbstractButton);
 
 namespace ads
 {

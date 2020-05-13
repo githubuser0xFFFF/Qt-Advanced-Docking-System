@@ -36,8 +36,8 @@
 #include "FloatingDockContainer.h"
 
 
-class QSettings;
-class QMenu;
+QT_FORWARD_DECLARE_CLASS(QSettings);
+QT_FORWARD_DECLARE_CLASS(QMenu);
 
 namespace ads
 {

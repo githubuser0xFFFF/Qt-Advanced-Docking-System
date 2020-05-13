@@ -35,7 +35,7 @@
 #include "ads_globals.h"
 #include "DockWidget.h"
 
-class QXmlStreamWriter;
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter);
 
 
 namespace ads
