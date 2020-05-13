@@ -42,6 +42,7 @@ HEADERS += \
     DockOverlay.h \
     DockSplitter.h \
     DockAreaTitleBar.h \
+	DockAreaTitleBar_p.h \
     ElidingLabel.h \
     IconProvider.h \
     DockComponentsFactory.h 
