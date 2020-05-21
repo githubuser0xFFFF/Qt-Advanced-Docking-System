@@ -590,6 +590,7 @@ bool CFloatingDockContainer::eventFilter(QObject *watched, QEvent *e)
 #ifdef Q_OS_WIN
 bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
+	QWidget::nativeEvent(eventType, message, result);
 	MSG *msg = static_cast<MSG*>(message);
 	if (msg->message == WM_MOVING)
 	{
