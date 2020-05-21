@@ -40,6 +40,10 @@
 #include <QElapsedTimer>
 #include <QTime>
 
+// widows
+#include <QtCore>
+#include <windows.h>
+
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
@@ -383,12 +387,10 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 {
 	QWidget::moveEvent(event);
+#ifndef Q_OS_WIN
 	switch (d->DraggingState)
 	{
 	case DraggingMousePressed:
-#ifdef Q_OS_WIN
-		qApp->installEventFilter(this);
-#endif
 		d->setState(DraggingFloatingWidget);
 		d->updateDropOverlays(QCursor::pos());
 		break;
@@ -406,6 +408,7 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	default:
 		break;
 	}
+#endif
 
 
 }
@@ -583,6 +586,32 @@ bool CFloatingDockContainer::eventFilter(QObject *watched, QEvent *e)
 #endif
 	return false;
 }
+
+#ifdef Q_OS_WIN
+bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+	MSG *msg = static_cast<MSG*>(message);
+	if (msg->message == WM_MOVING)
+	{
+		switch (d->DraggingState)
+		{
+		case DraggingMousePressed:
+			qApp->installEventFilter(this);
+			d->setState(DraggingFloatingWidget);
+			d->updateDropOverlays(QCursor::pos());
+			break;
+
+		case DraggingFloatingWidget:
+			d->updateDropOverlays(QCursor::pos());
+
+			break;
+		default:
+			break;
+		}
+	}
+	return false;
+}
+#endif
 
 
 //============================================================================

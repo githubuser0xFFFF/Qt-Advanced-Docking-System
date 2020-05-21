@@ -184,6 +184,9 @@ protected: // reimplements QWidget
 	virtual void showEvent(QShowEvent *event) override;
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
+#ifdef Q_OS_WIN
+	virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+#endif
 public:
 	using Super = QWidget;
 
