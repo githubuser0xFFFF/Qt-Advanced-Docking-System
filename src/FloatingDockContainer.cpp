@@ -40,16 +40,15 @@
 #include <QElapsedTimer>
 #include <QTime>
 
-// widows
-#include <QtCore>
-#include <windows.h>
-
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockOverlay.h"
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 #ifdef Q_OS_LINUX
 #include "linux/FloatingWidgetTitleBar.h"
 #include <xcb/xcb.h>
