@@ -1,28 +1,16 @@
-cmake_minimum_required(VERSION 3.3)
-set(ads_VERSION "2.3.2")
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-project(QtAdvancedDockingSystem VERSION ${ads_VERSION})
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
+include(GetGitRevisionDescription)
+git_describe(GitTagVersion --tags)
+string(REGEX REPLACE "^([0-9]+)\\..*" "\\1" VERSION_MAJOR "${GitTagVersion}")
+string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${GitTagVersion}")
+string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${GitTagVersion}")
+set(VERSION_SHORT "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
 option(BUILD_STATIC "Build the static library" OFF)
 option(BUILD_EXAMPLES "Build the examples" ON)
-set(REQUIRED_QT_VERSION 5.5.0)
-find_package(Qt5Core ${REQUIRED_QT_VERSION} REQUIRED)
-find_package(Qt5Gui ${REQUIRED_QT_VERSION} REQUIRED)
-find_package(Qt5Widgets ${REQUIRED_QT_VERSION} REQUIRED)
-message(STATUS "Found Qt ${Qt5Core_VERSION}")
-set(ads_INCLUDE ${ads_INCLUDE} ${Qt5Core_INCLUDE_DIRS})
-set(ads_INCLUDE ${ads_INCLUDE} "${CMAKE_CURRENT_SOURCE_DIR}/src")
-set(ads_LIBS ${ads_LIBS} ${Qt5Core_LIBRARIES})
-set(ads_COMPILE_DEFINE ${ads_COMPILE_DEFINE} ${Qt5Core_COMPILE_DEFINITIONS})
-set(ads_LIBS ${ads_LIBS} ${Qt5Gui_LIBRARIES})
-set(ads_INCLUDE ${ads_INCLUDE} ${Qt5Gui_INCLUDE_DIRS})
-set(ads_COMPILE_DEFINE ${ads_COMPILE_DEFINE} ${Qt5Gui_COMPILE_DEFINITIONS})
-set(ads_LIBS ${ads_LIBS} ${Qt5Widgets_LIBRARIES})
-set(ads_INCLUDE ${ads_INCLUDE} ${Qt5Widgets_INCLUDE_DIRS})
-set(ads_COMPILE_DEFINE ${ads_COMPILE_DEFINE} ${Qt5Widgets_COMPILE_DEFINITIONS})
+find_package(Qt5 5.5 COMPONENTS Core Gui Widgets REQUIRED)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(BUILD_STATIC)
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
@@ -37,20 +25,19 @@ set(ads_SRCS
     src/DockSplitter.cpp
     src/DockWidget.cpp
     src/DockWidgetTab.cpp
-	src/DockingStateReader.cpp
+    src/DockingStateReader.cpp
     src/ElidingLabel.cpp
     src/FloatingDockContainer.cpp
-	src/FloatingDragPreview.cpp
-	src/IconProvider.cpp
-	src/DockComponentsFactory.cpp
+    src/FloatingDragPreview.cpp
+    src/IconProvider.cpp
+    src/DockComponentsFactory.cpp
     src/ads.qrc
-    src/linux/FloatingWidgetTitleBar.cpp
 )
 set(ads_INSTALL_INCLUDE 
     src/ads_globals.h
     src/DockAreaTabBar.h
     src/DockAreaTitleBar.h
-	src/DockAreaTitleBar_p.h
+    src/DockAreaTitleBar_p.h
     src/DockAreaWidget.h
     src/DockContainerWidget.h
     src/DockManager.h
@@ -58,14 +45,17 @@ set(ads_INSTALL_INCLUDE
     src/DockSplitter.h
     src/DockWidget.h
     src/DockWidgetTab.h
-	src/DockingStateReader.h
+    src/DockingStateReader.h
     src/ElidingLabel.h
     src/FloatingDockContainer.h
-	src/FloatingDragPreview.h
-	src/IconProvider.h
-	src/DockComponentsFactory.h
-    src/linux/FloatingWidgetTitleBar.h
+    src/FloatingDragPreview.h
+    src/IconProvider.h
+    src/DockComponentsFactory.h
 )
+if (UNIX)
+    set(ads_SRCS src/linux/FloatingWidgetTitleBar.cpp ${ads_SRCS})
+    set(ads_INSTALL_INCLUDE src/linux/FloatingWidgetTitleBar.h ${ads_INSTALL_INCLUDE})
+endif()
 if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
     set(ads_PlatformDir "x86")
 else()
@@ -76,8 +66,26 @@ if(BUILD_STATIC)
     target_compile_definitions(qtadvanceddocking PUBLIC ADS_STATIC)
 else()
     add_library(qtadvanceddocking SHARED ${ads_SRCS})
-    set(ads_COMPILE_DEFINE ${ads_COMPILE_DEFINE} ADS_SHARED_EXPORT)
+    target_compile_definitions(qtadvanceddocking PRIVATE ADS_SHARED_EXPORT)
 endif()
+target_link_libraries(qtadvanceddocking PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets)
+set_target_properties(qtadvanceddocking PROPERTIES 
+    AUTOMOC ON
+    AUTORCC ON
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+    VERSION ${VERSION_SHORT}
+    EXPORT_NAME "QtAdvancedDockingSystem"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
+)
+include(CMakePackageConfigHelpers)
+    write_basic_package_version_file("adsConfigVersion.cmake"
+    VERSION ${VERSION_SHORT}
+    COMPATIBILITY SameMajorVersion
+)
 install(FILES ${ads_INSTALL_INCLUDE}
     DESTINATION include 
     COMPONENT headers
@@ -96,36 +104,24 @@ install(TARGETS qtadvanceddocking
     INCLUDES DESTINATION include
 )
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("adsConfigVersion.cmake"
-    VERSION ${ads_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
 install(EXPORT adsTargets
     FILE adsTargets.cmake
     NAMESPACE ads::
     DESTINATION lib/cmake/ads
 )
-install(FILES "adsConfig.cmake" "${CMAKE_BINARY_DIR}/adsConfigVersion.cmake"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/adsConfigVersion.cmake"
     DESTINATION lib/cmake/ads
 )
 
-target_include_directories(qtadvanceddocking PUBLIC 
-    "$<BUILD_INTERFACE:${ads_INCLUDE}>"
+target_include_directories(qtadvanceddocking PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/private>"
     $<INSTALL_INTERFACE:include>
-    )
-target_link_libraries(qtadvanceddocking PUBLIC ${ads_LIBS})
-target_compile_definitions(qtadvanceddocking PRIVATE ${ads_COMPILE_DEFINE})
-set_target_properties(qtadvanceddocking PROPERTIES 
-    VERSION ${ads_VERSION}
-    EXPORT_NAME "QtAdvancedDockingSystem"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
 )
+
 if(BUILD_EXAMPLES)
     add_subdirectory(examples/simple)
     add_subdirectory(examples/sidebar)
+    add_subdirectory(examples/deleteonclose)
     add_subdirectory(demo)
 endif()
 
