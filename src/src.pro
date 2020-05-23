@@ -73,7 +73,7 @@ SOURCES += linux/FloatingWidgetTitleBar.cpp
 }
 
 isEmpty(PREFIX){
-	PREFIX=..\installed
+	PREFIX=../installed
 	warning("Install Prefix not set")
 }
 headers.path=$$PREFIX/include

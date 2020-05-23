@@ -16,18 +16,15 @@ matrix:
         - sourceline: 'ppa:beineri/opt-qt551-trusty'
         update: true
         packages:
-        - qt514base
-        - qt514tools
+        - qt55base
+        - qt55tools
         - gcc-9
         - g++-9
-        - libc6-i386
-        - libgl-dev
-        - libgl1-mesa-dev
-        - mesa-common-dev
     script:
+        - PATH="/opt/qt55/bin:$PATH"
         - CXX="g++-9"
         - CC="gcc-9"
-        - /opt/qt55/bin/qt55-env.sh
+        - qt55-env.sh
         - qmake
         - make
         - make install
@@ -54,9 +51,10 @@ matrix:
         - libgl1-mesa-dev
         - mesa-common-dev
     script:
+        - PATH="/opt/qt514/bin:$PATH"
         - CXX="g++-9"
         - CC="gcc-9"
-        - /opt/qt514/bin/qt514-env.sh
+        - qt514-env.sh
         - qmake
         - make
         - make install
@@ -83,9 +81,10 @@ matrix:
         - libgl1-mesa-dev
         - mesa-common-dev
     script:
+        - PATH="/opt/qt514/bin:$PATH"
         - CXX="g++-9"
         - CC="gcc-9"
-        - /opt/qt514/bin/qt514-env.sh
+        - qt514-env.sh
         - qmake "CONFIG+=adsBuildStatic"
         - make
         - make install
@@ -112,9 +111,10 @@ matrix:
         - libgl1-mesa-dev
         - mesa-common-dev
     script:
+        - PATH="/opt/qt514/bin:$PATH"
         - CXX="g++-9"
         - CC="gcc-9"
-        - /opt/qt514/bin/qt514-env.sh
+        - qt514-env.sh
         - mkdir ./build
         - cd ./build
         - cmake --version
@@ -147,9 +147,10 @@ matrix:
         - libgl1-mesa-dev
         - mesa-common-dev
     script:
+        - PATH="/opt/qt514/bin:$PATH"
         - CXX="g++-9"
         - CC="gcc-9"
-        - /opt/qt514/bin/qt514-env.sh
+        - qt514-env.sh
         - mkdir ./build
         - cd ./build
         - cmake --version
