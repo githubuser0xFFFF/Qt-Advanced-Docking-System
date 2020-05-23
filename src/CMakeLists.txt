@@ -62,14 +62,14 @@ set_target_properties(qtadvanceddocking PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
-    EXPORT_NAME "QtAdvancedDockingSystem"
+    EXPORT_NAME "qtadvanceddocking"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
 )
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    "adsConfigVersion.cmake"
+    "qtadvanceddockingConfigVersion.cmake"
     VERSION ${VERSION_SHORT}
     COMPATIBILITY SameMajorVersion
 )
@@ -94,10 +94,10 @@ install(TARGETS qtadvanceddocking
 install(EXPORT adsTargets
     FILE adsTargets.cmake
     NAMESPACE ads::
-    DESTINATION lib/cmake/ads
+    DESTINATION lib/cmake/qtadvanceddocking
 )
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/adsConfigVersion.cmake"
-    DESTINATION lib/cmake/ads
+install(FILES qtadvanceddockingConfig.cmake "${CMAKE_CURRENT_BINARY_DIR}/qtadvanceddockingConfigVersion.cmake"
+    DESTINATION lib/cmake/qtadvanceddocking
 )
 
 target_include_directories(qtadvanceddocking PUBLIC
