@@ -48,9 +48,6 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "User32.lib")
-#endif
 #endif
 #ifdef Q_OS_LINUX
 #include "linux/FloatingWidgetTitleBar.h"

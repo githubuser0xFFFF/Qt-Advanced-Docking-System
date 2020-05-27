@@ -66,7 +66,9 @@ SOURCES += \
     IconProvider.cpp \
     DockComponentsFactory.cpp
 
-
+win32 {
+    LIBS += -lUser32
+}
 unix {
 HEADERS += linux/FloatingWidgetTitleBar.h
 SOURCES += linux/FloatingWidgetTitleBar.cpp
