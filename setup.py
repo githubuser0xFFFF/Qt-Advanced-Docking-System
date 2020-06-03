@@ -214,6 +214,7 @@ class build_ext(sipdistutils.build_ext):
         # /usr/bin/rcc -name ads ../../Qt-Advanced-Docking-System/src/ads.qrc -o release/qrc_ads.cpp
         
         cppsources = [source for source in ext.sources if source.endswith(".cpp")]
+        headersources = ['src/DockAreaTitleBar_p.h']
 
         dir_util.mkpath(self.build_temp, dry_run=self.dry_run)
 
@@ -243,6 +244,30 @@ class build_ext(sipdistutils.build_ext):
 
                 if newer(header, out_file) or self.force:
                     spawn.spawn(get_moc_args(out_file, header), dry_run=self.dry_run)
+
+                if os.path.getsize(out_file) > 0:
+                    ext.sources.append(out_file)
+
+        # Run moc on all orphan header files.
+        for source in headersources:
+            # *.cpp -> *.moc
+            moc_file = os.path.basename(source).replace(".h", ".moc")
+            out_file = os.path.join(self.build_temp, moc_file)
+
+            if newer(source, out_file) or self.force:
+                spawn.spawn(get_moc_args(out_file, source),
+                            dry_run=self.dry_run)
+
+            header = source
+            if os.path.exists(header):
+                # *.h -> moc_*.cpp
+                moc_file = "moc_" + os.path.basename(header).replace(
+                    ".h", ".cpp")
+                out_file = os.path.join(self.build_temp, moc_file)
+
+                if newer(header, out_file) or self.force:
+                    spawn.spawn(get_moc_args(out_file, header),
+                                dry_run=self.dry_run)
 
                 if os.path.getsize(out_file) > 0:
                     ext.sources.append(out_file)
