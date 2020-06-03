@@ -58,7 +58,7 @@ protected:
 	virtual void hideEvent(QHideEvent *event);
 	virtual void showEvent(QShowEvent *event);
 	%If (WS_WIN)
-	virtual bool nativeEvent(QByteArray& eventType, void *message, long *result);
+	virtual bool nativeEvent(QByteArray &eventType, void *message, long *result);
 	%End
 
 
