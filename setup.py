@@ -159,6 +159,13 @@ class build_ext(sipdistutils.build_ext):
             return sip_bin
 
         raise SystemExit('Could not find PyQt SIP binary.')
+        
+    def _sip_sipfiles_dir(self):
+        sip_dir = super()._sip_sipfiles_dir()
+        if os.path.exists(sip_dir):
+            return sip_dir
+        
+        return os.path.join(sys.prefix, 'sip', 'PyQt5')
 
     def _sip_compile(self, sip_bin, source, sbf):
         cmd = [sip_bin]
@@ -210,9 +217,7 @@ class build_ext(sipdistutils.build_ext):
 
         return super().swig_sources(sources, extension)
 
-    def build_extension(self, ext):
-        # /usr/bin/rcc -name ads ../../Qt-Advanced-Docking-System/src/ads.qrc -o release/qrc_ads.cpp
-        
+    def build_extension(self, ext):        
         cppsources = [source for source in ext.sources if source.endswith(".cpp")]
         headersources = ['src/DockAreaTitleBar_p.h']
 
