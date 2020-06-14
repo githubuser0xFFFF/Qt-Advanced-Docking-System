@@ -309,7 +309,7 @@ public:
 	 * Ensures equal distribution of the sizes of a splitter if an dock widget
 	 * is inserted from code
 	 */
-	void adjustSplitterSizesOnInsertion(QSplitter* Splitter, bool LastAppend = true, qreal LastRatio = 1.0)
+	void adjustSplitterSizesOnInsertion(QSplitter* Splitter, bool LastAppend, qreal LastRatio)
 	{
 		int AreaSize = (Splitter->orientation() == Qt::Horizontal) ? Splitter->width() : Splitter->height();
 		auto SplitterSizes = Splitter->sizes();
@@ -318,7 +318,7 @@ public:
 		for(int i = 0; i < SplitterSizes.size(); i++)
 		{
 			if( (LastAppend && i == SplitterSizes.size()-1) ||
-			(!LastAppend && i == 0) )
+			    (!LastAppend && i == 0) )
 			{
 				SplitterSizes[i] = AreaSize * LastRatio / TotRatio;
 			}
