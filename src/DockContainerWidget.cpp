@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QXmlStreamWriter>
 #include <QAbstractButton>
+#include <QTimeLine>
 
 #include "DockManager.h"
 #include "DockAreaWidget.h"
@@ -308,18 +309,35 @@ public:
 	 * Ensures equal distribution of the sizes of a splitter if an dock widget
 	 * is inserted from code
 	 */
-	void adjustSplitterSizesOnInsertion(QSplitter* Splitter, qreal LastRatio = 1.0)
+	void adjustSplitterSizesOnInsertion(QSplitter* Splitter, bool LastAppend = true, qreal LastRatio = 1.0)
 	{
 		int AreaSize = (Splitter->orientation() == Qt::Horizontal) ? Splitter->width() : Splitter->height();
 		auto SplitterSizes = Splitter->sizes();
 
 		qreal TotRatio = SplitterSizes.size() - 1.0 + LastRatio;
-		for(int i = 0; i < SplitterSizes.size() -1; i++)
+		for(int i = 0; i < SplitterSizes.size(); i++)
 		{
-			SplitterSizes[i] = AreaSize / TotRatio;
+			if( (LastAppend && i == SplitterSizes.size()-1) ||
+			(!LastAppend && i == 0) )
+			{
+				SplitterSizes[i] = AreaSize * LastRatio / TotRatio;
+			}
+			else {
+				SplitterSizes[i] = AreaSize / TotRatio;
+			}
 		}
-		SplitterSizes.back() = AreaSize * LastRatio / TotRatio;
 		Splitter->setSizes(SplitterSizes);
+	}
+
+	void animatedAdjustSplitterSizes(QSplitter* Splitter, bool LastAppend)
+	{
+		adjustSplitterSizesOnInsertion(Splitter, LastAppend, 0);
+
+		QTimeLine *splitter_animation = new QTimeLine(200, Splitter);
+		splitter_animation->setFrameRange(0, 10);
+		QObject::connect(splitter_animation, &QTimeLine::valueChanged, Splitter,
+			[=](qreal val) { adjustSplitterSizesOnInsertion(Splitter, LastAppend, val); } );
+		splitter_animation->start();
 	}
 
 
@@ -1062,6 +1080,7 @@ void DockContainerWidgetPrivate::addDockArea(CDockAreaWidget* NewDockArea, DockW
 		{
 			Splitter->show();
 		}
+		animatedAdjustSplitterSizes(Splitter, InsertParam.append());
 	}
 	else
 	{
@@ -1167,7 +1186,7 @@ CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetA
 		// do nothing, if flag is not enabled
 		if (CDockManager::testConfigFlag(CDockManager::EqualSplitOnInsertion))
 		{
-			adjustSplitterSizesOnInsertion(TargetAreaSplitter);
+			animatedAdjustSplitterSizes(TargetAreaSplitter, InsertParam.append());
 		}
 
 	}
@@ -1183,7 +1202,7 @@ CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetA
 		if (CDockManager::testConfigFlag(CDockManager::EqualSplitOnInsertion))
 		{
 			TargetAreaSplitter->setSizes(TargetAreaSizes);
-			adjustSplitterSizesOnInsertion(NewSplitter);
+			animatedAdjustSplitterSizes(NewSplitter, InsertParam.append());
 		}
 	}
 
