@@ -45,7 +45,7 @@ namespace ads
 {
 
 using tTabLabel = CElidingLabel;
-using tCloseButton = QPushButton;
+using tCloseButton = QToolButton;
 
 /**
  * @brief Private data class of public interface CFloatingWidgetTitleBar
@@ -81,7 +81,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 
 	CloseButton = new tCloseButton();
 	CloseButton->setObjectName("floatingTitleCloseButton");
-	CloseButton->setFlat(true);
+    CloseButton->setAutoRaise(true);
 
 	// The standard icons do does not look good on high DPI screens
 	QIcon CloseIcon;
@@ -115,7 +115,7 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 
 //============================================================================
 CFloatingWidgetTitleBar::CFloatingWidgetTitleBar(CFloatingDockContainer *parent) :
-	QWidget(parent),
+    QFrame(parent),
 	d(new FloatingWidgetTitleBarPrivate(this))
 {
 	d->FloatingWidget = parent;
@@ -172,16 +172,25 @@ void CFloatingWidgetTitleBar::mouseMoveEvent(QMouseEvent *ev)
 	Super::mouseMoveEvent(ev);
 }
 
+
 //============================================================================
 void CFloatingWidgetTitleBar::enableCloseButton(bool Enable)
 {
 	d->CloseButton->setEnabled(Enable);
 }
 
+
 //============================================================================
 void CFloatingWidgetTitleBar::setTitle(const QString &Text)
 {
 	d->TitleLabel->setText(Text);
+}
+
+
+//============================================================================
+void CFloatingWidgetTitleBar::updateStyle()
+{
+    internal::repolishStyle(this, internal::RepolishDirectChildren);
 }
 
 } // namespace ads

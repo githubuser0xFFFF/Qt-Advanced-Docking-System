@@ -34,7 +34,7 @@
 
 #include "ads_globals.h"
 
-class QAbstractButton;
+QT_FORWARD_DECLARE_CLASS(QAbstractButton)
 
 namespace ads
 {
@@ -86,7 +86,7 @@ protected:
 	/**
 	 * Show context menu
 	 */
-	virtual void contextMenuEvent(QContextMenuEvent *event);
+	virtual void contextMenuEvent(QContextMenuEvent *event) override;
 
 public slots:
 	/**
@@ -155,6 +155,7 @@ signals:
 	 */
 	void tabBarClicked(int index);
 }; // class name
+
 }
  // namespace ads
 //-----------------------------------------------------------------------------

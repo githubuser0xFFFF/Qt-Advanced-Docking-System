@@ -136,6 +136,10 @@ public:
 			m_CurrentWidget = nullptr;
 			m_CurrentIndex = -1;
 		}
+		else if (indexOf(Widget) < m_CurrentIndex)
+		{
+			--m_CurrentIndex;
+		}
 		m_Widgets.removeOne(Widget);
 	}
 
@@ -413,6 +417,7 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	bool Activate)
 {
 	d->ContentsLayout->insertWidget(index, DockWidget);
+	DockWidget->setDockArea(this);
 	DockWidget->tabWidget()->setDockAreaWidget(this);
 	auto TabWidget = DockWidget->tabWidget();
 	// Inserting the tab will change the current index which in turn will
@@ -428,7 +433,12 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	{
 		setCurrentIndex(index);
 	}
-	DockWidget->setDockArea(this);
+	// If this dock area is hidden, then we need to make it visible again
+	// by calling DockWidget->toggleViewInternal(true);
+	if (!this->isVisible() && d->ContentsLayout->count() > 1 && !dockManager()->isRestoringState())
+	{
+		DockWidget->toggleViewInternal(true);
+	}
 	d->updateTitleBarButtonStates();
 }
 
@@ -448,7 +458,7 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 	{
 		setCurrentDockWidget(NextOpenDockWidget);
 	}
-	else if (d->ContentsLayout->isEmpty() && DockContainer->dockAreaCount() > 1)
+	else if (d->ContentsLayout->isEmpty() && DockContainer->dockAreaCount() >= 1)
 	{
         ADS_PRINT("Dock Area empty");
 		DockContainer->removeDockArea(this);
@@ -725,7 +735,7 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		return;
 	}
 
-    if (CDockManager::configFlags().testFlag(CDockManager::AlwaysShowTabs))
+    if (CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
     {
         return;
     }
@@ -733,7 +743,7 @@ void CDockAreaWidget::updateTitleBarVisibility()
 	if (d->TitleBar)
 	{
 		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
-			|| CDockManager::configFlags().testFlag(CDockManager::HideSingleCentralWidgetTitleBar));
+			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
 		d->TitleBar->setVisible(!Hidden);
 	}
 }

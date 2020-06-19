@@ -31,6 +31,7 @@
 #include <QVariant>
 #include <QPainter>
 #include <QAbstractButton>
+#include <QStyle>
 
 #include "DockSplitter.h"
 #include "DockManager.h"
@@ -116,6 +117,31 @@ void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap
 	Icon.addPixmap(normalPixmap, QIcon::Normal);
 	Button->setIcon(Icon);
 #endif
+}
+
+
+//============================================================================
+void repolishStyle(QWidget* w, eRepolishChildOptions Options)
+{
+	if (!w)
+	{
+		return;
+	}
+	w->style()->unpolish(w);
+	w->style()->polish(w);
+
+	if (RepolishIgnoreChildren == Options)
+	{
+		return;
+	}
+
+	QList<QWidget*> Children = w->findChildren<QWidget*>(QString(),
+		(RepolishDirectChildren == Options) ? Qt::FindDirectChildrenOnly: Qt::FindChildrenRecursively);
+	for (auto Widget : Children)
+	{
+		Widget->style()->unpolish(Widget);
+		Widget->style()->polish(Widget);
+	}
 }
 
 } // namespace internal

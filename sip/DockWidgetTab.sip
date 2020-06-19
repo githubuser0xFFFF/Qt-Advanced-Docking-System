@@ -33,7 +33,8 @@ public:
 	bool isTitleElided() const;
 	bool isClosable() const;
 	virtual bool event(QEvent *e);
-
+	void setElideMode(Qt::TextElideMode mode);
+    void updateStyle();
 
 public slots:
 	virtual void setVisible(bool visible);
