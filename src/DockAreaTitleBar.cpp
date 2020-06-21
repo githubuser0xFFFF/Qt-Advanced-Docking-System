@@ -149,12 +149,12 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
 	internal::setButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
-	QMenu* TabsMenu = new QMenu(TabsMenuButton);
+	QMenu* LTabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
-	TabsMenu->setToolTipsVisible(true);
+	LTabsMenu->setToolTipsVisible(true);
 #endif
-	_this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
-	TabsMenuButton->setMenu(TabsMenu);
+	_this->connect(LTabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
+	TabsMenuButton->setMenu(LTabsMenu);
 	internal::setToolTip(TabsMenuButton, QObject::tr("List All Tabs"));
 	TabsMenuButton->setSizePolicy(ButtonSizePolicy);
 	Layout->addWidget(TabsMenuButton, 0);
@@ -209,17 +209,17 @@ void DockAreaTitleBarPrivate::createTabBar()
 
 
 //============================================================================
-IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState DragState)
+IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState LDragState)
 {
 	QSize Size = DockArea->size();
-	this->DragState = DragState;
+	this->DragState = LDragState;
 	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
-		(DraggingFloatingWidget != DragState);
+		(DraggingFloatingWidget != LDragState);
 	CFloatingDockContainer* FloatingDockContainer = nullptr;
-	IFloatingWidget* FloatingWidget;
+	IFloatingWidget* LFloatingWidget;
 	if (OpaqueUndocking)
 	{
-		FloatingWidget = FloatingDockContainer = new CFloatingDockContainer(DockArea);
+		LFloatingWidget = FloatingDockContainer = new CFloatingDockContainer(DockArea);
 	}
 	else
 	{
@@ -228,10 +228,10 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 		{
 			this->DragState = DraggingInactive;
 		});
-		FloatingWidget = w;
+		LFloatingWidget = w;
 	}
 
-    FloatingWidget->startFloating(Offset, Size, DragState, nullptr);
+    LFloatingWidget->startFloating(Offset, Size, LDragState, nullptr);
     if (FloatingDockContainer)
     {
 		auto TopLevelDockWidget = FloatingDockContainer->topLevelDockWidget();
@@ -241,7 +241,7 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 		}
     }
 
-	return FloatingWidget;
+	return LFloatingWidget;
 }
 
 

@@ -385,13 +385,13 @@ eDropMode DockContainerWidgetPrivate::getDropMode(const QPoint& TargetPos)
 //============================================================================
 void DockContainerWidgetPrivate::onVisibleDockAreaCountChanged()
 {
-	auto TopLevelDockArea = _this->topLevelDockArea();
+	auto LTopLevelDockArea = _this->topLevelDockArea();
 
-	if (TopLevelDockArea)
+	if (LTopLevelDockArea)
 	{
-		this->TopLevelDockArea = TopLevelDockArea;
-		TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(false || !_this->isFloating());
-		TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(false || !_this->isFloating());
+		this->TopLevelDockArea = LTopLevelDockArea;
+		LTopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(false || !_this->isFloating());
+		LTopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(false || !_this->isFloating());
 	}
 	else if (this->TopLevelDockArea)
 	{
@@ -464,15 +464,15 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 {
 	CDockContainerWidget* FloatingContainer = FloatingWidget->dockContainer();
 	auto NewDockWidgets = FloatingContainer->dockWidgets();
-	auto TopLevelDockArea = FloatingContainer->topLevelDockArea();
+	auto LTopLevelDockArea = FloatingContainer->topLevelDockArea();
 	int NewCurrentIndex = -1;
 
 	// If the floating widget contains only one single dock are, then the
 	// current dock widget of the dock area will also be the future current
 	// dock widget in the drop area.
-	if (TopLevelDockArea)
+	if (LTopLevelDockArea)
 	{
-		NewCurrentIndex = TopLevelDockArea->currentIndex();
+		NewCurrentIndex = LTopLevelDockArea->currentIndex();
 	}
 
 	for (int i = 0; i < NewDockWidgets.count(); ++i)
@@ -669,7 +669,7 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 	}
 	else
 	{
-		auto Sizes = TargetAreaSplitter->sizes();
+		//auto LSizes = TargetAreaSplitter->sizes();
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		NewSplitter->addWidget(TargetArea);

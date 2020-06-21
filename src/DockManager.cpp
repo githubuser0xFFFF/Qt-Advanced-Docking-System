@@ -561,8 +561,8 @@ QByteArray CDockManager::saveState(int version) const
 {
     QByteArray xmldata;
     QXmlStreamWriter s(&xmldata);
-    auto ConfigFlags = CDockManager::configFlags();
-	s.setAutoFormatting(ConfigFlags.testFlag(XmlAutoFormattingEnabled));
+    auto LConfigFlags = CDockManager::configFlags();
+	s.setAutoFormatting(LConfigFlags.testFlag(XmlAutoFormattingEnabled));
     s.writeStartDocument();
 		s.writeStartElement("QtAdvancedDockingSystem");
 		s.writeAttribute("Version", QString::number(CurrentVersion));
@@ -576,7 +576,7 @@ QByteArray CDockManager::saveState(int version) const
 		s.writeEndElement();
     s.writeEndDocument();
 
-    return ConfigFlags.testFlag(XmlCompressionEnabled)
+    return LConfigFlags.testFlag(XmlCompressionEnabled)
     	? qCompress(xmldata, 9) : xmldata;
 }
 

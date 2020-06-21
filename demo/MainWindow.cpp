@@ -403,10 +403,10 @@ void MainWindowPrivate::createContent()
 	TitleBar->insertWidget(Index + 1, CustomButton);
 	QObject::connect(CustomButton, &QToolButton::clicked, [=]()
 	{
-		auto DockWidget = createEditorWidget(ui.menuView);
-		DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
-		DockManager->addDockWidgetTabToArea(DockWidget, DockArea);
-		_this->connect(DockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
+		auto LDockWidget = createEditorWidget(ui.menuView);
+		LDockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+		DockManager->addDockWidgetTabToArea(LDockWidget, DockArea);
+		_this->connect(LDockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
 	});
 
 	// Test dock area docking
@@ -430,10 +430,10 @@ void MainWindowPrivate::createContent()
     }
 #endif
 
-	for (auto DockWidget : DockManager->dockWidgetsMap())
+	for (auto LDockWidget : DockManager->dockWidgetsMap())
 	{
-		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
-		_this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
+		_this->connect(LDockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
+		_this->connect(LDockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
 	}
 }
 

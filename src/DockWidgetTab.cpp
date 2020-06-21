@@ -242,7 +242,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
-	IFloatingWidget* FloatingWidget = nullptr;
+	IFloatingWidget* LFloatingWidget = nullptr;
 	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
 
@@ -252,21 +252,21 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 	QSize Size;
 	if (DockArea->dockWidgetsCount() > 1)
 	{
-		FloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
+		LFloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
 		Size = DockWidget->size();
 	}
 	else
 	{
-		FloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
+		LFloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
 		Size = DockArea->size();
 	}
 
     if (DraggingFloatingWidget == DraggingState)
     {
-        FloatingWidget->startFloating(DragStartMousePosition, Size, DraggingFloatingWidget, _this);
+        LFloatingWidget->startFloating(DragStartMousePosition, Size, DraggingFloatingWidget, _this);
     	auto Overlay = DockWidget->dockManager()->containerOverlay();
     	Overlay->setAllowedAreas(OuterDockAreas);
-    	this->FloatingWidget = FloatingWidget;
+    	this->FloatingWidget = LFloatingWidget;
     }
     else
     {

@@ -150,7 +150,7 @@ struct DockOverlayCrossPrivate
 
 	//============================================================================
 	QWidget* createDropIndicatorWidget(DockWidgetArea DockWidgetArea,
-		CDockOverlay::eMode Mode)
+		CDockOverlay::eMode LMode)
 	{
 		QLabel* l = new QLabel();
 		l->setObjectName("DockWidgetAreaLabel");
@@ -158,7 +158,7 @@ struct DockOverlayCrossPrivate
         const qreal metric = dropIndicatiorWidth(l);
 		const QSizeF size(metric, metric);
 
-		l->setPixmap(createHighDpiDropIndicatorPixmap(size, DockWidgetArea, Mode));
+		l->setPixmap(createHighDpiDropIndicatorPixmap(size, DockWidgetArea, LMode));
 		l->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 		l->setAttribute(Qt::WA_TranslucentBackground);
 		l->setProperty("dockWidgetArea", DockWidgetArea);
@@ -178,7 +178,7 @@ struct DockOverlayCrossPrivate
 
 	//============================================================================
 	QPixmap createHighDpiDropIndicatorPixmap(const QSizeF& size, DockWidgetArea DockWidgetArea,
-		CDockOverlay::eMode Mode)
+		CDockOverlay::eMode LMode)
 	{
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
@@ -239,7 +239,7 @@ struct DockOverlayCrossPrivate
 		}
 
 		QSizeF baseSize = baseRect.size();
-		if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
+		if (CDockOverlay::ModeContainerOverlay == LMode && DockWidgetArea != CenterDockWidgetArea)
 		{
 			baseRect = areaRect;
 		}
@@ -283,7 +283,7 @@ struct DockOverlayCrossPrivate
 		p.restore();
 
 		// Draw arrow for outer container drop indicators
-		if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
+		if (CDockOverlay::ModeContainerOverlay == LMode && DockWidgetArea != CenterDockWidgetArea)
 		{
 			QRectF ArrowRect;
 			ArrowRect.setSize(baseSize);
