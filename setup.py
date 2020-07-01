@@ -311,7 +311,7 @@ class build_ext(sipdistutils.build_ext):
         with open(os.path.join(self.build_lib, 'PyQtAds', 'QtAds', '__init__.py'), 'w') as f:
             f.write('from .._version import *\n')
             f.write('from .ads import ads\n')
-            for name, member in inspect.getmembers(ads.ads):
+            for name, member in sorted(inspect.getmembers(ads.ads)):
                 if not name.startswith('_'):
                     f.write('{0} = ads.{0}\n'.format(name))
 
