@@ -168,7 +168,11 @@ class build_ext(sipdistutils.build_ext):
         return os.path.join(sys.prefix, 'sip', 'PyQt5')
 
     def _sip_compile(self, sip_bin, source, sbf):
-        pyi = os.path.join(self.build_lib, "PyQtAds", "QtAds", "ads.pyi")
+        target_dir = os.path.dirname(__file__) if self.inplace else self.build_lib
+        pyi = os.path.join(target_dir, "PyQtAds", "QtAds", "ads.pyi")
+        if not os.path.exists(os.path.dirname(pyi)):
+            os.makedirs(os.path.dirname(pyi))
+        
         cmd = [sip_bin]
         if hasattr(self, 'sip_opts'):
             cmd += self.sip_opts
