@@ -50,6 +50,8 @@
 #include "DockOverlay.h"
 #include "DockManager.h"
 #include "IconProvider.h"
+#include "DockAreaTitleBar.h"
+#include "DockAreaTabBar.h"
 
 #include <iostream>
 
@@ -600,6 +602,8 @@ void CDockWidgetTab::setVisible(bool visible)
 void CDockWidgetTab::setText(const QString& title)
 {
 	d->TitleLabel->setText(title);
+	if (d->DockArea)
+		d->DockArea->titleBar()->tabBar()->updateGeometry();
 }
 
 
