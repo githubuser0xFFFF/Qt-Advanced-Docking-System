@@ -381,7 +381,9 @@ void MainWindowPrivate::createContent()
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
 
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget());
+	DockWidget = createLongTextLabelDockWidget();
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetFocusable, false);
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 	auto FileSystemWidget = createFileSystemTreeDockWidget();
 	FileSystemWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	appendFeaturStringToWindowTitle(FileSystemWidget);
