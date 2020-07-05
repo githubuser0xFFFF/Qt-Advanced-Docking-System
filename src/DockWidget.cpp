@@ -286,6 +286,8 @@ void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 
 	d->Widget = widget;
 	d->Widget->setProperty("dockWidgetContent", true);
+
+	internal::repolishStyle(widget, internal::RepolishDirectChildren);
 }
 
 
