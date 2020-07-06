@@ -456,6 +456,11 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
 		 updateGeometry();
 		 break;
 
+    // Setting the text of a tab will cause a LayoutRequest event
+    case QEvent::LayoutRequest:
+         updateGeometry();
+         break;
+
 	default:
 		break;
 	}

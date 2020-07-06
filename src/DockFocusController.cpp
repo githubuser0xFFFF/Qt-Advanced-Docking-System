@@ -103,6 +103,11 @@ DockFocusControllerPrivate::DockFocusControllerPrivate(
 //============================================================================
 void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 {
+	if (!DockWidget->features().testFlag(CDockWidget::DockWidgetFocusable))
+	{
+		return;
+	}
+
 	CDockAreaWidget* NewFocusedDockArea = nullptr;
 	if (FocusedDockWidget)
 	{

@@ -200,7 +200,7 @@ public:
 		NonOpaqueWithWindowFrame = DefaultNonOpaqueConfig
 		              | DragPreviewHasWindowFrame ///< the default configuration for non opaque operations that show a real window with frame
 	};
-	Q_DECLARE_FLAGS(ConfigFlags, eConfigFlag)
+	Q_DECLARE_FLAGS(m_ConfigFlags, eConfigFlag)
 
 	/**
 	 * Default Constructor.
@@ -219,14 +219,14 @@ public:
 	/**
 	 * This function returns the global configuration flags
 	 */
-	static ConfigFlags configFlags();
+	static m_ConfigFlags configFlags();
 
 	/**
 	 * Sets the global configuration flags for the whole docking system.
 	 * Call this function before you create the dock manager and before
 	 * your create the first dock widget.
 	 */
-	static void setConfigFlags(const ConfigFlags Flags);
+	static void setConfigFlags(const m_ConfigFlags Flags);
 
 	/**
 	 * Set a certain config flag.

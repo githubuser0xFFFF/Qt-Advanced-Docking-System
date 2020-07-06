@@ -70,12 +70,12 @@ struct DockAreaTitleBarPrivate
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
 	bool MenuOutdated = true;
-	QMenu* TabsMenu;
+	QMenu* m_TabsMenu;
 	QList<tTitleBarButton*> DockWidgetActionsButtons;
 
 	QPoint DragStartMousePos;
-	eDragState DragState = DraggingInactive;
-	IFloatingWidget* FloatingWidget = nullptr;
+	eDragState m_DragState = DraggingInactive;
+	IFloatingWidget* m_FloatingWidget = nullptr;
 
 
 	/**
@@ -115,7 +115,7 @@ struct DockAreaTitleBarPrivate
 	 */
 	bool isDraggingState(eDragState dragState) const
 	{
-		return this->DragState == dragState;
+		return this->m_DragState == dragState;
 	}
 
 
@@ -149,12 +149,12 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
 	internal::setButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
-	QMenu* LTabsMenu = new QMenu(TabsMenuButton);
+	QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
-	LTabsMenu->setToolTipsVisible(true);
+	TabsMenu->setToolTipsVisible(true);
 #endif
-	_this->connect(LTabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
-	TabsMenuButton->setMenu(LTabsMenu);
+	_this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
+	TabsMenuButton->setMenu(TabsMenu);
 	internal::setToolTip(TabsMenuButton, QObject::tr("List All Tabs"));
 	TabsMenuButton->setSizePolicy(ButtonSizePolicy);
 	Layout->addWidget(TabsMenuButton, 0);
@@ -209,29 +209,29 @@ void DockAreaTitleBarPrivate::createTabBar()
 
 
 //============================================================================
-IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState LDragState)
+IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState DragState)
 {
 	QSize Size = DockArea->size();
-	this->DragState = LDragState;
+	this->m_DragState = DragState;
 	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
-		(DraggingFloatingWidget != LDragState);
+		(DraggingFloatingWidget != DragState);
 	CFloatingDockContainer* FloatingDockContainer = nullptr;
-	IFloatingWidget* LFloatingWidget;
+	IFloatingWidget* FloatingWidget;
 	if (OpaqueUndocking)
 	{
-		LFloatingWidget = FloatingDockContainer = new CFloatingDockContainer(DockArea);
+		FloatingWidget = FloatingDockContainer = new CFloatingDockContainer(DockArea);
 	}
 	else
 	{
 		auto w = new CFloatingDragPreview(DockArea);
 		QObject::connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
 		{
-			this->DragState = DraggingInactive;
+			this->m_DragState = DraggingInactive;
 		});
-		LFloatingWidget = w;
+		FloatingWidget = w;
 	}
 
-    LFloatingWidget->startFloating(Offset, Size, LDragState, nullptr);
+    FloatingWidget->startFloating(Offset, Size, DragState, nullptr);
     if (FloatingDockContainer)
     {
 		auto TopLevelDockWidget = FloatingDockContainer->topLevelDockWidget();
@@ -241,14 +241,14 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 		}
     }
 
-	return LFloatingWidget;
+	return FloatingWidget;
 }
 
 
 //============================================================================
 void DockAreaTitleBarPrivate::startFloating(const QPoint& Offset)
 {
-	FloatingWidget = makeAreaFloating(Offset, DraggingFloatingWidget);
+	m_FloatingWidget = makeAreaFloating(Offset, DraggingFloatingWidget);
 }
 
 
@@ -465,7 +465,7 @@ void CDockAreaTitleBar::mousePressEvent(QMouseEvent* ev)
 	{
 		ev->accept();
 		d->DragStartMousePos = ev->pos();
-		d->DragState = DraggingMousePressed;
+		d->m_DragState = DraggingMousePressed;
 
 		if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 		{
@@ -484,12 +484,12 @@ void CDockAreaTitleBar::mouseReleaseEvent(QMouseEvent* ev)
 	{
         ADS_PRINT("CDockAreaTitleBar::mouseReleaseEvent");
 		ev->accept();
-		auto CurrentDragState = d->DragState;
+		auto CurrentDragState = d->m_DragState;
 		d->DragStartMousePos = QPoint();
-		d->DragState = DraggingInactive;
+		d->m_DragState = DraggingInactive;
 		if (DraggingFloatingWidget == CurrentDragState)
 		{
-			d->FloatingWidget->finishDragging();
+			d->m_FloatingWidget->finishDragging();
 		}
 
 		return;
@@ -504,14 +504,14 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 	Super::mouseMoveEvent(ev);
 	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
 	{
-		d->DragState = DraggingInactive;
+		d->m_DragState = DraggingInactive;
 		return;
 	}
 
     // move floating window
     if (d->isDraggingState(DraggingFloatingWidget))
     {
-        d->FloatingWidget->moveFloating();
+        d->m_FloatingWidget->moveFloating();
         return;
     }
 
@@ -577,12 +577,12 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 	}
 
 	QMenu Menu(this);
-	auto Action = Menu.addAction(tr("Detach Area"), this, SLOT(onUndockButtonClicked()));
+	auto Action = Menu.addAction(tr("Detach Group"), this, SLOT(onUndockButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
 	Menu.addSeparator();
-	Action = Menu.addAction(tr("Close Area"), this, SLOT(onCloseButtonClicked()));
+	Action = Menu.addAction(tr("Close Group"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
-	Menu.addAction(tr("Close Other Areas"), d->DockArea, SLOT(closeOtherAreas()));
+	Menu.addAction(tr("Close Other Groups"), d->DockArea, SLOT(closeOtherAreas()));
 	Menu.exec(ev->globalPos());
 }
 

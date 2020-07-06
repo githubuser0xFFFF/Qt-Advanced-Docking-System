@@ -88,7 +88,7 @@ enum eStateFileVersion
 	CurrentVersion = Version1//!< CurrentVersion
 };
 
-static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
+static CDockManager::m_ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
 
 /**
  * Private data class of CDockManager class (pimpl)
@@ -561,8 +561,8 @@ QByteArray CDockManager::saveState(int version) const
 {
     QByteArray xmldata;
     QXmlStreamWriter s(&xmldata);
-    auto LConfigFlags = CDockManager::configFlags();
-	s.setAutoFormatting(LConfigFlags.testFlag(XmlAutoFormattingEnabled));
+    auto ConfigFlags = CDockManager::configFlags();
+	s.setAutoFormatting(ConfigFlags.testFlag(XmlAutoFormattingEnabled));
     s.writeStartDocument();
 		s.writeStartElement("QtAdvancedDockingSystem");
 		s.writeAttribute("Version", QString::number(CurrentVersion));
@@ -576,7 +576,7 @@ QByteArray CDockManager::saveState(int version) const
 		s.writeEndElement();
     s.writeEndDocument();
 
-    return LConfigFlags.testFlag(XmlCompressionEnabled)
+    return ConfigFlags.testFlag(XmlCompressionEnabled)
     	? qCompress(xmldata, 9) : xmldata;
 }
 
@@ -708,6 +708,7 @@ void CDockManager::removeDockWidget(CDockWidget* Dockwidget)
 	emit dockWidgetAboutToBeRemoved(Dockwidget);
 	d->DockWidgetsMap.remove(Dockwidget->objectName());
 	CDockContainerWidget::removeDockWidget(Dockwidget);
+	Dockwidget->setDockManager(nullptr);
 	emit dockWidgetRemoved(Dockwidget);
 }
 
@@ -875,14 +876,14 @@ int CDockManager::startDragDistance()
 
 
 //===========================================================================
-CDockManager::ConfigFlags CDockManager::configFlags()
+CDockManager::m_ConfigFlags CDockManager::configFlags()
 {
 	return StaticConfigFlags;
 }
 
 
 //===========================================================================
-void CDockManager::setConfigFlags(const ConfigFlags Flags)
+void CDockManager::setConfigFlags(const m_ConfigFlags Flags)
 {
 	StaticConfigFlags = Flags;
 }

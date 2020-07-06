@@ -72,7 +72,7 @@ struct DockWidgetTabPrivate
 	bool IsActiveTab = false;
 	CDockAreaWidget* DockArea = nullptr;
 	eDragState DragState = DraggingInactive;
-	IFloatingWidget* FloatingWidget = nullptr;
+	IFloatingWidget* m_FloatingWidget = nullptr;
 	QIcon Icon;
 	QAbstractButton* CloseButton = nullptr;
 	QSpacerItem* IconTextSpacer;
@@ -242,7 +242,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
-	IFloatingWidget* LFloatingWidget = nullptr;
+	IFloatingWidget* FloatingWidget = nullptr;
 	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
 		(DraggingFloatingWidget != DraggingState);
 
@@ -252,21 +252,21 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 	QSize Size;
 	if (DockArea->dockWidgetsCount() > 1)
 	{
-		LFloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
+		FloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
 		Size = DockWidget->size();
 	}
 	else
 	{
-		LFloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
+		FloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
 		Size = DockArea->size();
 	}
 
     if (DraggingFloatingWidget == DraggingState)
     {
-        LFloatingWidget->startFloating(DragStartMousePosition, Size, DraggingFloatingWidget, _this);
+        FloatingWidget->startFloating(DragStartMousePosition, Size, DraggingFloatingWidget, _this);
     	auto Overlay = DockWidget->dockManager()->containerOverlay();
     	Overlay->setAllowedAreas(OuterDockAreas);
-    	this->FloatingWidget = LFloatingWidget;
+    	this->m_FloatingWidget = FloatingWidget;
     }
     else
     {
@@ -336,7 +336,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			break;
 
 		case DraggingFloatingWidget:
-			 d->FloatingWidget->finishDragging();
+			 d->m_FloatingWidget->finishDragging();
 			 break;
 
 		default:; // do nothing
@@ -360,7 +360,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     // move floating window
     if (d->isDraggingState(DraggingFloatingWidget))
     {
-        d->FloatingWidget->moveFloating();
+        d->m_FloatingWidget->moveFloating();
         Super::mouseMoveEvent(ev);
         return;
     }

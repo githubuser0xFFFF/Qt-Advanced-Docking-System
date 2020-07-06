@@ -136,7 +136,7 @@ public:
 	bool isFloating = false;
 	CDockAreaWidget* LastAddedAreaCache[5];
 	int VisibleDockAreaCount = -1;
-	CDockAreaWidget* TopLevelDockArea = nullptr;
+	CDockAreaWidget* m_TopLevelDockArea = nullptr;
 
 	/**
 	 * Private data constructor
@@ -385,19 +385,19 @@ eDropMode DockContainerWidgetPrivate::getDropMode(const QPoint& TargetPos)
 //============================================================================
 void DockContainerWidgetPrivate::onVisibleDockAreaCountChanged()
 {
-	auto LTopLevelDockArea = _this->topLevelDockArea();
+	auto TopLevelDockArea = _this->topLevelDockArea();
 
-	if (LTopLevelDockArea)
+	if (TopLevelDockArea)
 	{
-		this->TopLevelDockArea = LTopLevelDockArea;
-		LTopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(false || !_this->isFloating());
-		LTopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(false || !_this->isFloating());
+		this->m_TopLevelDockArea = TopLevelDockArea;
+		TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(false || !_this->isFloating());
+		TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(false || !_this->isFloating());
 	}
-	else if (this->TopLevelDockArea)
+	else if (this->m_TopLevelDockArea)
 	{
-		this->TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(true);
-		this->TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
-		this->TopLevelDockArea = nullptr;
+		this->m_TopLevelDockArea->titleBarButton(TitleBarButtonUndock)->setVisible(true);
+		this->m_TopLevelDockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
+		this->m_TopLevelDockArea = nullptr;
 	}
 }
 
@@ -464,15 +464,15 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 {
 	CDockContainerWidget* FloatingContainer = FloatingWidget->dockContainer();
 	auto NewDockWidgets = FloatingContainer->dockWidgets();
-	auto LTopLevelDockArea = FloatingContainer->topLevelDockArea();
+	auto TopLevelDockArea = FloatingContainer->topLevelDockArea();
 	int NewCurrentIndex = -1;
 
 	// If the floating widget contains only one single dock are, then the
 	// current dock widget of the dock area will also be the future current
 	// dock widget in the drop area.
-	if (LTopLevelDockArea)
+	if (TopLevelDockArea)
 	{
-		NewCurrentIndex = LTopLevelDockArea->currentIndex();
+		NewCurrentIndex = TopLevelDockArea->currentIndex();
 	}
 
 	for (int i = 0; i < NewDockWidgets.count(); ++i)
@@ -669,7 +669,6 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 	}
 	else
 	{
-		//auto LSizes = TargetAreaSplitter->sizes();
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		NewSplitter->addWidget(TargetArea);
@@ -1319,9 +1318,9 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 	internal::hideEmptyParentSplitters(Splitter);
 
 	// Remove this area from cached areas
-	const auto& cache = d->LastAddedAreaCache;
-	if (auto p = std::find(cache, cache+sizeof(cache)/sizeof(cache[0]), area)) {
-		d->LastAddedAreaCache[std::distance(cache, p)] = nullptr;
+	auto p = std::find(std::begin(d->LastAddedAreaCache), std::end(d->LastAddedAreaCache), area);
+	if (p != std::end(d->LastAddedAreaCache)) {
+		*p = nullptr;
 	}
 
 	// If splitter has more than 1 widgets, we are finished and can leave
@@ -1516,16 +1515,6 @@ void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, 
 	// If there was a top level widget before the drop, then it is not top
 	// level widget anymore
 	CDockWidget::emitTopLevelEventForWidget(SingleDockWidget, false);
-	CDockWidget* DockWidget = qobject_cast<CDockWidget*>(Widget);
-	if (!DockWidget)
-	{
-		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(Widget);
-		auto OpenDockWidgets = DockArea->openedDockWidgets();
-		if (OpenDockWidgets.count() == 1)
-		{
-			DockWidget = OpenDockWidgets[0];
-		}
-	}
 
 	window()->activateWindow();
 	d->DockManager->notifyWidgetOrAreaRelocation(Widget);
