@@ -84,6 +84,7 @@ struct DockWidgetPrivate
 	bool IsFloatingTopLevel = false;
 	QList<QAction*> TitleBarActions;
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
+    CDockWidget::eResizeMode ResizeMode = CDockWidget::ResizeAll;
 
 	/**
 	 * Private data constructor
@@ -458,6 +459,19 @@ void CDockWidget::setToggleViewActionMode(eToggleViewActionMode Mode)
 void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
 {
 	d->MinimumSizeHintMode = Mode;
+}
+
+
+//============================================================================
+CDockWidget::eResizeMode CDockWidget::resizeMode()
+{
+    return d->ResizeMode;
+}
+
+//============================================================================
+void CDockWidget::setResizeMode(eResizeMode Mode)
+{
+    d->ResizeMode = Mode;
 }
 
 

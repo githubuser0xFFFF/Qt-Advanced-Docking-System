@@ -208,6 +208,23 @@ public:
 
 
     /**
+     * The mode of resize that configures in which direction a DockWidget can be resized.
+     * By default a DockWidget can be resized in both directions (horizontal and vertical).
+     * If set to resize only horizontal or only vertical or not to resize at all the DockWidget 
+     * if being the only DockWidget in an DockAreaWidget will cause the corresponding
+     * splitter handle to be disabled and will not allow the DockWidget to resize in the respective direction.
+     */
+    enum eResizeMode
+    {
+        ResizeHorizontal = 0x01,///< dock widget can stretch forizaontally
+        ResizeVertical = 0x02,///< dock widget can stretch vertically
+        ResizeAll = ResizeHorizontal | ResizeVertical,
+        NoResize = 0x00
+    };
+    Q_DECLARE_FLAGS(eResizeModes, eResizeMode)
+
+
+    /**
      * This mode configures the behavior of the toggle view action.
      * If the mode if ActionModeToggle, then the toggle view action is
      * a checkable action to show / hide the dock widget. If the mode
@@ -359,6 +376,19 @@ public:
      * \see eMinimumSizeHintMode for a detailed description
      */
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
+    
+    /**
+     * Returns the resize mode of the DockWidget defining 
+     * in which direction the DockWidget can be resized (if the only DockWidget in 
+     * DockAreaWidget)
+     */
+    eResizeMode resizeMode();
+
+    /**
+     * Sets the dock widget resize mode defining in which direction the dock widget
+     * can be resized if it is the only dock widget in it's dock area widget.
+     */
+    void setResizeMode(eResizeMode Mode);
 
     /**
      * Sets the dock widget icon that is shown in tabs and in toggle view

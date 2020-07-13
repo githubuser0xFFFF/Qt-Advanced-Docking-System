@@ -277,6 +277,21 @@ public:
 	 */
 	CDockAreaTitleBar* titleBar() const;
 
+    /**
+      * Sets titleBar visible or hidden
+      */
+    void setTitleBarVisible(bool visible);
+
+    /**
+     * Returns true if title bar for this area is visible.
+     */
+    bool isTitleBarVisible();
+
+	/**
+	 * Returns resize mode for the dock area widget based on visible dock widgets.
+	 */
+    CDockWidget::eResizeMode resizeMode();
+
 public slots:
 	/**
 	 * This activates the tab for the given tab index.

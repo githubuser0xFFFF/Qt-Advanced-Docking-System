@@ -250,6 +250,7 @@ struct DockAreaWidgetPrivate
 	CDockAreaTitleBar*	TitleBar		= nullptr;
 	CDockManager*		DockManager		= nullptr;
 	bool UpdateTitleBarButtons = false;
+    bool TitleBarVisible = true;
 	DockWidgetAreas		AllowedAreas	= AllDockAreas;
 	QSize MinSizeHint;
 
@@ -745,7 +746,7 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 	if (d->TitleBar)
 	{
-		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
+        bool Hidden = !d->TitleBarVisible || Container->hasTopLevelDockWidget() && (Container->isFloating()
 			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
 		d->TitleBar->setVisible(!Hidden);
 	}
@@ -900,6 +901,34 @@ CDockAreaTitleBar* CDockAreaWidget::titleBar() const
 	return d->TitleBar;
 }
 
+//============================================================================
+void CDockAreaWidget::setTitleBarVisible(bool visible)
+{
+    if(visible==d->TitleBarVisible)
+    {
+        return;
+    }
+
+    d->TitleBarVisible=visible;
+    updateTitleBarVisibility();
+}
+
+//============================================================================
+bool CDockAreaWidget::isTitleBarVisible()
+{
+    return d->TitleBarVisible;
+}
+
+//============================================================================
+CDockWidget::eResizeMode CDockAreaWidget::resizeMode()
+{
+    auto OpenDockWidgets = openedDockWidgets();
+    if(OpenDockWidgets.count() != 1)
+    {
+        return CDockWidget::eResizeMode::ResizeAll;
+    }
+    return OpenDockWidgets[0]->resizeMode();
+}
 
 //============================================================================
 QSize CDockAreaWidget::minimumSizeHint() const

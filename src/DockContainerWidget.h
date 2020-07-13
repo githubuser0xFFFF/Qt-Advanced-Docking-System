@@ -134,16 +134,16 @@ protected:
 	 */
 	CDockAreaWidget* lastAddedDockAreaWidget(DockWidgetArea area) const;
 
-	/**
-	 * If hasSingleVisibleDockWidget() returns true, this function returns the
-	 * one and only visible dock widget. Otherwise it returns a nullptr.
-	 */
-	CDockWidget* topLevelDockWidget() const;
+    /**
+     * If hasSingleVisibleDockWidget() returns true, this function returns the
+     * one and only visible dock widget. Otherwise it returns a nullptr.
+     */
+    CDockWidget* topLevelDockWidget() const;
 
-	/**
-	 * Returns the top level dock area.
-	 */
-	CDockAreaWidget* topLevelDockArea() const;
+    /**
+     * Returns the top level dock area.
+     */
+    CDockAreaWidget* topLevelDockArea() const;
 
     /**
      * This function returns a list of all dock widgets in this floating widget.
@@ -154,6 +154,12 @@ protected:
      * dock widgets returned from all dock areas.
      */
     QList<CDockWidget*> dockWidgets() const;
+
+	/**
+	 * This finction forces the dock container widget to update handles of splitters
+	 * based on resize modes of dock widgets aontained in the container.
+	 */
+    void updateSplitterHandles(QSplitter* splitter);
 
 public:
 	/**
