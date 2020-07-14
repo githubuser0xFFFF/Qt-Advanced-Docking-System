@@ -707,15 +707,18 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 
 
 //============================================================================
-void DockContainerWidgetPrivate::updateSplitterHandles(QSplitter* splitter)
+void DockContainerWidgetPrivate::updateSplitterHandles( QSplitter* splitter )
 {
-    for (int index = 1; index<splitter->count(); index++)
-    {
-        CDockAreaWidget* area1 = dynamic_cast<CDockAreaWidget*>(splitter->widget(index-1));
-        CDockAreaWidget* area2 = dynamic_cast<CDockAreaWidget*>(splitter->widget(index));
-        bool handleDisabled = isAreaFixedInSplitter(splitter, area1) || isAreaFixedInSplitter(splitter, area2 );
-        splitter->handle(index)->setEnabled(!handleDisabled);
-    }
+	if( splitter )
+	{
+		for( int index = 1; index < splitter->count(); index++ )
+		{
+			CDockAreaWidget* area1 = dynamic_cast< CDockAreaWidget* >( splitter->widget( index - 1 ) );
+			CDockAreaWidget* area2 = dynamic_cast< CDockAreaWidget* >( splitter->widget( index ) );
+			bool handleDisabled = isAreaFixedInSplitter( splitter, area1 ) || isAreaFixedInSplitter( splitter, area2 );
+			splitter->handle( index )->setEnabled( !handleDisabled );
+		}
+	}
 }
 
 
@@ -1427,6 +1430,7 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 	}
 
 	delete Splitter;
+	Splitter = nullptr;
 
 emitAndExit:
     updateSplitterHandles(Splitter);
