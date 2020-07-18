@@ -251,6 +251,7 @@ struct DockAreaWidgetPrivate
 	CDockManager*		DockManager		= nullptr;
 	bool UpdateTitleBarButtons = false;
 	DockWidgetAreas		AllowedAreas	= AllDockAreas;
+	bool HideSingleWidgetTitleBar		= false;
 	QSize MinSizeHint;
 
 	/**
@@ -745,8 +746,14 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 	if (d->TitleBar)
 	{
-		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
-			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
+		bool Hidden = (
+					Container->hasTopLevelDockWidget() && (Container->isFloating()
+						|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))
+					)
+				||
+					(
+						d->HideSingleWidgetTitleBar && dockWidgetsCount() == 1
+					);
 		d->TitleBar->setVisible(!Hidden);
 	}
 }
@@ -859,6 +866,14 @@ DockWidgetAreas CDockAreaWidget::allowedAreas() const
 {
 	return d->AllowedAreas;
 }
+
+//============================================================================
+void CDockAreaWidget::setHideSingleWidgetTitleBar(bool hide)
+{
+	d->HideSingleWidgetTitleBar = hide;
+	updateTitleBarVisibility();
+}
+
 
 //============================================================================
 QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
