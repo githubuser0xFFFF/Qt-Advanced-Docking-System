@@ -577,7 +577,7 @@ signals:
      * This signal is emitted when the features property changes.
      * The features parameter gives the new value of the property.
      */
-    void featuresChanged(DockWidgetFeatures features);
+    void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 }; // class DockWidget
 }
  // namespace ads
