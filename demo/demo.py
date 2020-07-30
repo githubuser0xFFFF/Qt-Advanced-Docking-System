@@ -313,6 +313,7 @@ class MainWindow(MainWindowUI, MainWindowBase):
         
     def closeEvent(self, event: QCloseEvent):
         self.save_state()
+        self.dock_manager.deleteLater()
         super().closeEvent(event)
         
     def on_actionSaveState_triggered(self, state: bool):
