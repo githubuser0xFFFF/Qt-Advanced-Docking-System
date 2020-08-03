@@ -108,6 +108,7 @@ struct DockManagerPrivate
 	bool RestoringState = false;
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
+    CDockWidget* CentralWidget = nullptr;
 
 	/**
 	 * Private data constructor
@@ -125,7 +126,7 @@ struct DockManagerPrivate
 	 */
 	bool restoreStateFromXml(const QByteArray &state, int version, bool Testing = internal::Restore);
 
-	/**
+    /**
 	 * Restore state
 	 */
 	bool restoreState(const QByteArray &state, int version);
@@ -722,8 +723,8 @@ QMap<QString, CDockWidget*> CDockManager::dockWidgetsMap() const
 //============================================================================
 void CDockManager::addPerspective(const QString& UniquePrespectiveName)
 {
-	d->Perspectives.insert(UniquePrespectiveName, saveState());
-	emit perspectiveListChanged();
+    d->Perspectives.insert(UniquePrespectiveName, saveState());
+    emit perspectiveListChanged();
 }
 
 
@@ -814,6 +815,23 @@ void CDockManager::loadPerspectives(QSettings& Settings)
 	}
 
 	Settings.endArray();
+}
+
+CDockWidget* CDockManager::centralWidget()
+{
+    return d->CentralWidget;
+}
+
+//============================================================================
+CDockAreaWidget* CDockManager::setCentralWidget(CDockWidget* widget)
+{
+    if(d->CentralWidget)
+    {
+        addDockWidget(RightDockWidgetArea, d->CentralWidget);
+    }
+
+    d->CentralWidget = widget;
+    return addDockWidget(CenterDockWidgetArea, widget);
 }
 
 //============================================================================

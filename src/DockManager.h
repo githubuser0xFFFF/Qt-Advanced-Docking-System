@@ -343,17 +343,17 @@ public:
 	 */
 	bool restoreState(const QByteArray &state, int version = 0);
 
-	/**
-	 * Saves the current perspective to the internal list of perspectives.
-	 * A perspective is the current state of the dock manager assigned
-	 * with a certain name. This makes it possible for the user,
-	 * to switch between different perspectives quickly.
-	 * If a perspective with the given name already exists, then
-	 * it will be overwritten with the new state.
-	 */
-	void addPerspective(const QString& UniquePrespectiveName);
+    /**
+     * Saves the current perspective to the internal list of perspectives.
+     * A perspective is the current state of the dock manager assigned
+     * with a certain name. This makes it possible for the user,
+     * to switch between different perspectives quickly.
+     * If a perspective with the given name already exists, then
+     * it will be overwritten with the new state.
+     */
+    void addPerspective(const QString& UniquePrespectiveName);
 
-	/**
+    /**
 	 * Removes the perspective with the given name from the list of perspectives
 	 */
 	void removePerspective(const QString& Name);
@@ -377,6 +377,18 @@ public:
 	 * Loads the perspectives from the given settings file
 	 */
 	void loadPerspectives(QSettings& Settings);
+
+    /**
+     * This function returns managers central widget or nullptr if no central widget is set.
+     */
+    CDockWidget* centralWidget();
+
+    /**
+     * Adds dockwidget into the central area and marks it as central widget.
+     * If central widget is set, it will be the only dock widget
+     * that will resize with the dock container.
+     */
+    CDockAreaWidget* setCentralWidget(CDockWidget* widget);
 
 	/**
 	 * Adds a toggle view action to the the internal view menu.

@@ -82,9 +82,11 @@ struct DockWidgetPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	bool IsFloatingTopLevel = false;
+    bool IsTitleBarVisible = true;
 	QList<QAction*> TitleBarActions;
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
-    CDockWidget::eResizeMode ResizeMode = CDockWidget::ResizeAll;
+    CDockWidget::eResizeModes ResizeMode = CDockWidget::ResizeAll;
+//    CDockWidget::eResizeModes ResizeWithSplitter = CDockWidget::eResizeMode::ResizeAll;
 
 	/**
 	 * Private data constructor
@@ -463,15 +465,33 @@ void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
 
 
 //============================================================================
-CDockWidget::eResizeMode CDockWidget::resizeMode()
+CDockWidget::eResizeModes CDockWidget::resizeMode()
 {
     return d->ResizeMode;
 }
 
 //============================================================================
-void CDockWidget::setResizeMode(eResizeMode Mode)
+void CDockWidget::setResizeMode(eResizeModes Mode)
 {
     d->ResizeMode = Mode;
+}
+
+
+////============================================================================
+//CDockWidget::eResizeModes CDockWidget::resizeWithSplitter()
+//{
+//    return d->ResizeWithSplitter;
+//}
+
+////============================================================================
+//void CDockWidget::setResizeWithSplitter(CDockWidget::eResizeModes Resize)
+//{
+//    d->ResizeWithSplitter = Resize;
+//}
+
+bool CDockWidget::isCentralWidget()
+{
+    return dockManager()->centralWidget() == this;
 }
 
 
@@ -562,8 +582,8 @@ void CDockWidget::saveState(QXmlStreamWriter& s) const
 {
 	s.writeStartElement("Widget");
 	s.writeAttribute("Name", objectName());
-	s.writeAttribute("Closed", QString::number(d->Closed ? 1 : 0));
-	s.writeEndElement();
+    s.writeAttribute("Closed", QString::number(d->Closed ? 1 : 0));
+    s.writeEndElement();
 }
 
 
@@ -804,14 +824,19 @@ void CDockWidget::setClosedState(bool Closed)
 //============================================================================
 QSize CDockWidget::minimumSizeHint() const
 {
-	if (d->MinimumSizeHintMode == CDockWidget::MinimumSizeHintFromDockWidget || !d->Widget)
-	{
-		return QSize(60, 40);
-	}
-	else
-	{
-		return d->Widget->minimumSizeHint();
-	}
+    if (d->MinimumSizeHintMode == CDockWidget::MinimumSizeHintFromDockWidget || !d->Widget)
+    {
+        QSize minSize = minimumSize();
+        if(minSize.isValid() && !minSize.isEmpty())
+        {
+            return minSize;
+        }
+        return QSize(60, 40);
+    }
+    else
+    {
+        return d->Widget->minimumSizeHint();
+    }
 }
 
 
@@ -895,6 +920,24 @@ void CDockWidget::setTitleBarActions(QList<QAction*> actions)
 QList<QAction*> CDockWidget::titleBarActions() const
 {
 	return d->TitleBarActions;
+}
+
+
+//============================================================================
+bool CDockWidget::isTitleBarVisible()
+{
+    return d->IsTitleBarVisible;
+}
+
+
+//============================================================================
+void CDockWidget::setTitleBarVisible(bool visible)
+{
+    d->IsTitleBarVisible = visible;
+    if(dockAreaWidget())
+    {
+        dockAreaWidget()->updateTitleBarVisibility();
+    }
 }
 
 

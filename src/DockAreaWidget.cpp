@@ -441,6 +441,7 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 		DockWidget->toggleViewInternal(true);
 	}
 	d->updateTitleBarButtonStates();
+    updateTitleBarVisibility();
 }
 
 
@@ -746,8 +747,8 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 	if (d->TitleBar)
 	{
-        bool Hidden = !d->TitleBarVisible || Container->hasTopLevelDockWidget() && (Container->isFloating()
-			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
+        bool Hidden = (Container->hasTopLevelDockWidget() && (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))) ||
+                (openDockWidgetsCount()==1 && !openedDockWidgets()[0]->isTitleBarVisible());
 		d->TitleBar->setVisible(!Hidden);
 	}
 }
@@ -774,7 +775,12 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	s.writeAttribute("Current", Name);
     ADS_PRINT("CDockAreaWidget::saveState TabCount: " << d->ContentsLayout->count()
             << " Current: " << Name);
-	for (int i = 0; i < d->ContentsLayout->count(); ++i)
+    DockWidgetAreas AllowedAreas = allowedAreas();
+    if(AllowedAreas!= DockWidgetArea::AllDockAreas)
+    {
+        s.writeAttribute("AllowedAreas", QString::number(allowedAreas()));
+    }
+    for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
 		dockWidget(i)->saveState(s);
 	}
@@ -901,34 +907,34 @@ CDockAreaTitleBar* CDockAreaWidget::titleBar() const
 	return d->TitleBar;
 }
 
+
 //============================================================================
-void CDockAreaWidget::setTitleBarVisible(bool visible)
+CDockWidget::eResizeModes CDockAreaWidget::resizeMode()
 {
-    if(visible==d->TitleBarVisible)
+    CDockWidget::eResizeModes areaMode = CDockWidget::ResizeAll;
+    foreach(CDockWidget* dockWidget, dockWidgets())
     {
-        return;
+        areaMode = areaMode & dockWidget->resizeMode();
     }
-
-    d->TitleBarVisible=visible;
-    updateTitleBarVisibility();
-}
-
-//============================================================================
-bool CDockAreaWidget::isTitleBarVisible()
-{
-    return d->TitleBarVisible;
-}
-
-//============================================================================
-CDockWidget::eResizeMode CDockAreaWidget::resizeMode()
-{
-    auto OpenDockWidgets = openedDockWidgets();
+    return areaMode;
+    auto OpenDockWidgets = dockWidgets();
     if(OpenDockWidgets.count() != 1)
     {
         return CDockWidget::eResizeMode::ResizeAll;
     }
     return OpenDockWidgets[0]->resizeMode();
 }
+
+
+//============================================================================
+bool CDockAreaWidget::isCentralWidgetArea()
+{
+    if(dockWidgetsCount()!=1)
+        return false;
+
+    return dockManager()->centralWidget()==dockWidgets()[0];
+}
+
 
 //============================================================================
 QSize CDockAreaWidget::minimumSizeHint() const

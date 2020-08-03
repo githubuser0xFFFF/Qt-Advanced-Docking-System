@@ -208,11 +208,11 @@ public:
 
 
     /**
-     * The mode of resize that configures in which direction a DockWidget can be resized.
+     * The mode of resize that configures in which direction a DockWidget can be resized by the user.
      * By default a DockWidget can be resized in both directions (horizontal and vertical).
      * If set to resize only horizontal or only vertical or not to resize at all the DockWidget 
-     * if being the only DockWidget in an DockAreaWidget will cause the corresponding
-     * splitter handle to be disabled and will not allow the DockWidget to resize in the respective direction.
+     * it will cause the corresponding splitter handle to be disabled
+     * and will not allow the DockWidget to resize in the respective direction.
      */
     enum eResizeMode
     {
@@ -378,17 +378,23 @@ public:
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
     
     /**
-     * Returns the resize mode of the DockWidget defining 
-     * in which direction the DockWidget can be resized (if the only DockWidget in 
-     * DockAreaWidget)
+     * Returns the resize mode of the DockWidget defining
+     * in which direction the DockWidget can be resized.
+     * It has fixed size in other direction(s).
      */
-    eResizeMode resizeMode();
+    eResizeModes resizeMode();
 
     /**
-     * Sets the dock widget resize mode defining in which direction the dock widget
-     * can be resized if it is the only dock widget in it's dock area widget.
+     * Sets the dock widget resize mode defining
+     * in which direction the DockWidget can be resized.
+     * It has fixed size in other direction(s).
      */
-    void setResizeMode(eResizeMode Mode);
+    void setResizeMode(eResizeModes Mode);
+
+    /**
+     * Returns true if the dock wisget is set as central widget of it's dock manager
+     */
+    bool isCentralWidget();
 
     /**
      * Sets the dock widget icon that is shown in tabs and in toggle view
@@ -470,6 +476,19 @@ public:
      * bar if this dock widget becomes the current widget
      */
     virtual QList<QAction*> titleBarActions() const;
+
+    /**
+     * Returns true if the corrsponding dock area widget has visible title bar
+     * if this dock widget is trhe only visible one.
+     */
+    bool isTitleBarVisible();
+
+    /**
+     * Sets if the corresponding dock area titlebar is visible
+     * if this dock widget is the only visible one.
+     */
+    void setTitleBarVisible(bool visible);
+
 
 
 #ifndef QT_NO_TOOLTIP

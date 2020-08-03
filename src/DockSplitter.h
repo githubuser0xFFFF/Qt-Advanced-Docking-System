@@ -71,6 +71,11 @@ public:
 	 * Returns last widget of nullptr is splitter is empty
 	 */
 	QWidget* lastWidget() const;
+
+    /**
+     * Returns true if the splitter contains central widget of dock manager.
+     */
+    bool resizeWithContainer();
 }; // class CDockSplitter
 
 } // namespace ads

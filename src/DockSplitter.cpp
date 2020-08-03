@@ -102,6 +102,20 @@ QWidget* CDockSplitter::lastWidget() const
 	return (count() > 0) ? widget(count() - 1) : nullptr;
 }
 
+//============================================================================
+bool CDockSplitter::resizeWithContainer()
+{
+    QList<CDockAreaWidget *> areas = findChildren<CDockAreaWidget *>();
+
+    for(int i=0; i<areas.size(); i++)
+    {
+        CDockAreaWidget* area = areas.at(i);
+        if(area->isCentralWidgetArea())
+            return true;
+    }
+    return false;
+}
+
 } // namespace ads
 
 //---------------------------------------------------------------------------
