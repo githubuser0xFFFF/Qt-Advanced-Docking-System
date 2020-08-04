@@ -653,7 +653,14 @@ void CDockManager::showEvent(QShowEvent *event)
 
 	for (auto FloatingWidget : d->UninitializedFloatingWidgets)
 	{
-		FloatingWidget->show();
+		for(CDockWidget* DockWidget : FloatingWidget->dockWidgets())
+		{
+			if(!DockWidget->isClosed())
+			{
+				FloatingWidget->show();
+				break;
+			}
+		}
 	}
 	d->UninitializedFloatingWidgets.clear();
 }
