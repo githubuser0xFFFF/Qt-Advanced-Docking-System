@@ -935,6 +935,7 @@ bool DockContainerWidgetPrivate::restoreDockArea(CDockingStateReader& s,
 #endif
 
 	QString CurrentDockWidget = s.attributes().value("Current").toString();
+
     ADS_PRINT("Restore NodeDockArea Tabs: " << Tabs << " Current: "
             << CurrentDockWidget);
 
@@ -942,6 +943,12 @@ bool DockContainerWidgetPrivate::restoreDockArea(CDockingStateReader& s,
 	if (!Testing)
 	{
 		DockArea = new CDockAreaWidget(DockManager, _this);
+		if(s.attributes().value("AllowedAreas").length()){
+			DockArea->setAllowedAreas((DockWidgetArea)s.attributes().value("AllowedAreas").toInt());
+		}
+		if(s.attributes().value("HideSingleWidgetTitleBar").length()){
+			DockArea->setHideSingleWidgetTitleBar(s.attributes().value("HideSingleWidgetTitleBar").toInt());
+		}
 	}
 
 	while (s.readNextStartElement())

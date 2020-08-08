@@ -279,6 +279,12 @@ public:
 	void setHideSingleWidgetTitleBar(bool hide);
 
 	/**
+	 * Returns if the title bar will be hidden when there is only one
+	 * dock widget in this area
+	 */
+	bool isHideSingleWidgetTitleBar();
+
+	/**
 	 * Returns the title bar of this dock area
 	 */
 	CDockAreaTitleBar* titleBar() const;

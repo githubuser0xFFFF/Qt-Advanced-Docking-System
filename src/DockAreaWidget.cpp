@@ -771,6 +771,8 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	auto CurrentDockWidget = currentDockWidget();
 	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
 	s.writeAttribute("Current", Name);
+	s.writeAttribute("AllowedAreas", QString::number(allowedAreas()));
+	s.writeAttribute("HideSingleWidgetTitleBar", QString::number(d->HideSingleWidgetTitleBar));
     ADS_PRINT("CDockAreaWidget::saveState TabCount: " << d->ContentsLayout->count()
             << " Current: " << Name);
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
@@ -862,6 +864,12 @@ void CDockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
 DockWidgetAreas CDockAreaWidget::allowedAreas() const
 {
 	return d->AllowedAreas;
+}
+
+//============================================================================
+bool CDockAreaWidget::isHideSingleWidgetTitleBar()
+{
+	return d->HideSingleWidgetTitleBar;
 }
 
 //============================================================================
