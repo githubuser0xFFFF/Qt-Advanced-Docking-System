@@ -30,8 +30,6 @@
 //============================================================================
 #include "DockAreaWidget.h"
 
-#include <iostream>
-
 #include <QStackedLayout>
 #include <QScrollBar>
 #include <QScrollArea>
@@ -252,6 +250,7 @@ struct DockAreaWidgetPrivate
 	bool UpdateTitleBarButtons = false;
     bool TitleBarVisible = true;
 	DockWidgetAreas		AllowedAreas	= AllDockAreas;
+	bool HideSingleWidgetTitleBar		= false;
 	QSize MinSizeHint;
 
 	/**
@@ -747,7 +746,7 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 	if (d->TitleBar)
 	{
-        bool Hidden = (Container->hasTopLevelDockWidget() && (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))) ||
+    bool Hidden = (Container->hasTopLevelDockWidget() && (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))) ||
                 (openDockWidgetsCount()==1 && !openedDockWidgets()[0]->isTitleBarVisible());
 		d->TitleBar->setVisible(!Hidden);
 	}
@@ -857,15 +856,27 @@ void CDockAreaWidget::setVisible(bool Visible)
 	}
 }
 
+
+//============================================================================
 void CDockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
 {
 	d->AllowedAreas = areas;
 }
 
+
+//============================================================================
 DockWidgetAreas CDockAreaWidget::allowedAreas() const
 {
 	return d->AllowedAreas;
 }
+
+//============================================================================
+void CDockAreaWidget::setHideSingleWidgetTitleBar(bool hide)
+{
+	d->HideSingleWidgetTitleBar = hide;
+	updateTitleBarVisibility();
+}
+
 
 //============================================================================
 QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
