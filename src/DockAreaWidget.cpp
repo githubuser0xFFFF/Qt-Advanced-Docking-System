@@ -466,6 +466,14 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
         ADS_PRINT("Dock Area empty");
 		DockContainer->removeDockArea(this);
 		this->deleteLater();
+		if(DockContainer->dockAreaCount() == 0)
+		{
+			if(CFloatingDockContainer*  FloatingDockContainer = DockContainer->floatingWidget())
+			{
+				FloatingDockContainer->hide();
+				FloatingDockContainer->deleteLater();
+			}
+		}
 	}
 	else if (DockWidget == CurrentDockWidget)
 	{
