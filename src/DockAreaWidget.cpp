@@ -235,6 +235,7 @@ public:
 
 
 using DockAreaLayout = CDockAreaLayout;
+static constexpr DockWidgetAreas DefaultAllowedAreas = AllDockAreas;
 
 
 /**
@@ -248,10 +249,9 @@ struct DockAreaWidgetPrivate
 	CDockAreaTitleBar*	TitleBar		= nullptr;
 	CDockManager*		DockManager		= nullptr;
 	bool UpdateTitleBarButtons = false;
-    bool TitleBarVisible = true;
-	DockWidgetAreas		AllowedAreas	= AllDockAreas;
-	bool HideSingleWidgetTitleBar		= false;
+	DockWidgetAreas		AllowedAreas	= DefaultAllowedAreas;
 	QSize MinSizeHint;
+	CDockAreaWidget::DockAreaFlags Flags{CDockAreaWidget::DefaultFlags};
 
 	/**
 	 * Private data constructor
@@ -440,7 +440,6 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 		DockWidget->toggleViewInternal(true);
 	}
 	d->updateTitleBarButtonStates();
-    updateTitleBarVisibility();
 }
 
 
@@ -746,8 +745,9 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 	if (d->TitleBar)
 	{
-    bool Hidden = (Container->hasTopLevelDockWidget() && (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))) ||
-                (openDockWidgetsCount()==1 && !openedDockWidgets()[0]->isTitleBarVisible());
+		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
+			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
+		Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
 		d->TitleBar->setVisible(!Hidden);
 	}
 }
@@ -772,14 +772,20 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	auto CurrentDockWidget = currentDockWidget();
 	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
 	s.writeAttribute("Current", Name);
+	// To keep the saved XML data small, we only save the allowed areas and the
+	// dock area flags if the values are different from the default values
+	if (d->AllowedAreas != DefaultAllowedAreas)
+	{
+		s.writeAttribute("AllowedAreas", QString::number(d->AllowedAreas, 16));
+	}
+
+	if (d->Flags != DefaultFlags)
+	{
+		s.writeAttribute("Flags", QString::number(d->Flags, 16));
+	}
     ADS_PRINT("CDockAreaWidget::saveState TabCount: " << d->ContentsLayout->count()
             << " Current: " << Name);
-    DockWidgetAreas AllowedAreas = allowedAreas();
-    if(AllowedAreas!= DockWidgetArea::AllDockAreas)
-    {
-        s.writeAttribute("AllowedAreas", QString::number(allowedAreas()));
-    }
-    for (int i = 0; i < d->ContentsLayout->count(); ++i)
+	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
 		dockWidget(i)->saveState(s);
 	}
@@ -870,11 +876,32 @@ DockWidgetAreas CDockAreaWidget::allowedAreas() const
 	return d->AllowedAreas;
 }
 
+
 //============================================================================
-void CDockAreaWidget::setHideSingleWidgetTitleBar(bool hide)
+CDockAreaWidget::DockAreaFlags CDockAreaWidget::dockAreaFlags() const
 {
-	d->HideSingleWidgetTitleBar = hide;
-	updateTitleBarVisibility();
+	return d->Flags;
+}
+
+
+//============================================================================
+void CDockAreaWidget::setDockAreaFlags(DockAreaFlags Flags)
+{
+	auto ChangedFlags = d->Flags ^ Flags;
+	d->Flags = Flags;
+	if (ChangedFlags.testFlag(HideSingleWidgetTitleBar))
+	{
+		updateTitleBarVisibility();
+	}
+}
+
+
+//============================================================================
+void CDockAreaWidget::setDockAreaFlag(eDockAreaFlag Flag, bool On)
+{
+	auto flags = dockAreaFlags();
+	internal::setFlag(flags, Flag, On);
+	setDockAreaFlags(flags);
 }
 
 

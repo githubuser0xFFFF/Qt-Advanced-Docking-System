@@ -525,7 +525,7 @@ signals:
 
     /**
      * This signal is emitted just before the given dock widget is removed
-     * from the
+     * from the dock manager
      */
     void dockWidgetAboutToBeRemoved(ads::CDockWidget* DockWidget);
 

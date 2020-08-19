@@ -400,8 +400,8 @@ void MainWindowPrivate::createContent()
 	ads::CDockComponentsFactory::setFactory(new CCustomComponentsFactory());
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 	// Uncomment the next line if you would like to test the
-	// setHideSingleWidgetTitleBar() functionality
-	// TopDockArea->setHideSingleWidgetTitleBar(true);
+	// HideSingleWidgetTitleBar functionality
+	// TopDockArea->setDockAreaFlag(ads::CDockAreaWidget::HideSingleWidgetTitleBar, true);
 	ads::CDockComponentsFactory::resetDefaultFactory();
 
 	// We create a calendar widget and clear all flags to prevent the dock area

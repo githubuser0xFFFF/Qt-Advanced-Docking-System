@@ -144,6 +144,16 @@ public:
 	using Super = QFrame;
 
 	/**
+	 * Dock area related flags
+	 */
+	enum eDockAreaFlag
+	{
+		HideSingleWidgetTitleBar = 0x0001,
+		DefaultFlags = 0x0000
+	};
+	Q_DECLARE_FLAGS(DockAreaFlags, eDockAreaFlag)
+
+	/**
 	 * Default Constructor
 	 */
 	CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget* parent);
@@ -273,15 +283,28 @@ public:
 	DockWidgetAreas allowedAreas() const;
 
 	/**
-	 * Will hide the title bar when set to true and there is only one
-	 * dock widget in this area
-	 */
-	void setHideSingleWidgetTitleBar(bool hide);
-
-	/**
 	 * Returns the title bar of this dock area
 	 */
 	CDockAreaTitleBar* titleBar() const;
+
+	/**
+	 * Returns the dock area flags - a combination of flags that configure the
+	 * appearance and features of the dock area.
+	 * \see setDockAreaFlasg()
+	 */
+	DockAreaFlags dockAreaFlags() const;
+
+	/**
+	 * Sets the dock area flags - a combination of flags that configure the
+	 * appearance and features of the dock area
+	 */
+	void setDockAreaFlags(DockAreaFlags Flags);
+
+	/**
+	 * Sets the dock area flag Flag on this widget if on is true; otherwise
+	 * clears the flag.
+	 */
+	void setDockAreaFlag(eDockAreaFlag Flag, bool On);
 
     /**
      * Returns resize mode for the dock area widget based on visible dock widgets.
