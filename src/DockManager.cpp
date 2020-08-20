@@ -484,6 +484,12 @@ CDockManager::~CDockManager()
 	{
 		delete FloatingWidget;
 	}
+	auto DockWidgetsMap = d->DockWidgetsMap;
+	for(auto DockWidget : d->DockWidgetsMap)
+	{
+		if(!DockWidget->parent())
+			delete DockWidget;
+	}
 	delete d;
 }
 

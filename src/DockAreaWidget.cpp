@@ -87,18 +87,6 @@ public:
 	}
 
 	/**
-	 * Delete widgets without parents in this layout
-	 */
-	~CDockAreaLayout()
-	{
-		for(auto Widget : m_Widgets)
-		{
-			if(!Widget->parent())
-				delete Widget;
-		}
-	}
-
-	/**
 	 * Returns the number of widgets in this layout
 	 */
 	int count() const
