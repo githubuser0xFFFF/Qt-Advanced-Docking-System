@@ -65,6 +65,7 @@ private:
 	friend class CDockWidget;
 	friend struct DockManagerPrivate;
 	friend class CDockManager;
+	void onDockWidgetFeaturesChanged();
 
 private slots:
 	void onTabCloseRequested(int Index);

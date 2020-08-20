@@ -340,6 +340,8 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 	d->Features = features;
 	emit featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
+	if(CDockAreaWidget* DockArea = dockAreaWidget())
+		DockArea->onDockWidgetFeaturesChanged();
 }
 
 

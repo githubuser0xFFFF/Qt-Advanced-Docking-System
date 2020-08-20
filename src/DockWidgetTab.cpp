@@ -134,6 +134,18 @@ struct DockWidgetTabPrivate
 		}
 	}
 
+	/**
+	 * Update the close button visibility from current feature/config
+	 */
+	void updateCloseButtonVisibility(bool active)
+	{
+		bool DockWidgetClosable = DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
+		bool ActiveTabHasCloseButton = testConfigFlag(CDockManager::ActiveTabHasCloseButton);
+		bool AllTabsHaveCloseButton = testConfigFlag(CDockManager::AllTabsHaveCloseButton);
+		bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
+		CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
+	}
+
 	template <typename T>
 	IFloatingWidget* createFloatingWidget(T* Widget, bool OpaqueUndocking)
 	{
@@ -461,11 +473,7 @@ bool CDockWidgetTab::isActiveTab() const
 //============================================================================
 void CDockWidgetTab::setActiveTab(bool active)
 {
-	bool DockWidgetClosable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
-	bool ActiveTabHasCloseButton = d->testConfigFlag(CDockManager::ActiveTabHasCloseButton);
-	bool AllTabsHaveCloseButton = d->testConfigFlag(CDockManager::AllTabsHaveCloseButton);
-	bool TabHasCloseButton = (ActiveTabHasCloseButton && active) | AllTabsHaveCloseButton;
-	d->CloseButton->setVisible(DockWidgetClosable && TabHasCloseButton);
+	d->updateCloseButtonVisibility(active);
 
 	// Focus related stuff
 	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting) && !d->DockWidget->dockManager()->isRestoringState())
@@ -653,6 +661,7 @@ void CDockWidgetTab::onDockWidgetFeaturesChanged()
 	SizePolicy.setRetainSizeWhenHidden(Features.testFlag(CDockWidget::DockWidgetClosable)
 		&& d->testConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden));
 	d->CloseButton->setSizePolicy(SizePolicy);
+	d->updateCloseButtonVisibility(isActiveTab());
 }
 
 

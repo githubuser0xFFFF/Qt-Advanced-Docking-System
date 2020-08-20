@@ -951,6 +951,16 @@ QSize CDockAreaWidget::minimumSizeHint() const
 {
 	return d->MinSizeHint.isValid() ? d->MinSizeHint : Super::minimumSizeHint();
 }
+
+
+//============================================================================
+void CDockAreaWidget::onDockWidgetFeaturesChanged()
+{
+	if (d->TitleBar)
+		d->updateTitleBarButtonStates();
+}
+
+
 } // namespace ads
 
 //---------------------------------------------------------------------------
