@@ -228,6 +228,7 @@ class build_ext(sipdistutils.build_ext):
                     '-mmacosx-version-min=10.9']
             elif sys.platform == 'linux':
                 extension.extra_compile_args += ['-std=c++11']
+                extension.libraries += ['Qt5X11Extras' + self.qt_libinfix]
 
         return super().swig_sources(sources, extension)
 

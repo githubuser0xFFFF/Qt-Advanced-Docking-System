@@ -65,8 +65,8 @@ CMainWindow::CMainWindow(QWidget *parent)
     ui->menuView->addAction(TableDockWidget->toggleViewAction());
 
     QTableWidget* propertiesTable = new QTableWidget();
-    table->setColumnCount(3);
-    table->setRowCount(10);
+    propertiesTable->setColumnCount(3);
+    propertiesTable->setRowCount(10);
     CDockWidget* PropertiesDockWidget = new CDockWidget("Properties");
     PropertiesDockWidget->setWidget(propertiesTable);
     PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
