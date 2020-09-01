@@ -9,6 +9,8 @@ matrix:
     os: linux
     dist: trusty
     group: stable
+    before_install:
+      - sudo apt-get install libqt5x11extras5-dev
     addons:
       apt:
         sources:
@@ -36,6 +38,8 @@ matrix:
     services:
         - xvfb
     compiler: gcc
+    before_install:
+      - sudo apt-get install libqt5x11extras5-dev
     addons:
       apt:
         sources:
@@ -68,6 +72,8 @@ matrix:
         - xvfb
     compiler: gcc
     addons:
+    before_install:
+      - sudo apt-get install libqt5x11extras5-dev    
       apt:
         sources:
         - ubuntu-toolchain-r-test
@@ -98,6 +104,8 @@ matrix:
     services:
         - xvfb
     compiler: gcc
+    before_install:
+      - sudo apt-get install libqt5x11extras5-dev
     addons:
       apt:
         sources:
@@ -135,6 +143,8 @@ matrix:
     services:
         - xvfb
     compiler: gcc
+    before_install:
+      - sudo apt-get install libqt5x11extras5-dev
     addons:
       apt:
         sources:
