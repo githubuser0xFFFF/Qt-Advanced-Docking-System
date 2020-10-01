@@ -135,6 +135,7 @@ protected:
 	ads::CDockOverlay* dockAreaOverlay() const;
     void notifyWidgetOrAreaRelocation(QWidget* RelocatedWidget);
     void notifyFloatingWidgetDrop(ads::CFloatingDockContainer* FloatingWidget);
+    ads::CDockWidget* focusedDockWidget() const;
 
     virtual void showEvent(QShowEvent *event);
 
@@ -230,6 +231,7 @@ signals:
     void perspectiveOpened(const QString& PerspectiveName);
 	void floatingWidgetCreated(ads::CFloatingDockContainer*);
     void dockAreaCreated(ads::CDockAreaWidget*);
+    void dockWidgetAdded(ads::CDockWidget* DockWidget);
     void dockWidgetAboutToBeRemoved(ads::CDockWidget*);
     void dockWidgetRemoved(ads::CDockWidget*);
     void focusedDockWidgetChanged(ads::CDockWidget*, ads::CDockWidget*);

@@ -65,7 +65,7 @@ def append_feature_string_to_window_title(dock_widget: QtAds.CDockWidget):
 def svg_icon(filename: str):
     '''Helper function to create an SVG icon'''
     # This is a workaround, because because in item views SVG icons are not
-    # properly scaled an look blurry or pixelate
+    # properly scaled and look blurry or pixelate
     icon = QIcon(filename)
     icon.addPixmap(icon.pixmap(92))
     return icon
@@ -104,6 +104,8 @@ class MainWindow(MainWindowUI, MainWindowBase):
         self.perspective_list_action = None
         self.perspective_combo_box = None
         self.dock_manager = None
+        self.window_title_test_dock_widget = None
+        self.last_docked_editor = None
 
         self.setupUi(self)
         self.create_actions()
@@ -184,6 +186,7 @@ class MainWindow(MainWindowUI, MainWindowBase):
         # special_dock_area.setAllowedAreas(QtAds.LeftDockWidgetArea | QtAds.RightDockWidgetArea) # just for testing
         
         dock_widget = self.create_long_text_label_dock_widget()
+        self.window_title_test_dock_widget = dock_widget
         dock_widget.setFeature(QtAds.CDockWidget.DockWidgetFocusable, False)
         self.dock_manager.addDockWidget(QtAds.LeftDockWidgetArea, dock_widget)
         file_system_widget = self.create_file_system_tree_dock_widget()
@@ -354,7 +357,6 @@ class MainWindow(MainWindowUI, MainWindowBase):
     def create_editor(self):
         sender = self.sender()
         floating = sender.property("Floating")
-        print("Floating:", floating)
         dock_widget = self.create_editor_widget()
         dock_widget.setFeature(QtAds.CDockWidget.DockWidgetDeleteOnClose, True)
         dock_widget.closeRequested.connect(self.on_editor_close_requested)
@@ -363,7 +365,13 @@ class MainWindow(MainWindowUI, MainWindowBase):
             floating_widget = self.dock_manager.addDockWidgetFloating(dock_widget)
             floating_widget.move(QPoint(20, 20))
         else:
-            self.dock_manager.addDockWidget(QtAds.TopDockWidgetArea, dock_widget)
+            editor_area = self.last_docked_editor.dockAreaWidget() if self.last_docked_editor is not None else None
+            if editor_area is not None:
+                self.dock_manager.setConfigFlag(QtAds.CDockManager.EqualSplitOnInsertion, True)
+                self.dock_manager.addDockWidget(QtAds.RightDockWidgetArea, dock_widget, editor_area)
+            else:
+                self.dock_manager.addDockWidget(QtAds.TopDockWidgetArea, dock_widget)
+            self.last_docked_editor = dock_widget
             
     def on_editor_close_requested(self):
         dock_widget = self.sender()
@@ -381,6 +389,16 @@ class MainWindow(MainWindowUI, MainWindowBase):
     def show_status_dialog(self):
         dialog = CStatusDialog(self.dock_manager)
         dialog.exec_()
+
+
+    def toggle_dock_widget_window_title(self):
+        title = self.window_title_test_dock_widget.windowTitle()
+        i = title.find(" (Test) ")
+        if i == -1:
+            title += " (Test) "
+        else:
+            title = title[i]
+        self.window_title_test_dock_widget.setWindowTitle(title)
 
     def save_state(self):
         '''
