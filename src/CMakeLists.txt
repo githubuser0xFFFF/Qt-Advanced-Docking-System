@@ -60,6 +60,9 @@ else()
     target_compile_definitions(qtadvanceddocking PRIVATE ADS_SHARED_EXPORT)
 endif()
 target_link_libraries(qtadvanceddocking PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets)
+if (UNIX)
+    target_link_libraries(qtadvanceddocking PUBLIC Qt5::X11Extras)
+endif()
 set_target_properties(qtadvanceddocking PROPERTIES 
     AUTOMOC ON
     AUTORCC ON

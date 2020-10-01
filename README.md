@@ -15,6 +15,20 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
+The [release 3.6.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
+adds some nice new features:
+
+- support for [central widget](doc/user-guide.md#central-widget) concept
+
+![Central Widget](doc/central_widget.gif)
+
+- support for [native floating widgets](doc/user-guide.md#floatingcontainerforcenativetitlebar-linux-only) on Linux
+
+![FloatingContainerForceNativeTitleBar true](doc/cfg_flag_FloatingContainerForceNativeTitleBar_true.png)
+
+Both features are contributions from ADS users. Read the [documentation](doc/user-guide.md)
+to learn more about both new features.
+
 The [release 3.5.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.0)
 adds the new [focus highlighting](doc/user-guide.md#focushighlighting) feature.
 This optional feature enables highlighting of the focused dock widget like you

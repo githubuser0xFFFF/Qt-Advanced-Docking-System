@@ -109,7 +109,7 @@ static void appendFeaturStringToWindowTitle(ads::CDockWidget* DockWidget)
 static QIcon svgIcon(const QString& File)
 {
 	// This is a workaround, because in item views SVG icons are not
-	// properly scaled an look blurry or pixelate
+	// properly scaled and look blurry or pixelate
 	QIcon SvgIcon(File);
 	SvgIcon.addPixmap(SvgIcon.pixmap(92));
 	return SvgIcon;
@@ -166,6 +166,7 @@ struct MainWindowPrivate
 	QComboBox* PerspectiveComboBox = nullptr;
 	ads::CDockManager* DockManager = nullptr;
 	ads::CDockWidget* WindowTitleTestDockWidget = nullptr;
+	ads::CDockWidget* LastDockedEditor = nullptr;
 
 	MainWindowPrivate(CMainWindow* _public) : _this(_public) {}
 
@@ -720,7 +721,17 @@ void CMainWindow::createEditor()
     }
     else
     {
-    	d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    	ads::CDockAreaWidget* EditorArea = d->LastDockedEditor ? d->LastDockedEditor->dockAreaWidget() : nullptr;
+    	if (EditorArea)
+    	{
+    		d->DockManager->setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
+    		d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, EditorArea);
+    	}
+    	else
+    	{
+    		d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    	}
+    	d->LastDockedEditor = DockWidget;
     }
 }
 
