@@ -32,6 +32,7 @@ public:
 		DockWidgetDeleteOnClose,
         CustomCloseHandling,
         DockWidgetFocusable,
+        DockWidgetForceCloseWithArea,
         DefaultDockWidgetFeatures,
         AllDockWidgetFeatures,
 		NoDockWidgetFeatures
@@ -84,6 +85,7 @@ public:
 	QAction* toggleViewAction() const;
 	void setToggleViewActionMode(ads::CDockWidget::eToggleViewActionMode Mode);
 	void setMinimumSizeHintMode(ads::CDockWidget::eMinimumSizeHintMode Mode);
+    bool isCentralWidget() const;
 	void setIcon(const QIcon& Icon);
 	QIcon icon() const;
 	QToolBar* toolBar() const;
