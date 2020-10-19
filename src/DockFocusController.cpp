@@ -240,7 +240,11 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
 		auto OtherDockWidgetTab = internal::findParent<CDockWidgetTab*>(focusedNow);
 		if (OtherDockWidgetTab && focusedOld)
 		{
-			focusedOld->setFocus();
+			auto OldFocusedDockWidget = internal::findParent<CDockWidget*>(focusedOld);
+			if (OldFocusedDockWidget)
+			{
+				focusedOld->setFocus();
+			}
 			return;
 		}
 	}
