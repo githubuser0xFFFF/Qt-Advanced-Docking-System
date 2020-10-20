@@ -487,6 +487,25 @@ public:
 	 */
 	CDockWidget* focusedDockWidget() const;
 
+    /**
+     * Returns the sizes of the splitter that contains the dock area.
+     *
+     * If there is no splitter that contains the area, an empty list will be
+     * returned.
+     */
+    QList<int> splitterSizes(CDockAreaWidget *ContainedArea) const;
+
+    /**
+     * Update the sizes of a splitter
+     * Programmatically updates the sizes of a given splitter by calling
+     * QSplitter::setSizes(). The splitter will be the splitter that
+     * contains the supplied dock area widget. If there is not splitter
+     * that contains the dock area, or the sizes supplied does not match
+     * the number of children of the splitter, this method will have no
+     * effect.
+     */
+    void setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes);
+
 public slots:
 	/**
 	 * Opens the perspective with the given name.

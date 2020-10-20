@@ -55,6 +55,7 @@
 #include "DockingStateReader.h"
 #include "DockAreaTitleBar.h"
 #include "DockFocusController.h"
+#include "DockSplitter.h"
 
 #ifdef Q_OS_LINUX
 #include "linux/FloatingWidgetTitleBar.h"
@@ -1093,6 +1094,34 @@ CDockWidget* CDockManager::focusedDockWidget() const
 	}
 }
 
+//===========================================================================
+QList<int> CDockManager::splitterSizes(CDockAreaWidget *ContainedArea) const
+{
+    if (ContainedArea)
+    {
+        auto Splitter = internal::findParent<CDockSplitter*>(ContainedArea);
+        if (Splitter)
+        {
+            return Splitter->sizes();
+        }
+    }
+    return QList<int>();
+}
+
+//===========================================================================
+void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes)
+{
+    if (!ContainedArea)
+    {
+        return;
+    }
+
+    auto Splitter = internal::findParent<CDockSplitter*>(ContainedArea);
+    if (Splitter && Splitter->count() == sizes.count())
+    {
+        Splitter->setSizes(sizes);
+    }
+}
 
 } // namespace ads
 
