@@ -5,7 +5,7 @@ ads--CDockContainerWidget {
 	background: palette(dark);
 }
 
-ads--CDockContainerWidget QSplitter::handle {
+ads--CDockContainerWidget ads--CDockSplitter::handle {
 	background: palette(dark);
 }
 
