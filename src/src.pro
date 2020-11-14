@@ -23,7 +23,8 @@ windows {
 	}
 	# MSVC
 	*-msvc* {
-	}
+                QMAKE_CXXFLAGS += /utf-8
+        }
 }
 
 RESOURCES += ads.qrc
