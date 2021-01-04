@@ -35,6 +35,8 @@ public:
 	virtual bool event(QEvent *e);
 	void setElideMode(Qt::TextElideMode mode);
     void updateStyle();
+    QSize iconSize() const;
+    void setIconSize(const QSize& Size);
 
 public slots:
 	virtual void setVisible(bool visible);

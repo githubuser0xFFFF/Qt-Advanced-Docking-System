@@ -135,7 +135,6 @@ protected:
 	ads::CDockOverlay* dockAreaOverlay() const;
     void notifyWidgetOrAreaRelocation(QWidget* RelocatedWidget);
     void notifyFloatingWidgetDrop(ads::CFloatingDockContainer* FloatingWidget);
-    ads::CDockWidget* focusedDockWidget() const;
 
     virtual void showEvent(QShowEvent *event);
 
@@ -217,6 +216,9 @@ public:
 	void setViewMenuInsertionOrder(ads::CDockManager::eViewMenuInsertionOrder Order);
 	bool isRestoringState() const;
 	static int startDragDistance();
+    ads::CDockWidget* focusedDockWidget() const;
+    QList<int> splitterSizes(ads::CDockAreaWidget *ContainedArea) const;
+    void setSplitterSizes(ads::CDockAreaWidget *ContainedArea, const QList<int>& sizes);
 
 public slots:
 	void openPerspective(const QString& PerspectiveName);

@@ -106,6 +106,11 @@ class MainWindow(MainWindowUI, MainWindowBase):
         self.perspective_combobox.clear()
         self.perspective_combobox.addItems(self.dock_manager.perspectiveNames())
         self.perspective_combobox.setCurrentText(perspective_name)
+        
+    def closeEvent(self, event: QCloseEvent):
+        self.dock_manager.deleteLater()
+        super().closeEvent(event)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

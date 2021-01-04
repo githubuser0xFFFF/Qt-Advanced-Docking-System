@@ -359,6 +359,7 @@ class MainWindow(MainWindowUI, MainWindowBase):
         floating = sender.property("Floating")
         dock_widget = self.create_editor_widget()
         dock_widget.setFeature(QtAds.CDockWidget.DockWidgetDeleteOnClose, True)
+        dock_widget.setFeature(QtAds.CDockWidget.DockWidgetForceCloseWithArea, True)
         dock_widget.closeRequested.connect(self.on_editor_close_requested)
         
         if floating:
