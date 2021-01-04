@@ -32,6 +32,7 @@ public:
 		DockWidgetDeleteOnClose,
         CustomCloseHandling,
         DockWidgetFocusable,
+        DockWidgetForceCloseWithArea,
         DefaultDockWidgetFeatures,
         AllDockWidgetFeatures,
 		NoDockWidgetFeatures

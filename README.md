@@ -15,6 +15,9 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
+The [release 3.7.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
+adds support for Qt6.
+
 The [release 3.6.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
 adds some nice new features:
 
@@ -56,6 +59,7 @@ know it from Visual Studio.
   - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
   - [Python PyQt5 Bindings](#python-pyqt5-bindings)
 - [Tested Compatible Environments](#tested-compatible-environments)
+  - [Supported Qt Versions](#supported-qt-versions)
   - [Windows](#windows)
   - [macOS](#macos)
   - [Linux](#linux)
@@ -81,8 +85,8 @@ There is no central widget like in the Qt docking system. You can dock on every
 border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
 
-![Dropping widgets](doc/preview-dragndrop.png)\
-\
+![Dropping widgets](doc/preview-dragndrop.png)
+
 ![Dropping widgets](doc/preview-dragndrop_dark.png)
 
 ### Docking inside floating windows
@@ -90,8 +94,8 @@ free to dock almost everywhere.
 There is no difference between the main window and a floating window. Docking
 into floating windows is supported.
 
-![Docking inside floating windows](doc/floating-widget-dragndrop.png)\
-\
+![Docking inside floating windows](doc/floating-widget-dragndrop.png)
+
 ![Docking inside floating windows](doc/floating-widget-dragndrop_dark.png)
 
 ### Grouped dragging
@@ -100,8 +104,8 @@ When dragging the titlebar of a dock, all the tabs that are tabbed with it are
 going to be dragged. So you can move complete groups of tabbed widgets into
 a floating widget or from one dock area to another one.
 
-![Grouped dragging](doc/grouped-dragging.gif)\
-\
+![Grouped dragging](doc/grouped-dragging.gif)
+
 ![Grouped dragging](doc/grouped-dragging_dark.png)
 
 ### Perspectives for fast switching of the complete main window layout
@@ -112,13 +116,13 @@ perspective to make your own custom perspective. Later you can simply
 select a perspective from the perspective list to quickly switch the complete 
 main window layout.
 
-![Perspective](doc/perspectives.gif)\
-\
+![Perspective](doc/perspectives.gif)
+
 ![Perspective](doc/perspectives_dark.png)
 
 ### Opaque and non-opaque splitter resizing
 
-The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters. 
+The advanced docking system uses standard QSplitters as resize separators and thus supports opaque and non-opaque resizing functionality of QSplitter. In some rare cases, for very complex widgets or on slow machines resizing via separator on the fly may cause flicking and glaring of rendered content inside a widget. The global dock manager flag `OpaqueSplitterResize` configures the resizing behaviour of the splitters. If this flag is set, then widgets are resized dynamically (opaquely) while interactively moving the splitters.
 
 ![Opaque resizing](doc/opaque_resizing.gif)
 
@@ -171,6 +175,10 @@ Latest working version: [3.5.2](https://github.com/githubuser0xFFFF/Qt-Advanced-
 
 ## Tested Compatible Environments
 
+### Supported Qt Versions
+
+The library supports **Qt5** and **Qt6**.
+
 ### Windows
 
 Windows 10 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
@@ -187,15 +195,23 @@ The application can be compiled for macOS. A user reported, that the library wor
 
 ### Linux
 
-Ubuntu [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
+[![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-The application can be compiled for Linux and has been developed and tested with **Kubuntu 18.04** and **Kubuntu 19.10**.
+Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the following Linux distributions:
 
+- **Kubuntu 18.04 and 19.10**
+- **Ubuntu 18.04, 19.10 and 20.04**
+
+There are some requirements for the Linux distribution that have to be met:
+
+- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95).
+- Wayland is not properly supported by Qt yet. If you use Wayland, then you should set the session type to x11: `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details about this in issue [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288).
+
+Screenshot Kubuntu:
 ![Advanced Docking on Kubuntu Linux](doc/linux_kubuntu_1804.png)
 
-and with **Ubuntu 19.10**
-
+Screenshot Ubuntu:
 ![Advanced Docking on Ubuntu Linux](doc/linux_ubuntu_1910.png)
 
 ## Build

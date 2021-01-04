@@ -21,6 +21,9 @@ public:
     CMainWindow(QWidget *parent = nullptr);
     ~CMainWindow();
 
+protected:
+	virtual void closeEvent(QCloseEvent* event) override;
+
 private:
 	QAction* SavePerspectiveAction = nullptr;
 	QWidgetAction* PerspectiveListAction = nullptr;

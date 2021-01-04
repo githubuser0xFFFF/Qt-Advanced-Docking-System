@@ -733,8 +733,11 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 
 
 #ifdef Q_OS_WIN
-//============================================================================
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, long *result)
+#else
+bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+#endif
 {
 	QWidget::nativeEvent(eventType, message, result);
 	MSG *msg = static_cast<MSG*>(message);

@@ -36,6 +36,7 @@
 #include <QWidget>
 #include <QDebug>
 #include <QStyle>
+#include <QMouseEvent>
 
 #ifdef Q_OS_LINUX
 #include <xcb/xcb.h>
@@ -179,7 +180,7 @@ void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 class CDockInsertParam : public QPair<Qt::Orientation, bool>
 {
 public:
-	using QPair::QPair;
+    using QPair<Qt::Orientation, bool>::QPair;
 	Qt::Orientation orientation() const {return this->first;}
 	bool append() const {return this->second;}
 	int insertOffset() const {return append() ? 1 : 0;}
@@ -256,6 +257,19 @@ void setToolTip(QObjectPtr obj, const QString &tip)
 #else
 	Q_UNUSED(obj);
 	Q_UNUSED(tip);
+#endif
+}
+
+
+/**
+ * Helper function for access to mouse event global position in Qt5 and
+ */
+inline QPoint globalPositionOf(QMouseEvent* ev)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return ev->globalPosition().toPoint();
+#else
+    return ev->globalPos();
 #endif
 }
 

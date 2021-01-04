@@ -5,7 +5,7 @@ ads--CDockContainerWidget {
         background: palette(dark);
 }
 
-ads--CDockContainerWidget QSplitter::handle {
+ads--CDockContainerWidget ads--CDockSplitter::handle {
         background: palette(dark);
 }
 
@@ -192,3 +192,4 @@ ads--CFloatingDockContainer[isActiveWindow="true"] #floatingTitleMaximizeButton:
     background: rgba(255, 255, 255, 92);
 }
 */
+

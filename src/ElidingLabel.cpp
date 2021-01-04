@@ -163,7 +163,12 @@ void CElidingLabel::resizeEvent(QResizeEvent *event)
 //============================================================================
 QSize CElidingLabel::minimumSizeHint() const
 {
-    if (pixmap() != nullptr || d->isModeElideNone())
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    bool HasPixmap = !pixmap().isNull();
+#else
+    bool HasPixmap = (pixmap() != nullptr);
+#endif
+    if (HasPixmap || d->isModeElideNone())
     {
         return QLabel::minimumSizeHint();
     }
@@ -180,7 +185,12 @@ QSize CElidingLabel::minimumSizeHint() const
 //============================================================================
 QSize CElidingLabel::sizeHint() const
 {
-    if (pixmap() != nullptr || d->isModeElideNone())
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    bool HasPixmap = !pixmap().isNull();
+#else
+    bool HasPixmap = (pixmap() != nullptr);
+#endif
+    if (HasPixmap || d->isModeElideNone())
     {
         return QLabel::sizeHint();
     }

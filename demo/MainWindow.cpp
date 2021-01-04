@@ -58,10 +58,14 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QToolButton>
+#include <QToolBar>
+#include <QPointer>
 
 
 #ifdef Q_OS_WIN
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QAxWidget>
+#endif
 #endif
 
 #include <QMap>
@@ -166,7 +170,8 @@ struct MainWindowPrivate
 	QComboBox* PerspectiveComboBox = nullptr;
 	ads::CDockManager* DockManager = nullptr;
 	ads::CDockWidget* WindowTitleTestDockWidget = nullptr;
-	ads::CDockWidget* LastDockedEditor = nullptr;
+	QPointer<ads::CDockWidget> LastDockedEditor;
+	QPointer<ads::CDockWidget> LastCreatedFloatingEditor;
 
 	MainWindowPrivate(CMainWindow* _public) : _this(_public) {}
 
@@ -353,6 +358,7 @@ struct MainWindowPrivate
 
 
 #ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 	/**
 	 * Creates an ActiveX widget on windows
 	 */
@@ -365,6 +371,7 @@ struct MainWindowPrivate
 	   ui.menuView->addAction(DockWidget->toggleViewAction());
 	   return DockWidget;
 	}
+#endif
 #endif
 
 };
@@ -444,10 +451,12 @@ void MainWindowPrivate::createContent()
     DockWidget->connect(Action, SIGNAL(triggered()), SLOT(raise()));
 
 #ifdef Q_OS_WIN
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     if (!ads::CDockManager::testConfigFlag(ads::CDockManager::OpaqueUndocking))
     {
     	DockManager->addDockWidget(ads::CenterDockWidgetArea, createActiveXWidget(), RighDockArea);
     }
+#endif
 #endif
 
 	for (auto DockWidget : DockManager->dockWidgetsMap())
@@ -608,8 +617,13 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
 
+ #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 	connect(d->PerspectiveComboBox, SIGNAL(activated(const QString&)),
 		d->DockManager, SLOT(openPerspective(const QString&)));
+ #else
+    connect(d->PerspectiveComboBox, SIGNAL(textActivated(const QString&)),
+        d->DockManager, SLOT(openPerspective(const QString&)));
+ #endif
 
 	d->createContent();
 	// Default window geometry - center on screen
@@ -712,24 +726,37 @@ void CMainWindow::createEditor()
 	bool Floating = vFloating.isValid() ? vFloating.toBool() : true;
 	auto DockWidget = d->createEditorWidget();
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetForceCloseWithArea, true);
     connect(DockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
 
     if (Floating)
     {
 		auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
 		FloatingWidget->move(QPoint(20, 20));
+		d->LastCreatedFloatingEditor = DockWidget;
+		d->LastDockedEditor.clear();
     }
     else
     {
     	ads::CDockAreaWidget* EditorArea = d->LastDockedEditor ? d->LastDockedEditor->dockAreaWidget() : nullptr;
     	if (EditorArea)
     	{
+    		std::cout << "DockAreaCount before: " << EditorArea->dockContainer()->dockAreaCount() << std::endl;
     		d->DockManager->setConfigFlag(ads::CDockManager::EqualSplitOnInsertion, true);
     		d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, EditorArea);
+    		std::cout << "DockAreaCount after: " << DockWidget->dockContainer()->dockAreaCount() << std::endl;
     	}
     	else
     	{
-    		d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    		if (d->LastCreatedFloatingEditor)
+    		{
+    			std::cout << "LastCreated" << std::endl;
+    			d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget, d->LastCreatedFloatingEditor->dockAreaWidget());
+    		}
+    		else
+    		{
+    			d->DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    		}
     	}
     	d->LastDockedEditor = DockWidget;
     }

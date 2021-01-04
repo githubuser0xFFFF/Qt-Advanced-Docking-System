@@ -55,6 +55,7 @@
 #include "DockingStateReader.h"
 #include "DockAreaTitleBar.h"
 #include "DockFocusController.h"
+#include "DockSplitter.h"
 
 #ifdef Q_OS_LINUX
 #include "linux/FloatingWidgetTitleBar.h"
@@ -249,7 +250,7 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
     }
     CDockingStateReader s(state);
     s.readNextStartElement();
-    if (s.name() != "QtAdvancedDockingSystem")
+    if (s.name() != QLatin1String("QtAdvancedDockingSystem"))
     {
     	return false;
     }
@@ -303,7 +304,7 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
     int DockContainerCount = 0;
     while (s.readNextStartElement())
     {
-    	if (s.name() == "Container")
+        if (s.name() == QLatin1String("Container"))
     	{
     		Result = restoreContainer(DockContainerCount, s, Testing);
 			if (!Result)
@@ -758,7 +759,8 @@ CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
 	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget)
 {
 	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
-	auto AreaOfAddedDockWidget = CDockContainerWidget::addDockWidget(area, Dockwidget, DockAreaWidget);
+	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer(): this;
+	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget);
 	emit dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
 }
@@ -1093,6 +1095,34 @@ CDockWidget* CDockManager::focusedDockWidget() const
 	}
 }
 
+//===========================================================================
+QList<int> CDockManager::splitterSizes(CDockAreaWidget *ContainedArea) const
+{
+    if (ContainedArea)
+    {
+        auto Splitter = internal::findParent<CDockSplitter*>(ContainedArea);
+        if (Splitter)
+        {
+            return Splitter->sizes();
+        }
+    }
+    return QList<int>();
+}
+
+//===========================================================================
+void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes)
+{
+    if (!ContainedArea)
+    {
+        return;
+    }
+
+    auto Splitter = internal::findParent<CDockSplitter*>(ContainedArea);
+    if (Splitter && Splitter->count() == sizes.count())
+    {
+        Splitter->setSizes(sizes);
+    }
+}
 
 } // namespace ads
 

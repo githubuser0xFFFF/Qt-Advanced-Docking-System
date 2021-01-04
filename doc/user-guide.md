@@ -28,6 +28,7 @@
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
 - [Central Widget](#central-widget)
+- [Custom Close Handling](#custom-close-handling)
 - [Styling](#styling)
   - [Disabling the Internal Style Sheet](#disabling-the-internal-style-sheet)
 
@@ -499,6 +500,11 @@ See the `centralwidget` example to learn how it works.
 > are already other dock widgets registered. So `setCentralWidget` should be
 > the first function that you call when adding dock widgets.
 
+## Custom Close Handling
+
+Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the `toggleView()` action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
+
+When an entire area is closed, the default behavior is to hide the dock widgets it contains regardless of the `DockWidgetDeleteOnClose` flag except if there is only one dock widget. In this special case, the `DockWidgetDeleteOnClose` flag is followed. This behavior can be changed by setting the `DockWidgetForceCloseWithArea` flag to all the dock widgets that needs to be closed with their area.
 
 ## Styling
 

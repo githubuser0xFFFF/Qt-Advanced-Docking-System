@@ -917,15 +917,15 @@ bool DockContainerWidgetPrivate::restoreSplitter(CDockingStateReader& s,
 	{
 		QWidget* ChildNode = nullptr;
 		bool Result = true;
-		if (s.name() == "Splitter")
+        if (s.name() == QLatin1String("Splitter"))
 		{
 			Result = restoreSplitter(s, ChildNode, Testing);
 		}
-		else if (s.name() == "Area")
+        else if (s.name() == QLatin1String("Area"))
 		{
 			Result = restoreDockArea(s, ChildNode, Testing);
 		}
-		else if (s.name() == "Sizes")
+        else if (s.name() == QLatin1String("Sizes"))
 		{
 			QString sSizes = s.readElementText().trimmed();
             ADS_PRINT("Sizes: " << sSizes);
@@ -1026,7 +1026,7 @@ bool DockContainerWidgetPrivate::restoreDockArea(CDockingStateReader& s,
 
 	while (s.readNextStartElement())
 	{
-		if (s.name() != "Widget")
+        if (s.name() != QLatin1String("Widget"))
 		{
 			continue;
 		}
@@ -1089,12 +1089,12 @@ bool DockContainerWidgetPrivate::restoreChildNodes(CDockingStateReader& s,
 	bool Result = true;
 	while (s.readNextStartElement())
 	{
-		if (s.name() == "Splitter")
+        if (s.name() == QLatin1String("Splitter"))
 		{
 			Result = restoreSplitter(s, CreatedWidget, Testing);
             ADS_PRINT("Splitter");
 		}
-		else if (s.name() == "Area")
+        else if (s.name() == QLatin1String("Area"))
 		{
 			Result = restoreDockArea(s, CreatedWidget, Testing);
             ADS_PRINT("DockAreaWidget");
@@ -1253,7 +1253,6 @@ CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetA
 		{
 			adjustSplitterSizesOnInsertion(TargetAreaSplitter);
 		}
-
 	}
 	else
 	{
@@ -1273,8 +1272,7 @@ CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetA
 		}
 	}
 
-	appendDockAreas({NewDockArea});
-	emitDockAreasAdded();
+	addDockAreasToList({NewDockArea});
 	return NewDockArea;
 }
 
@@ -1666,7 +1664,7 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 	if (IsFloating)
 	{
         ADS_PRINT("Restore floating widget");
-		if (!s.readNextStartElement() || s.name() != "Geometry")
+        if (!s.readNextStartElement() || s.name() != QLatin1String("Geometry"))
 		{
 			return false;
 		}
