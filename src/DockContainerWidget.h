@@ -265,7 +265,7 @@ public:
 	 */
 	void closeOtherAreas(CDockAreaWidget* KeepOpenArea);
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted if one or multiple dock areas has been added to
 	 * the internal list of dock areas.

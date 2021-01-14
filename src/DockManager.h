@@ -506,7 +506,7 @@ public:
      */
     void setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes);
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * Opens the perspective with the given name.
 	 */
@@ -519,7 +519,7 @@ public slots:
 	 */
 	void setDockWidgetFocused(CDockWidget* DockWidget);
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted if the list of perspectives changed
 	 */
