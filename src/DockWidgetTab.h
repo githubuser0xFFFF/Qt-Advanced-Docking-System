@@ -60,7 +60,7 @@ private:
 	friend class CDockManager;
 	void onDockWidgetFeaturesChanged();
 
-private slots:
+private Q_SLOTS:
 	void detachDockWidget();
 
 protected:
@@ -175,10 +175,10 @@ public:
 	 */
 	void setIconSize(const QSize& Size);
 
-public slots:
+public Q_SLOTS:
 	virtual void setVisible(bool visible) override;
 
-signals:
+Q_SIGNALS:
 	void activeTabChanged();
 	void clicked();
 	void closeRequested();

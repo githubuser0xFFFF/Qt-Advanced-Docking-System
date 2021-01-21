@@ -74,7 +74,7 @@ void ElidingLabelPrivate::elideText(int Width)
     IsElided = str != Text;
     if(IsElided != WasElided)
     {
-        emit _this->elidedChanged(IsElided);
+        Q_EMIT _this->elidedChanged(IsElided);
     }
     _this->QLabel::setText(str);
 }
@@ -136,7 +136,7 @@ void CElidingLabel::mouseReleaseEvent(QMouseEvent* event)
 		return;
 	}
 
-	emit clicked();
+	Q_EMIT clicked();
 }
 
 
@@ -144,7 +144,7 @@ void CElidingLabel::mouseReleaseEvent(QMouseEvent* event)
 void CElidingLabel::mouseDoubleClickEvent( QMouseEvent *ev )
 {
 	Q_UNUSED(ev)
-	emit doubleClicked();
+	Q_EMIT doubleClicked();
 	Super::mouseDoubleClickEvent(ev);
 }
 

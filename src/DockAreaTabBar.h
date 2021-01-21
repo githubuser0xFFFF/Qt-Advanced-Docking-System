@@ -58,7 +58,7 @@ private:
 	friend struct DockAreaTabBarPrivate;
 	friend class CDockAreaTitleBar;
 
-private slots:
+private Q_SLOTS:
 	void onTabClicked();
 	void onTabCloseRequested();
 	void onCloseOtherTabsRequested();
@@ -140,7 +140,7 @@ public:
 	 */
 	virtual QSize sizeHint() const override;
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * This property sets the index of the tab bar's visible tab
 	 */
@@ -152,7 +152,7 @@ public slots:
 	 */
 	void closeTab(int Index);
 
-signals:
+Q_SIGNALS:
     /**
      * This signal is emitted when the tab bar's current tab is about to be changed. The new
      * current has the given index, or -1 if there isn't a new one.

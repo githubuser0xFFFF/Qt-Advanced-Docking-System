@@ -382,7 +382,7 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 {
 	int Index = Action->data().toInt();
 	d->TabBar->setCurrentIndex(Index);
-	emit tabBarClicked(Index);
+	Q_EMIT tabBarClicked(Index);
 }
 
 

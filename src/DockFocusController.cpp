@@ -174,7 +174,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
     ForceFocusChangedSignal = false;
     if (DockWidget->isVisible())
     {
-    	emit DockManager->focusedDockWidgetChanged(old, DockWidget);
+    	Q_EMIT DockManager->focusedDockWidgetChanged(old, DockWidget);
     }
     else
     {
@@ -193,7 +193,7 @@ void CDockFocusController::onDockWidgetVisibilityChanged(bool Visible)
     disconnect(Sender, SIGNAL(visibilityChanged(bool)), this, SLOT(onDockWidgetVisibilityChanged(bool)));
     if (DockWidget && Visible)
 	{
-        emit d->DockManager->focusedDockWidgetChanged(d->OldFocusedDockWidget, DockWidget);
+        Q_EMIT d->DockManager->focusedDockWidgetChanged(d->OldFocusedDockWidget, DockWidget);
 	}
 }
 

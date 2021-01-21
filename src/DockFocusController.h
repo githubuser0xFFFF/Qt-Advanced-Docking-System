@@ -30,7 +30,7 @@ private:
 	DockFocusControllerPrivate* d; ///< private data (pimpl)
     friend struct DockFocusControllerPrivate;
 
-private slots:
+private Q_SLOTS:
 	void onApplicationFocusChanged(QWidget *old, QWidget *now);
 	void onFocusedDockAreaViewToggled(bool Open);
 	void onStateRestored();
@@ -83,7 +83,7 @@ public:
 	 */
 	CDockWidget* focusedDockWidget() const;
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * Request a focus change to the given dock widget
 	 */

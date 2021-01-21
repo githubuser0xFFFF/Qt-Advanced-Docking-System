@@ -180,11 +180,11 @@ void CDockAreaTabBar::setCurrentIndex(int index)
 		return;
     }
 
-    emit currentChanging(index);
+    Q_EMIT currentChanging(index);
 	d->CurrentIndex = index;
 	d->updateTabs();
 	updateGeometry();
-	emit currentChanged(index);
+	Q_EMIT currentChanged(index);
 }
 
 
@@ -206,7 +206,7 @@ void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 	connect(Tab, SIGNAL(moved(const QPoint&)), this, SLOT(onTabWidgetMoved(const QPoint&)));
 	connect(Tab, SIGNAL(elidedChanged(bool)), this, SIGNAL(elidedChanged(bool)));
 	Tab->installEventFilter(this);
-	emit tabInserted(Index);
+	Q_EMIT tabInserted(Index);
     if (Index <= d->CurrentIndex)
 	{
 		setCurrentIndex(d->CurrentIndex + 1);
@@ -266,7 +266,7 @@ void CDockAreaTabBar::removeTab(CDockWidgetTab* Tab)
 		}
 	}
 
-	emit removingTab(RemoveIndex);
+	Q_EMIT removingTab(RemoveIndex);
 	d->TabsLayout->removeWidget(Tab);
 	Tab->disconnect(this);
 	Tab->removeEventFilter(this);
@@ -320,7 +320,7 @@ void CDockAreaTabBar::onTabClicked()
 		return;
 	}
 	setCurrentIndex(index);
- 	emit tabBarClicked(index);
+ 	Q_EMIT tabBarClicked(index);
 }
 
 
@@ -409,7 +409,7 @@ void CDockAreaTabBar::onTabWidgetMoved(const QPoint& GlobalPos)
 		d->TabsLayout->removeWidget(MovingTab);
 		d->TabsLayout->insertWidget(toIndex, MovingTab);
         ADS_PRINT("tabMoved from " << fromIndex << " to " << toIndex);
-		emit tabMoved(fromIndex, toIndex);
+		Q_EMIT tabMoved(fromIndex, toIndex);
 		setCurrentIndex(toIndex);
 	}
 	else
@@ -432,7 +432,7 @@ void CDockAreaTabBar::closeTab(int Index)
 	{
 		return;
 	}
-	emit tabCloseRequested(Index);
+	Q_EMIT tabCloseRequested(Index);
 }
 
 
@@ -449,12 +449,12 @@ bool CDockAreaTabBar::eventFilter(QObject *watched, QEvent *event)
 	switch (event->type())
 	{
 	case QEvent::Hide:
-		 emit tabClosed(d->TabsLayout->indexOf(Tab));
+		 Q_EMIT tabClosed(d->TabsLayout->indexOf(Tab));
 		 updateGeometry();
 		 break;
 
 	case QEvent::Show:
-		 emit tabOpened(d->TabsLayout->indexOf(Tab));
+		 Q_EMIT tabOpened(d->TabsLayout->indexOf(Tab));
 		 updateGeometry();
 		 break;
 

@@ -60,7 +60,7 @@ struct FloatingDragPreviewPrivate
 	void cancelDragging()
 	{
 		Canceled = true;
-		emit _this->draggingCanceled();
+		Q_EMIT _this->draggingCanceled();
 		DockManager->containerOverlay()->hideOverlay();
 		DockManager->dockAreaOverlay()->hideOverlay();
 		_this->close();
