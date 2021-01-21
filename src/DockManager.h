@@ -66,7 +66,10 @@ class CDockComponentsFactory;
  * DockManager->setStyleSheet("");
  * \endcode
  **/
-class ADS_EXPORT CDockManager : public CDockContainerWidget
+    class ADS_EXPORT CDockManager : public QObject
+#if 0
+    : public CDockContainerWidget
+#endif
 {
 	Q_OBJECT
 private:
@@ -138,11 +141,9 @@ protected:
 	/**
 	 * Show the floating widgets that has been created floating
 	 */
-	virtual void showEvent(QShowEvent *event) override;
+	virtual void showEvent(QShowEvent *event); // NOT override;
 
 public:
-	using Super = CDockContainerWidget;
-
 	enum eViewMenuInsertionOrder
 	{
 		MenuSortedByInsertion,
@@ -217,12 +218,15 @@ public:
 	 * Before you create any dock widgets, you should properly setup the
 	 * configuration flags via setConfigFlags().
 	 */
-	CDockManager(QWidget* parent = nullptr);
+	CDockManager(QWidget* parent);
+	CDockManager();
 
 	/**
 	 * Virtual Destructor
 	 */
 	virtual ~CDockManager() override;
+
+        CDockContainerWidget *addContainer(QWidget* window);
 
 	/**
 	 * This function returns the global configuration flags
@@ -304,6 +308,8 @@ public:
 	 */
 	void removeDockWidget(CDockWidget* Dockwidget);
 
+	QList<CDockAreaWidget*> openedDockAreas() const;
+
 	/**
 	 * This function returns a readable reference to the internal dock
 	 * widgets map so that it is possible to iterate over all dock widgets
@@ -320,12 +326,6 @@ public:
 	 * Returns the list of all floating widgets
 	 */
 	const QList<CFloatingDockContainer*> floatingWidgets() const;
-
-	/**
-	 * This function always return 0 because the main window is always behind
-	 * any floating widget
-	 */
-	unsigned int zOrderIndex() const override;
 
 	/**
 	 * Saves the current state of the dockmanger and all its dock widgets
@@ -474,10 +474,6 @@ public:
 
 		widget->setFocus(Qt::OtherFocusReason);
 	}
-
-#ifdef Q_OS_LINUX
-	bool eventFilter(QObject *obj, QEvent *e) override;
-#endif
 
 	/**
 	 * Returns the dock widget that has focus style in the ui or a nullptr if

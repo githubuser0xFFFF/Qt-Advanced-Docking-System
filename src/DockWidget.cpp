@@ -567,7 +567,7 @@ void CDockWidget::saveState(QXmlStreamWriter& s) const
 void CDockWidget::flagAsUnassigned()
 {
 	d->Closed = true;
-	setParent(d->DockManager);
+	setParent(nullptr);
 	setVisible(false);
 	setDockArea(nullptr);
 	tabWidget()->setParent(this);

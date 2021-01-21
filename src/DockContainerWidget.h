@@ -73,6 +73,7 @@ private:
 	friend class CDockWidget;
 	friend class CFloatingDragPreview;
 	friend struct FloatingDragPreviewPrivate;
+	using Super = QFrame;
 
 protected:
 	/**
@@ -215,6 +216,7 @@ public:
 	 * If all dock widgets in a dock area are closed, the dock area will be closed
 	 */
 	QList<CDockAreaWidget*> openedDockAreas() const;
+	void openedDockAreas(QList<CDockAreaWidget*>& result) const;
 
     /**
      * This function returns true if this dock area has only one single
@@ -264,6 +266,15 @@ public:
 	 * Call this function to close all dock areas except the KeepOpenArea
 	 */
 	void closeOtherAreas(CDockAreaWidget* KeepOpenArea);
+
+	/**
+	 * Show the floating widgets that has been created floating
+	 */
+	virtual void showEvent(QShowEvent *event); // override;
+
+#ifdef Q_OS_LINUX
+	bool eventFilter(QObject *obj, QEvent *e) override;
+#endif
 
 Q_SIGNALS:
 	/**

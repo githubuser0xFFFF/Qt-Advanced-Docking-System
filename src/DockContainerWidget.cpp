@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QXmlStreamWriter>
 #include <QAbstractButton>
+#include <QApplication>
 
 #include "DockManager.h"
 #include "DockAreaWidget.h"
@@ -1292,14 +1293,8 @@ CDockContainerWidget::CDockContainerWidget(CDockManager* DockManager, QWidget *p
 
 	// The function d->newSplitter() accesses the config flags from dock
 	// manager which in turn requires a properly constructed dock manager.
-	// If this dock container is the dock manager, then it is not properly
-	// constructed yet because this base class constructor is called before
-	// the constructor of the DockManager private class
-	if (DockManager != this)
-	{
-		d->DockManager->registerDockContainer(this);
-		createRootSplitter();
-	}
+	d->DockManager->registerDockContainer(this);
+	createRootSplitter();
 }
 
 //============================================================================
@@ -1612,6 +1607,12 @@ void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, 
 QList<CDockAreaWidget*> CDockContainerWidget::openedDockAreas() const
 {
 	QList<CDockAreaWidget*> Result;
+	openedDockAreas(Result);
+	return Result;
+}
+void
+CDockContainerWidget::openedDockAreas(QList<CDockAreaWidget*> &Result) const
+{
 	for (auto DockArea : d->DockAreas)
 	{
 		if (!DockArea->isHidden())
@@ -1619,8 +1620,6 @@ QList<CDockAreaWidget*> CDockContainerWidget::openedDockAreas() const
 			Result.append(DockArea);
 		}
 	}
-
-	return Result;
 }
 
 
@@ -1859,6 +1858,78 @@ void CDockContainerWidget::closeOtherAreas(CDockAreaWidget* KeepOpenArea)
 	}
 }
 
+//============================================================================
+void CDockContainerWidget::showEvent(QShowEvent *event)
+{
+	Super::showEvent(event);
+        d->DockManager->showEvent(event);
+}
+
+
+//============================================================================
+
+#ifdef Q_OS_LINUX
+bool CDockContainerWidget::eventFilter(QObject *obj, QEvent *e)
+{
+	// Emulate Qt:Tool behaviour.
+	// Required because on some WMs Tool windows can't be maximized.
+	// Window always on top of the MainWindow.
+	if (e->type() == QEvent::WindowActivate)
+	{
+		for (auto _window : d->DockManager->floatingWidgets())
+		{
+			if (!_window->isVisible() || window()->isMinimized())
+			{
+				continue;
+			}
+			// setWindowFlags(Qt::WindowStaysOnTopHint) will hide the window and thus requires a show call.
+			// This then leads to flickering and a nasty endless loop (also buggy behaviour on Ubuntu).
+			// So we just do it ourself.
+			internal::xcb_update_prop(true, _window->window()->winId(),
+				"_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
+		}
+	}
+	else if (e->type() == QEvent::WindowDeactivate)
+	{
+		for (auto _window : d->DockManager->floatingWidgets())
+		{
+			if (!_window->isVisible() || window()->isMinimized())
+			{
+				continue;
+			}
+			internal::xcb_update_prop(false, _window->window()->winId(),
+				"_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
+			_window->raise();
+		}
+	}
+
+	// Sync minimize with MainWindow
+	if (e->type() == QEvent::WindowStateChange)
+	{
+		for (auto _window : d->DockManager->floatingWidgets())
+		{
+			if (! _window->isVisible())
+			{
+				continue;
+			}
+
+			if (window()->isMinimized())
+			{
+				_window->showMinimized();
+			}
+			else
+			{
+				_window->setWindowState(_window->windowState() & (~Qt::WindowMinimized));
+			}
+		}
+		if (window()->isMinimized())
+		{
+			QApplication::setActiveWindow(window());
+		}
+	}
+	return Super::eventFilter(obj, e);
+}
+#endif
 
 } // namespace ads
 

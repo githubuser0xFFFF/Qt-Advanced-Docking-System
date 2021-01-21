@@ -596,7 +596,7 @@ void FloatingDockContainerPrivate::handleEscapeKey()
 
 //============================================================================
 CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
-	tFloatingWidgetBase(DockManager),
+	tFloatingWidgetBase(),
 	d(new FloatingDockContainerPrivate(this))
 {
 	d->DockManager = DockManager;

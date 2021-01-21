@@ -42,7 +42,7 @@ StatusDialogPrivate::StatusDialogPrivate(CStatusDialog *_public) :
 
 //============================================================================
 CStatusDialog::CStatusDialog(ads::CDockManager* DockManager) :
-	QDialog(DockManager),
+	QDialog(),
 	d(new StatusDialogPrivate(this))
 {
 	d->ui.setupUi(this);

@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QVBoxLayout* Layout = new QVBoxLayout(ui->dockContainer);
 	Layout->setContentsMargins(QMargins(0, 0, 0, 0));
 	m_DockManager = new ads::CDockManager(ui->dockContainer);
-	Layout->addWidget(m_DockManager);
+        Layout->addWidget(ui->dockContainer);
 
 	// Create example content label - this can be any application specific
 	// widget

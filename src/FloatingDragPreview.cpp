@@ -262,7 +262,7 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 
 //============================================================================
 CFloatingDragPreview::CFloatingDragPreview(CDockWidget* Content)
-	: CFloatingDragPreview((QWidget*)Content, Content->dockManager())
+    : CFloatingDragPreview((QWidget*)Content ,nullptr/*, Content->dockManager()*/)
 {
 	d->DockManager = Content->dockManager();
 	if (Content->dockAreaWidget()->openDockWidgetsCount() == 1)
@@ -275,7 +275,7 @@ CFloatingDragPreview::CFloatingDragPreview(CDockWidget* Content)
 
 //============================================================================
 CFloatingDragPreview::CFloatingDragPreview(CDockAreaWidget* Content)
-	: CFloatingDragPreview((QWidget*)Content, Content->dockManager())
+    : CFloatingDragPreview((QWidget*)Content, nullptr/*Content->dockManager()*/)
 {
 	d->DockManager = Content->dockManager();
 	d->ContentSourceArea = Content;
