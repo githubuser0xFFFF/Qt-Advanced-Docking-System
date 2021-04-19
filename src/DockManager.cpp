@@ -505,6 +505,20 @@ CDockManager::CDockManager(QWidget *parent) :
 //============================================================================
 CDockManager::~CDockManager()
 {
+    // fix memory leaks, see https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/307
+    std::vector<ads::CDockAreaWidget*> areas;
+    for ( int i = 0; i != dockAreaCount(); ++i )
+    {
+        areas.push_back( dockArea(i) );
+    }
+    for ( auto area : areas )
+    {
+        for ( auto widget : area->dockWidgets() )
+            delete widget;
+
+        delete area;
+    }
+
 	auto FloatingWidgets = d->FloatingWidgets;
 	for (auto FloatingWidget : FloatingWidgets)
 	{
