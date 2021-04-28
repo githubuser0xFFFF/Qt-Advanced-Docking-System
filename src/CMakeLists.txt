@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
-find_package(Qt5 5.5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
 if (UNIX AND NOT APPLE)
-	find_package(Qt5 5.5 COMPONENTS X11Extras REQUIRED)
+	find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS X11Extras REQUIRED)
 endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(BUILD_STATIC)
@@ -60,12 +61,14 @@ else()
     add_library(qtadvanceddocking SHARED ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions(qtadvanceddocking PRIVATE ADS_SHARED_EXPORT)
 endif()
-target_link_libraries(qtadvanceddocking PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets)
+target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core 
+                                               Qt${QT_VERSION_MAJOR}::Gui 
+                                               Qt${QT_VERSION_MAJOR}::Widgets)
 if(UNIX AND NOT APPLE)
-    target_link_libraries(qtadvanceddocking PUBLIC Qt5::X11Extras)
+    target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::X11Extras)
 	target_link_libraries(qtadvanceddocking PRIVATE xcb)
 endif()
-set_target_properties(qtadvanceddocking PROPERTIES 
+set_target_properties(qtadvanceddocking PROPERTIES
     AUTOMOC ON
     AUTORCC ON
     CXX_STANDARD 14
@@ -84,13 +87,13 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 install(FILES ${ads_HEADERS}
-    DESTINATION include 
+    DESTINATION include
     COMPONENT headers
 )
-install(FILES 
+install(FILES
     "${CMAKE_SOURCE_DIR}/LICENSE"
     "${CMAKE_SOURCE_DIR}/gnu-lgpl-v2.1.md"
-    DESTINATION license 
+    DESTINATION license
     COMPONENT license
 )
 install(TARGETS qtadvanceddocking

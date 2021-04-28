@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(ads_example_sidebar VERSION ${VERSION_SHORT}) 
-find_package(Qt5 5.5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_executable(SidebarExample WIN32 
     main.cpp
@@ -9,7 +10,9 @@ add_executable(SidebarExample WIN32
 )
 target_include_directories(SidebarExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 target_link_libraries(SidebarExample PRIVATE qtadvanceddocking)
-target_link_libraries(SidebarExample PUBLIC Qt5::Core Qt5::Gui Qt5::Widgets)
+target_link_libraries(SidebarExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
+                                            Qt${QT_VERSION_MAJOR}::Gui 
+                                            Qt${QT_VERSION_MAJOR}::Widgets)
 set_target_properties(SidebarExample PROPERTIES 
     AUTOMOC ON
     AUTORCC ON
