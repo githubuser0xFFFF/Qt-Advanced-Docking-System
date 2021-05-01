@@ -277,20 +277,6 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 //============================================================================
 CDockAreaTitleBar::~CDockAreaTitleBar()
 {
-	if (!d->CloseButton.isNull())
-	{
-		delete d->CloseButton;
-	}
-
-	if (!d->TabsMenuButton.isNull())
-	{
-		delete d->TabsMenuButton;
-	}
-
-	if (!d->UndockButton.isNull())
-	{
-		delete d->UndockButton;
-	}
 	delete d;
 }
 
