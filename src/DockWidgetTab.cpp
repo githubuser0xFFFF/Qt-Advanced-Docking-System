@@ -677,6 +677,9 @@ bool CDockWidgetTab::event(QEvent *e)
 	{
 		const auto text = toolTip();
 		d->TitleLabel->setToolTip(text);
+		if (d->IconLabel) {
+			d->IconLabel->setToolTip(text);
+		}
 	}
 #endif
 	return Super::event(e);
