@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-project(ads_example_simple VERSION ${VERSION_SHORT}) 
+project(ads_example_dockindock VERSION ${VERSION_SHORT}) 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-add_executable(DockInDock WIN32 
+add_executable(DockInDockExample WIN32 
     dockindock.cpp
     dockindockmanager.cpp
     perspectiveactions.cpp
@@ -11,12 +11,12 @@ add_executable(DockInDock WIN32
     main.cpp
     mainframe.cpp
 )
-target_include_directories(SimpleExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(SimpleExample PRIVATE qtadvanceddocking)
-target_link_libraries(SimpleExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
+target_include_directories(DockInDockExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
+target_link_libraries(DockInDockExample PRIVATE qtadvanceddocking)
+target_link_libraries(DockInDockExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                            Qt${QT_VERSION_MAJOR}::Gui 
                                            Qt${QT_VERSION_MAJOR}::Widgets)
-set_target_properties(SimpleExample PROPERTIES 
+set_target_properties(DockInDockExample PROPERTIES 
     AUTOMOC ON
     AUTORCC ON
     AUTOUIC ON
