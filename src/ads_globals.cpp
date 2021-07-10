@@ -38,14 +38,32 @@
 #include "IconProvider.h"
 #include "ads_globals.h"
 
+#include <QApplication>
+
 #ifdef Q_OS_LINUX
-#include <QX11Info>
 #include <QSettings>
 #include <QFile>
+#include <qpa/qplatformnativeinterface.h>
+
+namespace QX11Info {
+    bool isPlatformX11()
+    {
+        return QGuiApplication::platformName() == QLatin1String("xcb");
+    }
+
+    xcb_connection_t* connection()
+    {
+        if (!qApp)
+            return nullptr;
+        QPlatformNativeInterface *native = qApp->platformNativeInterface();
+        if (!native)
+            return nullptr;
+
+        void *connection = native->nativeResourceForIntegration(QByteArray("connection"));
+        return reinterpret_cast<xcb_connection_t *>(connection);
+    }
+}
 #endif
-
-
-#include <QApplication>
 
 namespace ads
 {
@@ -55,7 +73,6 @@ namespace internal
 #ifdef Q_OS_LINUX
 static QString _window_manager;
 static QHash<QString, xcb_atom_t> _xcb_atom_cache;
-
 
 //============================================================================
 xcb_atom_t xcb_get_atom(const char *name)
