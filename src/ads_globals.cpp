@@ -137,7 +137,7 @@ void xcb_update_prop(bool set, WId window, const char *type, const char *prop, c
 //============================================================================
 xcb_get_property_reply_t* _xcb_get_props(WId window, const char *type, unsigned int atom_type)
 {
-	if (!is_platform_x11)
+    if (!is_platform_x11())
 	{
 		return nullptr;
 	}
@@ -225,7 +225,7 @@ bool xcb_dump_props(WId window, const char *type)
 //============================================================================
 void xcb_add_prop(bool state, WId window, const char *type, const char *prop)
 {
-	if (!is_platform_x11)
+    if (!is_platform_x11())
 	{
 		return;
 	}
@@ -257,7 +257,7 @@ QString detectWindowManagerX11()
 {
 	// Tries to detect the windowmanager via X11.
 	// See: https://specifications.freedesktop.org/wm-spec/1.3/ar01s03.html#idm46018259946000
-	if (!is_platform_x11)
+    if (!is_platform_x11())
 	{
 		return "UNKNOWN";
 	}
