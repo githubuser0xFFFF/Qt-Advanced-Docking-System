@@ -17,5 +17,4 @@ else{
 
 unix:!macx {
     LIBS += -lxcb
-    QT += x11extras
 }

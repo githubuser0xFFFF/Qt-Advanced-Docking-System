@@ -227,9 +227,7 @@ class build_ext(sipdistutils.build_ext):
                 extension.extra_link_args += ['-F' + self.qtconfig.QT_INSTALL_LIBS,
                     '-mmacosx-version-min=10.9']
             elif sys.platform == 'linux':
-                extension.extra_compile_args += ['-D', 'QT_X11EXTRAS_LIB', '-std=c++11']
-                extension.include_dirs += [os.path.join(self.qt_include_dir, 'QtX11Extras')]
-                extension.libraries += ['Qt5X11Extras' + self.qt_libinfix]
+                extension.extra_compile_args += ['-std=c++11']
 
         return super().swig_sources(sources, extension)
 
