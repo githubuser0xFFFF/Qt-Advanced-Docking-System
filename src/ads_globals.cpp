@@ -74,6 +74,7 @@ namespace internal
 static QString _window_manager;
 static QHash<QString, xcb_atom_t> _xcb_atom_cache;
 
+
 //============================================================================
 xcb_atom_t xcb_get_atom(const char *name)
 {
