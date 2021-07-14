@@ -74,6 +74,7 @@ unix:!macx {
 HEADERS += linux/FloatingWidgetTitleBar.h
 SOURCES += linux/FloatingWidgetTitleBar.cpp
 LIBS += -lxcb
+QT += gui-private
 }
 
 isEmpty(PREFIX){
