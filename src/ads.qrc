@@ -14,5 +14,7 @@
         <file>images/maximize-button-focused.svg</file>
         <file>images/restore-button.svg</file>
         <file>images/restore-button-focused.svg</file>
+        <file>ads.ts</file>
+        <file>ads.qm</file>
     </qresource>
 </RCC>

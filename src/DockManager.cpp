@@ -45,6 +45,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QApplication>
+#include <QTranslator>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -110,6 +111,7 @@ struct DockManagerPrivate
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
     CDockWidget* CentralWidget = nullptr;
+    QTranslator* Translator = nullptr;
 
 	/**
 	 * Private data constructor
@@ -496,6 +498,8 @@ CDockManager::CDockManager(QWidget *parent) :
 	{
 		d->FocusController = new CDockFocusController(this);
 	}
+
+    d->Translator = new QTranslator(this);
 
 #ifdef Q_OS_LINUX
 	window()->installEventFilter(this);
@@ -886,9 +890,9 @@ void CDockManager::openPerspective(const QString& PerspectiveName)
 
 
 //============================================================================
-void CDockManager::savePerspectives(QSettings& Settings) const
+void CDockManager::savePerspectives(QSettings& Settings, const QString& suffix) const
 {
-	Settings.beginWriteArray("Perspectives", d->Perspectives.size());
+	Settings.beginWriteArray("Perspectives" + suffix, d->Perspectives.size());
 	int i = 0;
 	for (auto it = d->Perspectives.constBegin(); it != d->Perspectives.constEnd(); ++it)
 	{
@@ -902,10 +906,10 @@ void CDockManager::savePerspectives(QSettings& Settings) const
 
 
 //============================================================================
-void CDockManager::loadPerspectives(QSettings& Settings)
+void CDockManager::loadPerspectives(QSettings& Settings, const QString& suffix)
 {
 	d->Perspectives.clear();
-	int Size = Settings.beginReadArray("Perspectives");
+	int Size = Settings.beginReadArray("Perspectives" + suffix);
 	if (!Size)
 	{
 		Settings.endArray();
@@ -1145,6 +1149,21 @@ void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<
 CDockFocusController* CDockManager::dockFocusController() const
 {
 	return d->FocusController;
+}
+
+//===========================================================================
+bool CDockManager::loadTranslation(const QString& language)
+{
+    bool result = false;
+
+    // remove the old translator
+    qApp->removeTranslator(d->Translator);
+
+    // load the new translator
+    if (d->Translator->load(language))
+        result = qApp->installTranslator(d->Translator);
+
+    return result;
 }
 
 } // namespace ads

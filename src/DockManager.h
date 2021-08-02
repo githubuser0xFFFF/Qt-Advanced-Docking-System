@@ -260,6 +260,11 @@ public:
 	 * styleheets for icons is not an option.
 	 */
 	static CIconProvider& iconProvider();
+	
+    /**
+     * loads the translation specified by two letter code
+     */
+    bool loadTranslation(const QString& language);
 
 	/**
 	 * Adds dockwidget into the given area.
@@ -386,12 +391,12 @@ public:
 	/**
 	 * Saves the perspectives to the given settings file.
 	 */
-	void savePerspectives(QSettings& Settings) const;
+	void savePerspectives(QSettings& Settings, const QString& suffix = QString()) const;
 
 	/**
 	 * Loads the perspectives from the given settings file
 	 */
-	void loadPerspectives(QSettings& Settings);
+	void loadPerspectives(QSettings& Settings, const QString& suffix = QString());
 
     /**
      * This function returns managers central widget or nullptr if no central widget is set.
