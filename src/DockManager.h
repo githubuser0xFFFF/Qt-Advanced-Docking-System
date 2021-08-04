@@ -260,11 +260,6 @@ public:
 	 * styleheets for icons is not an option.
 	 */
 	static CIconProvider& iconProvider();
-	
-    /**
-     * loads the translation specified by two letter code
-     */
-    bool loadTranslation(const QString& language);
 
 	/**
 	 * Adds dockwidget into the given area.

@@ -45,7 +45,6 @@
 #include <QSettings>
 #include <QMenu>
 #include <QApplication>
-#include <QTranslator>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -111,7 +110,6 @@ struct DockManagerPrivate
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
     CDockWidget* CentralWidget = nullptr;
-    QTranslator* Translator = nullptr;
 
 	/**
 	 * Private data constructor
@@ -498,8 +496,6 @@ CDockManager::CDockManager(QWidget *parent) :
 	{
 		d->FocusController = new CDockFocusController(this);
 	}
-
-    d->Translator = new QTranslator(this);
 
 #ifdef Q_OS_LINUX
 	window()->installEventFilter(this);
@@ -1149,21 +1145,6 @@ void CDockManager::setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<
 CDockFocusController* CDockManager::dockFocusController() const
 {
 	return d->FocusController;
-}
-
-//===========================================================================
-bool CDockManager::loadTranslation(const QString& language)
-{
-    bool result = false;
-
-    // remove the old translator
-    qApp->removeTranslator(d->Translator);
-
-    // load the new translator
-    if (d->Translator->load(language))
-        result = qApp->installTranslator(d->Translator);
-
-    return result;
 }
 
 } // namespace ads
