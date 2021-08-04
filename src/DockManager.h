@@ -66,7 +66,7 @@ class CDockFocusController;
  * \code
  * DockManager->setStyleSheet("");
  * \endcode
- **/
+f **/
 class ADS_EXPORT CDockManager : public CDockContainerWidget
 {
 	Q_OBJECT
@@ -391,12 +391,12 @@ public:
 	/**
 	 * Saves the perspectives to the given settings file.
 	 */
-	void savePerspectives(QSettings& Settings, const QString& suffix = QString()) const;
+	void savePerspectives(QSettings& Settings) const;
 
 	/**
 	 * Loads the perspectives from the given settings file
 	 */
-	void loadPerspectives(QSettings& Settings, const QString& suffix = QString());
+	void loadPerspectives(QSettings& Settings);
 
     /**
      * This function returns managers central widget or nullptr if no central widget is set.

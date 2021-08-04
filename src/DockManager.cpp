@@ -890,9 +890,9 @@ void CDockManager::openPerspective(const QString& PerspectiveName)
 
 
 //============================================================================
-void CDockManager::savePerspectives(QSettings& Settings, const QString& suffix) const
+void CDockManager::savePerspectives(QSettings& Settings) const
 {
-	Settings.beginWriteArray("Perspectives" + suffix, d->Perspectives.size());
+	Settings.beginWriteArray("Perspectives", d->Perspectives.size());
 	int i = 0;
 	for (auto it = d->Perspectives.constBegin(); it != d->Perspectives.constEnd(); ++it)
 	{
@@ -906,10 +906,10 @@ void CDockManager::savePerspectives(QSettings& Settings, const QString& suffix) 
 
 
 //============================================================================
-void CDockManager::loadPerspectives(QSettings& Settings, const QString& suffix)
+void CDockManager::loadPerspectives(QSettings& Settings)
 {
 	d->Perspectives.clear();
-	int Size = Settings.beginReadArray("Perspectives" + suffix);
+	int Size = Settings.beginReadArray("Perspectives");
 	if (!Size)
 	{
 		Settings.endArray();
