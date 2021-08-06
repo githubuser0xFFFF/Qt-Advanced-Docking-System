@@ -15,10 +15,13 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
-The [release 3.7.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
-adds support for Qt6.
+The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
+adds the following features:
 
-The [release 3.6.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
+- support for **Qt6.**
+- support for [empty dock area](doc/user-guide.md#empty-dock-area)
+
+The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
 adds some nice new features:
 
 - support for [central widget](doc/user-guide.md#central-widget) concept
@@ -32,7 +35,7 @@ adds some nice new features:
 Both features are contributions from ADS users. Read the [documentation](doc/user-guide.md)
 to learn more about both new features.
 
-The [release 3.5.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.0)
+The [release 3.5](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.5.0)
 adds the new [focus highlighting](doc/user-guide.md#focushighlighting) feature.
 This optional feature enables highlighting of the focused dock widget like you
 know it from Visual Studio.
@@ -78,6 +81,7 @@ know it from Visual Studio.
   - [ezEditor](#ezeditor)
   - [D-Tect X](#d-tect-x)
   - [HiveWE](#hivewe)
+  - [Ramses Composer](#ramses-composer)
 
 ### Docking everywhere - no central widget
 
@@ -216,7 +220,13 @@ Screenshot Ubuntu:
 
 ## Build
 
-Open the `ads.pro` with QtCreator and start the build, that's it.
+The Linux build requires private header files. Make sure that they are installed:
+
+```bash
+sudo apt install qtbase5-private-dev
+```
+
+Open the `ads.pro` file with QtCreator and start the build, that's it.
 You can run the demo project and test it yourself.
 
 ## Getting started / Example
@@ -351,7 +361,7 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 > The most obvious change in [Qt Design Studio 1.5](https://www.qt.io/blog/qt-design-studio-1.5-beta-released) is the integration of dock widgets using the Qt Advanced Docking System. This allows the user to fully customize the workspace and also to undock any view into its own top level window. This especially improves the usability when using multiple screens.
 
-![Qt Design Studio](doc/showcase_qt_design_studio.png)
+[![Qt Design Studio](doc/showcase_qt_design_studio_video.png)](https://youtu.be/za9KBWcFXEw?t=84)
 
 ### [QmixElements](https://www.cetoni.com/products/qmixelements/)
 
@@ -388,3 +398,18 @@ of the open editor windows.
 [learn more...](https://github.com/stijnherfst/HiveWE)
 
 ![HiveWE](doc/showcase_hivewe.png)
+
+### [Ramses Composer](https://github.com/GENIVI/ramses-composer)
+
+Ramses Composer is the authoring tool for the open source [RAMSES](https://github.com/GENIVI/ramses)
+rendering ecosystem.
+
+Ramses is a low-level rendering engine which is optimized for embedded hardware
+mobile devices, automotive ECUs, IoT electronics. Ramses was initially developed
+at the BMW Group and open-sourced in 2018 as part of a collaboration initiative
+with the Genivi Alliance. It is an important part of the BMW infotainment cluster
+and digital portfolio.
+
+[learn more...](https://github.com/GENIVI/ramses-composer)
+
+![RamsesComposer](doc/showcase_ramses_composer.png)

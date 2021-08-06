@@ -133,7 +133,9 @@ void DockWidgetPrivate::showDockWidget()
 	if (!DockArea)
 	{
 		CFloatingDockContainer* FloatingWidget = new CFloatingDockContainer(_this);
-		FloatingWidget->resize(_this->size());
+		// We use the size hint of the content widget to provide a good
+		// initial size
+		FloatingWidget->resize(Widget ? Widget->sizeHint() : _this->sizeHint());
 		TabWidget->show();
 		FloatingWidget->show();
 	}
@@ -338,7 +340,7 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 		return;
 	}
 	d->Features = features;
-	emit featuresChanged(d->Features);
+	Q_EMIT featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
 	if(CDockAreaWidget* DockArea = dockAreaWidget())
 		DockArea->onDockWidgetFeaturesChanged();
@@ -538,9 +540,9 @@ void CDockWidget::toggleViewInternal(bool Open)
 
 	if (!Open)
 	{
-		emit closed();
+		Q_EMIT closed();
 	}
-	emit viewToggled(Open);
+	Q_EMIT viewToggled(Open);
 }
 
 
@@ -580,11 +582,11 @@ bool CDockWidget::event(QEvent *e)
 	switch (e->type())
 	{
 	case QEvent::Hide:
-		emit visibilityChanged(false);
+		Q_EMIT visibilityChanged(false);
 		break;
 
 	case QEvent::Show:
-		emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+		Q_EMIT visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
         break;
 
 	case QEvent::WindowTitleChange :
@@ -602,7 +604,7 @@ bool CDockWidget::event(QEvent *e)
 			{
 				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
 			}
-			emit titleChanged(title);
+			Q_EMIT titleChanged(title);
 		}
 		break;
 
@@ -785,7 +787,7 @@ void CDockWidget::emitTopLevelChanged(bool Floating)
 	if (Floating != d->IsFloatingTopLevel)
 	{
 		d->IsFloatingTopLevel = Floating;
-		emit topLevelChanged(d->IsFloatingTopLevel);
+		Q_EMIT topLevelChanged(d->IsFloatingTopLevel);
 	}
 }
 
@@ -843,7 +845,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 {
 	if (!ForceClose)
 	{
-		emit closeRequested();
+		Q_EMIT closeRequested();
 	}
 
 	if (!ForceClose && features().testFlag(CDockWidget::CustomCloseHandling))
@@ -869,7 +871,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 			}
 		}
 		deleteDockWidget();
-		emit closed();
+		Q_EMIT closed();
     }
     else
     {

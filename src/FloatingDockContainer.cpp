@@ -609,7 +609,8 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 #ifdef Q_OS_LINUX
 	QDockWidget::setWidget(d->DockContainer);
 	QDockWidget::setFloating(true);
-	QDockWidget::setFeatures(QDockWidget::AllDockWidgetFeatures);
+	QDockWidget::setFeatures(QDockWidget::DockWidgetClosable
+		| QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
 	bool native_window = true;
 

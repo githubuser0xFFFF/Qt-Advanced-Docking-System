@@ -51,6 +51,7 @@
 #include "DockAreaTabBar.h"
 #include "IconProvider.h"
 #include "DockComponentsFactory.h"
+#include "DockFocusController.h"
 
 #include <iostream>
 
@@ -382,7 +383,7 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 {
 	int Index = Action->data().toInt();
 	d->TabBar->setCurrentIndex(Index);
-	emit tabBarClicked(Index);
+	Q_EMIT tabBarClicked(Index);
 }
 
 
@@ -471,7 +472,8 @@ void CDockAreaTitleBar::mousePressEvent(QMouseEvent* ev)
 
 		if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 		{
-			d->TabBar->currentTab()->setFocus(Qt::OtherFocusReason);
+			//d->TabBar->currentTab()->setFocus(Qt::OtherFocusReason);
+			d->dockManager()->dockFocusController()->setDockWidgetTabFocused(d->TabBar->currentTab());
 		}
 		return;
 	}

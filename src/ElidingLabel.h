@@ -84,7 +84,7 @@ public: // reimplements QLabel ----------------------------------------------
 	void setText(const QString &text);
 	QString text() const;
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted if the user clicks on the label (i.e. pressed
 	 * down then released while the mouse cursor is inside the label)

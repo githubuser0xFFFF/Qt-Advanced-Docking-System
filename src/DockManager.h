@@ -53,6 +53,7 @@ struct DockWidgetTabPrivate;
 struct DockAreaWidgetPrivate;
 class CIconProvider;
 class CDockComponentsFactory;
+class CDockFocusController;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -134,11 +135,17 @@ protected:
 	 */
 	void notifyFloatingWidgetDrop(CFloatingDockContainer* FloatingWidget);
 
-
 	/**
 	 * Show the floating widgets that has been created floating
 	 */
 	virtual void showEvent(QShowEvent *event) override;
+
+	/**
+	 * Acces for the internal dock focus controller.
+	 * This function only returns a valid object, if the FocusHighlighting
+	 * flag is set.
+	 */
+	CDockFocusController* dockFocusController() const;
 
 public:
 	using Super = CDockContainerWidget;
@@ -506,7 +513,7 @@ public:
      */
     void setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes);
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * Opens the perspective with the given name.
 	 */
@@ -519,11 +526,18 @@ public slots:
 	 */
 	void setDockWidgetFocused(CDockWidget* DockWidget);
 
-signals:
+Q_SIGNALS:
 	/**
-	 * This signal is emitted if the list of perspectives changed
+	 * This signal is emitted if the list of perspectives changed.
+	 * The list of perspectives changes if perspectives are added, removed
+	 * or if the perspective list has been loaded
 	 */
 	void perspectiveListChanged();
+
+	/**
+	 * This signal is emitted if the perspective list has been loaded
+	 */
+	void perspectiveListLoaded();
 
 	/**
 	 * This signal is emitted if perspectives have been removed

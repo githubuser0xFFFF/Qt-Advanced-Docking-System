@@ -50,6 +50,7 @@
 #include "DockOverlay.h"
 #include "DockManager.h"
 #include "IconProvider.h"
+#include "DockFocusController.h"
 
 
 namespace ads
@@ -207,6 +208,14 @@ struct DockWidgetTabPrivate
 		IconLabel->setVisible(true);
 	}
 
+	/**
+	 * Convenience function for access to the dock manager dock focus controller
+	 */
+	CDockFocusController* focusController() const
+	{
+		return DockWidget->dockManager()->dockFocusController();
+	}
+
 };
 // struct DockWidgetTabPrivate
 
@@ -234,6 +243,7 @@ void DockWidgetTabPrivate::createLayout()
 	CloseButton->setObjectName("tabCloseButton");
 	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, TabCloseIcon);
     CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    CloseButton->setFocusPolicy(Qt::NoFocus);
     updateCloseButtonSizePolicy();
 	internal::setToolTip(CloseButton, QObject::tr("Close Tab"));
 	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
@@ -331,10 +341,11 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	setAttribute(Qt::WA_NoMousePropagation, true);
 	d->DockWidget = DockWidget;
 	d->createLayout();
-	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+	setFocusPolicy(Qt::NoFocus);
+	/*if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 	{
 		setFocusPolicy(Qt::ClickFocus);
-	}
+	}*/
 }
 
 //============================================================================
@@ -353,7 +364,11 @@ void CDockWidgetTab::mousePressEvent(QMouseEvent* ev)
 		ev->accept();
         d->saveDragStartMousePosition(internal::globalPositionOf(ev));
         d->DragState = DraggingMousePressed;
-        emit clicked();
+        if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+        {
+        	d->focusController()->setDockWidgetTabFocused(this);
+        }
+        Q_EMIT clicked();
 		return;
 	}
 	Super::mousePressEvent(ev);
@@ -377,7 +392,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			// End of tab moving, emit signal
 			if (d->DockArea)
 			{
-                emit moved(internal::globalPositionOf(ev));
+                Q_EMIT moved(internal::globalPositionOf(ev));
 			}
 			break;
 
@@ -515,7 +530,8 @@ void CDockWidgetTab::setActiveTab(bool active)
 		bool UpdateFocusStyle = false;
 		if (active && !hasFocus())
 		{
-			setFocus(Qt::OtherFocusReason);
+			//setFocus(Qt::OtherFocusReason);
+			d->focusController()->setDockWidgetTabFocused(this);
 			UpdateFocusStyle = true;
 		}
 
@@ -538,7 +554,7 @@ void CDockWidgetTab::setActiveTab(bool active)
 	update();
 	updateGeometry();
 
-	emit activeTabChanged();
+	Q_EMIT activeTabChanged();
 }
 
 
@@ -629,7 +645,7 @@ void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 //============================================================================
 void CDockWidgetTab::setVisible(bool visible)
 {
-	// Just here for debugging to insert debug output
+	visible &= !d->DockWidget->features().testFlag(CDockWidget::NoTab);
     Super::setVisible(visible);
 }
 
@@ -677,6 +693,9 @@ bool CDockWidgetTab::event(QEvent *e)
 	{
 		const auto text = toolTip();
 		d->TitleLabel->setToolTip(text);
+		if (d->IconLabel) {
+			d->IconLabel->setToolTip(text);
+		}
 	}
 #endif
 	return Super::event(e);

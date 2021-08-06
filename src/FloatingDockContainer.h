@@ -118,7 +118,7 @@ private:
 	friend class CDockAreaWidget;
     friend class CFloatingWidgetTitleBar;
 
-private slots:
+private Q_SLOTS:
 	void onDockAreasAddedOrRemoved();
 	void onDockAreaCurrentChanged(int Index);
 

@@ -67,7 +67,7 @@ private:
 	friend class CDockManager;
 	void onDockWidgetFeaturesChanged();
 
-private slots:
+private Q_SLOTS:
 	void onTabCloseRequested(int Index);
 
 	/**
@@ -77,6 +77,17 @@ private slots:
 	void reorderDockWidget(int fromIndex, int toIndex);
 
 protected:
+
+#ifdef Q_OS_WIN
+	/**
+	 * Reimplements QWidget::event to handle QEvent::PlatformSurface
+	 * This is here to fix issue #294 Tab refresh problem with a QGLWidget
+	 * that exists since Qt version 5.12.7. So this function is here to
+	 * work around a Qt issue.
+	 */
+	virtual bool event(QEvent *event) override;
+#endif
+
 	/**
 	 * Inserts a dock widget into dock area.
 	 * All dockwidgets in the dock area tabified in a stacked layout with tabs.
@@ -138,7 +149,7 @@ protected:
 	 */
 	void markTitleBarMenuOutdated();
 
-protected slots:
+protected Q_SLOTS:
 	void toggleView(bool Open);
 
 public:
@@ -312,7 +323,7 @@ public:
      */
     bool isCentralWidgetArea() const;
 
-public slots:
+public Q_SLOTS:
 	/**
 	 * This activates the tab for the given tab index.
 	 * If the dock widget for the given tab is not visible, the this function
@@ -330,7 +341,7 @@ public slots:
 	 */
 	void closeOtherAreas();
 
-signals:
+Q_SIGNALS:
 	/**
 	 * This signal is emitted when user clicks on a tab at an index.
 	 */

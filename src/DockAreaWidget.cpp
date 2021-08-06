@@ -378,7 +378,7 @@ CDockAreaWidget::CDockAreaWidget(CDockManager* DockManager, CDockContainerWidget
 	d->ContentsLayout = new DockAreaLayout(d->Layout);
 	if (d->DockManager)
 	{
-		emit d->DockManager->dockAreaCreated(this);
+		Q_EMIT d->DockManager->dockAreaCreated(this);
 	}
 }
 
@@ -604,11 +604,11 @@ void CDockAreaWidget::setCurrentIndex(int index)
 		return;
 	}
 
-    emit currentChanging(index);
+    Q_EMIT currentChanging(index);
     TabBar->setCurrentIndex(index);
 	d->ContentsLayout->setCurrentIndex(index);
 	d->ContentsLayout->currentWidget()->show();
-	emit currentChanged(index);
+	Q_EMIT currentChanged(index);
 }
 
 
@@ -808,18 +808,49 @@ CDockWidget* CDockAreaWidget::nextOpenDockWidget(CDockWidget* DockWidget) const
 	auto OpenDockWidgets = openedDockWidgets();
 	if (OpenDockWidgets.count() > 1 || (OpenDockWidgets.count() == 1 && OpenDockWidgets[0] != DockWidget))
 	{
-		CDockWidget* NextDockWidget;
 		if (OpenDockWidgets.last() == DockWidget)
 		{
-			NextDockWidget = OpenDockWidgets[OpenDockWidgets.count() - 2];
+			CDockWidget* NextDockWidget = OpenDockWidgets[OpenDockWidgets.count() - 2];
+			// search backwards for widget with tab
+			for (int i = OpenDockWidgets.count() - 2; i >= 0; --i)
+			{
+				auto dw = OpenDockWidgets[i];
+				if (!dw->features().testFlag(CDockWidget::NoTab))
+				{
+					return dw;
+				}
+			}
+
+			// return widget without tab
+			return NextDockWidget;
 		}
 		else
 		{
-			int NextIndex = OpenDockWidgets.indexOf(DockWidget) + 1;
-			NextDockWidget = OpenDockWidgets[NextIndex];
-		}
+			int IndexOfDockWidget = OpenDockWidgets.indexOf(DockWidget);
+			CDockWidget* NextDockWidget = OpenDockWidgets[IndexOfDockWidget + 1];
+			// search forwards for widget with tab
+			for (int i = IndexOfDockWidget + 1; i < OpenDockWidgets.count(); ++i)
+			{
+				auto dw = OpenDockWidgets[i];
+				if (!dw->features().testFlag(CDockWidget::NoTab))
+				{
+					return dw;
+				}
+			}
 
-		return NextDockWidget;
+			// search backwards for widget with tab
+			for (int i = IndexOfDockWidget - 1; i >= 0; --i)
+			{
+				auto dw = OpenDockWidgets[i];
+				if (!dw->features().testFlag(CDockWidget::NoTab))
+				{
+					return dw;
+				}
+			}
+
+			// return widget without tab
+			return NextDockWidget;
+		}
 	}
 	else
 	{
@@ -857,7 +888,7 @@ void CDockAreaWidget::toggleView(bool Open)
 {
 	setVisible(Open);
 
-	emit viewToggled(Open);
+	Q_EMIT viewToggled(Open);
 }
 
 
@@ -998,6 +1029,21 @@ void CDockAreaWidget::onDockWidgetFeaturesChanged()
 	}
 }
 
+
+#ifdef Q_OS_WIN
+//============================================================================
+bool CDockAreaWidget::event(QEvent *e)
+{
+    switch (e->type())
+    {
+    case QEvent::PlatformSurface: return true;
+    default:
+        break;
+    }
+
+    return Super::event(e);
+}
+#endif
 
 } // namespace ads
 
