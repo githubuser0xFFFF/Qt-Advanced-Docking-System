@@ -215,6 +215,17 @@ class MainWindow(MainWindowUI, MainWindowBase):
         dock_widget = self.create_calendar_dock_widget()
         dock_widget.setTabToolTip("Tab ToolTip\nHodie est dies magna")
         dock_area = self.dock_manager.addDockWidget(QtAds.CenterDockWidgetArea, dock_widget, top_dock_area)
+        # Now we create a action to test resizing of DockArea widget
+        action = self.menuTests.addAction("Resize {}".format(dock_widget.windowTitle()))
+        def action_triggered():
+            splitter = QtAds.internal.findParent(QtAds.CDockSplitter, dock_area)
+            if not splitter:
+                return
+            # We change the sizes of the splitter that contains the Calendar 1 widget
+            # to resize the dock widget
+            width = splitter.width()
+            splitter.setSizes([width * 2/3, width * 1/3])
+        action.triggered.connect(action_triggered)
 
         # Now we add a custom button to the dock area title bar that will create
         # new editor widgets when clicked

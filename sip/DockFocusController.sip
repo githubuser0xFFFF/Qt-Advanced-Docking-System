@@ -21,6 +21,7 @@ public:
 	void notifyWidgetOrAreaRelocation(QWidget* RelocatedWidget);
 	void notifyFloatingWidgetDrop(ads::CFloatingDockContainer* FloatingWidget);
     ads::CDockWidget* focusedDockWidget() const;
+    void setDockWidgetTabFocused(ads::CDockWidgetTab* Tab);
 
 public slots:
 	void setDockWidgetFocused(ads::CDockWidget* focusedNow);

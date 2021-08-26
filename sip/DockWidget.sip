@@ -33,8 +33,10 @@ public:
         CustomCloseHandling,
         DockWidgetFocusable,
         DockWidgetForceCloseWithArea,
+        NoTab,
         DefaultDockWidgetFeatures,
         AllDockWidgetFeatures,
+        DockWidgetAlwaysCloseAndDelete,
 		NoDockWidgetFeatures
 	};
     typedef QFlags<ads::CDockWidget::DockWidgetFeature> DockWidgetFeatures;

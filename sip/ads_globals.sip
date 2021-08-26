@@ -2,6 +2,40 @@
 
 %If (Qt_5_0_0 -)
 
+%ModuleHeaderCode
+PyObject *qtads_FindParent(PyObject* type, const QWidget *child);
+%End
+
+%ModuleCode
+PyObject *qtads_FindParent(PyObject* type, const QWidget *w)
+{
+    // Check that the types checking was successful.
+    if (!type)
+        return 0;
+   
+    QWidget* parentWidget = w->parentWidget();
+
+    while (parentWidget)
+    {
+        PyObject *ParentImpl = sipConvertFromType(parentWidget, sipType_QObject, 0);
+        if (!ParentImpl)
+        {
+            return 0;
+        }
+            
+        if (PyType_IsSubtype((PyTypeObject *)type, Py_TYPE(ParentImpl)))
+            return ParentImpl;
+        
+        Py_DECREF(ParentImpl);
+        
+        parentWidget = parentWidget->parentWidget();
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%End
+
 namespace ads
 {
     %TypeHeaderCode
@@ -53,6 +87,50 @@ namespace ads
     {
         BitwiseAnd,
         BitwiseOr
+    };
+    
+    namespace internal
+    {    
+        void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To);
+        void hideEmptyParentSplitters(ads::CDockSplitter* FirstParentSplitter);
+        
+        class CDockInsertParam
+        {
+            %TypeHeaderCode
+            #include <ads_globals.h>
+            %End
+            
+        public:
+            Qt::Orientation orientation() const;
+            bool append() const;
+            int insertOffset() const;
+        };
+        ads::internal::CDockInsertParam dockAreaInsertParameters(ads::DockWidgetArea Area);
+        
+        SIP_PYOBJECT findParent(SIP_PYTYPE type, const QWidget *w) const /TypeHint="QObject"/;
+        %MethodCode
+        sipRes = qtads_FindParent(a0, a1);
+
+        if (!sipRes)
+        {
+            sipIsErr = 1;
+        }
+        %End
+        
+        QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity);  
+
+        QPoint globalPositionOf(QMouseEvent* ev);
+
+        void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap, ads::eIcon CustomIconId);
+        
+        enum eRepolishChildOptions
+        {
+            RepolishIgnoreChildren,
+            RepolishDirectChildren,
+            RepolishChildrenRecursively
+        };
+        
+       void repolishStyle(QWidget* w, ads::internal::eRepolishChildOptions Options = ads::internal::RepolishIgnoreChildren); 
     };
 
 };
