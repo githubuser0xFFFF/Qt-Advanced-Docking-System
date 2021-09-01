@@ -23,7 +23,7 @@ PyObject *qtads_FindParent(PyObject* type, const QWidget *w)
             return 0;
         }
             
-        if (PyType_IsSubtype((PyTypeObject *)type, Py_TYPE(ParentImpl)))
+        if (PyObject_IsInstance(ParentImpl, type))
             return ParentImpl;
         
         Py_DECREF(ParentImpl);
