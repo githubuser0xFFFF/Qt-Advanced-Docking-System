@@ -258,6 +258,11 @@ public:
      */
     QList<CDockWidget*> dockWidgets() const;
 
+	/**
+	 * This function hides the floating bar instantely and delete it later.
+	 */
+	void hideAndDeleteLater();
+
 #ifdef Q_OS_LINUX
     /**
 	 * This is a function that responds to FloatingWidgetTitleBar::maximizeRequest()
