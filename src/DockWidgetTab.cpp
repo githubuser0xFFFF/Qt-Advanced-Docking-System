@@ -392,15 +392,29 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			// End of tab moving, emit signal
 			if (d->DockArea)
 			{
+				ev->accept();
                 Q_EMIT moved(internal::globalPositionOf(ev));
 			}
 			break;
 
 		case DraggingFloatingWidget:
+			 ev->accept();
 			 d->FloatingWidget->finishDragging();
 			 break;
 
 		default:; // do nothing
+		}
+	} 
+	else if (ev->button() == Qt::MiddleButton)
+	{
+		if (CDockManager::testConfigFlag(CDockManager::MiddleMouseButtonClosesTab))
+		{
+			// Only attempt to close if the mouse is still
+			// on top of the widget, to allow the user to cancel.
+			if (rect().contains(mapFromGlobal(QCursor::pos()))) {
+				ev->accept();
+				Q_EMIT closeRequested();
+			}
 		}
 	}
 
@@ -628,14 +642,18 @@ QString CDockWidgetTab::text() const
 //============================================================================
 void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 {
-	// If this is the last dock area in a dock container it does not make
-	// sense to move it to a new floating widget and leave this one
-	// empty
-	if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
-		&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+	if (event->button() == Qt::LeftButton) 
 	{
-        d->saveDragStartMousePosition(internal::globalPositionOf(event));
-		d->startFloating(DraggingInactive);
+		// If this is the last dock area in a dock container it does not make
+		// sense to move it to a new floating widget and leave this one
+		// empty
+		if ((!d->DockArea->dockContainer()->isFloating() || d->DockArea->dockWidgetsCount() > 1)
+			&& d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+		{
+			event->accept();
+			d->saveDragStartMousePosition(internal::globalPositionOf(event));
+			d->startFloating(DraggingInactive);
+		}
 	}
 
 	Super::mouseDoubleClickEvent(event);
