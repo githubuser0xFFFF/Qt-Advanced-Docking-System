@@ -254,7 +254,7 @@ public:
     /**
      * Sets the widget for the dock widget to widget.
      * The InsertMode defines how the widget is inserted into the dock widget.
-     * The content of a dock widget should be resizable do a very small size to
+     * The content of a dock widget should be resizable to a very small size to
      * prevent the dock widget from blocking the resizing. To ensure, that a
      * dock widget can be resized very well, it is better to insert the content+
      * widget into a scroll area or to provide a widget that is already a scroll
