@@ -1565,8 +1565,9 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	}
 
 	if (Dropped)
-	{
-		FloatingWidget->deleteLater();
+	{ 
+		// Fix https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/351
+		FloatingWidget->hideAndDeleteLater();
 
 		// If we dropped a floating widget with only one single dock widget, then we
 		// drop a top level widget that changes from floating to docked now

@@ -373,6 +373,7 @@ struct FloatingDockContainerPrivate
 	CDockAreaWidget *SingleDockArea = nullptr;
 	QPoint DragStartPos;
 	bool Hiding = false;
+	bool AutoHideChildren = true;
 #ifdef Q_OS_LINUX
     QWidget* MouseEventHandler = nullptr;
     CFloatingWidgetTitleBar* TitleBar = nullptr;
@@ -841,15 +842,18 @@ void CFloatingDockContainer::hideEvent(QHideEvent *event)
         return;
     }
 
-    d->Hiding = true;
-	for (auto DockArea : d->DockContainer->openedDockAreas())
+	if ( d->AutoHideChildren )
 	{
-		for (auto DockWidget : DockArea->openedDockWidgets())
+		d->Hiding = true;
+		for ( auto DockArea : d->DockContainer->openedDockAreas() )
 		{
-			DockWidget->toggleView(false);
+			for ( auto DockWidget : DockArea->openedDockWidgets() )
+			{
+				DockWidget->toggleView( false );
+			}
 		}
+		d->Hiding = false;
 	}
-	d->Hiding = false;
 }
 
 
@@ -1033,6 +1037,18 @@ CDockWidget* CFloatingDockContainer::topLevelDockWidget() const
 QList<CDockWidget*> CFloatingDockContainer::dockWidgets() const
 {
 	return d->DockContainer->dockWidgets();
+}
+
+//============================================================================
+void CFloatingDockContainer::hideAndDeleteLater()
+{
+	// Widget has been redocked, so it must be hidden right way (see 
+	// https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/351)
+	// but AutoHideChildren must be set to false because "this" still contains
+	// dock widgets that shall not be toggled hidden.
+	d->AutoHideChildren = false;
+	hide();
+	deleteLater();
 }
 
 //============================================================================

@@ -66,6 +66,12 @@ namespace ads
  */
 struct DockWidgetPrivate
 {
+	struct WidgetFactory 
+	{
+		CDockWidget::FactoryFunc createWidget;
+		CDockWidget::eInsertMode insertMode;
+	};	
+	
 	CDockWidget* _this = nullptr;
 	QBoxLayout* Layout = nullptr;
 	QWidget* Widget = nullptr;
@@ -84,7 +90,8 @@ struct DockWidgetPrivate
 	bool IsFloatingTopLevel = false;
 	QList<QAction*> TitleBarActions;
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
-
+	WidgetFactory* Factory = nullptr;
+	
 	/**
 	 * Private data constructor
 	 */
@@ -116,6 +123,12 @@ struct DockWidgetPrivate
 	 * Setup the main scroll area
 	 */
 	void setupScrollArea();
+	
+	/**
+	 * Creates the content widget with the registered widget factory and
+	 * returns true on success.
+	 */
+	bool createWidgetFromFactory();
 };
 // struct DockWidgetPrivate
 
@@ -130,6 +143,17 @@ DockWidgetPrivate::DockWidgetPrivate(CDockWidget* _public) :
 //============================================================================
 void DockWidgetPrivate::showDockWidget()
 {
+	if (!Widget)
+	{
+		if (!createWidgetFromFactory())
+		{
+			Q_ASSERT(!Features.testFlag(CDockWidget::DeleteContentOnClose)
+					 && "DeleteContentOnClose flag was set, but the widget "
+						"factory is missing or it doesn't return a valid QWidget.");
+			return;	
+		}
+	}
+	
 	if (!DockArea)
 	{
 		CFloatingDockContainer* FloatingWidget = new CFloatingDockContainer(_this);
@@ -167,6 +191,12 @@ void DockWidgetPrivate::hideDockWidget()
 {
 	TabWidget->hide();
 	updateParentDockArea();
+	
+	if (Features.testFlag(CDockWidget::DeleteContentOnClose))
+	{
+		Widget->deleteLater();
+		Widget = nullptr;
+	}
 }
 
 
@@ -217,6 +247,30 @@ void DockWidgetPrivate::setupScrollArea()
 	ScrollArea->setObjectName("dockWidgetScrollArea");
 	ScrollArea->setWidgetResizable(true);
 	Layout->addWidget(ScrollArea);
+}
+
+
+//============================================================================
+bool DockWidgetPrivate::createWidgetFromFactory()
+{
+	if (!Features.testFlag(CDockWidget::DeleteContentOnClose)) 
+	{
+		return false;
+	}
+	
+	if (!Factory)
+	{
+		return false;
+	}
+	
+	QWidget* w = Factory->createWidget(_this);
+	if (!w)
+	{
+		return false;
+	}
+	
+	_this->setWidget(w, Factory->insertMode);
+	return true;
 }
 
 
@@ -288,6 +342,17 @@ void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 
 	d->Widget = widget;
 	d->Widget->setProperty("dockWidgetContent", true);
+}
+
+//============================================================================
+void CDockWidget::setWidgetFactory(FactoryFunc createWidget, eInsertMode insertMode)
+{
+	if (d->Factory)
+	{
+		delete d->Factory;
+	}
+
+	d->Factory = new DockWidgetPrivate::WidgetFactory { createWidget, insertMode };
 }
 
 
@@ -532,7 +597,8 @@ void CDockWidget::toggleViewInternal(bool Open)
 	CDockWidget* TopLevelDockWidgetAfter = DockContainer
 		? DockContainer->topLevelDockWidget() : nullptr;
 	CDockWidget::emitTopLevelEventForWidget(TopLevelDockWidgetAfter, true);
-	CFloatingDockContainer* FloatingContainer = DockContainer->floatingWidget();
+	CFloatingDockContainer* FloatingContainer = DockContainer
+		? DockContainer->floatingWidget() : nullptr;
 	if (FloatingContainer)
 	{
 		FloatingContainer->updateWindowTitle();

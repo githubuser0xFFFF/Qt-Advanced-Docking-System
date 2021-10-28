@@ -65,7 +65,7 @@ class CDockingStateReader;
  * This interface is used for opaque and non-opaque undocking. If opaque
  * undocking is used, the a real CFloatingDockContainer widget will be created
  */
-class IFloatingWidget
+class ADS_EXPORT IFloatingWidget
 {
 public:
     virtual ~IFloatingWidget() = default;
@@ -257,6 +257,11 @@ public:
      * function of the internal container widget.
      */
     QList<CDockWidget*> dockWidgets() const;
+
+	/**
+	 * This function hides the floating bar instantely and delete it later.
+	 */
+	void hideAndDeleteLater();
 
 #ifdef Q_OS_LINUX
     /**

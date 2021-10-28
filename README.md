@@ -15,6 +15,13 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.8.0)
+adds the following features:
+
+- option to close tabs with the middle mouse button
+- `DeleteContentOnClose` flag for dynamic deletion and creation of dock widget
+  content
+
 The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
 adds the following features:
 

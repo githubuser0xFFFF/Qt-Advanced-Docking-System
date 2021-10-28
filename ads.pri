@@ -1,7 +1,12 @@
 
 CONFIG(debug, debug|release){
     win32 {
-        LIBS += -lqtadvanceddockingd
+    	versionAtLeast(QT_VERSION, 5.15.0) {
+    		LIBS += -lqtadvanceddocking
+    	}
+    	else {
+    		LIBS += -lqtadvanceddockingd
+    	}
     }
     else:mac {
         LIBS += -lqtadvanceddocking_debug

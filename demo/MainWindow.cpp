@@ -630,6 +630,9 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment if you would like to enable an equal distribution of the
 	// available size of a splitter to all contained dock widgets
 	// CDockManager::setConfigFlag(CDockManager::EqualSplitOnInsertion, true);
+	
+	// uncomment if you would like to close tabs with the middle mouse button, web browser style
+	// CDockManager::setConfigFlag(CDockManager::MiddleMouseButtonClosesTab, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);

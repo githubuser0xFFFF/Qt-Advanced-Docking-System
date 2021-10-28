@@ -116,7 +116,13 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 		return;
 	}
 
-	auto Window = DockWidget->dockContainer()->window()->windowHandle();
+	QWindow* Window = nullptr;
+	auto DockContainer = DockWidget->dockContainer();
+	if (DockContainer)
+	{
+		Window = DockContainer->window()->windowHandle();
+	}
+
 	if (Window)
 	{
 		Window->setProperty("FocusedDockWidget", QVariant::fromValue<CDockWidget*>(DockWidget));
@@ -145,7 +151,14 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 	}
 
 
-    auto NewFloatingWidget = FocusedDockWidget->dockContainer()->floatingWidget();
+
+    CFloatingDockContainer* NewFloatingWidget = nullptr;
+    DockContainer = FocusedDockWidget->dockContainer();
+    if (DockContainer)
+    {
+    	NewFloatingWidget = DockContainer->floatingWidget();
+    }
+
     if (NewFloatingWidget)
     {
     	NewFloatingWidget->setProperty("FocusedDockWidget", QVariant::fromValue(DockWidget));
@@ -155,21 +168,19 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 #ifdef Q_OS_LINUX
 	// This code is required for styling the floating widget titlebar for linux
 	// depending on the current focus state
-    if (FloatingWidget == NewFloatingWidget)
-    {
-        return;
-    }
+	if (FloatingWidget != NewFloatingWidget)
+	{
+		if (FloatingWidget)
+		{
+			updateFloatingWidgetFocusStyle(FloatingWidget, false);
+		}
+		FloatingWidget = NewFloatingWidget;
 
-    if (FloatingWidget)
-    {
-        updateFloatingWidgetFocusStyle(FloatingWidget, false);
-    }
-    FloatingWidget = NewFloatingWidget;
-
-    if (FloatingWidget)
-    {
-        updateFloatingWidgetFocusStyle(FloatingWidget, true);
-    }
+		if (FloatingWidget)
+		{
+			updateFloatingWidgetFocusStyle(FloatingWidget, true);
+		}
+	}
 #endif
 
     if (old == DockWidget && !ForceFocusChangedSignal)

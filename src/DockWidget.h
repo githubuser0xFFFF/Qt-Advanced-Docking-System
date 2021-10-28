@@ -147,18 +147,19 @@ public:
 
     enum DockWidgetFeature
     {
-        DockWidgetClosable = 0x01,///< dock widget has a close button
-        DockWidgetMovable = 0x02,///< dock widget is movable and can be moved to a new position in the current dock container
-        DockWidgetFloatable = 0x04,///< dock widget can be dragged into a floating window
-        DockWidgetDeleteOnClose = 0x08, ///< deletes the dock widget when it is closed
-        CustomCloseHandling = 0x10, ///< clicking the close button will not close the dock widget but emits the closeRequested() signal instead
-        DockWidgetFocusable = 0x20, ///< if this is enabled, a dock widget can get focus highlighting
-        DockWidgetForceCloseWithArea = 0x40, ///< dock widget will be closed when the dock area hosting it is closed
-        NoTab = 0x80, ///< dock widget tab will never be shown if this flag is set
+        DockWidgetClosable = 0x001,///< dock widget has a close button
+        DockWidgetMovable = 0x002,///< dock widget is movable and can be moved to a new position in the current dock container
+        DockWidgetFloatable = 0x004,///< dock widget can be dragged into a floating window
+        DockWidgetDeleteOnClose = 0x008, ///< deletes the dock widget when it is closed
+        CustomCloseHandling = 0x010, ///< clicking the close button will not close the dock widget but emits the closeRequested() signal instead
+        DockWidgetFocusable = 0x020, ///< if this is enabled, a dock widget can get focus highlighting
+        DockWidgetForceCloseWithArea = 0x040, ///< dock widget will be closed when the dock area hosting it is closed
+        NoTab = 0x080, ///< dock widget tab will never be shown if this flag is set
+        DeleteContentOnClose = 0x100, ///< deletes only the contained widget on close, keeping the dock widget intact and in place. Attempts to rebuild the contents widget on show if there is a widget factory set.
         DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable,
         AllDockWidgetFeatures = DefaultDockWidgetFeatures | DockWidgetDeleteOnClose | CustomCloseHandling,
         DockWidgetAlwaysCloseAndDelete = DockWidgetForceCloseWithArea | DockWidgetDeleteOnClose,
-        NoDockWidgetFeatures = 0x00
+        NoDockWidgetFeatures = 0x000
     };
     Q_DECLARE_FLAGS(DockWidgetFeatures, DockWidgetFeature)
 
@@ -254,7 +255,7 @@ public:
     /**
      * Sets the widget for the dock widget to widget.
      * The InsertMode defines how the widget is inserted into the dock widget.
-     * The content of a dock widget should be resizable do a very small size to
+     * The content of a dock widget should be resizable to a very small size to
      * prevent the dock widget from blocking the resizing. To ensure, that a
      * dock widget can be resized very well, it is better to insert the content+
      * widget into a scroll area or to provide a widget that is already a scroll
@@ -269,7 +270,19 @@ public:
      * provide the InsertMode ForceNoScrollArea
      */
     void setWidget(QWidget* widget, eInsertMode InsertMode = AutoScrollArea);
-
+	
+	/**
+	 * Only used when the feature flag DeleteContentOnClose is set.
+	 * Using the flag and setting a widget factory allows to free the resources
+	 * of the widget of your application while retaining the position the next
+	 * time you want to show your widget, unlike the flag DockWidgetDeleteOnClose
+	 * which deletes the dock widget itself. Since we keep the dock widget, all
+	 * regular features of ADS should work as normal, including saving and
+	 * restoring the state of the docking system and using perspectives.
+	 */
+	using FactoryFunc = std::function<QWidget*(QWidget*)>;
+	void setWidgetFactory(FactoryFunc createWidget, eInsertMode InsertMode = AutoScrollArea);
+	
     /**
      * Remove the widget from the dock and give ownership back to the caller
      */
