@@ -60,6 +60,7 @@ struct DockFocusControllerPrivate
 };
 // struct DockFocusControllerPrivate
 
+static const char *FOCUSED_DOCK_WIDGET_PROPERTY_NAME {"FocusedDockWidget"};
 
 //===========================================================================
 static void updateDockWidgetFocusStyle(CDockWidget* DockWidget, bool Focused)
@@ -125,8 +126,27 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 
 	if (Window)
 	{
-		Window->setProperty("FocusedDockWidget", QVariant::fromValue<CDockWidget*>(DockWidget));
-	}
+        auto oldFocusedDockWidgetProperty = Window->property(FOCUSED_DOCK_WIDGET_PROPERTY_NAME);
+        QObject *objectPtrValue = nullptr;
+        if (oldFocusedDockWidgetProperty.isValid())
+            objectPtrValue = oldFocusedDockWidgetProperty.value<QObject *>();
+
+        if (objectPtrValue != DockWidget) {
+            Window->setProperty(FOCUSED_DOCK_WIDGET_PROPERTY_NAME, QVariant::fromValue<CDockWidget*>(DockWidget));
+            QObject::connect(DockWidget, &QObject::destroyed, Window, [Window, DockWidget]()
+            {
+                auto focusedDockWidgetProperty = Window->property(FOCUSED_DOCK_WIDGET_PROPERTY_NAME);
+                if (focusedDockWidgetProperty.isValid())
+                {
+                    const auto propertyObject = focusedDockWidgetProperty.value<QObject *>();
+                    if (propertyObject == DockWidget)
+                    {
+                        Window->setProperty(FOCUSED_DOCK_WIDGET_PROPERTY_NAME, QVariant(QVariant::Invalid));
+                    }
+                }
+            });
+        }
+    }
 	CDockAreaWidget* NewFocusedDockArea = nullptr;
 	if (FocusedDockWidget)
 	{
@@ -161,7 +181,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 
     if (NewFloatingWidget)
     {
-    	NewFloatingWidget->setProperty("FocusedDockWidget", QVariant::fromValue(DockWidget));
+        NewFloatingWidget->setProperty(FOCUSED_DOCK_WIDGET_PROPERTY_NAME, QVariant::fromValue(DockWidget));
     }
 
 
@@ -243,7 +263,7 @@ void CDockFocusController::onFocusWindowChanged(QWindow *focusWindow)
 		return;
 	}
 
-	auto vDockWidget = focusWindow->property("FocusedDockWidget");
+    auto vDockWidget = focusWindow->property(FOCUSED_DOCK_WIDGET_PROPERTY_NAME);
 	if (!vDockWidget.isValid())
 	{
 		return;
@@ -376,7 +396,7 @@ void CDockFocusController::notifyFloatingWidgetDrop(CFloatingDockContainer* Floa
 		return;
 	}
 
-	auto vDockWidget = FloatingWidget->property("FocusedDockWidget");
+    auto vDockWidget = FloatingWidget->property(FOCUSED_DOCK_WIDGET_PROPERTY_NAME);
 	if (!vDockWidget.isValid())
 	{
 		return;
