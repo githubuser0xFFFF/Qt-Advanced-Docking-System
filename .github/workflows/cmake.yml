@@ -28,6 +28,10 @@ jobs:
         sudo apt-get install qtbase5-private-dev
         sudo apt-get install ninja-build
 
+    - name: ls dir
+      # ls cur dir
+      run: ls -l
+
     - name: cmake version
       # Check CMake version
       run: cmake --version
