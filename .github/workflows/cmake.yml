@@ -20,6 +20,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: install qt
+      run: |
+        sudo apt-get update --fix-missing
+        sudo apt-get install qt5-default
+        sudo apt-get install qtbase5-private-dev
+        sudo apt-get install ninja-build
 
     - name: cmake version
       # Check CMake version
