@@ -163,8 +163,8 @@ void CElidingLabel::resizeEvent(QResizeEvent *event)
 //============================================================================
 QSize CElidingLabel::minimumSizeHint() const
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    bool HasPixmap = !pixmap().isNull();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
 #else
     bool HasPixmap = (pixmap() != nullptr);
 #endif
@@ -185,8 +185,8 @@ QSize CElidingLabel::minimumSizeHint() const
 //============================================================================
 QSize CElidingLabel::sizeHint() const
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    bool HasPixmap = !pixmap().isNull();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    bool HasPixmap = !pixmap(Qt::ReturnByValue).isNull();
 #else
     bool HasPixmap = (pixmap() != nullptr);
 #endif
