@@ -141,7 +141,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
                     const auto propertyObject = focusedDockWidgetProperty.value<QObject *>();
                     if (propertyObject == DockWidget)
                     {
-                        Window->setProperty(FOCUSED_DOCK_WIDGET_PROPERTY_NAME, QVariant(QVariant::Invalid));
+                        Window->setProperty(FOCUSED_DOCK_WIDGET_PROPERTY_NAME, QVariant());
                     }
                 }
             });
