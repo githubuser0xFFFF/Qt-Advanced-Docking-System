@@ -617,5 +617,7 @@ Q_SIGNALS:
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 }; // class DockManager
 } // namespace ads
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::CDockManager::ConfigFlags)
 //-----------------------------------------------------------------------------
 #endif // DockManagerH
