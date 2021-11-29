@@ -762,7 +762,10 @@ void CDockManager::showEvent(QShowEvent *event)
 
 	for (auto FloatingWidget : d->UninitializedFloatingWidgets)
 	{
-		FloatingWidget->show();
+		if (!FloatingWidget->dockContainer()->openedDockAreas().isEmpty())
+		{
+			FloatingWidget->show();
+		}
 	}
 	d->UninitializedFloatingWidgets.clear();
 }
