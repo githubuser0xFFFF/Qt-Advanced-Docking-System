@@ -1680,7 +1680,10 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 		if (!Testing)
 		{
 			CFloatingDockContainer* FloatingWidget = floatingWidget();
-			FloatingWidget->restoreGeometry(Geometry);
+			if (FloatingWidget)
+			{
+				FloatingWidget->restoreGeometry(Geometry);
+			}
 		}
 	}
 
