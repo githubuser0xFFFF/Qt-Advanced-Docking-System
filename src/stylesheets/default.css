@@ -4,6 +4,9 @@
 ads--CDockContainerWidget {
 	background: palette(dark);
 }
+ads--CDockContainerWidget > QSplitter{
+        padding: 1 0 1 0;
+}
 
 ads--CDockContainerWidget ads--CDockSplitter::handle {
 	background: palette(dark);
