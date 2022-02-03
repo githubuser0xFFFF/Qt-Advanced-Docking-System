@@ -823,6 +823,16 @@ CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
 	return AreaOfAddedDockWidget;
 }
 
+//============================================================================
+CDockAreaWidget* CDockManager::addDockWidgetToContainer(DockWidgetArea area,
+	CDockWidget* Dockwidget, CDockContainerWidget* DockContainerWidget)
+{
+	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
+	auto AreaOfAddedDockWidget = DockContainerWidget->addDockWidget(area, Dockwidget);
+	Q_EMIT dockWidgetAdded(Dockwidget);
+	return AreaOfAddedDockWidget;
+}
+
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidgetTab(DockWidgetArea area,

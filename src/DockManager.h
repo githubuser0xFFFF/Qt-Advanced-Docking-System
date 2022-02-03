@@ -284,6 +284,15 @@ public:
 		CDockAreaWidget* DockAreaWidget = nullptr);
 
 	/**
+	 * Adds dockwidget into the given container.
+	 * This allows you to place the dock widget into a container, even if that
+	 * container does not yet contain a DockAreaWidget.
+	 * \return Returns the dock area widget that contains the new DockWidget
+	 */
+	CDockAreaWidget* addDockWidgetToContainer(DockWidgetArea area, CDockWidget* Dockwidget,
+		CDockContainerWidget* DockContainerWidget);
+
+	/**
 	 * This function will add the given Dockwidget to the given dock area as
 	 * a new tab.
 	 * If no dock area widget exists for the given area identifier, a new
