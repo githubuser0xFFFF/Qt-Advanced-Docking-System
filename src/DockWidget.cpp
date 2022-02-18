@@ -893,7 +893,10 @@ void CDockWidget::setFloating()
 //============================================================================
 void CDockWidget::deleteDockWidget()
 {
-	dockManager()->removeDockWidget(this);
+	auto manager=dockManager();
+	if(manager){
+		manager->removeDockWidget(this);
+	}
 	deleteLater();
 	d->Closed = true;
 }
