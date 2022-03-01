@@ -367,7 +367,8 @@ Q_SIGNALS:
 	 */
 	void viewToggled(bool Open);
 }; // class DockAreaWidget
-}
- // namespace ads
+} // namespace ads
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::CDockAreaWidget::DockAreaFlags)
 //-----------------------------------------------------------------------------
 #endif // DockAreaWidgetH

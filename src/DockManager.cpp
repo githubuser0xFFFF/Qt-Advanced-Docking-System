@@ -98,6 +98,7 @@ struct DockManagerPrivate
 {
 	CDockManager* _this;
 	QList<CFloatingDockContainer*> FloatingWidgets;
+	QList<CFloatingDockContainer*> HiddenFloatingWidgets;
 	QList<CDockContainerWidget*> Containers;
 	CDockOverlay* ContainerOverlay;
 	CDockOverlay* DockAreaOverlay;
@@ -755,6 +756,9 @@ CFloatingDockContainer* CDockManager::addDockWidgetFloating(CDockWidget* Dockwid
 void CDockManager::showEvent(QShowEvent *event)
 {
 	Super::showEvent(event);
+
+	// Fix Issue #380
+	restoreHiddenFloatingWidgets();
 	if (d->UninitializedFloatingWidgets.empty())
 	{
 		return;
@@ -762,11 +766,51 @@ void CDockManager::showEvent(QShowEvent *event)
 
 	for (auto FloatingWidget : d->UninitializedFloatingWidgets)
 	{
-		FloatingWidget->show();
+		// Check, if someone closed a floating dock widget before the dock
+		// manager is shown
+		if (FloatingWidget->dockContainer()->hasOpenDockAreas())
+		{
+			FloatingWidget->show();
+		}
 	}
 	d->UninitializedFloatingWidgets.clear();
 }
 
+
+//============================================================================
+void CDockManager::restoreHiddenFloatingWidgets()
+{
+	if (d->HiddenFloatingWidgets.isEmpty())
+	{
+		return;
+	}
+
+	// Restore floating widgets that were hidden upon hideManagerAndFloatingWidgets
+	for (auto FloatingWidget : d->HiddenFloatingWidgets)
+	{
+		bool hasDockWidgetVisible = false;
+
+		// Needed to prevent CFloatingDockContainer being shown empty
+		// Could make sense to move this to CFloatingDockContainer::showEvent(QShowEvent *event)
+		// if experiencing CFloatingDockContainer being shown empty in other situations, but let's keep
+		// it here for now to make sure changes to fix Issue #380 does not impact existing behaviours
+		for (auto dockWidget : FloatingWidget->dockWidgets())
+		{
+			if (dockWidget->toggleViewAction()->isChecked())
+			{
+				dockWidget->toggleView(true);
+				hasDockWidgetVisible = true;
+			}
+		}
+
+		if (hasDockWidgetVisible)
+		{
+			FloatingWidget->show();
+		}
+	}
+
+	d->HiddenFloatingWidgets.clear();
+}
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
@@ -775,6 +819,16 @@ CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
 	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
 	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer(): this;
 	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget);
+	Q_EMIT dockWidgetAdded(Dockwidget);
+	return AreaOfAddedDockWidget;
+}
+
+//============================================================================
+CDockAreaWidget* CDockManager::addDockWidgetToContainer(DockWidgetArea area,
+	CDockWidget* Dockwidget, CDockContainerWidget* DockContainerWidget)
+{
+	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
+	auto AreaOfAddedDockWidget = DockContainerWidget->addDockWidget(area, Dockwidget);
 	Q_EMIT dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
 }
@@ -1097,6 +1151,38 @@ void CDockManager::setDockWidgetFocused(CDockWidget* DockWidget)
 	}
 }
 
+//===========================================================================
+void CDockManager::hideManagerAndFloatingWidgets()
+{
+	hide();
+
+	d->HiddenFloatingWidgets.clear();
+	// Hide updates of floating widgets from user
+	for (auto FloatingWidget : d->FloatingWidgets)
+	{
+		if ( FloatingWidget->isVisible() )
+		{
+			QList<CDockWidget*> VisibleWidgets;
+			for ( auto dockWidget : FloatingWidget->dockWidgets() )
+			{
+				if ( dockWidget->toggleViewAction()->isChecked() )
+					VisibleWidgets.push_back( dockWidget );
+			}
+
+			// save as floating widget to be shown when CDockManager will be shown back
+			d->HiddenFloatingWidgets.push_back( FloatingWidget );
+			FloatingWidget->hide();
+
+			// hidding floating widget automatically marked contained CDockWidgets as hidden
+			// but they must remain marked as visible as we want them to be restored visible
+			// when CDockManager will be shown back
+			for ( auto dockWidget : VisibleWidgets )
+			{
+				dockWidget->toggleViewAction()->setChecked(true);
+			}
+		}
+		}
+}
 
 //===========================================================================
 CDockWidget* CDockManager::focusedDockWidget() const

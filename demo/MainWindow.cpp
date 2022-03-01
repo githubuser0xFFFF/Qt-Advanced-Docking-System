@@ -466,6 +466,15 @@ void MainWindowPrivate::createContent()
     Action = ui.menuTests->addAction(QString("Raise %1").arg(DockWidget->windowTitle()));
     DockWidget->connect(Action, SIGNAL(triggered()), SLOT(raise()));
 
+    // Test hidden floating dock widget
+    DockWidget = createLongTextLabelDockWidget();
+    DockManager->addDockWidgetFloating(DockWidget);
+    DockWidget->toggleView(false);
+
+    // Test visible floating dock widget
+    DockWidget = createCalendarDockWidget();
+    DockManager->addDockWidgetFloating(DockWidget);
+
 
 #ifdef Q_OS_WIN
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

@@ -15,20 +15,20 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
-The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.8.0)
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.8.1)
 adds the following features:
 
 - option to close tabs with the middle mouse button
 - `DeleteContentOnClose` flag for dynamic deletion and creation of dock widget
   content
 
-The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.0)
+The [release 3.7](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.7.2)
 adds the following features:
 
 - support for **Qt6.**
 - support for [empty dock area](doc/user-guide.md#empty-dock-area)
 
-The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.0)
+The [release 3.6](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.6.3)
 adds some nice new features:
 
 - support for [central widget](doc/user-guide.md#central-widget) concept
@@ -89,6 +89,8 @@ know it from Visual Studio.
   - [D-Tect X](#d-tect-x)
   - [HiveWE](#hivewe)
   - [Ramses Composer](#ramses-composer)
+  - [Plot Juggler](#plot-juggler)
+  - [Notepad Next](#notepad-next)
 
 ### Docking everywhere - no central widget
 
@@ -370,13 +372,13 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 [![Qt Design Studio](doc/showcase_qt_design_studio_video.png)](https://youtu.be/za9KBWcFXEw?t=84)
 
-### [QmixElements](https://www.cetoni.com/products/qmixelements/)
+### [CETONI Elements](https://www.cetoni.com/products/qmixelements/)
 
-The QmixElements software from [CETONI](https://www.cetoni.com) is a comprehensive, 
+The CETONI Elements software from [CETONI](https://www.cetoni.com) is a comprehensive, 
 plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. This [blog post](https://www.cetoni.com/blog/qmixelements-advanced-docking-system/) gives a nice overview about the use of the Qt
-Advanced Docking System in the QmixElements sofware.
+Advanced Docking System in the CETONI Elements sofware.
 
-![QmixElements](doc/showcase_qmix_elements.png)
+![CETONI_Elements](doc/showcase_qmix_elements.png)
 
 ### [ezEditor](https://github.com/ezEngine/ezEngine)
 
@@ -420,3 +422,32 @@ and digital portfolio.
 [learn more...](https://github.com/GENIVI/ramses-composer)
 
 ![RamsesComposer](doc/showcase_ramses_composer.png)
+
+### [Plot Juggler](https://github.com/facontidavide/PlotJuggler)
+
+PlotJuggler is a fast, powerful and intuitive tool to visualize time series.
+It makes it easy to visualize data but also to analyze it. You can manipulate
+your time series using a simple and extendable Transform Editor. Some of the
+highlights are:
+
+- Simple Drag & Drop user interface.
+- Load data from file.
+- Connect to live streaming of data.
+- Save the visualization layout and configurations to re-use them later.
+- Fast OpenGL visualization.
+- Can handle thousands of timeseries and millions of data points.
+- Transform your data using a simple editor: derivative, moving average, integral, etc…
+- PlotJuggler can be easily extended using plugins.
+
+[read more...](https://github.com/facontidavide/PlotJuggler)
+
+[![Plot Juggler](doc/showcase_plot_juggler.png)](https://vimeo.com/480588113#t=46s)
+
+### [Notepad Next](https://github.com/dail8859/NotepadNext)
+
+Notepad Next is a cross-platform reimplementation of Notepad++ that uses the 
+Advanced Docking System to arrange the open source files on the screen.
+
+[learn more...](https://github.com/dail8859/NotepadNext)
+
+![NotepadNext](doc/showcase_notepad_next.png)

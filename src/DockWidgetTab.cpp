@@ -407,7 +407,7 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 	} 
 	else if (ev->button() == Qt::MiddleButton)
 	{
-		if (CDockManager::testConfigFlag(CDockManager::MiddleMouseButtonClosesTab))
+		if (CDockManager::testConfigFlag(CDockManager::MiddleMouseButtonClosesTab) && d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable))
 		{
 			// Only attempt to close if the mouse is still
 			// on top of the widget, to allow the user to cancel.
@@ -716,6 +716,10 @@ bool CDockWidgetTab::event(QEvent *e)
 		}
 	}
 #endif
+	if (e->type() == QEvent::StyleChange)
+	{
+		d->updateIcon();
+	}
 	return Super::event(e);
 }
 

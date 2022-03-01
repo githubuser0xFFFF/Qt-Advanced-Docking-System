@@ -32,6 +32,8 @@
 
 namespace ads
 {
+static const char* const FocusedDockWidgetProperty = "FocusedDockWidget";
+
 /**
  * Private data class of CDockFocusController class (pimpl)
  */
@@ -57,8 +59,8 @@ struct DockFocusControllerPrivate
 	 * the dock area that it belongs to
 	 */
 	void updateDockWidgetFocus(CDockWidget* DockWidget);
-};
-// struct DockFocusControllerPrivate
+}; // struct DockFocusControllerPrivate
+
 
 
 //===========================================================================
@@ -125,7 +127,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 
 	if (Window)
 	{
-		Window->setProperty("FocusedDockWidget", QVariant::fromValue<CDockWidget*>(DockWidget));
+        Window->setProperty(FocusedDockWidgetProperty, QVariant::fromValue(QPointer<CDockWidget>(DockWidget)));
 	}
 	CDockAreaWidget* NewFocusedDockArea = nullptr;
 	if (FocusedDockWidget)
@@ -161,7 +163,7 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 
     if (NewFloatingWidget)
     {
-    	NewFloatingWidget->setProperty("FocusedDockWidget", QVariant::fromValue(DockWidget));
+        NewFloatingWidget->setProperty(FocusedDockWidgetProperty, QVariant::fromValue(QPointer<CDockWidget>(DockWidget)));
     }
 
 
@@ -243,13 +245,13 @@ void CDockFocusController::onFocusWindowChanged(QWindow *focusWindow)
 		return;
 	}
 
-	auto vDockWidget = focusWindow->property("FocusedDockWidget");
+    auto vDockWidget = focusWindow->property(FocusedDockWidgetProperty);
 	if (!vDockWidget.isValid())
 	{
 		return;
 	}
 
-	auto DockWidget = vDockWidget.value<CDockWidget*>();
+    auto DockWidget = vDockWidget.value<QPointer<CDockWidget>>();
 	if (!DockWidget)
 	{
 		return;
@@ -376,13 +378,13 @@ void CDockFocusController::notifyFloatingWidgetDrop(CFloatingDockContainer* Floa
 		return;
 	}
 
-	auto vDockWidget = FloatingWidget->property("FocusedDockWidget");
+    auto vDockWidget = FloatingWidget->property(FocusedDockWidgetProperty);
 	if (!vDockWidget.isValid())
 	{
 		return;
 	}
 
-	auto DockWidget = vDockWidget.value<CDockWidget*>();
+    auto DockWidget = vDockWidget.value<QPointer<CDockWidget>>();
 	if (DockWidget)
 	{
 		DockWidget->dockAreaWidget()->setCurrentDockWidget(DockWidget);

@@ -308,5 +308,6 @@ void repolishStyle(QWidget* w, eRepolishChildOptions Options = RepolishIgnoreChi
 } // namespace internal
 } // namespace ads
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::DockWidgetAreas)
 //---------------------------------------------------------------------------
 #endif // ads_globalsH

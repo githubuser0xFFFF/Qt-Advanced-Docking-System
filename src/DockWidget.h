@@ -600,7 +600,8 @@ Q_SIGNALS:
      */
     void featuresChanged(ads::CDockWidget::DockWidgetFeatures features);
 }; // class DockWidget
-}
- // namespace ads
+} // namespace ads
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::CDockWidget::DockWidgetFeatures)
 //-----------------------------------------------------------------------------
 #endif // DockWidgetH

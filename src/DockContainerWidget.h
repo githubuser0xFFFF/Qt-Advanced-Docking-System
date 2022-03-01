@@ -216,6 +216,13 @@ public:
 	 */
 	QList<CDockAreaWidget*> openedDockAreas() const;
 
+	/**
+	 * This function returns true, if the container has open dock areas.
+	 * This functions is a little bit faster than calling openedDockAreas().isEmpty()
+	 * because it returns as soon as it finds an open dock area
+	 */
+	bool hasOpenDockAreas() const;
+
     /**
      * This function returns true if this dock area has only one single
      * visible dock widget.

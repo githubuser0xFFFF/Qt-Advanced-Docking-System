@@ -27,6 +27,17 @@
   - [`EqualSplitOnInsertion`](#equalsplitoninsertion)
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
+  - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+- [DockWidget Feature Flags](#dockwidget-feature-flags)
+  - [`DockWidgetClosable`](#dockwidgetclosable)
+  - [`DockWidgetMovable`](#dockwidgetmovable)
+  - [`DockWidgetFloatable`](#dockwidgetfloatable)
+  - [`DockWidgetDeleteOnClose`](#dockwidgetdeleteonclose)
+  - [`CustomCloseHandling`](#customclosehandling)
+  - [`DockWidgetFocusable`](#dockwidgetfocusable)
+  - [`DockWidgetForceCloseWithArea`](#dockwidgetforceclosewitharea)
+  - [`NoTab`](#notab)
+  - [`DeleteContentOnClose`](#deletecontentonclose)
 - [Central Widget](#central-widget)
 - [Empty Dock Area](#empty-dock-area)
 - [Custom Close Handling](#custom-close-handling)
@@ -463,6 +474,69 @@ title bars.
 If you would like to overwrite autodetection, then you can activate this flag
 to force QWidget based title bars. You can overwrite autodetection and this
 flag, if you set the environment variable `ADS_UseNativeTitle` to 0 or 1.
+
+### `MiddleMouseButtonClosesTab`
+
+If the flag is set, the user can use the mouse middle button to close the tab
+under the mouse. So you do not need to exactly hit the tab close button to
+close tab. Just click with the middle mouse button on a tab like this is
+possible in various web browsers.
+
+![MiddleMouseButtonClosesTab true](cfg_flag_MiddleMouseButtonClosesTab.gif)
+
+## DockWidget Feature Flags
+
+### `DockWidgetClosable`
+
+If set, the dock widget will have a close button.
+
+### `DockWidgetMovable`
+
+If a dock widget is movable, then it and can be moved to a new position in the
+current dock container. Disable this flag to prevent moving of a dock widget
+via mouse. If the `OpaqueUndocking` configuration flag is set, then dock widgets
+are immediately undocked into floating widgets. That means, moving is only
+possible in this case, if the dock widget is also floatable (feature flag
+`DockWidgetFloatable` is set).
+
+### `DockWidgetFloatable`
+
+If set, a dock widget can be dragged into a floating window.
+
+### `DockWidgetDeleteOnClose`
+
+Deletes the dock widget and its content when it is closed.
+
+### `CustomCloseHandling`
+
+Clicking the close button will not close the dock widget but emits the
+`closeRequested()` signal instead. This allows the application to implement
+a custom close handling.
+
+### `DockWidgetFocusable`
+
+If this is enabled, a dock widget can get focus highlighting.
+
+### `DockWidgetForceCloseWithArea`
+
+A dock widget will be closed when the dock area hosting it is closed. If the
+`DockWidgetDeleteOnClose` feature is enabled for a dock widget, then it will
+be deleted, if the user clicks the close button of this dock widget. If the
+user clicks the close button of the dock area that contains this widget,
+then only the visibility of the dock widget is toggled. If this feature flag
+is set, the closing the dock area also closes the dock widget. That means, if
+the dock widget feature `DockWidgetDeleteOnClose` is set for the dock widgets
+in a dock area, then all dock widgets will be deleted if the dock area is closed.
+
+### `NoTab`
+
+A dock widget tab will never be shown if this flag is set.
+
+### `DeleteContentOnClose`
+
+Deletes only the contained widget on close, keeping the dock widget intact and
+in place. Attempts to rebuild the contents widget on show if there is a widget
+factory set. See [issue #365](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/365) for more details.
 
 ## Central Widget
 

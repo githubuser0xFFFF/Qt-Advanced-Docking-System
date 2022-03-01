@@ -147,6 +147,11 @@ protected:
 	 */
 	CDockFocusController* dockFocusController() const;
 
+    /**
+     * Restore floating widgets hidden by an earlier call to hideManagerAndFloatingWidgets.
+     */
+    void restoreHiddenFloatingWidgets();
+
 public:
 	using Super = CDockContainerWidget;
 
@@ -277,6 +282,15 @@ public:
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
 		CDockAreaWidget* DockAreaWidget = nullptr);
+
+	/**
+	 * Adds dockwidget into the given container.
+	 * This allows you to place the dock widget into a container, even if that
+	 * container does not yet contain a DockAreaWidget.
+	 * \return Returns the dock area widget that contains the new DockWidget
+	 */
+	CDockAreaWidget* addDockWidgetToContainer(DockWidgetArea area, CDockWidget* Dockwidget,
+		CDockContainerWidget* DockContainerWidget);
 
 	/**
 	 * This function will add the given Dockwidget to the given dock area as
@@ -527,6 +541,12 @@ public Q_SLOTS:
 	 */
 	void setDockWidgetFocused(CDockWidget* DockWidget);
 
+    /**
+     * hide CDockManager and all floating widgets (See Issue #380). Calling regular QWidget::hide()
+     * hides the CDockManager but not the floating widgets;
+     */
+    void hideManagerAndFloatingWidgets();
+
 Q_SIGNALS:
 	/**
 	 * This signal is emitted if the list of perspectives changed.
@@ -617,5 +637,7 @@ Q_SIGNALS:
     void focusedDockWidgetChanged(ads::CDockWidget* old, ads::CDockWidget* now);
 }; // class DockManager
 } // namespace ads
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ads::CDockManager::ConfigFlags)
 //-----------------------------------------------------------------------------
 #endif // DockManagerH
