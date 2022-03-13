@@ -188,6 +188,7 @@ protected: // reimplements QWidget
 #ifdef Q_OS_LINUX
 	virtual void moveEvent(QMoveEvent *event) override;
 	virtual void resizeEvent(QResizeEvent *event) override;
+	virtual bool event(QEvent *e) override;
 #endif
 
 #ifdef Q_OS_WIN

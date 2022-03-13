@@ -1239,12 +1239,12 @@ void CFloatingDockContainer::resizeEvent(QResizeEvent *event)
 	Super::resizeEvent(event);
 }
 
-
+static bool s_mousePressed = false;
 //============================================================================
 void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 {
 	Super::moveEvent(event);
-	if (!d->IsResizing && event->spontaneous())
+	if (!d->IsResizing && event->spontaneous() && s_mousePressed)
 	{
 		d->DraggingState = DraggingFloatingWidget;
 		d->updateDropOverlays(QCursor::pos());
@@ -1252,6 +1252,23 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	d->IsResizing = false;
 }
 
+//============================================================================
+bool CFloatingDockContainer::event(QEvent *e)
+{
+	bool result = Super::event(e);
+	switch (e->type())
+	{
+	case QEvent::WindowActivate:
+		s_mousePressed = false;
+		break;
+	case QEvent::WindowDeactivate:
+		s_mousePressed = true;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
 
 //============================================================================
 bool CFloatingDockContainer::hasNativeTitleBar()
