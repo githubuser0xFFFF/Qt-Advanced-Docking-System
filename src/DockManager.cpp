@@ -547,9 +547,16 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 			// setWindowFlags(Qt::WindowStaysOnTopHint) will hide the window and thus requires a show call.
 			// This then leads to flickering and a nasty endless loop (also buggy behaviour on Ubuntu).
 			// So we just do it ourself.
-			internal::xcb_update_prop(true, _window->window()->winId(),
-				"_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
-		}
+            if(QGuiApplication::platformName() == QLatin1String("xcb"))
+			{
+				internal::xcb_update_prop(true, _window->window()->winId(),
+                    "_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
+			}
+			else
+			{
+                    _window->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+			}
+        }
 	}
 	else if (e->type() == QEvent::WindowDeactivate)
 	{
@@ -559,8 +566,16 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 			{
 				continue;
 			}
-			internal::xcb_update_prop(false, _window->window()->winId(),
-				"_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
+
+            if(QGuiApplication::platformName() == QLatin1String("xcb"))
+			{
+				internal::xcb_update_prop(false, _window->window()->winId(),
+                    "_NET_WM_STATE", "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_STAYS_ON_TOP");
+			}
+            else
+			{
+				_window->setWindowFlag(Qt::WindowStaysOnTopHint, false);
+			}
 			_window->raise();
 		}
 	}
