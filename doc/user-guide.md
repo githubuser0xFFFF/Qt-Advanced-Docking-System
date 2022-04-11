@@ -54,7 +54,7 @@ configuration will be explained in detail in the following sections.
 
 You must set the configuration flags before creating the dock manager
 instance otherwise the manager will not be created correctly and will
-crash upon beign created. That means, setting the configurations flags
+crash upon being created. That means, setting the configurations flags
 is the first thing you must do, if you use the library.
 
 ```c++

@@ -288,7 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create the dock manager after the ui is setup. Because the
     // parent parameter is a QMainWindow the dock manager registers
-    // itself as the central widget as the ui must set up first.
+    // itself as the central widget as such the ui must be set up first.
     m_DockManager = new ads::CDockManager(this);
 
     // Create example content label - this can be any application specific
