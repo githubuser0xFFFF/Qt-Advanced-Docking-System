@@ -90,9 +90,9 @@ install(FILES ${ads_HEADERS}
     COMPONENT headers
 )
 install(FILES
-    "${CMAKE_SOURCE_DIR}/LICENSE"
-    "${CMAKE_SOURCE_DIR}/gnu-lgpl-v2.1.md"
-    DESTINATION license
+    "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
+    DESTINATION license/ads
     COMPONENT license
 )
 install(TARGETS qtadvanceddocking
