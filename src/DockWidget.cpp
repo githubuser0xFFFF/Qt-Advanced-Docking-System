@@ -457,6 +457,14 @@ CDockContainerWidget* CDockWidget::dockContainer() const
 
 
 //============================================================================
+CFloatingDockContainer* CDockWidget::floatingDockContainer() const
+{
+	auto DockContainer = dockContainer();
+	return DockContainer ? DockContainer->floatingWidget() : nullptr;
+}
+
+
+//============================================================================
 CDockAreaWidget* CDockWidget::dockAreaWidget() const
 {
 	return d->DockArea;
@@ -669,6 +677,12 @@ bool CDockWidget::event(QEvent *e)
 			if (d->DockArea)
 			{
 				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+			}
+
+			auto FloatingWidget = floatingDockContainer();
+			if (FloatingWidget)
+			{
+				FloatingWidget->updateWindowTitle();
 			}
 			Q_EMIT titleChanged(title);
 		}

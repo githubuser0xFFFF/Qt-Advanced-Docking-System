@@ -433,6 +433,7 @@ void MainWindowPrivate::createContent()
 		int Width = Splitter->width();
 		Splitter->setSizes({Width * 2/3, Width * 1/3});
 	});
+	DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
 
 	// Now we add a custom button to the dock area title bar that will create
 	// new editor widgets when clicked
@@ -474,6 +475,7 @@ void MainWindowPrivate::createContent()
     // Test visible floating dock widget
     DockWidget = createCalendarDockWidget();
     DockManager->addDockWidgetFloating(DockWidget);
+    DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
 
 
 #ifdef Q_OS_WIN

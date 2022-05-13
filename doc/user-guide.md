@@ -52,9 +52,10 @@ configuration will be explained in detail in the following sections.
 
 ### Setting Configuration Flags
 
-You should set the configuration flags before you create the dock manager
-instance. That means, setting the configurations flags is the first thing
-you do, if you use the library.
+You must set the configuration flags before creating the dock manager
+instance otherwise the manager will not be created correctly and will
+crash upon being created. That means, setting the configurations flags
+is the first thing you must do, if you use the library.
 
 ```c++
 CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);

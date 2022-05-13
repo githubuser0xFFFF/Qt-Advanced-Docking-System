@@ -1626,6 +1626,22 @@ QList<CDockAreaWidget*> CDockContainerWidget::openedDockAreas() const
 
 
 //============================================================================
+QList<CDockWidget*> CDockContainerWidget::openedDockWidgets() const
+{
+	QList<CDockWidget*> DockWidgetList;
+	for (auto DockArea : d->DockAreas)
+	{
+		if (!DockArea->isHidden())
+		{
+			DockWidgetList.append(DockArea->openedDockWidgets());
+		}
+	}
+
+	return DockWidgetList;
+}
+
+
+//============================================================================
 bool CDockContainerWidget::hasOpenDockAreas() const
 {
 	for (auto DockArea : d->DockAreas)

@@ -802,29 +802,33 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 	ADS_PRINT("CFloatingDockContainer closeEvent");
 	d->setState(DraggingInactive);
 	event->ignore();
-
-	if (isClosable())
+	if (!isClosable())
 	{
-		auto TopLevelDockWidget = topLevelDockWidget();
-		if (TopLevelDockWidget && TopLevelDockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
-		{
-			if (!TopLevelDockWidget->closeDockWidgetInternal())
-			{
-				return;
-			}
-		}
-
-		// In Qt version after 5.9.2 there seems to be a bug that causes the
-		// QWidget::event() function to not receive any NonClientArea mouse
-		// events anymore after a close/show cycle. The bug is reported here:
-		// https://bugreports.qt.io/browse/QTBUG-73295
-		// The following code is a workaround for Qt versions > 5.9.2 that seems
-		// to work
-		// Starting from Qt version 5.12.2 this seems to work again. But
-		// now the QEvent::NonClientAreaMouseButtonPress function returns always
-		// Qt::RightButton even if the left button was pressed
-        this->hide();
+		return;
 	}
+
+	for (auto DockWidget : d->DockContainer->openedDockWidgets())
+	{
+		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+		{
+			DockWidget->closeDockWidgetInternal();
+		}
+		else
+		{
+			DockWidget->toggleView(false);
+		}
+	}
+
+	// In Qt version after 5.9.2 there seems to be a bug that causes the
+	// QWidget::event() function to not receive any NonClientArea mouse
+	// events anymore after a close/show cycle. The bug is reported here:
+	// https://bugreports.qt.io/browse/QTBUG-73295
+	// The following code is a workaround for Qt versions > 5.9.2 that seems
+	// to work
+	// Starting from Qt version 5.12.2 this seems to work again. But
+	// now the QEvent::NonClientAreaMouseButtonPress function returns always
+	// Qt::RightButton even if the left button was pressed
+	this->hide();
 }
 
 //============================================================================
@@ -1239,12 +1243,12 @@ void CFloatingDockContainer::resizeEvent(QResizeEvent *event)
 	Super::resizeEvent(event);
 }
 
-
+static bool s_mousePressed = false;
 //============================================================================
 void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 {
 	Super::moveEvent(event);
-	if (!d->IsResizing && event->spontaneous())
+	if (!d->IsResizing && event->spontaneous() && s_mousePressed)
 	{
 		d->DraggingState = DraggingFloatingWidget;
 		d->updateDropOverlays(QCursor::pos());
@@ -1252,6 +1256,23 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	d->IsResizing = false;
 }
 
+//============================================================================
+bool CFloatingDockContainer::event(QEvent *e)
+{
+	bool result = Super::event(e);
+	switch (e->type())
+	{
+	case QEvent::WindowActivate:
+		s_mousePressed = false;
+		break;
+	case QEvent::WindowDeactivate:
+		s_mousePressed = true;
+		break;
+	default:
+		break;
+	}
+	return result;
+}
 
 //============================================================================
 bool CFloatingDockContainer::hasNativeTitleBar()

@@ -1,10 +1,14 @@
-# Advanced Docking System for Qt
+![ukraine](doc/ukraine.jpg)
+
+![logo](doc/ads_logo.svg)
+
+------------------
 
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 
-[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) •
+[What's new](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [Documentation](doc/user-guide.md)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
@@ -15,7 +19,7 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
-The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/3.8.1)
+The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 adds the following features:
 
 - option to close tabs with the middle mouse button
@@ -84,13 +88,14 @@ know it from Visual Studio.
 - [Showcase](#showcase)
   - [Qt Creator IDE](#qt-creator-ide)
   - [Qt Design Studio](#qt-design-studio)
-  - [QmixElements](#qmixelements)
+  - [CETONI Elements](#cetoni-elements)
   - [ezEditor](#ezeditor)
   - [D-Tect X](#d-tect-x)
   - [HiveWE](#hivewe)
   - [Ramses Composer](#ramses-composer)
   - [Plot Juggler](#plot-juggler)
   - [Notepad Next](#notepad-next)
+  - [MetGem](#metgem)
 
 ### Docking everywhere - no central widget
 
@@ -282,8 +287,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Create the dock manager. Because the parent parameter is a QMainWindow
-    // the dock manager registers itself as the central widget.
+    // Create the dock manager after the ui is setup. Because the
+    // parent parameter is a QMainWindow the dock manager registers
+    // itself as the central widget as such the ui must be set up first.
     m_DockManager = new ads::CDockManager(this);
 
     // Create example content label - this can be any application specific
@@ -374,9 +380,8 @@ Taken from the [Qt Blog](https://www.qt.io/blog/qt-design-studio-1.5-beta-releas
 
 ### [CETONI Elements](https://www.cetoni.com/products/qmixelements/)
 
-The CETONI Elements software from [CETONI](https://www.cetoni.com) is a comprehensive, 
-plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. This [blog post](https://www.cetoni.com/blog/qmixelements-advanced-docking-system/) gives a nice overview about the use of the Qt
-Advanced Docking System in the CETONI Elements sofware.
+The CETONI Elements software from [CETONI](https://www.cetoni.com) is a comprehensive,
+plugin-based and modular laboratory automation software for controlling CETONI devices using a joint graphical user interface. The software features a powerful script system to automate processes. The software uses the advanced docking system to give the user the freedom to arrange all the views and windows that are provided by the various plugins.
 
 ![CETONI_Elements](doc/showcase_qmix_elements.png)
 
@@ -448,6 +453,17 @@ highlights are:
 Notepad Next is a cross-platform reimplementation of Notepad++ that uses the 
 Advanced Docking System to arrange the open source files on the screen.
 
-[learn more...](https://github.com/dail8859/NotepadNext)
+[read more...](https://github.com/dail8859/NotepadNext)
 
 ![NotepadNext](doc/showcase_notepad_next.png)
+
+### [MetGem](https://metgem.github.io/)
+
+MetGem is an open-source software for tandem mass-spectrometry data visualization.
+It's key features are standalone molecular networking and t-SNE based projections.
+MetGem uses the Qt-Advanced-Docking-System to manage docks and to create independent
+molecular network views.
+
+[read more...](https://metgem.github.io/)
+
+![MetGem](doc/showcase_metgem.png)

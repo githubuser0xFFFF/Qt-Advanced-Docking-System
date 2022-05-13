@@ -4,21 +4,21 @@
     "extensionType": [
         "library"
     ],
-    "version": "3.0.0",
+    "version": "3.8.2",
     "vendor": {
         "name": "githubuser0xFFFF",
         "url": "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
     },
     "contact": "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues",
-    "icon": "https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/ads_icon_512.png",
+    "icon": "https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/ads_icon.svg",
     "licenses": [
-      { "licenseType": "LGPLv2.1",
+      { "licenseType": "LGPL-2.1-only",
         "licenseUrl": "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html" }
     ],
     "created": "2017-03-30",
-    "lastUpdate": "2020-01-16",
+    "lastUpdate": "2022-03-02",
     "platforms": [
-        "Windows 7-10", "Kubuntu 18.04", "Kubuntu 19.10", "Ubuntu 19.10"
+        "Windows 7-11", "Kubuntu 18.04", "Kubuntu 19.10", "Ubuntu 19.10", "Ubuntu 20.04"
     ],
     "qtVersions": [
         "5.5.1 or newer"

@@ -332,6 +332,12 @@ public:
     CDockContainerWidget* dockContainer() const;
 
     /**
+     * This function return the floating DockContainer if is isFloating() is true
+     * and a nullptr if this dock widget is not floating.
+     */
+    CFloatingDockContainer* floatingDockContainer() const;
+
+    /**
      * Returns the dock area widget this dock widget belongs to or 0
      * if this dock widget has not been docked yet
      */

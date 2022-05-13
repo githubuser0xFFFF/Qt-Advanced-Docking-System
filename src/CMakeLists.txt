@@ -61,6 +61,9 @@ else()
     add_library(qtadvanceddocking SHARED ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions(qtadvanceddocking PRIVATE ADS_SHARED_EXPORT)
 endif()
+
+add_library(ads::qtadvanceddocking ALIAS qtadvanceddocking)
+
 target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
@@ -87,9 +90,9 @@ install(FILES ${ads_HEADERS}
     COMPONENT headers
 )
 install(FILES
-    "${CMAKE_SOURCE_DIR}/LICENSE"
-    "${CMAKE_SOURCE_DIR}/gnu-lgpl-v2.1.md"
-    DESTINATION license
+    "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
+    DESTINATION license/ads
     COMPONENT license
 )
 install(TARGETS qtadvanceddocking

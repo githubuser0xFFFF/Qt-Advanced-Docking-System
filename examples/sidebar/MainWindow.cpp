@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QPlainTextEdit* te = new QPlainTextEdit();
 	te->setPlaceholderText("Please enter your text here into this QPlainTextEdit...");
 	DockWidget = new ads::CDockWidget("Editor 1");
+	DockWidget->setWidget(te);
 	ui->menuView->addAction(DockWidget->toggleViewAction());
 	m_DockManager->addDockWidget(ads::BottomDockWidgetArea, DockWidget);
 }
