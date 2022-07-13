@@ -809,7 +809,7 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 
 	for (auto DockWidget : d->DockContainer->openedDockWidgets())
 	{
-		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
 		{
 			DockWidget->closeDockWidgetInternal();
 		}
