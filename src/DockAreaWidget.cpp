@@ -538,7 +538,7 @@ void CDockAreaWidget::onTabCloseRequested(int Index)
 {
     ADS_PRINT("CDockAreaWidget::onTabCloseRequested " << Index);
     auto* DockWidget = dockWidget(Index);
-    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
     {
     	DockWidget->closeDockWidgetInternal();
     }
@@ -956,9 +956,12 @@ QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
 void CDockAreaWidget::closeArea()
 {
 	// If there is only one single dock widget and this widget has the
-	// DeleteOnClose feature, then we delete the dock widget now
+	// DeleteOnClose feature or CustomCloseHandling, then we delete the dock widget now;
+	// in the case of CustomCloseHandling, the CDockWidget class will emit its
+	// closeRequested signal and not actually delete unless the signal is handled in a way that deletes it
 	auto OpenDockWidgets = openedDockWidgets();
-    if (OpenDockWidgets.count() == 1 && OpenDockWidgets[0]->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+    if (OpenDockWidgets.count() == 1 &&
+			(OpenDockWidgets[0]->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || OpenDockWidgets[0]->features().testFlag(CDockWidget::CustomCloseHandling)))
 	{
 		OpenDockWidgets[0]->closeDockWidgetInternal();
 	}
@@ -966,7 +969,8 @@ void CDockAreaWidget::closeArea()
 	{
         for (auto DockWidget : openedDockWidgets())
         {
-            if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) && DockWidget->features().testFlag(CDockWidget::DockWidgetForceCloseWithArea))
+            if ((DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) && DockWidget->features().testFlag(CDockWidget::DockWidgetForceCloseWithArea)) ||
+					DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
                 DockWidget->closeDockWidgetInternal();
             else
                 DockWidget->toggleView(false);

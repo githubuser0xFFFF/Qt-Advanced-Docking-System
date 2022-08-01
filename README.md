@@ -96,6 +96,7 @@ know it from Visual Studio.
   - [Plot Juggler](#plot-juggler)
   - [Notepad Next](#notepad-next)
   - [MetGem](#metgem)
+  - [PRE Workbench](#pre-workbench)
 
 ### Docking everywhere - no central widget
 
@@ -467,3 +468,13 @@ molecular network views.
 [read more...](https://metgem.github.io/)
 
 ![MetGem](doc/showcase_metgem.png)
+
+### [PRE Workbench](https://luelista.github.io/pre_workbench/)
+
+Protocol Reverse Engineering Workbench is a software to support researchers in reverse engineering protocols and documenting the results. It supports various sources to import protocol traffic from, helps the discovery process by displaying different views and heuristic-based highlighting on data, and aids in documenting and sharing findings.
+
+PRE Workbench is a Python software and uses the ADS PyQt integration.
+
+[read more...](https://luelista.github.io/pre_workbench/)
+
+[![PRE Workbench](doc/showcase_pre_workbench.png)](https://youtu.be/U3op5UreV1Q)

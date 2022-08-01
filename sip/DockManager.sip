@@ -172,6 +172,7 @@ public:
         EqualSplitOnInsertion,
         FloatingContainerForceNativeTitleBar,
         FloatingContainerForceQWidgetTitleBar,
+        MiddleMouseButtonClosesTab,
         DefaultDockAreaButtons,
 		DefaultBaseConfig,
         DefaultOpaqueConfig,

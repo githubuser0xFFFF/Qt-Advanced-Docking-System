@@ -34,6 +34,7 @@ public:
         DockWidgetFocusable,
         DockWidgetForceCloseWithArea,
         NoTab,
+        DeleteContentOnClose,
         DefaultDockWidgetFeatures,
         AllDockWidgetFeatures,
         DockWidgetAlwaysCloseAndDelete,
