@@ -70,8 +70,6 @@ target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core
 set_target_properties(qtadvanceddocking PROPERTIES
     AUTOMOC ON
     AUTORCC ON
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
     EXPORT_NAME "qtadvanceddocking"
@@ -79,6 +77,16 @@ set_target_properties(qtadvanceddocking PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
 )
+if(QT_VERSION_MAJOR STREQUAL "5")
+    set_target_properties(qtadvanceddocking PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED ON)
+elseif(QT_VERSION_MAJOR STREQUAL "6")
+    set_target_properties(qtadvanceddocking PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON)
+endif()
+
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     "qtadvanceddockingConfigVersion.cmake"
