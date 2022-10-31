@@ -1189,6 +1189,12 @@ bool DockContainerWidgetPrivate::restoreDockArea(CDockingStateReader& s,
 			continue;
 		}
 
+		const auto oldDockArea = DockWidget->dockAreaWidget();
+		if (oldDockArea)
+		{
+			oldDockArea->removeDockWidget(DockWidget);
+		}
+
         ADS_PRINT("Dock Widget found - parent " << DockWidget->parent());
 		// We hide the DockArea here to prevent the short display (the flashing)
 		// of the dock areas during application startup
