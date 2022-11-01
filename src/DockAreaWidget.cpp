@@ -29,6 +29,7 @@
 //                                   INCLUDES
 //============================================================================
 #include <AutoHideDockContainer.h>
+#include <AutoHideTab.h>
 #include "DockAreaWidget.h"
 
 #include <QStackedLayout>
@@ -52,7 +53,7 @@
 #include "DockAreaTitleBar.h"
 #include "DockComponentsFactory.h"
 #include "DockWidgetTab.h"
-#include "DockWidgetSideTab.h"
+#include "DockingStateReader.h"
 
 
 namespace ads
@@ -819,7 +820,7 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		d->TitleBar->setVisible(isAutoHide() ? true : !Hidden); // Titlebar must always be visible when auto hidden so it can be dragged
 		auto tabBar = d->TitleBar->tabBar();
         tabBar->setVisible(isAutoHide() ? false : !Hidden);  // Never show tab bar when auto hidden
-        d->TitleBar->autoHideTitleLabel()->setVisible(CDockManager::testConfigFlag(CDockManager::AutoHideDockAreaHasTitle) && isAutoHide());  // Always show when auto hidden, never otherwise
+        d->TitleBar->autoHideTitleLabel()->setVisible(isAutoHide());  // Always show when auto hidden, never otherwise
         updateTitleBarButtonVisibility(Container->topLevelDockArea() == this);
 	}
 }
@@ -868,13 +869,6 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
 	s.writeAttribute("Current", Name);
 
-	// To keep the saved XML data small, we only save the allowed areas and the
-	// dock area flags if the values are different from the default values
-	if (isAutoHide())
-	{
-		autoHideDockContainer()->saveState(s);
-	}
-
 	if (d->AllowedAreas != DefaultAllowedAreas)
 	{
 		s.writeAttribute("AllowedAreas", QString::number(d->AllowedAreas, 16));
@@ -891,6 +885,98 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 		dockWidget(i)->saveState(s);
 	}
 	s.writeEndElement();
+}
+
+
+//============================================================================
+bool CDockAreaWidget::restoreState(CDockingStateReader& s, CDockAreaWidget*& CreatedWidget,
+		bool Testing, CDockContainerWidget* Container)
+{
+	bool Ok;
+#ifdef ADS_DEBUG_PRINT
+	int Tabs = s.attributes().value("Tabs").toInt(&Ok);
+	if (!Ok)
+	{
+		return false;
+	}
+#endif
+
+	QString CurrentDockWidget = s.attributes().value("Current").toString();
+    ADS_PRINT("Restore NodeDockArea Tabs: " << Tabs << " Current: "
+            << CurrentDockWidget);
+
+    auto DockManager = Container->dockManager();
+	CDockAreaWidget* DockArea = nullptr;
+	if (!Testing)
+	{
+		DockArea = new CDockAreaWidget(DockManager, Container);
+		const auto AllowedAreasAttribute = s.attributes().value("AllowedAreas");
+		if (!AllowedAreasAttribute.isEmpty())
+		{
+			DockArea->setAllowedAreas((DockWidgetArea)AllowedAreasAttribute.toInt(nullptr, 16));
+		}
+
+		const auto FlagsAttribute = s.attributes().value("Flags");
+		if (!FlagsAttribute.isEmpty())
+		{
+			DockArea->setDockAreaFlags((CDockAreaWidget::DockAreaFlags)FlagsAttribute.toInt(nullptr, 16));
+		}
+	}
+
+	while (s.readNextStartElement())
+	{
+        if (s.name() != QLatin1String("Widget"))
+		{
+			continue;
+		}
+
+		auto ObjectName = s.attributes().value("Name");
+		if (ObjectName.isEmpty())
+		{
+			return false;
+		}
+
+		bool Closed = s.attributes().value("Closed").toInt(&Ok);
+		if (!Ok)
+		{
+			return false;
+		}
+
+		s.skipCurrentElement();
+		CDockWidget* DockWidget = DockManager->findDockWidget(ObjectName.toString());
+		if (!DockWidget || Testing)
+		{
+			continue;
+		}
+
+        ADS_PRINT("Dock Widget found - parent " << DockWidget->parent());
+		// We hide the DockArea here to prevent the short display (the flashing)
+		// of the dock areas during application startup
+		DockArea->hide();
+        DockArea->addDockWidget(DockWidget);
+		DockWidget->setToggleViewActionChecked(!Closed);
+		DockWidget->setClosedState(Closed);
+		DockWidget->setProperty(internal::ClosedProperty, Closed);
+		DockWidget->setProperty(internal::DirtyProperty, false);
+	}
+
+	if (Testing)
+	{
+		return true;
+	}
+
+	if (!DockArea->dockWidgetsCount())
+	{
+		delete DockArea;
+		DockArea = nullptr;
+	}
+	else
+	{
+		DockArea->setProperty("currentDockWidget", CurrentDockWidget);
+	}
+
+	CreatedWidget = DockArea;
+	return true;
 }
 
 

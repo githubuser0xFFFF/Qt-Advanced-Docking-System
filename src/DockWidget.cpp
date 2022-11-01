@@ -29,6 +29,8 @@
 //                                   INCLUDES
 //============================================================================
 #include <AutoHideDockContainer.h>
+#include <AutoHideSideBar.h>
+#include <AutoHideTab.h>
 #include "DockWidgetTab.h"
 #include "DockWidget.h"
 
@@ -51,8 +53,6 @@
 #include <QScreen>
 #include <QWindow>
 
-#include "SideTabBar.h"
-#include "DockWidgetSideTab.h"
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
@@ -79,7 +79,6 @@ struct DockWidgetPrivate
 	QBoxLayout* Layout = nullptr;
 	QWidget* Widget = nullptr;
 	CDockWidgetTab* TabWidget = nullptr;
-	CDockWidgetSideTab* SideTabWidget = nullptr;
 	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
 	CDockManager* DockManager = nullptr;
 	CDockAreaWidget* DockArea = nullptr;
@@ -96,6 +95,7 @@ struct DockWidgetPrivate
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
 	WidgetFactory* Factory = nullptr;
 	CDockWidget::eAutoHideInsertOrder AutoHideInsertOrder = CDockWidget::Last;
+	QPointer<CAutoHideTab> SideTabWidget;
 	
 	/**
 	 * Private data constructor
@@ -245,6 +245,8 @@ void DockWidgetPrivate::updateParentDockArea()
 	}
 }
 
+
+//============================================================================
 void DockWidgetPrivate::closeAutoHideDockWidgetsIfNeeded()
 {
 	if (_this->dockContainer() && _this->dockContainer()->openedDockWidgets().isEmpty() && !_this->dockManager()->isRestoringState())
@@ -323,9 +325,6 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	setObjectName(title);
 
 	d->TabWidget = componentsFactory()->createDockWidgetTab(this);
-	d->SideTabWidget = componentsFactory()->createDockWidgetSideTab(this);
-
-	connect(d->SideTabWidget, &CDockWidgetSideTab::pressed, this, &CDockWidget::onDockWidgetSideTabClicked);
 
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
@@ -343,10 +342,6 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 CDockWidget::~CDockWidget()
 {
 	ADS_PRINT("~CDockWidget()");
-	if (d->SideTabWidget)
-	{
-		delete d->SideTabWidget;
-	}
 	delete d;
 }
 
@@ -440,6 +435,8 @@ CDockWidgetTab* CDockWidget::tabWidget() const
 	return d->TabWidget;
 }
 
+
+//============================================================================
 CAutoHideDockContainer* CDockWidget::autoHideDockContainer() const
 {
 	if (!d->DockArea)
@@ -525,9 +522,23 @@ CDockAreaWidget* CDockWidget::dockAreaWidget() const
 }
 
 //============================================================================
-CDockWidgetSideTab* CDockWidget::sideTabWidget() const
+CAutoHideTab* CDockWidget::sideTabWidget() const
 {
 	return d->SideTabWidget;
+}
+
+
+//============================================================================
+void CDockWidget::setSideTabWidget(CAutoHideTab* SideTab) const
+{
+	d->SideTabWidget = SideTab;
+}
+
+
+//============================================================================
+bool CDockWidget::isAutoHide() const
+{
+	return !d->SideTabWidget.isNull();
 }
 
 
@@ -738,6 +749,10 @@ bool CDockWidget::event(QEvent *e)
 			{
 				d->TabWidget->setText(title);
 			}
+			if (d->SideTabWidget)
+			{
+				d->SideTabWidget->setText(title);
+			}
 			if (d->ToggleViewAction)
 			{
 				d->ToggleViewAction->setText(title);
@@ -788,7 +803,12 @@ void CDockWidget::setTabToolTip(const QString &text)
 void CDockWidget::setIcon(const QIcon& Icon)
 {
 	d->TabWidget->setIcon(Icon);
-	d->SideTabWidget->setIcon(Icon);
+
+	if (d->SideTabWidget)
+	{
+		d->SideTabWidget->setIcon(Icon);
+	}
+
 	if (!d->ToggleViewAction->isCheckable())
 	{
 		d->ToggleViewAction->setIcon(Icon);
@@ -1079,17 +1099,6 @@ void CDockWidget::showNormal()
 	}
 }
 
-//============================================================================
-void CDockWidget::onDockWidgetSideTabClicked()
-{
-	const auto autoHideContainer = autoHideDockContainer();
-	if (!autoHideContainer)
-	{
-		return;
-	}
-
-	autoHideContainer->toggleCollapseState();
-}
 
 //============================================================================
 bool CDockWidget::isFullScreen() const

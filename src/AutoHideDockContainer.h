@@ -31,9 +31,8 @@
 //============================================================================
 #include "ads_globals.h"
 
-#include "DockWidgetSideTab.h"
-
 #include <QSplitter>
+#include "AutoHideTab.h"
 
 class QXmlStreamWriter;
 
@@ -43,9 +42,10 @@ struct AutoHideDockContainerPrivate;
 class CDockManager;
 class CDockWidget;
 class CDockContainerWidget;
-class CSideTabBar;
+class CAutoHideSideBar;
 class CDockAreaWidget;
 class CDockingStateReader;
+struct SideTabBarPrivate;
 
 /**
  * Auto hide container for hosting an auto hide dock widget
@@ -53,29 +53,40 @@ class CDockingStateReader;
 class ADS_EXPORT CAutoHideDockContainer : public QFrame
 {
 	Q_OBJECT
-	Q_PROPERTY(ads::SideBarLocation sideTabBarArea READ sideTabBarArea)
+    Q_PROPERTY(int sideBarLocation READ sideBarLocation)
 private:
 	AutoHideDockContainerPrivate* d; ///< private data (pimpl)
 	friend struct AutoHideDockContainerPrivate;
+	friend CAutoHideSideBar;
+	friend SideTabBarPrivate;
 
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
+
+	/**
+	 * Updates the size considering the size limits and the resize margins
+	 */
 	void updateSize();
 
-	CDockContainerWidget* parentContainer() const;
+	/*
+	 * Saves the state and size
+	 */
+	void saveState(QXmlStreamWriter& Stream);
 
 public:
 	using Super = QFrame;
 	/**
 	 * Create Auto Hide widget with a dock manager
 	 */
-    CAutoHideDockContainer(CDockManager* DockManager, SideBarLocation area, CDockContainerWidget* parent);
+    CAutoHideDockContainer(CDockManager* DockManager, SideBarLocation area,
+    	CDockContainerWidget* parent);
 
     /**
 	 * Create Auto Hide widget with the given dock widget
 	 */
-	CAutoHideDockContainer(CDockWidget* DockWidget, SideBarLocation area, CDockContainerWidget* parent);
+	CAutoHideDockContainer(CDockWidget* DockWidget, SideBarLocation area,
+		CDockContainerWidget* parent);
 
 	/**
 	 * Virtual Destructor
@@ -85,7 +96,12 @@ public:
 	/**
 	 * Get's the side tab bar
 	 */
-	CSideTabBar* sideTabBar() const;
+	CAutoHideSideBar* sideBar() const;
+
+	/**
+	 * Returns the side tab
+	 */
+	CAutoHideTab* autoHideTab() const;
 
 	/**
 	 * Get's the dock widget in this dock container
@@ -100,12 +116,17 @@ public:
     /**
 	 * Returns the side tab bar area of this Auto Hide dock container
 	 */
-	SideBarLocation sideTabBarArea() const;
+	SideBarLocation sideBarLocation() const;
 
 	/**
 	 * Returns the dock area widget of this Auto Hide dock container
 	 */
 	CDockAreaWidget* dockAreaWidget() const;
+
+	/**
+	 * Returns the parent container that hosts this auto hide container
+	 */
+	CDockContainerWidget* parentContainer() const;
 
 	/**
 	 * Moves the contents to the parent container widget
@@ -117,16 +138,6 @@ public:
 	 * Cleanups up the side tab widget and then deletes itself
 	 */
 	void cleanupAndDelete();
-
-	/*
-	 * Saves the state and size
-	 */
-	void saveState(QXmlStreamWriter& Stream);
-
-	/*
-	 * Restores the size of the splitter
-	 */
-	bool restoreState(CDockingStateReader& Stream, bool Testing);
 
 	/*
 	 * Toggles the auto Hide dock container widget
@@ -146,13 +157,13 @@ public:
 	void toggleCollapseState();
 
 	/**
-	 * Use this instead of resize. This will ensure the size is consistent internally.
-	 * E.g. If you set a height less than the parent height when it's vertical
-	 * It will simply be rescaled to the parent height while the width will be resized
+	 * Use this instead of resize.
+	 * Depending on the sidebar location this will set the width or heigth
+	 * of this auto hide container.
 	 */
-	void setSize(int width, int height);
+	void setSize(int Size);
 };
-}
+} // namespace ads
 
-
+//-----------------------------------------------------------------------------
 #endif

@@ -29,6 +29,8 @@
 //                                   INCLUDES
 //============================================================================
 #include <AutoHideDockContainer.h>
+#include <AutoHideSideBar.h>
+#include <AutoHideTab.h>
 #include "DockContainerWidget.h"
 
 #include <QEvent>
@@ -49,9 +51,7 @@
 #include "DockOverlay.h"
 #include "ads_globals.h"
 #include "DockSplitter.h"
-#include "SideTabBar.h"
 #include "DockWidgetTab.h"
-#include "DockWidgetSideTab.h"
 #include "DockAreaTitleBar.h"
 #include "DockFocusController.h"
 
@@ -139,7 +139,7 @@ public:
 	unsigned int zOrderIndex = 0;
 	QList<CDockAreaWidget*> DockAreas;
 	QList<CAutoHideDockContainer*> AutoHideWidgets;
-	QMap<SideBarLocation, CSideTabBar*> SideTabBarWidgets;
+	QMap<SideBarLocation, CAutoHideSideBar*> SideTabBarWidgets;
 	QGridLayout* Layout = nullptr;
 	QSplitter* RootSplitter = nullptr;
 	bool isFloating = false;
@@ -249,13 +249,6 @@ public:
 	 */
 	bool restoreDockArea(CDockingStateReader& Stream, QWidget*& CreatedWidget,
 		bool Testing);
-
-	/**
-	 * Restores the auto hide dock area.
-     * Assumes that there are no auto hidden dock areas, and then restores all the dock areas that
-     * exist in the XML
-	 */
-    bool restoreAutoHideDockArea(CDockingStateReader& s, SideBarLocation area, bool Testing);
 
     /**
      * Restores a auto hide side bar
@@ -898,6 +891,8 @@ void DockContainerWidgetPrivate::saveChildNodesState(QXmlStreamWriter& s, QWidge
 	}
 }
 
+
+//============================================================================
 void DockContainerWidgetPrivate::saveAutoHideWidgetsState(QXmlStreamWriter& s)
 {
 	for (const auto sideTabBar : SideTabBarWidgets.values())
@@ -907,23 +902,7 @@ void DockContainerWidgetPrivate::saveAutoHideWidgetsState(QXmlStreamWriter& s)
 			continue;
 		}
 
-		s.writeStartElement("SideBar");
-		s.writeAttribute("Area", QString::number(sideTabBar->sideTabBarArea()));
-		s.writeAttribute("Tabs", QString::number(sideTabBar->tabCount()));
-
-		for (auto i = 0; i < sideTabBar->tabCount(); ++i)
-		{
-			auto Tab = sideTabBar->tabAt(i);
-            if (!Tab)
-            {
-				continue;
-            }
-
-			auto DockArea = Tab->dockWidget()->dockAreaWidget();
-            DockArea->saveState(s);
-		}
-
-		s.writeEndElement();
+		sideTabBar->saveState(s);
     }
 }
 
@@ -1043,187 +1022,19 @@ bool DockContainerWidgetPrivate::restoreSplitter(CDockingStateReader& s,
 	return true;
 }
 
-//============================================================================
-bool DockContainerWidgetPrivate::restoreAutoHideDockArea(CDockingStateReader& s, SideBarLocation area, bool Testing)
-{
-	bool Ok;
-#ifdef ADS_DEBUG_PRINT
-	int Tabs = s.attributes().value("Tabs").toInt(&Ok);
-	if (!Ok)
-	{
-		return false;
-	}
-#endif
-
-	QString CurrentDockWidget = s.attributes().value("Current").toString();
-    ADS_PRINT("Restore NodeDockArea Tabs: " << Tabs << " Current: "
-            << CurrentDockWidget);
-
-	if (!CDockManager::testConfigFlag(CDockManager::AutoHideFeatureEnabled))
-	{
-		return false;
-	}
-
-	CDockAreaWidget* DockArea = nullptr;
-	CAutoHideDockContainer* dockContainer = nullptr;
-	if (!Testing)
-	{
-		dockContainer = new CAutoHideDockContainer(DockManager, area, _this);
-		if (!dockContainer->restoreState(s, Testing))
-		{
-			return false;
-		}
-
-        dockContainer->hide();
-        DockArea = dockContainer->dockAreaWidget();
-		DockArea->updateAutoHideButtonCheckState();
-        DockArea->updateTitleBarButtonToolTip();
-	}
-
-	while (s.readNextStartElement())
-	{
-        if (s.name() != QLatin1String("Widget"))
-		{
-			continue;
-		}
-
-		auto ObjectName = s.attributes().value("Name");
-		if (ObjectName.isEmpty())
-		{
-			return false;
-		}
-
-		bool Closed = s.attributes().value("Closed").toInt(&Ok);
-		if (!Ok)
-		{
-			return false;
-		}
-
-		s.skipCurrentElement();
-		CDockWidget* DockWidget = DockManager->findDockWidget(ObjectName.toString());
-		if (!DockWidget || Testing)
-		{
-			continue;
-		}
-
-        ADS_PRINT("Dock Widget found - parent " << DockWidget->parent());
-		// We hide the DockArea here to prevent the short display (the flashing)
-		// of the dock areas during application startup
-		DockArea->hide();
-		DockWidget->setToggleViewActionChecked(!Closed);
-		DockWidget->setClosedState(Closed);
-		DockWidget->setProperty(internal::ClosedProperty, Closed);
-		DockWidget->setProperty(internal::DirtyProperty, false);
-        _this->sideTabBar(area)->insertSideTab(-1, DockWidget->sideTabWidget());
-        DockArea->autoHideDockContainer()->addDockWidget(DockWidget);
-        DockWidget->sideTabWidget()->updateStyle(); // Needed as the side tab widget get it's left/right property from the overlay dock container which was just added
-		DockArea->autoHideDockContainer()->toggleView(!Closed);
-	}
-
-	if (dockContainer && !dockContainer->dockWidget())
-	{
-		dockContainer->cleanupAndDelete();
-	}
-
-	return true;
-}
-
 
 //============================================================================
 bool DockContainerWidgetPrivate::restoreDockArea(CDockingStateReader& s,
 	QWidget*& CreatedWidget, bool Testing)
 {
-	bool Ok;
-#ifdef ADS_DEBUG_PRINT
-	int Tabs = s.attributes().value("Tabs").toInt(&Ok);
-	if (!Ok)
-	{
-		return false;
-	}
-#endif
-
-	QString CurrentDockWidget = s.attributes().value("Current").toString();
-    ADS_PRINT("Restore NodeDockArea Tabs: " << Tabs << " Current: "
-            << CurrentDockWidget);
-
 	CDockAreaWidget* DockArea = nullptr;
-	if (!Testing)
+	auto Result = CDockAreaWidget::restoreState(s, DockArea, Testing, _this);
+	if (Result && DockArea)
 	{
-		DockArea = new CDockAreaWidget(DockManager, _this);
-		const auto AllowedAreasAttribute = s.attributes().value("AllowedAreas");
-		if (!AllowedAreasAttribute.isEmpty())
-		{
-			DockArea->setAllowedAreas((DockWidgetArea)AllowedAreasAttribute.toInt(nullptr, 16));
-		}
-
-		const auto FlagsAttribute = s.attributes().value("Flags");
-		if (!FlagsAttribute.isEmpty())
-		{
-			DockArea->setDockAreaFlags((CDockAreaWidget::DockAreaFlags)FlagsAttribute.toInt(nullptr, 16));
-		}
-	}
-
-	while (s.readNextStartElement())
-	{
-        if (s.name() != QLatin1String("Widget"))
-		{
-			continue;
-		}
-
-		auto ObjectName = s.attributes().value("Name");
-		if (ObjectName.isEmpty())
-		{
-			return false;
-		}
-
-		bool Closed = s.attributes().value("Closed").toInt(&Ok);
-		if (!Ok)
-		{
-			return false;
-		}
-
-		s.skipCurrentElement();
-		CDockWidget* DockWidget = DockManager->findDockWidget(ObjectName.toString());
-		if (!DockWidget || Testing)
-		{
-			continue;
-		}
-
-		const auto oldDockArea = DockWidget->dockAreaWidget();
-		if (oldDockArea)
-		{
-			oldDockArea->removeDockWidget(DockWidget);
-		}
-
-        ADS_PRINT("Dock Widget found - parent " << DockWidget->parent());
-		// We hide the DockArea here to prevent the short display (the flashing)
-		// of the dock areas during application startup
-		DockArea->hide();
-        DockArea->addDockWidget(DockWidget);
-		DockWidget->setToggleViewActionChecked(!Closed);
-		DockWidget->setClosedState(Closed);
-		DockWidget->setProperty(internal::ClosedProperty, Closed);
-		DockWidget->setProperty(internal::DirtyProperty, false);
-	}
-
-	if (Testing)
-	{
-		return true;
-	}
-
-	if (!DockArea->dockWidgetsCount())
-	{
-		delete DockArea;
-		DockArea = nullptr;
-	}
-	else
-	{
-		DockArea->setProperty("currentDockWidget", CurrentDockWidget);
 		appendDockAreas({DockArea});
 	}
-
 	CreatedWidget = DockArea;
-	return true;
+	return Result;
 }
 
 
@@ -1232,14 +1043,14 @@ bool DockContainerWidgetPrivate::restoreSideBar(CDockingStateReader& s,
 	QWidget*& CreatedWidget, bool Testing)
 {
 	Q_UNUSED(CreatedWidget)
-	// Simply ignore side bar auto hide widgets
+	// Simply ignore side bar auto hide widgets from saved state if
+	// auto hide support is disabled
 	if (!CDockManager::testConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
 		return true;
 	}
 
 	bool Ok;
-	//int Tabs = s.attributes().value("Tabs").toInt(&Ok);
 	auto Area = (ads::SideBarLocation)s.attributes().value("Area").toInt(&Ok);
 	if (!Ok)
 	{
@@ -1248,15 +1059,47 @@ bool DockContainerWidgetPrivate::restoreSideBar(CDockingStateReader& s,
 
 	while (s.readNextStartElement())
 	{
-        if (s.name() != QLatin1String("Area"))
+		if (s.name() != QLatin1String("Widget"))
 		{
 			continue;
 		}
 
-        if (!restoreAutoHideDockArea(s, Area, Testing))
-        {
-        	return false;
-        }
+		auto Name = s.attributes().value("Name");
+		if (Name.isEmpty())
+		{
+			return false;
+		}
+
+		bool Ok;
+		bool Closed = s.attributes().value("Closed").toInt(&Ok);
+		if (!Ok)
+		{
+			return false;
+		}
+
+		int Size = s.attributes().value("Size").toInt(&Ok);
+		if (!Ok)
+		{
+			return false;
+		}
+
+		s.skipCurrentElement();
+		CDockWidget* DockWidget = DockManager->findDockWidget(Name.toString());
+		if (!DockWidget || Testing)
+		{
+			continue;
+		}
+		const auto oldDockArea = DockWidget->dockAreaWidget();
+		if (oldDockArea)
+		{
+			oldDockArea->removeDockWidget(DockWidget);
+		}
+
+		auto SideBar = _this->sideTabBar(Area);
+		auto AutoHideContainer = SideBar->insertDockWidget(-1, DockWidget);
+		AutoHideContainer->setSize(Size);
+        DockWidget->setProperty(internal::ClosedProperty, Closed);
+		DockWidget->setProperty(internal::DirtyProperty, false);
 	}
 
 	return true;
@@ -1487,12 +1330,10 @@ CDockContainerWidget::CDockContainerWidget(CDockManager* DockManager, QWidget *p
 	{
 		d->DockManager->registerDockContainer(this);
 		createRootSplitter();
-		if (CDockManager::testConfigFlag(CDockManager::AutoHideFeatureEnabled))
-		{
-			createSideTabBarWidgets();
-		}
+		createSideTabBarWidgets();
 	}
 }
+
 
 //============================================================================
 CDockContainerWidget::~CDockContainerWidget()
@@ -1538,26 +1379,18 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
 	SideBarLocation area, CDockWidget* DockWidget, CDockWidget::eAutoHideInsertOrder insertOrder)
 {
-	if (d->DockManager != DockWidget->dockManager())
-	{
-        DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
-	}
 	if (!CDockManager::testConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
 		Q_ASSERT_X(false, "CDockContainerWidget::createAndInitializeDockWidgetOverlayContainer",
 			"Requested area does not exist in config");
 		return nullptr;
 	}
+	if (d->DockManager != DockWidget->dockManager())
+	{
+        DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
+	}
 
-	DockWidget->sideTabWidget()->updateOrientationAndSpacing(area);
-    sideTabBar(area)->insertSideTab(insertOrder == CDockWidget::First ? 0 : -1, DockWidget->sideTabWidget());
-    DockWidget->sideTabWidget()->show();
-
-	const auto AutoHideContainer = new CAutoHideDockContainer(DockWidget, area, this);
-	AutoHideContainer->hide();
-	d->DockManager->dockFocusController()->clearDockWidgetFocus(DockWidget);
-
-	return AutoHideContainer;
+	return sideTabBar(area)->insertDockWidget(insertOrder == CDockWidget::First ? 0 : -1, DockWidget);
 }
 
 
@@ -1736,6 +1569,13 @@ void CDockContainerWidget::addDockArea(CDockAreaWidget* DockAreaWidget,
 void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 {
     ADS_PRINT("CDockContainerWidget::removeDockArea");
+    // If it is an auto hide area, then there is nothing much to do
+	if (area->isAutoHide())
+	{
+        area->setAutoHideDockContainer(nullptr);
+		return;
+	}
+
 	area->disconnect(this);
 	d->DockAreas.removeAll(area);
 	CDockSplitter* Splitter = internal::findParent<CDockSplitter*>(area);
@@ -1749,24 +1589,6 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 	auto p = std::find(std::begin(d->LastAddedAreaCache), std::end(d->LastAddedAreaCache), area);
 	if (p != std::end(d->LastAddedAreaCache)) {
 		*p = nullptr;
-	}
-
-	if (area->isAutoHide())
-	{
-		// Removing an area from an auto hide container widget implies deleting the whole auto hide widget
-		// So cleanup will be done when the auto hide container widget is deleted
-		// Note: there is no parent splitter
-        CDockWidget* TopLevelWidget = topLevelDockWidget();
-
-        // Updated the title bar visibility of the dock widget if there is only
-        // one single visible dock widget
-        CDockWidget::emitTopLevelEventForWidget(TopLevelWidget, true);
-        dumpLayout();
-        d->emitDockAreasRemoved();
-        area->setAutoHideDockContainer(nullptr);
-		area->updateAutoHideButtonCheckState();
-        area->updateTitleBarButtonToolTip();
-		return;
 	}
 
 	// If splitter has more than 1 widgets, we are finished and can leave
@@ -1897,7 +1719,7 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	auto autoHideWidgets = FloatingWidget->dockContainer()->autoHideWidgets();
 	for (const auto autohideWidget : autoHideWidgets)
 	{
-		createAndSetupAutoHideContainer(autohideWidget->sideTabBarArea(), autohideWidget->dockWidget(), autohideWidget->dockWidget()->autoHideInsertOrder());
+		createAndSetupAutoHideContainer(autohideWidget->sideBarLocation(), autohideWidget->dockWidget(), autohideWidget->dockWidget()->autoHideInsertOrder());
 	}
 
 	if (DockArea)
@@ -2134,27 +1956,32 @@ void CDockContainerWidget::createRootSplitter()
 //============================================================================
 void CDockContainerWidget::createSideTabBarWidgets()
 {
+	if (!CDockManager::testConfigFlag(CDockManager::AutoHideFeatureEnabled))
+	{
+		return;
+	}
+
 	{
 		auto Area = SideBarLocation::Left;
-        d->SideTabBarWidgets[Area] = new CSideTabBar(this, Area);
+        d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
 		d->Layout->addWidget(d->SideTabBarWidgets[Area], 1, 0);
 	}
 
 	{
 		auto Area = SideBarLocation::Right;
-        d->SideTabBarWidgets[Area] = new CSideTabBar(this, Area);
+        d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
 		d->Layout->addWidget(d->SideTabBarWidgets[Area], 1, 2);
 	}
 
 	{
 		auto Area = SideBarLocation::Bottom;
-        d->SideTabBarWidgets[Area] = new CSideTabBar(this, Area);
+        d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
         d->Layout->addWidget(d->SideTabBarWidgets[Area], 2, 1);
 	}
 
 	{
 		auto Area = SideBarLocation::Top;
-        d->SideTabBarWidgets[Area] = new CSideTabBar(this, Area);
+        d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
         d->Layout->addWidget(d->SideTabBarWidgets[Area], 0, 1);
 	}
 }
@@ -2304,7 +2131,7 @@ void CDockContainerWidget::closeOtherAreas(CDockAreaWidget* KeepOpenArea)
 }
 
 //============================================================================
-CSideTabBar* CDockContainerWidget::sideTabBar(SideBarLocation area) const
+CAutoHideSideBar* CDockContainerWidget::sideTabBar(SideBarLocation area) const
 {
 	return d->SideTabBarWidgets[area];
 }
@@ -2330,6 +2157,13 @@ QRect CDockContainerWidget::contentRectGlobal() const
 		return QRect();
 	}
 	return internal::globalGeometry(d->RootSplitter);
+}
+
+
+//===========================================================================
+CDockManager* CDockContainerWidget::dockManager() const
+{
+	return d->DockManager;
 }
 } // namespace ads
 

@@ -27,8 +27,8 @@ set(ads_SRCS
     FloatingDragPreview.cpp
     IconProvider.cpp
     DockComponentsFactory.cpp
-    SideTabBar.cpp
-    DockWidgetSideTab.cpp
+    AutoHideSideBar.cpp
+    AutoHideTab.cpp
     AutoHideDockContainer.cpp
     PushButton.cpp
 	ResizeHandle.cpp
@@ -53,8 +53,8 @@ set(ads_HEADERS
     FloatingDragPreview.h
     IconProvider.h
     DockComponentsFactory.h
-    SideTabBar.h
-    DockWidgetSideTab.h
+    AutoHideSideBar.h
+    AutoHideTab.h
     AutoHideDockContainer.h
     PushButton.h
 	ResizeHandle.h

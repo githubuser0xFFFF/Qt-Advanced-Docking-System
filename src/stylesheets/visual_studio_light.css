@@ -149,13 +149,13 @@ ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
  * Styling of auto hide functionality
  *----------------------------------------------------------------------------
  */
-ads--CDockWidgetSideTab {
+ads--CAutoHideTab {
 	/*background: palette(window);*/
 	qproperty-iconSize: 16px 16px;/* this is optional in case you would like to change icon size*/
 }
 
 
-ads--CDockWidgetSideTab
+ads--CAutoHideTab
 {
 	background: none;
 	border: none;
@@ -164,8 +164,8 @@ ads--CDockWidgetSideTab
 	text-align: center;
 }
 
-ads--CDockWidgetSideTab[sideTabBarArea="0"],
-ads--CDockWidgetSideTab[sideTabBarArea="2"] 
+ads--CAutoHideTab[sideBarLocation="0"],
+ads--CAutoHideTab[sideBarLocation="2"] 
 {
 	border-top: 5px solid rgba(0, 0, 0, 48);
 	margin-right: 6px;
@@ -173,8 +173,8 @@ ads--CDockWidgetSideTab[sideTabBarArea="2"]
 }
 
 
-ads--CDockWidgetSideTab[sideTabBarArea="1"],
-ads--CDockWidgetSideTab[sideTabBarArea="3"] 
+ads--CAutoHideTab[sideBarLocation="1"],
+ads--CAutoHideTab[sideBarLocation="3"] 
 {
 	border-bottom: 5px solid rgba(0, 0, 0, 48);
 	margin-right: 6px;
@@ -183,30 +183,30 @@ ads--CDockWidgetSideTab[sideTabBarArea="3"]
 
 
 
-ads--CDockWidgetSideTab:hover[sideTabBarArea="0"],
-ads--CDockWidgetSideTab:hover[sideTabBarArea="2"]  
+ads--CAutoHideTab:hover[sideBarLocation="0"],
+ads--CAutoHideTab:hover[sideBarLocation="2"]  
 {
 	border-top: 5px solid palette(highlight);
 	color: palette(highlight);
 }
 
 
-ads--CDockWidgetSideTab:hover[sideTabBarArea="1"],
-ads--CDockWidgetSideTab:hover[sideTabBarArea="3"]  
+ads--CAutoHideTab:hover[sideBarLocation="1"],
+ads--CAutoHideTab:hover[sideBarLocation="3"]  
 {
 	border-bottom: 5px solid palette(highlight);
 	color: palette(highlight);
 }
 
-ads--CDockWidgetSideTab[sideTabBarArea="0"][activeTab="true"],
-ads--CDockWidgetSideTab[sideTabBarArea="2"][activeTab="true"]  
+ads--CAutoHideTab[sideBarLocation="0"][activeTab="true"],
+ads--CAutoHideTab[sideBarLocation="2"][activeTab="true"]  
 {
 	border-top: 5px solid palette(highlight);
 }
 
 
-ads--CDockWidgetSideTab[sideTabBarArea="1"][activeTab="true"],
-ads--CDockWidgetSideTab[sideTabBarArea="3"][activeTab="true"] 
+ads--CAutoHideTab[sideBarLocation="1"][activeTab="true"],
+ads--CAutoHideTab[sideBarLocation="3"][activeTab="true"] 
 {
 	border-bottom: 5px solid palette(highlight);
 }
@@ -227,7 +227,7 @@ ads--CAutoHideDockContainer::handle:horizontal {
 }
 */
 
-/*ads--CAutoHideDockContainer[sideTabBarArea="0"]:handle {
+/*ads--CAutoHideDockContainer[sideBarLocation="0"]:handle {
 	border: 1px solid palette(dark);
 	background: white;
 }*/

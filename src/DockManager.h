@@ -54,7 +54,7 @@ struct DockAreaWidgetPrivate;
 class CIconProvider;
 class CDockComponentsFactory;
 class CDockFocusController;
-class CSideTabBar;
+class CAutoHideSideBar;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -86,7 +86,7 @@ private:
 	friend struct FloatingDragPreviewPrivate;
 	friend class CDockAreaTitleBar;
 	friend class CAutoHideDockContainer;
-	friend CSideTabBar;
+	friend CAutoHideSideBar;
 
 
 protected:
@@ -226,21 +226,25 @@ public:
 	};
 	Q_DECLARE_FLAGS(ConfigFlags, eConfigFlag)
 
+
+	/**
+	 * These global configuration flags configure some dock manager auto hide
+	 * settings
+	 * Set the dock manager flags, before you create the dock manager instance.
+	 */
     enum eAutoHideFlag
 	{
-		AutoHideFeatureEnabled = 0x01,
+		AutoHideFeatureEnabled = 0x01, //!< enables / disables auto hide feature
 		DockAreaHasAutoHideButton = 0x02,     //!< If the flag is set each dock area has a auto hide menu button
-		LeftSideBarPrioritizeIconOnly = 0x04,  //!< If the flag is set left side bar will prioritize showing icons only over text
-		RightSideBarPrioritizeIconOnly = 0x08, //!< If the flag is set right side bar will prioritize showing icons only over text
-		BottomSideBarPrioritizeIconOnly = 0x10,//!< If the flag is set bottom side bar will prioritize showing icons only over text
-		TopSideBarPrioritizeIconOnly = 0x20, //!< If the flag is set top side bar will prioritize showing icons only over text
-		AutoHideDockAreaHasTitle = 0x40, //!< If the flag is set overlay dock area title bar will show the window title
-		AutoHideButtonTogglesArea = 0x80, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
+		LeftSideBarIconOnly = 0x04,  //!< If the flag is set left side bar will show only icon if a the dock widget has an icon assigned
+		RightSideBarIconOnly = 0x08, //!< If the flag is set right side bar will show only icon if a the dock widget has an icon assigned
+		BottomSideBarIconOnly = 0x10,//!< If the flag is set bottom side show only icon if a the dock widget has an icon assigned
+		TopSideBarIconOnly = 0x20, //!< If the flag is set top side bar show only icon if a the dock widget has an icon assigned
+		AutoHideButtonTogglesArea = 0x40, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
 		AutoHideButtonCheckable = 0x80, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
-			                  | DockAreaHasAutoHideButton
-                              | AutoHideDockAreaHasTitle, ///< the default configuration for left and right side bars
+			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 
@@ -281,7 +285,7 @@ public:
 	 * Call this function before you create the dock manager and before
 	 * your create the first dock widget.
 	 */
-	static void setConfigFlags(const AutoHideFlags Flags);
+	static void setAutoHideConfigFlags(const AutoHideFlags Flags);
 
 	/**
 	 * Set a certain config flag.
@@ -293,7 +297,7 @@ public:
 	 * Set a certain overlay config flag.
 	 * \see setConfigFlags()
 	 */
-	static void setConfigFlag(eAutoHideFlag Flag, bool On = true);
+	static void setAutoHideConfigFlag(eAutoHideFlag Flag, bool On = true);
 
 	/**
 	 * Returns true if the given config flag is set

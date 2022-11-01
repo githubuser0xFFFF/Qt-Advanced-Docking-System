@@ -19,7 +19,7 @@ class CDockAreaTitleBar;
 class CDockAreaTabBar;
 class CDockAreaWidget;
 class CDockWidget;
-class CDockWidgetSideTab;
+class CAutoHideTab;
 
 
 
@@ -51,7 +51,7 @@ public:
 	 * This default implementation just creates a dock widget side tab with
 	 * new CDockWidgetTab(DockWidget).
 	 */
-	virtual CDockWidgetSideTab* createDockWidgetSideTab(CDockWidget* DockWidget) const;
+	virtual CAutoHideTab* createDockWidgetSideTab(CDockWidget* DockWidget) const;
 
 	/**
 	 * This default implementation just creates a dock area tab bar with

@@ -1,5 +1,5 @@
-#ifndef DockWidgetSideTabH
-#define DockWidgetSideTabH
+#ifndef AutoHideTabH
+#define AutoHideTabH
 /*******************************************************************************
 ** Qt Advanced Docking System
 ** Copyright (C) 2017 Uwe Kindler
@@ -20,10 +20,10 @@
 
 
 //============================================================================
-/// \file   DockWidgetTab.h
+/// \file   AutoHideTab.h
 /// \author Syarif Fakhri
 /// \date   05.09.2022
-/// \brief  Declaration of CDockWidgetSideTab class
+/// \brief  Declaration of CAutoHideTab class
 //============================================================================
 
 //============================================================================
@@ -35,9 +35,9 @@
 
 namespace ads
 {
-struct DockWidgetSideTabPrivate;
+struct AutoHideTabPrivate;
 class CDockWidget;
-class CSideTabBar;
+class CAutoHideSideBar;
 class CDockWidgetTab;
 struct SideTabIconLabelPrivate;
 
@@ -46,27 +46,27 @@ struct SideTabIconLabelPrivate;
  * The dock widget tab is shown in the side tab bar to switch between
  * pinned dock widgets
  */
-class ADS_EXPORT CDockWidgetSideTab : public CPushButton
+class ADS_EXPORT CAutoHideTab : public CPushButton
 {
     Q_OBJECT
 
-    Q_PROPERTY(ads::SideBarLocation sideTabBarArea READ sideTabBarArea)
+    Q_PROPERTY(int sideBarLocation READ sideBarLocation)
     Q_PROPERTY(Qt::Orientation orientation READ orientation)
 	Q_PROPERTY(bool activeTab READ isActiveTab)
 
 private:    
-	DockWidgetSideTabPrivate* d; ///< private data (pimpl)
-    friend struct DockWidgetSideTabPrivate;
+	AutoHideTabPrivate* d; ///< private data (pimpl)
+    friend struct AutoHideTabPrivate;
 	friend class CDockWidget;
 	friend class CAutoHideDockContainer;
 
 protected:
-	friend class CSideTabBar;
+	friend class CAutoHideSideBar;
 	friend class CDockAreaWidget;
 	friend class CDockContainerWidget;
 
-	void setSideTabBar(CSideTabBar *SideTabBar);
-	void removeFromSideTabBar();
+	void setSideBar(CAutoHideSideBar *SideTabBar);
+	void removeFromSideBar();
 
 public:
     using Super = CPushButton;
@@ -76,12 +76,12 @@ public:
 	 * param[in] DockWidget The dock widget this title bar belongs to
 	 * param[in] parent The parent widget of this title bar
 	 */
-	CDockWidgetSideTab(CDockWidget* DockWidget, QWidget* parent = nullptr);
+	CAutoHideTab(QWidget* parent = nullptr);
 
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CDockWidgetSideTab();
+	virtual ~CAutoHideTab();
 
 	/**
 	 * Update stylesheet style if a property changes
@@ -91,7 +91,7 @@ public:
 	/**
 	 * Getter for side tab bar area property
 	 */
-	SideBarLocation sideTabBarArea() const;
+	SideBarLocation sideBarLocation() const;
 
 	/**
 	 * Set orientation vertical or horizontal
@@ -104,12 +104,8 @@ public:
 	Qt::Orientation orientation() const;
 
 	/**
-	 * Update the orientation, visibility and spacing based on the area and the config
-	 */
-	void updateOrientationAndSpacing(SideBarLocation area);
-
-	/**
-	 * Returns true, if this is the active tab. The tab is active if the auto hide widget is visible
+	 * Returns true, if this is the active tab. The tab is active if the auto
+	 * hide widget is visible
 	 */
 	bool isActiveTab() const;
 
@@ -117,7 +113,12 @@ public:
 	 * returns the dock widget this belongs to
 	 */
 	CDockWidget* dockWidget() const;
-}; // class DockWidgetSideTab
+
+	/**
+	 * Sets the dock widget that is controlled by this tab
+	 */
+	void setDockWidget(CDockWidget* DockWidget);
+}; // class AutoHideTab
 }
  // namespace ads
 //-----------------------------------------------------------------------------

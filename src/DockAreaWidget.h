@@ -33,8 +33,8 @@
 #include <QFrame>
 
 #include "ads_globals.h"
+#include "AutoHideTab.h"
 #include "DockWidget.h"
-#include "DockWidgetSideTab.h"
 
 QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 QT_FORWARD_DECLARE_CLASS(QAbstractButton)
@@ -46,6 +46,7 @@ class CDockManager;
 class CDockContainerWidget;
 class DockContainerWidgetPrivate;
 class CDockAreaTitleBar;
+class CDockingStateReader;
 
 
 /**
@@ -296,6 +297,13 @@ public:
 	 */
 	void saveState(QXmlStreamWriter& Stream) const;
 
+    /**
+	 * Restores a dock area.
+	 * \see restoreChildNodes() for details
+	 */
+    static bool restoreState(CDockingStateReader& Stream, CDockAreaWidget*& CreatedWidget,
+		bool Testing, CDockContainerWidget* ParentContainer);
+
 	/**
 	 * This functions returns the dock widget features of all dock widget in
 	 * this area.
@@ -361,6 +369,7 @@ public:
      * Returns true if the area contains the central widget of it's manager.
      */
     bool containsCentralWidget() const;
+
 
 public Q_SLOTS:
 	/**

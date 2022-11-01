@@ -216,6 +216,7 @@ struct MainWindowPrivate
 		QFileSystemModel* m = new QFileSystemModel(w);
 		m->setRootPath(QDir::currentPath());
 		w->setModel(m);
+		w->setRootIndex(m->index(QDir::currentPath()));
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Filesystem %1")
 			.arg(FileSystemCount++));
 		DockWidget->setWidget(w);
@@ -650,10 +651,10 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
 	// uncomment the following line to enable focus highlighting of the dock
 	// widget that has the focus
-	//CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+    CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
 
 	// uncomment if you would like to enable dock widget auto hiding
-    CDockManager::setConfigFlag(CDockManager::DefaultAutoHideConfig, true);
+    CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
 
 	// uncomment if you would like to enable an equal distribution of the
 	// available size of a splitter to all contained dock widgets
@@ -748,7 +749,7 @@ void CMainWindow::onViewToggled(bool Open)
 		return;
 	}
 
-	//qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
 }
 
 

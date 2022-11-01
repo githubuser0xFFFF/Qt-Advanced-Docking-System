@@ -33,8 +33,8 @@
 #include <QFrame>
 
 #include "ads_globals.h"
+#include "AutoHideTab.h"
 #include "DockWidget.h"
-#include "DockWidgetSideTab.h"
 
 QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
@@ -51,7 +51,7 @@ struct FloatingDockContainerPrivate;
 class CFloatingDragPreview;
 struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
-class CSideTabBar;
+class CAutoHideSideBar;
 
 
 /**
@@ -321,7 +321,7 @@ public:
 	/**
 	 * Returns the side tab widget for the given area
 	 */
-	CSideTabBar* sideTabBar(SideBarLocation area) const;
+	CAutoHideSideBar* sideTabBar(SideBarLocation area) const;
 
 
 	/**
@@ -341,6 +341,11 @@ public:
 	 * internal root splitter mapped to global space.
 	 */
 	QRect contentRectGlobal() const;
+
+	/**
+	 * Returns the dock manager that owns this container
+	 */
+	CDockManager* dockManager() const;
 
 
 Q_SIGNALS:

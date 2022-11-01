@@ -46,8 +46,9 @@ class CDockContainerWidget;
 class CDockAreaWidget;
 class DockContainerWidgetPrivate;
 class CFloatingDockContainer;
-class CDockWidgetSideTab;
+class CAutoHideTab;
 class CAutoHideDockContainer;
+class CAutoHideSideBar;
 
 /**
  * The QDockWidget class provides a widget that can be docked inside a
@@ -78,6 +79,7 @@ protected:
     friend struct DockWidgetTabPrivate;
     friend struct DockAreaTitleBarPrivate;
     friend class CAutoHideDockContainer;
+    friend CAutoHideSideBar;
 
     /**
      * Assigns the dock manager that manages this dock widget
@@ -316,12 +318,6 @@ public:
     CDockWidgetTab* tabWidget() const;
 
     /**
-     * Returns the auto hide dock container of this dock widget 
-     * or 0 if there is none
-     */
-    CAutoHideDockContainer* autoHideDockContainer() const;
-
-    /**
      * Sets, whether the dock widget is movable, closable, and floatable.
      */
     void setFeatures(DockWidgetFeatures features);
@@ -365,9 +361,27 @@ public:
     CDockAreaWidget* dockAreaWidget() const;
 
     /**
-     * Returns the side tab widget for this dock
+     * Returns the side tab widget for this dock, if this dock widget is in
+     * a auto hide container. If it is not in a auto hide container, then this
+     * function returns a nullptr,
      */
-    CDockWidgetSideTab* sideTabWidget() const;
+    CAutoHideTab* sideTabWidget() const;
+
+    /**
+     * Assign a side tab widget if this dock widget is an auto hide container
+     */
+    void setSideTabWidget(CAutoHideTab* SideTab) const;
+
+    /**
+     * Returns true, if this dock widget is in an auto hide container
+     */
+    bool isAutoHide() const;
+
+    /**
+     * Returns the auto hide dock container of this dock widget
+     * or 0 if there is none
+     */
+    CAutoHideDockContainer* autoHideDockContainer() const;
 
     /**
      * This property holds whether the dock widget is floating.
@@ -611,10 +625,6 @@ public Q_SLOTS:
      */
     void showNormal();
 
-    /**
-     * Toggles the dock auto hide container when the side tab is clicked
-     */
-    void onDockWidgetSideTabClicked();
 
 Q_SIGNALS:
     /**

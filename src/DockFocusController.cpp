@@ -8,6 +8,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideTab.h>
 #include "DockFocusController.h"
 
 #include <algorithm>
@@ -25,7 +26,6 @@
 #include "FloatingDockContainer.h"
 #include "DockManager.h"
 #include "DockAreaTitleBar.h"
-#include "DockWidgetSideTab.h"
 
 #ifdef Q_OS_LINUX
 #include "linux/FloatingWidgetTitleBar.h"
@@ -70,8 +70,6 @@ static void updateDockWidgetFocusStyle(CDockWidget* DockWidget, bool Focused)
 	DockWidget->setProperty("focused", Focused);
 	DockWidget->tabWidget()->setProperty("focused", Focused);
 	DockWidget->tabWidget()->updateStyle();
-	DockWidget->sideTabWidget()->setProperty("focused", Focused);
-	DockWidget->sideTabWidget()->updateStyle();
 	internal::repolishStyle(DockWidget);
 }
 

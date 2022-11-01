@@ -8,6 +8,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideTab.h>
 #include "DockComponentsFactory.h"
 
 #include <memory>
@@ -17,7 +18,6 @@
 #include "DockAreaTitleBar.h"
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
-#include "DockWidgetSideTab.h"
 
 namespace ads
 {
@@ -31,9 +31,9 @@ CDockWidgetTab* CDockComponentsFactory::createDockWidgetTab(CDockWidget* DockWid
 }
 
 //============================================================================
-CDockWidgetSideTab* CDockComponentsFactory::createDockWidgetSideTab(CDockWidget *DockWidget) const
+CAutoHideTab* CDockComponentsFactory::createDockWidgetSideTab(CDockWidget *DockWidget) const
 {
-	return new CDockWidgetSideTab(DockWidget);
+	return new CAutoHideTab(DockWidget);
 }
 
 

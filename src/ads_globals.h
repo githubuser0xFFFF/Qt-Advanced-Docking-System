@@ -132,7 +132,7 @@ enum eBitwiseOperator
 
 
 /**
- * Each dock container supports 4 sidbars
+ * Each dock container supports 4 sidebars
  */
 enum SideBarLocation
 {

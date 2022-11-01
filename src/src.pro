@@ -49,8 +49,8 @@ HEADERS += \
     DockComponentsFactory.h  \
     DockFocusController.h \
     AutoHideDockContainer.h \
-    SideTabBar.h \
-    DockWidgetSideTab.h \
+    AutoHideSideBar.h \
+    AutoHideTab.h \
     PushButton.h \
     ResizeHandle.h
 
@@ -74,8 +74,8 @@ SOURCES += \
     DockComponentsFactory.cpp \
     DockFocusController.cpp \
     AutoHideDockContainer.cpp \
-    SideTabBar.cpp \
-    DockWidgetSideTab.cpp \
+    AutoHideSideBar.cpp \
+    AutoHideTab.cpp \
     PushButton.cpp \
     ResizeHandle.cpp
 
