@@ -1089,11 +1089,6 @@ bool DockContainerWidgetPrivate::restoreSideBar(CDockingStateReader& s,
 		{
 			continue;
 		}
-		const auto oldDockArea = DockWidget->dockAreaWidget();
-		if (oldDockArea)
-		{
-			oldDockArea->removeDockWidget(DockWidget);
-		}
 
 		auto SideBar = _this->sideTabBar(Area);
 		auto AutoHideContainer = SideBar->insertDockWidget(-1, DockWidget);
