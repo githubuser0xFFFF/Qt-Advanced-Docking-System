@@ -45,7 +45,6 @@ class CDockContainerWidget;
 class CAutoHideSideBar;
 class CDockAreaWidget;
 class CDockingStateReader;
-struct SideTabBarPrivate;
 
 /**
  * Auto hide container for hosting an auto hide dock widget
@@ -58,7 +57,6 @@ private:
 	AutoHideDockContainerPrivate* d; ///< private data (pimpl)
 	friend struct AutoHideDockContainerPrivate;
 	friend CAutoHideSideBar;
-	friend SideTabBarPrivate;
 
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;

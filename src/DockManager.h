@@ -244,7 +244,7 @@ public:
 		AutoHideButtonCheckable = 0x80, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
-			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+			                  | DockAreaHasAutoHideButton ///< the default configuration for the auto hide feature
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 
