@@ -85,19 +85,19 @@ void AutoHideTabPrivate::updateOrientation()
 	switch (area)
 	{
 	case SideBarLocation::Left:
-		 IconOnly = CDockManager::testConfigFlag(CDockManager::LeftSideBarIconOnly);
+		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::LeftSideBarIconOnly);
 		 break;
 
 	case SideBarLocation::Right:
-		 IconOnly = CDockManager::testConfigFlag(CDockManager::RightSideBarIconOnly);
+		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::RightSideBarIconOnly);
 		 break;
 
 	case SideBarLocation::Top:
-		 IconOnly = CDockManager::testConfigFlag(CDockManager::BottomSideBarIconOnly);
+		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::BottomSideBarIconOnly);
 		 break;
 
 	case SideBarLocation::Bottom:
-		 IconOnly = CDockManager::testConfigFlag(CDockManager::TopSideBarIconOnly);
+		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::TopSideBarIconOnly);
 		 break;
 	}
 

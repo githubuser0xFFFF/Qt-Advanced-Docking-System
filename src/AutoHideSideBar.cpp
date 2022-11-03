@@ -143,6 +143,7 @@ CAutoHideDockContainer* CAutoHideSideBar::insertDockWidget(int Index, CDockWidge
 	auto AutoHideContainer = new CAutoHideDockContainer(DockWidget, d->SideTabArea, d->ContainerWidget);
 	DockWidget->dockManager()->dockFocusController()->clearDockWidgetFocus(DockWidget);
 	auto Tab = AutoHideContainer->autoHideTab();
+	DockWidget->setSideTabWidget(Tab);
 	insertTab(Index, Tab);
 	return AutoHideContainer;
 }

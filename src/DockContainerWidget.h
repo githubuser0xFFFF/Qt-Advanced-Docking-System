@@ -84,12 +84,6 @@ protected:
 	 */
 	virtual bool event(QEvent *e) override;
 
-	/*
-	 * Delete function for resetting the auto hide widget list
-	 * Used during restore
-	 */
-	void deleteAutoHideWidgets();
-
 	/**
 	 * Access function for the internal root splitter
 	 */
@@ -100,8 +94,7 @@ protected:
 	 * Initializing inserts the tabs into the side tab widget and hides it
 	 * Returns nullptr if you try and insert into an area where the configuration is not enabled
 	 */
-	CAutoHideDockContainer* createAndSetupAutoHideContainer(
-		SideBarLocation area, CDockWidget* DockWidget, CDockWidget::eAutoHideInsertOrder insertOrder);
+	CAutoHideDockContainer* createAndSetupAutoHideContainer(SideBarLocation area, CDockWidget* DockWidget);
 
 	/**
 	 * Helper function for creation of the root splitter
@@ -164,7 +157,8 @@ protected:
 	CDockWidget* topLevelDockWidget() const;
 
 	/**
-	 * Returns the top level dock area.
+	 * If the container has only one single visible dock area, then this
+	 * functions returns this top level dock area
 	 */
 	CDockAreaWidget* topLevelDockArea() const;
 
@@ -217,11 +211,6 @@ public:
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
 		CDockAreaWidget* DockAreaWidget = nullptr);
-
-	/**
-	 * Get's the auto hide dock side tab bar area based on the dock area widget position
-	 */
-	SideBarLocation calculateSideTabBarArea(CDockAreaWidget* DockAreaWidget);
 
 	/**
 	 * Removes dockwidget

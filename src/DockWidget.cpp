@@ -94,7 +94,6 @@ struct DockWidgetPrivate
 	QList<QAction*> TitleBarActions;
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
 	WidgetFactory* Factory = nullptr;
-	CDockWidget::eAutoHideInsertOrder AutoHideInsertOrder = CDockWidget::Last;
 	QPointer<CAutoHideTab> SideTabWidget;
 	
 	/**
@@ -1140,18 +1139,6 @@ bool CDockWidget::isCurrentTab() const
 
 
 //============================================================================
-void CDockWidget::setAutoHideInsertOrder(eAutoHideInsertOrder insertOrder)
-{
-	d->AutoHideInsertOrder = insertOrder;
-}
-
-CDockWidget::eAutoHideInsertOrder CDockWidget::autoHideInsertOrder() const
-{
-	return d->AutoHideInsertOrder;
-}
-
-
-//============================================================================
 void CDockWidget::raise()
 {
 	if (isClosed())
@@ -1166,6 +1153,45 @@ void CDockWidget::raise()
 		FloatingWindow->raise();
 		FloatingWindow->activateWindow();
 	}
+}
+
+
+//============================================================================
+void CDockWidget::setAutoHide(bool Enable)
+{
+	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
+	{
+		return;
+	}
+
+	// Do nothing if nothing changes
+	if (Enable == isAutoHide())
+	{
+		return;
+	}
+
+	auto DockArea = dockAreaWidget();
+	if (!Enable)
+	{
+		DockArea->setAutoHide(false);
+	}
+	else
+	{
+		auto area = DockArea->calculateSideTabBarArea();
+		dockContainer()->createAndSetupAutoHideContainer(area, this);
+	}
+}
+
+
+//============================================================================
+void CDockWidget::toggleAutoHide()
+{
+	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
+	{
+		return;
+	}
+
+	setAutoHide(!isAutoHide());
 }
 
 

@@ -495,7 +495,10 @@ void MainWindowPrivate::createContent()
 
 #ifdef Q_OS_WIN
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    if (!ads::CDockManager::testConfigFlag(ads::CDockManager::OpaqueUndocking))
+    // ActiveX widget only works without OpaqueUndocking and without
+    // auto hide feature
+    if (!ads::CDockManager::testConfigFlag(ads::CDockManager::OpaqueUndocking)
+     && !ads::CDockManager::testAutoHideConfigFlag(ads::CDockManager::AutoHideFeatureEnabled))
     {
     	DockManager->addDockWidget(ads::CenterDockWidgetArea, createActiveXWidget(), RighDockArea);
     }
@@ -647,7 +650,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment the following line if you want a central widget in the main dock container (the dock manager) without a titlebar
 	// If you enable this code, you can test it in the demo with the Calendar 0
 	// dock widget.
-	// CDockManager::setConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar, true);
+	//CDockManager::setConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar, true);
 
 	// uncomment the following line to enable focus highlighting of the dock
 	// widget that has the focus
@@ -749,7 +752,7 @@ void CMainWindow::onViewToggled(bool Open)
 		return;
 	}
 
-	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+	//qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
 }
 
 

@@ -48,7 +48,7 @@
 ## Configuration Flags
 
 The Advanced Docking System has a number of global configuration options to
-configure the design and the functionality of the docking system. Eachs
+configure the design and the functionality of the docking system. Each
 configuration will be explained in detail in the following sections.
 
 ### Setting Configuration Flags
@@ -68,9 +68,9 @@ d->DockManager = new CDockManager(this);
 If you set the configurations flags, you can set individual flags using the
 function `CDockManager::setConfigFlag` or you can set all flags using
 the function `CDockManager::setConfigFlags`. Instead of settings all
-flags individualy, it is better to pick a predefined set of configuration
+flags individually, it is better to pick a predefined set of configuration
 flags and then modify individual flags. The following predefined
-configurations are avilable
+configurations are available
 
 - `DefaultNonOpaqueConfig` - uses non opaque splitter resizing and non opaque docking
 - `DefaultOpaqueConfig` - uses opaque splitter resizing and opaque docking
@@ -161,11 +161,11 @@ constant, that means, if enabled, the tabs need more space.
 
 ### `OpaqueUndocking`
 
-If this flag is set, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing.
+If this flag is set, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediately. You can compare this with opaque splitter resizing.
 
 ![OpaqueUndocking true](opaque_undocking.gif)
 
-If you would like to test opaque undocking, you should set the pedefined config
+If you would like to test opaque undocking, you should set the predefined config
 flags `CDockManager::DefaultOpaqueConfig`.
 
 ```c++
@@ -325,7 +325,7 @@ still has a titlebar to drag it out of the main window.
 
 If this is enabled, the docking system is able to highlight the tab and the
 components of a dock area with a different style (i.e. a different color).
-This option is disabled by default and needs to be enabled explicitely
+This option is disabled by default and needs to be enabled explicitly
 because it adds some overhead. The dock manager needs to react on focus
 changes and dock widget dragging to highlight the right dock widget. You should
 enable it only, if you really need it for your application.
@@ -345,7 +345,7 @@ be set to true and you can use this property to style the focused dock
 widget differently. The picture above uses the following styling:
 
 ```css
-/* Color the tab with the nhighlight color */
+/* Color the tab with the highlight color */
 ads--CDockWidgetTab[focused="true"]
 {
     background: palette(highlight);
@@ -675,3 +675,4 @@ just call the function for settings the stylesheet with an empty string.
 ```c++
 DockManager->setStyleSheet("");
 ```
+

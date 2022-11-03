@@ -231,17 +231,6 @@ public:
         ActionModeShow   //!< ActionModeShow
     };
 
-    /**
-     * This mode configures the order of pinning and unpinning auto hide widgets
-     * First will add it to the top of the SideTabBar, while Last will append it to the end
-     */
-	enum eAutoHideInsertOrder
-	{
-		First,
-		Last
-	};
-
-
 
     /**
      * This constructor creates a dock widget with the given title.
@@ -537,28 +526,6 @@ public:
      */
     bool isCurrentTab() const;
 
-	/*
-	 * Set default dock proportion when auto hiding
-	 * see *DefaultAutoHideDockProportion()
-	 */
-	void setDefaultAutoHideDockProportion(float Proportion);
-
-	/*
-	 * Set default dock proportion when auto hiding
-	 * 0.25 is a quarter of the size, 0.5 is half the size, 1 is the entire size
-	 */
-	float DefaultAutoHideDockProportion() const;
-
-	/*
-	 * Set auto hide insertion mode
-	 */
-	void setAutoHideInsertOrder(eAutoHideInsertOrder insertOrder);
-
-	/*
-	 * Get auto hide insertion mode
-	 */
-	eAutoHideInsertOrder autoHideInsertOrder() const;
-
 public: // reimplements QFrame -----------------------------------------------
     /**
      * Emits titleChanged signal if title change event occurs
@@ -624,6 +591,18 @@ public Q_SLOTS:
      * after it has been in full screen mode.
      */
     void showNormal();
+
+	/**
+	 * Sets the dock widget into auto hide mode if this feature is enabled
+	 * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
+	 */
+	void setAutoHide(bool Enable);
+
+	/**
+	 * Switches the dock widget to auto hide mode or vice versa depending on its
+	 * current state.
+	 */
+	void toggleAutoHide();
 
 
 Q_SIGNALS:

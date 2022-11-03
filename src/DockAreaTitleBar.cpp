@@ -27,7 +27,6 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <AutoHideDockContainer.h>
 #include "DockAreaTitleBar.h"
 
 #include <QPushButton>
@@ -53,6 +52,7 @@
 #include "DockComponentsFactory.h"
 #include "DockFocusController.h"
 #include "ElidingLabel.h"
+#include "AutoHideDockContainer.h"
 
 #include <iostream>
 
@@ -124,9 +124,9 @@ struct DockAreaTitleBarPrivate
 	 * Returns true if the given config flag is set
 	 * Convenience function to ease config flag testing
 	 */
-	static bool testConfigFlag(CDockManager::eAutoHideFlag Flag)
+	static bool testAutoHideConfigFlag(CDockManager::eAutoHideFlag Flag)
 	{
-		return CDockManager::testConfigFlag(Flag);
+		return CDockManager::testAutoHideConfigFlag(Flag);
 	}
 
 	/**
@@ -136,7 +136,6 @@ struct DockAreaTitleBarPrivate
 	{
 		return this->DragState == dragState;
 	}
-
 
 	/**
 	 * Starts floating
@@ -191,14 +190,14 @@ void DockAreaTitleBarPrivate::createButtons()
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
 	// AutoHide Button
-	const auto autoHideEnabled = testConfigFlag(CDockManager::AutoHideFeatureEnabled);
-	AutoHideButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
+	const auto autoHideEnabled = testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled);
+	AutoHideButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
 	AutoHideButton->setObjectName("dockAreaAutoHideButton");
 	AutoHideButton->setAutoRaise(true);
 	internal::setToolTip(AutoHideButton, QObject::tr("Toggle Auto Hide"));
 	internal::setButtonIcon(AutoHideButton, QStyle::SP_DialogOkButton, ads::AutoHideIcon);
 	AutoHideButton->setSizePolicy(ButtonSizePolicy);
-	AutoHideButton->setCheckable(testConfigFlag(CDockManager::AutoHideButtonCheckable));
+	AutoHideButton->setCheckable(testAutoHideConfigFlag(CDockManager::AutoHideButtonCheckable));
 	AutoHideButton->setChecked(false);
 	Layout->addWidget(AutoHideButton, 0);
 	_this->connect(AutoHideButton, SIGNAL(clicked()),  SLOT(onAutoHideButtonClicked()));
@@ -493,10 +492,22 @@ void CDockAreaTitleBar::onCurrentTabChanged(int Index)
 //============================================================================
 void CDockAreaTitleBar::onAutoHideButtonClicked()
 {
-	if (d->DockArea->features().testFlag(CDockWidget::DockWidgetPinnable))
+	if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideButtonTogglesArea))
 	{
-        d->DockArea->toggleAutoHideArea(!d->DockArea->isAutoHide());
+		d->DockArea->toggleAutoHide();
 	}
+	else
+	{
+		qDebug() << "d->DockArea->currentDockWidget()->toggleAutoHide()";
+		d->DockArea->currentDockWidget()->toggleAutoHide();
+	}
+}
+
+
+//============================================================================
+void CDockAreaTitleBar::onAutoHideDockAreaActionClicked()
+{
+	d->DockArea->toggleAutoHide();
 }
 
 
@@ -541,7 +552,6 @@ void CDockAreaTitleBar::mousePressEvent(QMouseEvent* ev)
 
 		if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
 		{
-			//d->TabBar->currentTab()->setFocus(Qt::OtherFocusReason);
 			d->dockManager()->dockFocusController()->setDockWidgetTabFocused(d->TabBar->currentTab());
 		}
 		return;
@@ -655,13 +665,29 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 		return;
 	}
 
+	bool IsAutoHide = d->DockArea->isAutoHide();
+	bool IsTopLevelArea = d->DockArea->isTopLevelArea();
+	QAction* Action;
 	QMenu Menu(this);
-	auto Action = Menu.addAction(tr("Detach Group"), this, SLOT(onUndockButtonClicked()));
-	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
-	Menu.addSeparator();
-	Action = Menu.addAction(tr("Close Group"), this, SLOT(onCloseButtonClicked()));
+	if (!IsTopLevelArea)
+	{
+		Action = Menu.addAction(IsAutoHide ? tr("Detach") : tr("Detach Group"),
+			this, SLOT(onUndockButtonClicked()));
+		Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
+		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
+		{
+			Action = Menu.addAction(IsAutoHide ? tr("Dock") : tr("Auto Hide Group"), this, SLOT(onAutoHideDockAreaActionClicked()));
+			Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetPinnable));
+		}
+		Menu.addSeparator();
+	}
+	Action = Menu.addAction(IsAutoHide ? tr("Close") : tr("Close Group"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
-	Menu.addAction(tr("Close Other Groups"), d->DockArea, SLOT(closeOtherAreas()));
+	if (!IsAutoHide)
+	{
+		Action = Menu.addAction(tr("Close Other Groups"), d->DockArea, SLOT(closeOtherAreas()));
+		Action->setEnabled(!IsTopLevelArea);
+	}
 	Menu.exec(ev->globalPos());
 }
 

@@ -63,6 +63,7 @@ private:
 
 private Q_SLOTS:
 	void detachDockWidget();
+	void autoHideDockWidget();
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* ev) override;

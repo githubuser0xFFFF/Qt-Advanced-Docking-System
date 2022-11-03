@@ -236,12 +236,13 @@ public:
 	{
 		AutoHideFeatureEnabled = 0x01, //!< enables / disables auto hide feature
 		DockAreaHasAutoHideButton = 0x02,     //!< If the flag is set each dock area has a auto hide menu button
-		LeftSideBarIconOnly = 0x04,  //!< If the flag is set left side bar will show only icon if a the dock widget has an icon assigned
-		RightSideBarIconOnly = 0x08, //!< If the flag is set right side bar will show only icon if a the dock widget has an icon assigned
-		BottomSideBarIconOnly = 0x10,//!< If the flag is set bottom side show only icon if a the dock widget has an icon assigned
-		TopSideBarIconOnly = 0x20, //!< If the flag is set top side bar show only icon if a the dock widget has an icon assigned
-		AutoHideButtonTogglesArea = 0x40, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
-		AutoHideButtonCheckable = 0x80, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
+		AutoHideButtonTogglesArea = 0x04, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
+		AutoHideButtonCheckable = 0x08, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
+		LeftSideBarIconOnly = 0x10,  //!< If the flag is set left side bar will show only icon if a the dock widget has an icon assigned
+		RightSideBarIconOnly = 0x20, //!< If the flag is set right side bar will show only icon if a the dock widget has an icon assigned
+		BottomSideBarIconOnly = 0x40,//!< If the flag is set bottom side show only icon if a the dock widget has an icon assigned
+		TopSideBarIconOnly = 0x80, //!< If the flag is set top side bar show only icon if a the dock widget has an icon assigned
+		AutoHideSideBarsIconOnly = LeftSideBarIconOnly | RightSideBarIconOnly | BottomSideBarIconOnly | TopSideBarIconOnly,
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton ///< the default configuration for the auto hide feature
@@ -307,7 +308,7 @@ public:
 	/**
 	 * Returns true if the given overlay config flag is set
 	 */
-	static bool testConfigFlag(eAutoHideFlag Flag);
+	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
 
 	/**
 	 * Returns the global icon provider.
@@ -346,8 +347,7 @@ public:
 	 * An overlay widget is used for auto hide functionality
 	 * \return Returns the CAutoHideDockContainer that contains the new DockWidget
 	 */
-	CAutoHideDockContainer* addAutoHideDockWidget(SideBarLocation area, CDockWidget* Dockwidget,
-		CDockWidget::eAutoHideInsertOrder insertOrder = CDockWidget::Last);
+	CAutoHideDockContainer* addAutoHideDockWidget(SideBarLocation area, CDockWidget* Dockwidget);
 
 	/**
 	 * Adds dock widget overlayed into the given container based on the CDockWidgetSideTab::SideTabBarArea.
@@ -355,7 +355,7 @@ public:
 	 * \return Returns the CAutoHideDockContainer that contains the new DockWidget
 	 */
 	CAutoHideDockContainer* addAutoHideDockWidgetToContainer(SideBarLocation area,
-		CDockWidget* Dockwidget, CDockContainerWidget* DockContainerWidget, CDockWidget::eAutoHideInsertOrder = CDockWidget::Last);
+		CDockWidget* Dockwidget, CDockContainerWidget* DockContainerWidget);
 
 	/**
 	 * This function will add the given Dockwidget to the given dock area as

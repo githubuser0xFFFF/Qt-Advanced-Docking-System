@@ -79,6 +79,22 @@ private Q_SLOTS:
 	 */
 	void reorderDockWidget(int fromIndex, int toIndex);
 
+	/*
+	 * Update the auto hide button checked state based on if it's contained in an auto hide container or not
+	 */
+	void updateAutoHideButtonCheckState();
+
+	/*
+	 * Update the title bar button tooltips
+	 */
+	void updateTitleBarButtonToolTip();
+
+	/**
+	 * Calculate the auto hide side bar location depending on the dock area
+	 * widget position in the container
+	 */
+	SideBarLocation calculateSideTabBarArea() const;
+
 protected:
 
 #ifdef Q_OS_WIN
@@ -153,19 +169,9 @@ protected:
 	void markTitleBarMenuOutdated();
 
 	/*
-	 * Update the auto hide button checked state based on if it's contained in an auto hide container or not
-	 */
-	void updateAutoHideButtonCheckState();
-
-	/*
 	 * Update the title bar button visibility based on if it's top level or not
 	 */
 	void updateTitleBarButtonVisibility(bool IsTopLevel) const;
-
-	/*
-	 * Update the title bar button tooltips
-	 */
-	void updateTitleBarButtonToolTip();
 
 protected Q_SLOTS:
 	void toggleView(bool Open);
@@ -211,7 +217,7 @@ public:
 	CAutoHideDockContainer* autoHideDockContainer() const; 
 
 	/**
-	 * Returns true if the dock area exists in an auto hide dock container
+	 * Returns true if the dock area is in an auto hide container
 	 */
 	bool isAutoHide() const;
 
@@ -370,6 +376,12 @@ public:
      */
     bool containsCentralWidget() const;
 
+    /**
+     * If this dock area is the one and only visible area in a container, then
+     * this function returns true
+     */
+    bool isTopLevelArea() const;
+
 
 public Q_SLOTS:
 	/**
@@ -385,9 +397,17 @@ public Q_SLOTS:
 	void closeArea();
 
 	/**
-	 * Toggles the Auto hides behaviour of the dock area and all dock widgets in this area
+	 * Sets the dock area into auto hide mode or into normal mode.
+	 * If the dock area is switched to auto hide mode, then all dock widgets
+	 * that are pinable will be added to the sidebar
 	 */
-	void toggleAutoHideArea(bool Enable);
+	void setAutoHide(bool Enable);
+
+	/**
+	 * Switches the dock area to auto hide mode or vice versa depending on its
+	 * current state.
+	 */
+	void toggleAutoHide();
 
     /**
 	 * This function closes all other areas except of this area

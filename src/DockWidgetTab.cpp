@@ -343,10 +343,6 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	d->DockWidget = DockWidget;
 	d->createLayout();
 	setFocusPolicy(Qt::NoFocus);
-	/*if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
-	{
-		setFocusPolicy(Qt::ClickFocus);
-	}*/
 }
 
 //============================================================================
@@ -519,6 +515,11 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 
 	auto Action = Menu.addAction(tr("Detach"), this, SLOT(detachDockWidget()));
     Action->setEnabled(isDetachable);
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
+    {
+    	Action = Menu.addAction(tr("Auto Hide"), this, SLOT(autoHideDockWidget()));
+    	Action->setEnabled(d->DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable));
+    }
 	Menu.addSeparator();
 	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
 	Action->setEnabled(isClosable());
@@ -701,6 +702,13 @@ void CDockWidgetTab::detachDockWidget()
 
 	d->saveDragStartMousePosition(QCursor::pos());
 	d->startFloating(DraggingInactive);
+}
+
+
+//===========================================================================
+void CDockWidgetTab::autoHideDockWidget()
+{
+	d->DockWidget->setAutoHide(true);
 }
 
 

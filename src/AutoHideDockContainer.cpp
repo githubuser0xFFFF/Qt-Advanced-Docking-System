@@ -184,8 +184,6 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockManager* DockManager, SideBa
 	d->DockArea = new CDockAreaWidget(DockManager, parent);
 	d->DockArea->setObjectName("autoHideDockArea");
 	d->DockArea->setAutoHideDockContainer(this);
-	d->DockArea->updateAutoHideButtonCheckState();
-	d->DockArea->updateTitleBarButtonToolTip();
 
 	setObjectName("autoHideDockContainer");
 
@@ -219,12 +217,17 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 void CAutoHideDockContainer::updateSize()
 {
 	auto dockContainerParent = parentContainer();
+	if (!dockContainerParent)
+	{
+		return;
+	}
+
 	auto rect = dockContainerParent->contentRect();
 
 	switch (sideBarLocation())
 	{
 	case SideBarLocation::Top:
-		 resize(rect.width(), qMin(rect.height(), d->Size.height() - ResizeMargin));
+		 resize(rect.width(), qMin(rect.height()  - ResizeMargin, d->Size.height()));
 		 move(rect.topLeft());
 		 break;
 
@@ -244,7 +247,7 @@ void CAutoHideDockContainer::updateSize()
 
 	case SideBarLocation::Bottom:
 		 {
-			 resize(rect.width(), qMin(rect.height(), d->Size.height() - ResizeMargin));
+			 resize(rect.width(), qMin(rect.height() - ResizeMargin, d->Size.height()));
 			 QPoint p = rect.bottomLeft();
 			 p.ry() -= (height() - 1);
 			 move(p);
@@ -256,6 +259,7 @@ void CAutoHideDockContainer::updateSize()
 //============================================================================
 CAutoHideDockContainer::~CAutoHideDockContainer()
 {
+	qDebug() << "~CAutoHideDockContainer()"
 	ADS_PRINT("~CAutoHideDockContainer");
 
 	// Remove event filter in case there are any queued messages
