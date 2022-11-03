@@ -1532,7 +1532,8 @@ bool CDockContainerWidget::event(QEvent *e)
 //============================================================================
 void CDockContainerWidget::deleteAutoHideWidgets()
 {
-    for (auto AutohideWidget : d->AutoHideWidgets)
+	const auto autoHideWidgets = d->AutoHideWidgets;
+    for (auto AutohideWidget : autoHideWidgets)
     {
         AutohideWidget->cleanupAndDelete();
     }
