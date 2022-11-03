@@ -134,10 +134,8 @@ public:
 
 	/**
 	 * Cleanups up the side tab widget and then deletes itself
-	 * deleteDockArea = true is set, this will also delete the dockArea. 
-	 * Avoid deleting the dock area floating drag, where the dock area is simply moved into another container
 	 */
-	void cleanupAndDelete(bool deleteDockArea = true);
+	void cleanupAndDelete();
 
 	/*
 	 * Toggles the auto Hide dock container widget
