@@ -215,7 +215,6 @@ void CAutoHideTab::setDockWidget(CDockWidget* DockWidget)
 	d->DockWidget = DockWidget;
 	setText(DockWidget->windowTitle());
 	setIcon(d->DockWidget->icon());
-	DockWidget->setSideTabWidget(this);
 }
 
 }
