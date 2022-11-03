@@ -2073,12 +2073,16 @@ void CDockContainerWidget::registerAutoHideWidget(CAutoHideDockContainer* Autohi
 	d->AutoHideWidgets.append(AutohideWidget);
 	Q_EMIT autoHideWidgetCreated(AutohideWidget);
     ADS_PRINT("d->AutoHideWidgets.count() " << d->AutoHideWidgets.count());
+	qInfo()<< this << "Size after registering: " << d->AutoHideWidgets.size();
 }
 
 //============================================================================
 void CDockContainerWidget::removeAutoHideWidget(CAutoHideDockContainer* AutohideWidget)
 {
+	qInfo() << this << "Auto hide widgets: " << d->AutoHideWidgets;
+	qInfo() << "Size before removing: " << d->AutoHideWidgets.size();
 	d->AutoHideWidgets.removeAll(AutohideWidget);
+	qInfo() << "Size after removing: " << d->AutoHideWidgets.size();
 }
 
 //============================================================================

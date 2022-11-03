@@ -167,14 +167,8 @@ AutoHideDockContainerPrivate::AutoHideDockContainerPrivate(
 //============================================================================
 CDockContainerWidget* CAutoHideDockContainer::parentContainer() const
 {
-	if (d->DockArea)
-	{
-		return d->DockArea->dockContainer();
-	}
-	else
-	{
-		return internal::findParent<CDockContainerWidget*>(this);
-	}
+	// Don't rely on the dock area parent container, when dragging or floating the parent container can change
+    return internal::findParent<CDockContainerWidget*>(this);
 }
 
 
@@ -357,7 +351,7 @@ void CAutoHideDockContainer::moveContentsToParent()
 
 
 //============================================================================
-void CAutoHideDockContainer::cleanupAndDelete()
+void CAutoHideDockContainer::cleanupAndDelete(bool deleteDockArea)
 {
 	const auto dockWidget = d->DockWidget;
 	if (dockWidget)
@@ -371,6 +365,15 @@ void CAutoHideDockContainer::cleanupAndDelete()
 
 	hide();
 	deleteLater();
+
+	// Schedule deletion of the dock area after the auto hide widget
+	// Otherwise, there are issues with the windows native event handler
+	if (deleteDockArea)
+	{
+        d->DockArea->setParent(nullptr);
+        d->DockArea->deleteLater();
+		d->DockArea = nullptr;
+	}
 }
 
 

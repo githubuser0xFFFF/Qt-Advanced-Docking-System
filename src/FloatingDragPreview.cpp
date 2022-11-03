@@ -371,11 +371,11 @@ void CFloatingDragPreview::cleanupAutoHideContainerWidget()
 	auto DroppedArea = qobject_cast<CDockAreaWidget*>(d->Content);
 	if (DroppedDockWidget && DroppedDockWidget->autoHideDockContainer())
 	{
-		DroppedDockWidget->autoHideDockContainer()->cleanupAndDelete();
+		DroppedDockWidget->autoHideDockContainer()->cleanupAndDelete(false);
 	}
 	if (DroppedArea && DroppedArea->autoHideDockContainer())
 	{
-		DroppedArea->autoHideDockContainer()->cleanupAndDelete();
+		DroppedArea->autoHideDockContainer()->cleanupAndDelete(false);
 	}
 }
 
