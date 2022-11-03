@@ -315,8 +315,7 @@ void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
 	d->DockWidget = DockWidget;
 	d->SideTab->setDockWidget(DockWidget);
     CDockAreaWidget* OldDockArea = DockWidget->dockAreaWidget();
-	// Don't remove dock widgets while restoring state, the current index pointer may be invalid
-    if (!DockWidget->dockManager()->isRestoringState() && OldDockArea) 
+    if (OldDockArea) 
     {
         OldDockArea->removeDockWidget(DockWidget);
     }
