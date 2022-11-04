@@ -45,6 +45,8 @@
 
 namespace ads
 {
+class CTabsWidget;
+
 /**
  * Private data class of CSideTabBar class (pimpl)
  */
@@ -57,9 +59,10 @@ struct AutoHideSideBarPrivate
 
     CAutoHideSideBar* _this;
     CDockContainerWidget* ContainerWidget;
+    CTabsWidget* TabsContainerWidget;
     QBoxLayout* TabsLayout;
     Qt::Orientation Orientation;
-    SideBarLocation SideTabArea = SideBarLocation::Left;
+    SideBarLocation SideTabArea = SideBarLocation::SideBarLeft;
 
     /**
      * Convenience function to check if this is a horizontal side bar
@@ -68,12 +71,86 @@ struct AutoHideSideBarPrivate
     {
     	return Qt::Horizontal == Orientation;
     }
+
+    /**
+     * Called from viewport to forward event handling to this
+     */
+    void handleViewportEvent(QEvent* e);
 }; // struct AutoHideSideBarPrivate
+
+
+/**
+ * This widget stores the tab buttons
+ */
+class CTabsWidget : public QWidget
+{
+public:
+	using QWidget::QWidget;
+	using Super = QWidget;
+	AutoHideSideBarPrivate* EventHandler;
+
+	/**
+	 * Returns the size hint as minimum size hint
+	 */
+	virtual QSize minimumSizeHint() const override
+	{
+		return Super::sizeHint();
+	}
+
+	/**
+	 * Forward event handling to EventHandler
+	 */
+	/*virtual bool event(QEvent* e) override
+	{
+		EventHandler->handleViewportEvent(e);
+		return Super::event(e);
+	}*/
+};
+
 
 //============================================================================
 AutoHideSideBarPrivate::AutoHideSideBarPrivate(CAutoHideSideBar* _public) :
     _this(_public)
 {
+}
+
+
+//============================================================================
+void AutoHideSideBarPrivate::handleViewportEvent(QEvent* e)
+{
+	switch (e->type())
+	{
+	case QEvent::ChildRemoved:
+		if (TabsLayout->isEmpty())
+		{
+			_this->hide();
+		}
+		break;
+
+	case QEvent::Resize:
+		if (_this->tabCount())
+		{
+			auto ev = static_cast<QResizeEvent*>(e);
+			auto Tab = _this->tabAt(0);
+			int Size = isHorizontal() ? ev->size().height() : ev->size().width();
+			int TabSize = isHorizontal() ? Tab->size().height() : Tab->size().width();
+			// If the size of the side bar is less than the size of the first tab
+			// then there are no visible tabs in this side bar. This check will
+			// fail if someone will force a very big border via CSS!!
+			if (Size < TabSize)
+			{
+				_this->hide();
+			}
+		}
+		else
+		{
+			_this->hide();
+		}
+		break;
+
+	default:
+		break;
+	}
 }
 
 
@@ -84,19 +161,27 @@ CAutoHideSideBar::CAutoHideSideBar(CDockContainerWidget* parent, SideBarLocation
 {
 	d->SideTabArea = area;
     d->ContainerWidget = parent;
-    d->Orientation = (area == SideBarLocation::Bottom || area == SideBarLocation::Top)
+    d->Orientation = (area == SideBarLocation::SideBarBottom || area == SideBarLocation::SideBarTop)
     	? Qt::Horizontal : Qt::Vertical;
 
-    auto mainLayout = new QBoxLayout(d->Orientation == Qt::Vertical ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	setFrameStyle(QFrame::NoFrame);
+	setWidgetResizable(true);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	d->TabsContainerWidget = new CTabsWidget();
+	d->TabsContainerWidget->EventHandler = d;
+	d->TabsContainerWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	d->TabsContainerWidget->setObjectName("sideTabsContainerWidget");
+
 
     d->TabsLayout = new QBoxLayout(d->Orientation == Qt::Vertical ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
     d->TabsLayout->setContentsMargins(0, 0, 0, 0);
-    d->TabsLayout->setSpacing(0);
-    mainLayout->addLayout(d->TabsLayout);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
-    mainLayout->addStretch(1);
-    setLayout(mainLayout);
+    d->TabsLayout->setSpacing(12);
+    d->TabsLayout->addStretch(1);
+    d->TabsContainerWidget->setLayout(d->TabsLayout);
+	setWidget(d->TabsContainerWidget);
 
     setFocusPolicy(Qt::NoFocus);
 	if (d->isHorizontal())
@@ -115,7 +200,7 @@ CAutoHideSideBar::CAutoHideSideBar(CDockContainerWidget* parent, SideBarLocation
 //============================================================================
 CAutoHideSideBar::~CAutoHideSideBar() 
 {
-	qDebug() << "~CSideTabBar() ";
+	ADS_PRINT("~CSideTabBar()");
 	// The SideTabeBar is not the owner of the tabs and to prevent deletion
 	// we set the parent here to nullptr to remove it from the children
 	auto Tabs = findChildren<CAutoHideTab*>(QString(), Qt::FindDirectChildrenOnly);
@@ -130,9 +215,16 @@ CAutoHideSideBar::~CAutoHideSideBar()
 //============================================================================
 void CAutoHideSideBar::insertTab(int Index, CAutoHideTab* SideTab)
 {
-	SideTab->installEventFilter(this);
     SideTab->setSideBar(this);
-    d->TabsLayout->insertWidget(Index, SideTab);
+	SideTab->installEventFilter(this);
+    if (Index < 0)
+    {
+    	d->TabsLayout->insertWidget(d->TabsLayout->count() - 1, SideTab);
+    }
+    else
+    {
+    	d->TabsLayout->insertWidget(Index, SideTab);
+    }
     show();
 }
 
@@ -162,46 +254,6 @@ void CAutoHideSideBar::removeTab(CAutoHideTab* SideTab)
 
 
 //============================================================================
-bool CAutoHideSideBar::event(QEvent* e)
-{
-	switch (e->type())
-	{
-	case QEvent::ChildRemoved:
-		if (d->TabsLayout->isEmpty())
-		{
-			hide();
-		}
-		break;
-
-	case QEvent::Resize:
-		if (d->TabsLayout->count())
-		{
-			auto ev = static_cast<QResizeEvent*>(e);
-			auto Tab = tabAt(0);
-			int Size = d->isHorizontal() ? ev->size().height() : ev->size().width();
-			int TabSize = d->isHorizontal() ? Tab->size().height() : Tab->size().width();
-			// If the size of the side bar is less than the size of the first tab
-			// then there are no visible tabs in this side bar. This check will
-			// fail if someone will force a very big border via CSS!!
-			if (Size < TabSize)
-			{
-				hide();
-			}
-		}
-		else
-		{
-			hide();
-		}
-		break;
-
-	default:
-		break;
-	}
-	return Super::event(e);
-}
-
-
-//============================================================================
 bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 {
 	if (event->type() != QEvent::ShowToParent)
@@ -209,7 +261,7 @@ bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 		return false;
 	}
 
-	// As soon as on tab is shhown, we need to show the side tab bar
+	// As soon as on tab is shown, we need to show the side tab bar
 	auto Tab = qobject_cast<CAutoHideTab*>(watched);
 	if (Tab)
 	{
@@ -235,7 +287,7 @@ CAutoHideTab* CAutoHideSideBar::tabAt(int index) const
 //============================================================================
 int CAutoHideSideBar::tabCount() const
 {
-    return d->TabsLayout->count();
+    return d->TabsLayout->count() - 1;
 }
 
 
@@ -272,5 +324,33 @@ void CAutoHideSideBar::saveState(QXmlStreamWriter& s) const
 	s.writeEndElement();
 }
 
+//===========================================================================
+QSize CAutoHideSideBar::minimumSizeHint() const
+{
+	QSize Size = sizeHint();
+	Size.setWidth(10);
+	return Size;
+}
+
+
+//===========================================================================
+QSize CAutoHideSideBar::sizeHint() const
+{
+	return d->TabsContainerWidget->sizeHint();
+}
+
+
+//===========================================================================
+int CAutoHideSideBar::spacing() const
+{
+	return d->TabsLayout->spacing();
+}
+
+//===========================================================================
+void CAutoHideSideBar::setSpacing(int Spacing)
+{
+	d->TabsLayout->setSpacing(Spacing);
+}
 
 } // namespace ads
+

@@ -53,11 +53,13 @@
 #include "DockFocusController.h"
 #include "ElidingLabel.h"
 #include "AutoHideDockContainer.h"
+#include "IconProvider.h"
 
 #include <iostream>
 
 namespace ads
 {
+static const char* const LocationProperty = "Location";
 
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
@@ -146,6 +148,19 @@ struct DockAreaTitleBarPrivate
 	 * Makes the dock area floating
 	 */
 	IFloatingWidget* makeAreaFloating(const QPoint& Offset, eDragState DragState);
+
+	/**
+	 * Helper function to create and initialize the menu entries for
+	 * the "Auto Hide Group To..." menu
+	 */
+	QAction* createAutoHideToAction(const QString& Title, SideBarLocation Location,
+		QMenu* Menu)
+	{
+		auto Action = Menu->addAction(Title);
+		Action->setProperty("Location", Location);
+		QObject::connect(Action, &QAction::triggered, _this, &CDockAreaTitleBar::onAutoHideToActionClicked);
+		return Action;
+	}
 };// struct DockAreaTitleBarPrivate
 
 //============================================================================
@@ -498,7 +513,6 @@ void CDockAreaTitleBar::onAutoHideButtonClicked()
 	}
 	else
 	{
-		qDebug() << "d->DockArea->currentDockWidget()->toggleAutoHide()";
 		d->DockArea->currentDockWidget()->toggleAutoHide();
 	}
 }
@@ -508,6 +522,14 @@ void CDockAreaTitleBar::onAutoHideButtonClicked()
 void CDockAreaTitleBar::onAutoHideDockAreaActionClicked()
 {
 	d->DockArea->toggleAutoHide();
+}
+
+
+//============================================================================
+void CDockAreaTitleBar::onAutoHideToActionClicked()
+{
+	int Location = sender()->property(LocationProperty).toInt();
+	d->DockArea->toggleAutoHide((SideBarLocation)Location);
 }
 
 
@@ -665,28 +687,38 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 		return;
 	}
 
-	bool IsAutoHide = d->DockArea->isAutoHide();
-	bool IsTopLevelArea = d->DockArea->isTopLevelArea();
+	const bool isAutoHide = d->DockArea->isAutoHide();
+	const bool isTopLevelArea = d->DockArea->isTopLevelArea();
 	QAction* Action;
 	QMenu Menu(this);
-	if (!IsTopLevelArea)
+	if (!isTopLevelArea)
 	{
-		Action = Menu.addAction(IsAutoHide ? tr("Detach") : tr("Detach Group"),
+		Action = Menu.addAction(isAutoHide ? tr("Detach") : tr("Detach Group"),
 			this, SLOT(onUndockButtonClicked()));
 		Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
 		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Action = Menu.addAction(IsAutoHide ? tr("Dock") : tr("Auto Hide Group"), this, SLOT(onAutoHideDockAreaActionClicked()));
-			Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetPinnable));
+			Action = Menu.addAction(isAutoHide ? tr("Dock") : tr("Auto Hide Group"), this, SLOT(onAutoHideDockAreaActionClicked()));
+			auto AreaIsPinnable = d->DockArea->features().testFlag(CDockWidget::DockWidgetPinnable);
+			Action->setEnabled(AreaIsPinnable);
+
+			if (!isAutoHide)
+			{
+				auto menu = Menu.addMenu(tr("Auto Hide Group To..."));
+				menu->setEnabled(AreaIsPinnable);
+				d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
+				d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
+				d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
+				d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
+			}
 		}
 		Menu.addSeparator();
 	}
-	Action = Menu.addAction(IsAutoHide ? tr("Close") : tr("Close Group"), this, SLOT(onCloseButtonClicked()));
+	Action = Menu.addAction(isAutoHide ? tr("Close") : tr("Close Group"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
-	if (!IsAutoHide)
+	if (!isAutoHide && !isTopLevelArea)
 	{
 		Action = Menu.addAction(tr("Close Other Groups"), d->DockArea, SLOT(closeOtherAreas()));
-		Action->setEnabled(!IsTopLevelArea);
 	}
 	Menu.exec(ev->globalPos());
 }

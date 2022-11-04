@@ -136,10 +136,11 @@ enum eBitwiseOperator
  */
 enum SideBarLocation
 {
-	Top,
-	Left,
-	Right,
-	Bottom
+	SideBarTop,
+	SideBarLeft,
+	SideBarRight,
+	SideBarBottom,
+	SideBarNone
 };
 Q_ENUMS(SideBarLocation);
 

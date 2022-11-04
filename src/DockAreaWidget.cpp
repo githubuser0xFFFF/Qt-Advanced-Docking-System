@@ -537,7 +537,7 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 	{
 		setCurrentDockWidget(NextOpenDockWidget);
 	}
-	else if (d->ContentsLayout->isEmpty() && DockContainer->dockAreaCount() >= 1) // Don't remove empty dock areas that are auto hidden, they'll be deleted by the auto hide dock
+	else if (d->ContentsLayout->isEmpty() && DockContainer->dockAreaCount() >= 1)
 	{
         ADS_PRINT("Dock Area empty");
 		DockContainer->removeDockArea(this);
@@ -827,22 +827,20 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		return;
 	}
 
-    if (CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
-    {
-        return;
-    }
-
     if (!d->TitleBar)
     {
     	return;
     }
 
-	bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
-		|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
-	Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
-	bool IsAutoHide = isAutoHide();
-	Hidden &= !IsAutoHide; // Titlebar must always be visible when auto hidden so it can be dragged
-	d->TitleBar->setVisible(!Hidden);
+    bool IsAutoHide = isAutoHide();
+    if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
+    {
+		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
+			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
+		Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
+		Hidden &= !IsAutoHide; // Titlebar must always be visible when auto hidden so it can be dragged
+		d->TitleBar->setVisible(!Hidden);
+    }
 
 	if (isAutoHideFeatureEnabled())
 	{
@@ -986,7 +984,6 @@ bool CDockAreaWidget::restoreState(CDockingStateReader& s, CDockAreaWidget*& Cre
 		// We hide the DockArea here to prevent the short display (the flashing)
 		// of the dock areas during application startup
 		DockArea->hide();
-		qDebug() << "DockArea->addDockWidget " << DockWidget->windowTitle();
         DockArea->addDockWidget(DockWidget);
 		DockWidget->setToggleViewActionChecked(!Closed);
 		DockWidget->setClosedState(Closed);
@@ -1241,60 +1238,60 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	int BorderDistance[4];
 
 	int Distance = qAbs(ContentRect.topLeft().y() - DockAreaRect.topLeft().y());
-	BorderDistance[SideBarLocation::Top] = (Distance < MinBorderDistance) ? 0 : Distance;
-	if (!BorderDistance[SideBarLocation::Top])
+	BorderDistance[SideBarLocation::SideBarTop] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarTop])
 	{
 		borders |= BorderTop;
 	}
 
 	Distance = qAbs(ContentRect.bottomRight().y() - DockAreaRect.bottomRight().y());
-	BorderDistance[SideBarLocation::Bottom] = (Distance < MinBorderDistance) ? 0 : Distance;
-	if (!BorderDistance[SideBarLocation::Bottom])
+	BorderDistance[SideBarLocation::SideBarBottom] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarBottom])
 	{
 		borders |= BorderBottom;
 	}
 
 	Distance = qAbs(ContentRect.topLeft().x() - DockAreaRect.topLeft().x());
-	BorderDistance[SideBarLocation::Left] = (Distance < MinBorderDistance) ? 0 : Distance;
-	if (!BorderDistance[SideBarLocation::Left])
+	BorderDistance[SideBarLocation::SideBarLeft] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarLeft])
 	{
 		borders |= BorderLeft;
 	}
 
 	Distance = qAbs(ContentRect.bottomRight().x() - DockAreaRect.bottomRight().x());
-	BorderDistance[SideBarLocation::Right] = (Distance < MinBorderDistance) ? 0 : Distance;
-	if (!BorderDistance[SideBarLocation::Right])
+	BorderDistance[SideBarLocation::SideBarRight] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarRight])
 	{
 		borders |= BorderRight;
 	}
 
-	auto SideTab = SideBarLocation::Right;
+	auto SideTab = SideBarLocation::SideBarRight;
 	switch (borders)
 	{
 	// 1. It's touching all borders
-	case BorderAll: SideTab = HorizontalOrientation ? SideBarLocation::Bottom : SideBarLocation::Right; break;
+	case BorderAll: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 
 	// 2. It's touching 3 borders
-	case BorderVerticalBottom : SideTab = SideBarLocation::Bottom; break;
-	case BorderVerticalTop : SideTab = SideBarLocation::Top; break;
-	case BorderHorizontalLeft: SideTab = SideBarLocation::Left; break;
-	case BorderHorizontalRight: SideTab = SideBarLocation::Right; break;
+	case BorderVerticalBottom : SideTab = SideBarLocation::SideBarBottom; break;
+	case BorderVerticalTop : SideTab = SideBarLocation::SideBarTop; break;
+	case BorderHorizontalLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderHorizontalRight: SideTab = SideBarLocation::SideBarRight; break;
 
 	// 3. Its touching horizontal or vertical borders
-	case BorderVertical : SideTab = SideBarLocation::Bottom; break;
-	case BorderHorizontal: SideTab = SideBarLocation::Right; break;
+	case BorderVertical : SideTab = SideBarLocation::SideBarBottom; break;
+	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
 	// 4. Its in a corner
-	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::Top : SideBarLocation::Left; break;
-	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::Top : SideBarLocation::Right; break;
-	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::Bottom : SideBarLocation::Left; break;
-	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::Bottom : SideBarLocation::Right; break;
+	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
+	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
+	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
+	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 
 	// 5 Ists touching only one border
-	case BorderLeft: SideTab = SideBarLocation::Left; break;
-	case BorderRight: SideTab = SideBarLocation::Right; break;
-	case BorderTop: SideTab = SideBarLocation::Top; break;
-	case BorderBottom: SideTab = SideBarLocation::Bottom; break;
+	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderRight: SideTab = SideBarLocation::SideBarRight; break;
+	case BorderTop: SideTab = SideBarLocation::SideBarTop; break;
+	case BorderBottom: SideTab = SideBarLocation::SideBarBottom; break;
 	}
 
 	return SideTab;
@@ -1302,7 +1299,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 
 
 //============================================================================
-void CDockAreaWidget::setAutoHide(bool Enable)
+void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 {
 	if (!isAutoHideFeatureEnabled())
 	{
@@ -1318,7 +1315,7 @@ void CDockAreaWidget::setAutoHide(bool Enable)
 		return;
 	}
 
-	auto area = calculateSideTabBarArea();
+	auto area = (SideBarNone == Location) ? calculateSideTabBarArea() : Location;
 	for (const auto DockWidget : openedDockWidgets())
 	{
 		if (Enable == isAutoHide())
@@ -1337,14 +1334,14 @@ void CDockAreaWidget::setAutoHide(bool Enable)
 
 
 //============================================================================
-void CDockAreaWidget::toggleAutoHide()
+void CDockAreaWidget::toggleAutoHide(SideBarLocation Location)
 {
 	if (!isAutoHideFeatureEnabled())
 	{
 		return;
 	}
 
-	setAutoHide(!isAutoHide());
+	setAutoHide(!isAutoHide(), Location);
 }
 
 

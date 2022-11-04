@@ -57,10 +57,12 @@ bool static isHorizontalArea(SideBarLocation Area)
 {
 	switch (Area)
 	{
-	case SideBarLocation::Top:
-	case SideBarLocation::Bottom: return true;
-	case SideBarLocation::Left:
-	case SideBarLocation::Right: return false;
+	case SideBarLocation::SideBarTop:
+	case SideBarLocation::SideBarBottom: return true;
+	case SideBarLocation::SideBarLeft:
+	case SideBarLocation::SideBarRight: return false;
+	default:
+		return true;
 	}
 
 	return true;
@@ -72,10 +74,12 @@ Qt::Edge static edgeFromSideTabBarArea(SideBarLocation Area)
 {
 	switch (Area)
 	{
-	case SideBarLocation::Top: return Qt::BottomEdge;
-	case SideBarLocation::Bottom: return Qt::TopEdge;
-	case SideBarLocation::Left: return Qt::RightEdge;
-	case SideBarLocation::Right: return Qt::LeftEdge;
+	case SideBarLocation::SideBarTop: return Qt::BottomEdge;
+	case SideBarLocation::SideBarBottom: return Qt::TopEdge;
+	case SideBarLocation::SideBarLeft: return Qt::RightEdge;
+	case SideBarLocation::SideBarRight: return Qt::LeftEdge;
+	default:
+		return Qt::LeftEdge;
 	}
 
 	return Qt::LeftEdge;
@@ -87,11 +91,14 @@ int resizeHandleLayoutPosition(SideBarLocation Area)
 {
 	switch (Area)
 	{
-	case SideBarLocation::Bottom:
-	case SideBarLocation::Right: return 0;
+	case SideBarLocation::SideBarBottom:
+	case SideBarLocation::SideBarRight: return 0;
 
-	case SideBarLocation::Top:
-	case SideBarLocation::Left: return 1;
+	case SideBarLocation::SideBarTop:
+	case SideBarLocation::SideBarLeft: return 1;
+
+	default:
+		return 0;
 	}
 
 	return 0;
@@ -106,8 +113,8 @@ struct AutoHideDockContainerPrivate
     CAutoHideDockContainer* _this;
 	CDockAreaWidget* DockArea{nullptr};
 	CDockWidget* DockWidget{nullptr};
-	SideBarLocation SideTabBarArea;
-	QBoxLayout* Layout;
+	SideBarLocation SideTabBarArea = SideBarNone;
+	QBoxLayout* Layout = nullptr;
 	CResizeHandle* ResizeHandle = nullptr;
 	QSize Size; // creates invalid size
 	QPointer<CAutoHideTab> SideTab;
@@ -124,10 +131,12 @@ struct AutoHideDockContainerPrivate
 	{
         switch (area)
         {
-            case SideBarLocation::Left: return LeftDockWidgetArea;
-            case SideBarLocation::Right: return RightDockWidgetArea;
-            case SideBarLocation::Bottom: return BottomDockWidgetArea;
-            case SideBarLocation::Top: return TopDockWidgetArea;
+            case SideBarLocation::SideBarLeft: return LeftDockWidgetArea;
+            case SideBarLocation::SideBarRight: return RightDockWidgetArea;
+            case SideBarLocation::SideBarBottom: return BottomDockWidgetArea;
+            case SideBarLocation::SideBarTop: return TopDockWidgetArea;
+            default:
+            	return LeftDockWidgetArea;
         }
 
 		return LeftDockWidgetArea;
@@ -232,17 +241,17 @@ void CAutoHideDockContainer::updateSize()
 
 	switch (sideBarLocation())
 	{
-	case SideBarLocation::Top:
+	case SideBarLocation::SideBarTop:
 		 resize(rect.width(), qMin(rect.height()  - ResizeMargin, d->Size.height()));
 		 move(rect.topLeft());
 		 break;
 
-	case SideBarLocation::Left:
+	case SideBarLocation::SideBarLeft:
 		 resize(qMin(d->Size.width(), rect.width() - ResizeMargin), rect.height());
 		 move(rect.topLeft());
 		 break;
 
-	case SideBarLocation::Right:
+	case SideBarLocation::SideBarRight:
 		 {
 			 resize(qMin(d->Size.width(), rect.width() - ResizeMargin), rect.height());
 			 QPoint p = rect.topRight();
@@ -251,7 +260,7 @@ void CAutoHideDockContainer::updateSize()
 		 }
 		 break;
 
-	case SideBarLocation::Bottom:
+	case SideBarLocation::SideBarBottom:
 		 {
 			 resize(rect.width(), qMin(rect.height() - ResizeMargin, d->Size.height()));
 			 QPoint p = rect.bottomLeft();
@@ -259,13 +268,15 @@ void CAutoHideDockContainer::updateSize()
 			 move(p);
 		 }
 		 break;
+
+	default:
+		break;
 	}
 }
 
 //============================================================================
 CAutoHideDockContainer::~CAutoHideDockContainer()
 {
-	qDebug() << "~CAutoHideDockContainer()"
 	ADS_PRINT("~CAutoHideDockContainer");
 
 	// Remove event filter in case there are any queued messages

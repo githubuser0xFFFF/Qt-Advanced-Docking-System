@@ -1842,25 +1842,25 @@ void CDockContainerWidget::createSideTabBarWidgets()
 	}
 
 	{
-		auto Area = SideBarLocation::Left;
+		auto Area = SideBarLocation::SideBarLeft;
         d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
 		d->Layout->addWidget(d->SideTabBarWidgets[Area], 1, 0);
 	}
 
 	{
-		auto Area = SideBarLocation::Right;
+		auto Area = SideBarLocation::SideBarRight;
         d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
 		d->Layout->addWidget(d->SideTabBarWidgets[Area], 1, 2);
 	}
 
 	{
-		auto Area = SideBarLocation::Bottom;
+		auto Area = SideBarLocation::SideBarBottom;
         d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
         d->Layout->addWidget(d->SideTabBarWidgets[Area], 2, 1);
 	}
 
 	{
-		auto Area = SideBarLocation::Top;
+		auto Area = SideBarLocation::SideBarTop;
         d->SideTabBarWidgets[Area] = new CAutoHideSideBar(this, Area);
         d->Layout->addWidget(d->SideTabBarWidgets[Area], 0, 1);
 	}

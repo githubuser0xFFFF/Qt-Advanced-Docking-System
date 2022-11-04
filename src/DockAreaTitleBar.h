@@ -63,6 +63,7 @@ private Q_SLOTS:
 	void onCurrentTabChanged(int Index);
 	void onAutoHideButtonClicked();
 	void onAutoHideDockAreaActionClicked();
+	void onAutoHideToActionClicked();
 
 protected:
     /**

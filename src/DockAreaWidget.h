@@ -401,13 +401,13 @@ public Q_SLOTS:
 	 * If the dock area is switched to auto hide mode, then all dock widgets
 	 * that are pinable will be added to the sidebar
 	 */
-	void setAutoHide(bool Enable);
+	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone);
 
 	/**
 	 * Switches the dock area to auto hide mode or vice versa depending on its
 	 * current state.
 	 */
-	void toggleAutoHide();
+	void toggleAutoHide(SideBarLocation Location = SideBarNone);
 
     /**
 	 * This function closes all other areas except of this area

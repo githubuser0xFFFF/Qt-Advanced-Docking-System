@@ -1157,7 +1157,7 @@ void CDockWidget::raise()
 
 
 //============================================================================
-void CDockWidget::setAutoHide(bool Enable)
+void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
 {
 	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
@@ -1177,21 +1177,21 @@ void CDockWidget::setAutoHide(bool Enable)
 	}
 	else
 	{
-		auto area = DockArea->calculateSideTabBarArea();
+		auto area = (SideBarNone == Location) ? DockArea->calculateSideTabBarArea() : Location;
 		dockContainer()->createAndSetupAutoHideContainer(area, this);
 	}
 }
 
 
 //============================================================================
-void CDockWidget::toggleAutoHide()
+void CDockWidget::toggleAutoHide(SideBarLocation Location)
 {
 	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
 		return;
 	}
 
-	setAutoHide(!isAutoHide());
+	setAutoHide(!isAutoHide(), Location);
 }
 
 

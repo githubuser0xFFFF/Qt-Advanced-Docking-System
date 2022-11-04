@@ -29,7 +29,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <QFrame>
+#include <QScrollArea>
 #include "ads_globals.h"
 #include "AutoHideTab.h"
 
@@ -50,12 +50,16 @@ class CDockingStateReader;
  * it contains visible tabs. If it is empty or all tabs are hidden, then the
  * side bar is also hidden. As soon as one single tab becomes visible, this
  * tab bar will be shown.
+ * The CAutoHideSideBar uses a QScrollArea here, to enable proper resizing.
+ * If the side bar contains many tabs, then the tabs are simply clipped - this
+ * is the same like in visual studio
  */
-class ADS_EXPORT CAutoHideSideBar : public QFrame
+class ADS_EXPORT CAutoHideSideBar : public QScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(int sideBarLocation READ sideBarLocation)
     Q_PROPERTY(Qt::Orientation orientation READ orientation)
+    Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
 
 private:
     AutoHideSideBarPrivate* d; ///< private data (pimpl)
@@ -64,7 +68,6 @@ private:
 	friend DockContainerWidgetPrivate;
 
 protected:
-	virtual bool event(QEvent* e) override;
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 	/**
@@ -79,7 +82,7 @@ protected:
 	void insertTab(int Index, CAutoHideTab* SideTab);
 
 public:
-    using Super = QFrame;
+    using Super = QScrollArea;
 
 	/**
 	 * Default Constructor
@@ -123,8 +126,30 @@ public:
 	 */
 	SideBarLocation sideBarLocation() const;
 
-Q_SIGNALS:
-	void sideTabAutoHideToggleRequested();
+	/**
+	 * Overrides the minimumSizeHint() function of QScrollArea
+	 * The minimumSizeHint() is bigger than the sizeHint () for the scroll
+	 * area because even if the scrollbars are invisible, the required speace
+	 * is reserved in the minimumSizeHint(). This override simply returns
+	 * sizeHint();
+	 */
+	virtual QSize minimumSizeHint() const override;
+
+	/**
+	 * The function provides a sizeHint that matches the height of the
+	 * internal viewport.
+	 */
+	virtual QSize sizeHint() const override;
+
+	/**
+	 * Getter for spacing property - returns the spacing of the tabs
+	 */
+	int spacing() const;
+
+	/**
+	 * Setter for spacing property - sets the spacing
+	 */
+	void setSpacing(int Spacing);
 };
 } // namespace ads
 //-----------------------------------------------------------------------------

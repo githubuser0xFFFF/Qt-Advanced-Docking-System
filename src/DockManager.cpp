@@ -156,7 +156,7 @@ struct DockManagerPrivate
 	{
 		for (auto DockWidget : DockWidgetsMap)
 		{
-			DockWidget->setProperty("dirty", true);
+			DockWidget->setProperty(internal::DirtyProperty, true);
 		}
 	}
 
@@ -349,6 +349,12 @@ void DockManagerPrivate::restoreDockWidgetsOpenState()
     {
     	if (DockWidget->property(internal::DirtyProperty).toBool())
     	{
+    		// If the DockWidget is an auto hide widget that is not assigned yet,
+    		// then we need to delete the auto hide container now
+    		if (DockWidget->isAutoHide())
+    		{
+    			DockWidget->autoHideDockContainer()->cleanupAndDelete();
+    		}
     		DockWidget->flagAsUnassigned();
             Q_EMIT DockWidget->viewToggled(false);
     	}

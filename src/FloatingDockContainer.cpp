@@ -721,7 +721,6 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
 //============================================================================
 CFloatingDockContainer::~CFloatingDockContainer()
 {
-	qDebug() << "~CFloatingDockContainer " << windowTitle();
 	ADS_PRINT("~CFloatingDockContainer");
 	if (d->DockManager)
 	{

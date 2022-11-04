@@ -655,6 +655,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment the following line to enable focus highlighting of the dock
 	// widget that has the focus
     CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+    CDockManager::setConfigFlag(CDockManager::AlwaysShowTabs, true);
 
 	// uncomment if you would like to enable dock widget auto hiding
     CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
@@ -746,13 +747,14 @@ void CMainWindow::savePerspective()
 //============================================================================
 void CMainWindow::onViewToggled(bool Open)
 {
+	Q_UNUSED(Open);
 	auto DockWidget = qobject_cast<ads::CDockWidget*>(sender());
 	if (!DockWidget)
 	{
 		return;
 	}
 
-	//qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
 }
 
 
