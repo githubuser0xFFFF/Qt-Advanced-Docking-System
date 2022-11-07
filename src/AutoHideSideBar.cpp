@@ -100,11 +100,11 @@ public:
 	/**
 	 * Forward event handling to EventHandler
 	 */
-	/*virtual bool event(QEvent* e) override
+	virtual bool event(QEvent* e) override
 	{
 		EventHandler->handleViewportEvent(e);
 		return Super::event(e);
-	}*/
+	}
 };
 
 

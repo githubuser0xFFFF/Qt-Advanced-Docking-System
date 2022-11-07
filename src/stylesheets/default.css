@@ -142,40 +142,81 @@ ads--CAutoHideTab {
 }
 
 
-ads--CAutoHideTab[sideBarLocation="0"],
-ads--CAutoHideTab[sideBarLocation="2"]  {
+ads--CAutoHideTab:hover
+{
+	color: palette(highlight);
+}
+
+
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"]  {
 	border-top: 6px solid rgba(0, 0, 0, 48);
 }
 
 
-ads--CAutoHideTab[sideBarLocation="1"],
-ads--CAutoHideTab[sideBarLocation="3"] {
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"] {
 	border-bottom: 6px solid rgba(0, 0, 0, 48);
 }
 
 
 
-ads--CAutoHideTab:hover[sideBarLocation="0"],
-ads--CAutoHideTab:hover[sideBarLocation="2"]  {
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="0"],
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="2"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="0"][activeTab="true"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="2"][activeTab="true"]  {
 	border-top: 6px solid palette(highlight);
-	color: palette(highlight);
 }
 
 
-ads--CAutoHideTab:hover[sideBarLocation="1"],
-ads--CAutoHideTab:hover[sideBarLocation="3"]  {
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="1"],
+ads--CAutoHideTab:hover[iconOnly="false"][sideBarLocation="3"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="1"][activeTab="true"],
+ads--CAutoHideTab[iconOnly="false"][sideBarLocation="3"][activeTab="true"] {
 	border-bottom: 6px solid palette(highlight);
-	color: palette(highlight);
 }
 
-ads--CAutoHideTab[sideBarLocation="0"][activeTab="true"],
-ads--CAutoHideTab[sideBarLocation="2"][activeTab="true"]  {
+
+/**
+ * Auto hide tabs with icon only
+ */
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"] {
+	border-top: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"] {
+	border-left: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"] {
+	border-right: 6px solid rgba(0, 0, 0, 48);
+}
+
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"] {
+	border-bottom: 6px solid rgba(0, 0, 0, 48);
+}
+
+
+/**
+ * Auto hide tabs with icon only hover
+ */
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="0"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="0"][activeTab="true"] {
 	border-top: 6px solid palette(highlight);
 }
 
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="1"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="1"][activeTab="true"] {
+	border-left: 6px solid palette(highlight);
+}
 
-ads--CAutoHideTab[sideBarLocation="1"][activeTab="true"],
-ads--CAutoHideTab[sideBarLocation="3"][activeTab="true"] {
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="2"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="2"][activeTab="true"] {
+	border-right: 6px solid palette(highlight);
+}
+
+ads--CAutoHideTab:hover[iconOnly="true"][sideBarLocation="3"],
+ads--CAutoHideTab[iconOnly="true"][sideBarLocation="3"][activeTab="true"] {
 	border-bottom: 6px solid palette(highlight);
 }
 

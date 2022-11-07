@@ -53,6 +53,7 @@ class ADS_EXPORT CAutoHideTab : public CPushButton
     Q_PROPERTY(int sideBarLocation READ sideBarLocation)
     Q_PROPERTY(Qt::Orientation orientation READ orientation)
 	Q_PROPERTY(bool activeTab READ isActiveTab)
+	Q_PROPERTY(bool iconOnly READ iconOnly)
 
 private:    
 	AutoHideTabPrivate* d; ///< private data (pimpl)
@@ -67,6 +68,7 @@ protected:
 
 	void setSideBar(CAutoHideSideBar *SideTabBar);
 	void removeFromSideBar();
+	virtual bool event(QEvent* event) override;
 
 public:
     using Super = CPushButton;
@@ -118,6 +120,12 @@ public:
 	 * Sets the dock widget that is controlled by this tab
 	 */
 	void setDockWidget(CDockWidget* DockWidget);
+
+	/**
+	 * Returns true if the auto hide config flag AutoHideSideBarsIconOnly
+	 * is set and if the tab has an icon - that means the icon is not null
+	 */
+	bool iconOnly() const;
 }; // class AutoHideTab
 }
  // namespace ads

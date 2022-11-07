@@ -38,6 +38,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QPointer>
+#include <QApplication>
 
 #include "DockAreaTitleBar_p.h"
 #include "ads_globals.h"
@@ -209,7 +210,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	AutoHideButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::DockAreaHasAutoHideButton) && autoHideEnabled);
 	AutoHideButton->setObjectName("dockAreaAutoHideButton");
 	AutoHideButton->setAutoRaise(true);
-	internal::setToolTip(AutoHideButton, QObject::tr("Toggle Auto Hide"));
+	internal::setToolTip(AutoHideButton, _this->titleBarButtonToolTip(TitleBarButtonAutoHide));
 	internal::setButtonIcon(AutoHideButton, QStyle::SP_DialogOkButton, ads::AutoHideIcon);
 	AutoHideButton->setSizePolicy(ButtonSizePolicy);
 	AutoHideButton->setCheckable(testAutoHideConfigFlag(CDockManager::AutoHideButtonCheckable));
@@ -222,7 +223,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton->setObjectName("dockAreaCloseButton");
 	CloseButton->setAutoRaise(true);
 	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
-    internal::setToolTip(CloseButton, _this->closeGroupToolTip());
+    internal::setToolTip(CloseButton, _this->titleBarButtonToolTip(TitleBarButtonClose));
 	CloseButton->setSizePolicy(ButtonSizePolicy);
 	CloseButton->setIconSize(QSize(16, 16));
 	Layout->addWidget(CloseButton, 0);
@@ -507,7 +508,8 @@ void CDockAreaTitleBar::onCurrentTabChanged(int Index)
 //============================================================================
 void CDockAreaTitleBar::onAutoHideButtonClicked()
 {
-	if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideButtonTogglesArea))
+	if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideButtonTogglesArea)
+	 || qApp->keyboardModifiers().testFlag(Qt::ControlModifier))
 	{
 		d->DockArea->toggleAutoHide();
 	}
@@ -698,13 +700,13 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 		Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable));
 		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Action = Menu.addAction(isAutoHide ? tr("Dock") : tr("Auto Hide Group"), this, SLOT(onAutoHideDockAreaActionClicked()));
+			Action = Menu.addAction(isAutoHide ? tr("Unpin (Dock)") : tr("Pin Group"), this, SLOT(onAutoHideDockAreaActionClicked()));
 			auto AreaIsPinnable = d->DockArea->features().testFlag(CDockWidget::DockWidgetPinnable);
 			Action->setEnabled(AreaIsPinnable);
 
 			if (!isAutoHide)
 			{
-				auto menu = Menu.addMenu(tr("Auto Hide Group To..."));
+				auto menu = Menu.addMenu(tr("Pin Group To..."));
 				menu->setEnabled(AreaIsPinnable);
 				d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
 				d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
@@ -738,19 +740,47 @@ int CDockAreaTitleBar::indexOf(QWidget *widget) const
 }
 
 //============================================================================
-QString CDockAreaTitleBar::closeGroupToolTip() const
+QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 {
-	if (d->DockArea->isAutoHide())
+	switch (Button)
 	{
-		return QObject::tr("Close Overlay");
-	    
-	}
-	if (CDockManager::testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
-	{
-		return QObject::tr("Close Active Tab");
+	case TitleBarButtonAutoHide:
+		 if (d->DockArea->isAutoHide())
+		 {
+			 return tr("Unpin (Dock)");
+		 }
+
+		 if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideButtonTogglesArea))
+		 {
+			 return tr("Pin Group");
+		 }
+		 else
+		 {
+			 return tr("Pin Active Tab (Press Ctrl to Pin Group)");
+		 }
+		 break;
+
+	case TitleBarButtonClose:
+		if (d->DockArea->isAutoHide())
+		{
+			return tr("Close");
+		}
+
+		if (CDockManager::testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
+		{
+			return tr("Close Active Tab");
+		}
+		else
+		{
+			return tr("Close Group");
+		}
+	    break;
+
+	default:
+		break;
 	}
 
-    return QObject::tr("Close Group") ;
+	return QString();
 }
 
 //============================================================================

@@ -30,6 +30,7 @@
 #include "AutoHideTab.h"
 
 #include <QBoxLayout>
+#include <QApplication>
 
 #include "AutoHideDockContainer.h"
 #include "AutoHideSideBar.h"
@@ -59,6 +60,26 @@ struct AutoHideTabPrivate
 	 * the side bar
 	 */
 	void updateOrientation();
+
+	/**
+	 * Convenience function to ease dock container access
+	 */
+	CDockContainerWidget* dockContainer() const
+	{
+		return DockWidget ? DockWidget->dockContainer() : nullptr;
+	}
+
+	/**
+	 * Forward this event to the dock container
+	 */
+	void forwardEventToDockContainer(QEvent* event)
+	{
+		auto DockContainer = dockContainer();
+		if (DockContainer)
+		{
+			DockContainer->handleAutoHideWidgetEvent(event, _this);
+		}
+	}
 }; // struct DockWidgetTabPrivate
 
 
@@ -73,41 +94,16 @@ AutoHideTabPrivate::AutoHideTabPrivate(CAutoHideTab* _public) :
 //============================================================================
 void AutoHideTabPrivate::updateOrientation()
 {
-	auto area = SideBar->sideBarLocation();
-	_this->setOrientation((area == SideBarBottom || area == SideBarTop) ? Qt::Horizontal : Qt::Vertical);
-
-	if (_this->icon().isNull())
-	{
-		return;
-	}
-
-	bool IconOnly = false;
-	switch (area)
-	{
-	case SideBarLocation::SideBarLeft:
-		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::LeftSideBarIconOnly);
-		 break;
-
-	case SideBarLocation::SideBarRight:
-		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::RightSideBarIconOnly);
-		 break;
-
-	case SideBarLocation::SideBarTop:
-		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::BottomSideBarIconOnly);
-		 break;
-
-	case SideBarLocation::SideBarBottom:
-		 IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::TopSideBarIconOnly);
-		 break;
-
-	default:
-		break;
-	}
-
-	if (IconOnly)
+	bool IconOnly = CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideSideBarsIconOnly);
+	if (IconOnly && !_this->icon().isNull())
 	{
 		_this->setText("");
 		_this->setOrientation(Qt::Horizontal);
+	}
+	else
+	{
+		auto area = SideBar->sideBarLocation();
+		_this->setOrientation((area == SideBarBottom || area == SideBarTop) ? Qt::Horizontal : Qt::Vertical);
 	}
 }
 
@@ -226,6 +222,31 @@ void CAutoHideTab::setDockWidget(CDockWidget* DockWidget)
 	d->DockWidget = DockWidget;
 	setText(DockWidget->windowTitle());
 	setIcon(d->DockWidget->icon());
+	setToolTip(DockWidget->windowTitle());
+}
+
+
+//============================================================================
+bool CAutoHideTab::event(QEvent* event)
+{
+	switch (event->type())
+	{
+	case QEvent::Enter:
+	case QEvent::Leave:
+	case QEvent::MouseButtonPress:
+		 d->forwardEventToDockContainer(event);
+		 break;
+
+	default:
+		break;
+	}
+	return Super::event(event);
+}
+
+//============================================================================
+bool CAutoHideTab::iconOnly() const
+{
+	return CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideSideBarsIconOnly) && !icon().isNull();
 }
 
 }

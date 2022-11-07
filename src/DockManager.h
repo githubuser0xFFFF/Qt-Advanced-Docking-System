@@ -238,11 +238,8 @@ public:
 		DockAreaHasAutoHideButton = 0x02,     //!< If the flag is set each dock area has a auto hide menu button
 		AutoHideButtonTogglesArea = 0x04, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
 		AutoHideButtonCheckable = 0x08, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
-		LeftSideBarIconOnly = 0x10,  //!< If the flag is set left side bar will show only icon if a the dock widget has an icon assigned
-		RightSideBarIconOnly = 0x20, //!< If the flag is set right side bar will show only icon if a the dock widget has an icon assigned
-		BottomSideBarIconOnly = 0x40,//!< If the flag is set bottom side show only icon if a the dock widget has an icon assigned
-		TopSideBarIconOnly = 0x80, //!< If the flag is set top side bar show only icon if a the dock widget has an icon assigned
-		AutoHideSideBarsIconOnly = LeftSideBarIconOnly | RightSideBarIconOnly | BottomSideBarIconOnly | TopSideBarIconOnly,
+		AutoHideSideBarsIconOnly = 0x10,///< show only icons in auto hide side tab - if a tab has no icon, then the text will be shown
+		ShowAutoHideOnMouseOver = 0x20, ///< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton ///< the default configuration for the auto hide feature

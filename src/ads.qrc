@@ -17,7 +17,6 @@
         <file>images/restore-button-focused.svg</file>
         <file>images/vs-pin-button.svg</file>
         <file>images/vs-pin-button-pinned.svg</file>
-        <file>stylesheets/visual_studio_light.css</file>
         <file>images/vs-pin-button-pinned-focused.svg</file>
     </qresource>
 </RCC>

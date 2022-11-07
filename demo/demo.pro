@@ -2,7 +2,7 @@ ADS_OUT_ROOT = $${OUT_PWD}/..
 
 TARGET = AdvancedDockingSystemDemo
 DESTDIR = $${ADS_OUT_ROOT}/lib
-QT += core gui widgets
+QT += core gui widgets svg
 
 include(../ads.pri)
 
@@ -20,14 +20,19 @@ adsBuildStatic {
     DEFINES += ADS_STATIC
 }
 
-SOURCES += \
-	main.cpp \
-	MainWindow.cpp \
-	StatusDialog.cpp
 
 HEADERS += \
 	MainWindow.h \
-	StatusDialog.h
+	StatusDialog.h \
+	ImageViewer.h \
+	RenderWidget.h
+
+SOURCES += \
+	main.cpp \
+	MainWindow.cpp \
+	StatusDialog.cpp \
+	ImageViewer.cpp \
+	RenderWidget.cpp
 
 FORMS += \
 	mainwindow.ui \

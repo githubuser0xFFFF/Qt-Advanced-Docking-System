@@ -80,6 +80,7 @@
 #include "DockComponentsFactory.h"
 #include "StatusDialog.h"
 #include "DockSplitter.h"
+#include "ImageViewer.h"
 
 
 /**
@@ -318,6 +319,22 @@ struct MainWindowPrivate
 	}
 
 	/**
+	 * Creates a simply image viewr
+	 */
+	ads::CDockWidget* createImageViewer()
+	{
+		static int ImageViewerCount = 0;
+		auto w = new CImageViewer();
+		auto Result = w->loadFile(":adsdemo/images/ads_logo.svg");
+		qDebug() << "loadFile result: " << Result;
+		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Image Viewer %1").arg(ImageViewerCount++));
+		DockWidget->setWidget(w,ads:: CDockWidget::ForceNoScrollArea);
+		auto ToolBar = DockWidget->createDefaultToolBar();
+		ToolBar->addActions(w->actions());
+		return DockWidget;
+	}
+
+	/**
 	 * Create a table widget
 	 */
 	ads::CDockWidget* createTableWidget()
@@ -510,6 +527,10 @@ void MainWindowPrivate::createContent()
 		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
 		_this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
 	}
+
+	// Create image viewer
+	DockWidget = createImageViewer();
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 }
 
 
@@ -561,6 +582,11 @@ void MainWindowPrivate::createActions()
 	a = ui.menuTests->addAction("Toggle Label 0 Window Title");
 	_this->connect(a, SIGNAL(triggered()), SLOT(toggleDockWidgetWindowTitle()));
 	ui.menuTests->addSeparator();
+
+	a = ui.toolBar->addAction("Apply VS Style");
+	a->setToolTip("Applies a Visual Studio light style (visual_studio_light.css)." );
+	a->setIcon(svgIcon(":/adsdemo/images/color_lens.svg"));
+	QObject::connect(a, &QAction::triggered, _this, &CMainWindow::applyVsStyle);
 }
 
 
@@ -620,7 +646,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
     // uncomment the following line if you want to use opaque undocking and
 	// opaque splitter resizing
-    //CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
+    // CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
 
     // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes
@@ -655,7 +681,6 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment the following line to enable focus highlighting of the dock
 	// widget that has the focus
     CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
-    CDockManager::setConfigFlag(CDockManager::AlwaysShowTabs, true);
 
 	// uncomment if you would like to enable dock widget auto hiding
     CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
@@ -754,7 +779,7 @@ void CMainWindow::onViewToggled(bool Open)
 		return;
 	}
 
-	qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
+	//qDebug() << DockWidget->objectName() << " viewToggled(" << Open << ")";
 }
 
 
@@ -863,5 +888,17 @@ void CMainWindow::toggleDockWidgetWindowTitle()
 		Title = Title.left(i);
 	}
 	d->WindowTitleTestDockWidget->setWindowTitle(Title);
+}
+
+
+//============================================================================
+void CMainWindow::applyVsStyle()
+{
+	QFile StyleSheetFile(":adsdemo/res/visual_studio_light.css");
+	StyleSheetFile.open(QIODevice::ReadOnly);
+	QTextStream StyleSheetStream(&StyleSheetFile);
+	auto Stylesheet = StyleSheetStream.readAll();
+	StyleSheetFile.close();
+	d->DockManager->setStyleSheet(Stylesheet);
 }
 

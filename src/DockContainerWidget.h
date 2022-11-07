@@ -52,6 +52,9 @@ class CFloatingDragPreview;
 struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
 class CAutoHideSideBar;
+class CAutoHideTab;
+struct AutoHideTabPrivate;
+struct AutoHideDockContainerPrivate;
 
 
 /**
@@ -76,7 +79,10 @@ private:
 	friend class CDockWidget;
 	friend class CFloatingDragPreview;
 	friend struct FloatingDragPreviewPrivate;
-	friend class CAutoHideDockContainer;
+	friend CAutoHideDockContainer;
+	friend CAutoHideTab;
+	friend AutoHideTabPrivate;
+	friend AutoHideDockContainerPrivate;
 
 protected:
 	/**
@@ -190,6 +196,11 @@ protected:
 	 */
     void removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
 
+    /**
+     * Handles widget events of auto hide widgets to trigger delayed show
+     * or hide actions for auto hide container on auto hide tab mouse over
+     */
+    void handleAutoHideWidgetEvent(QEvent* e, QWidget* w);
 
 public:
 	/**

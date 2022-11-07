@@ -28,9 +28,6 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <AutoHideDockContainer.h>
-#include <AutoHideSideBar.h>
-#include <AutoHideTab.h>
 #include "DockContainerWidget.h"
 
 #include <QEvent>
@@ -42,6 +39,10 @@
 #include <QXmlStreamWriter>
 #include <QAbstractButton>
 #include <QLabel>
+#include <QTimer>
+#include <QMetaObject>
+#include <QMetaType>
+#include <QApplication>
 
 #include "DockManager.h"
 #include "DockAreaWidget.h"
@@ -54,6 +55,9 @@
 #include "DockWidgetTab.h"
 #include "DockAreaTitleBar.h"
 #include "DockFocusController.h"
+#include "AutoHideDockContainer.h"
+#include "AutoHideSideBar.h"
+#include "AutoHideTab.h"
 
 #include <functional>
 #include <iostream>
@@ -146,6 +150,9 @@ public:
 	CDockAreaWidget* LastAddedAreaCache[5];
 	int VisibleDockAreaCount = -1;
 	CDockAreaWidget* TopLevelDockArea = nullptr;
+	QTimer DelayedAutoHideTimer;
+	CAutoHideTab* DelayedAutoHideTab;
+	bool DelayedAutoHideShow = false;
 
 	/**
 	 * Private data constructor
@@ -371,6 +378,13 @@ DockContainerWidgetPrivate::DockContainerWidgetPrivate(CDockContainerWidget* _pu
 	_this(_public)
 {
 	std::fill(std::begin(LastAddedAreaCache),std::end(LastAddedAreaCache), nullptr);
+	DelayedAutoHideTimer.setSingleShot(true);
+	DelayedAutoHideTimer.setInterval(500);
+	QObject::connect(&DelayedAutoHideTimer, &QTimer::timeout, [this](){
+		auto GlobalPos = DelayedAutoHideTab->mapToGlobal(QPoint(0, 0));
+		qApp->sendEvent(DelayedAutoHideTab, new QMouseEvent(QEvent::MouseButtonPress,
+				QPoint(0, 0), GlobalPos, Qt::LeftButton, {Qt::LeftButton}, Qt::NoModifier));
+	});
 }
 
 
@@ -2044,6 +2058,88 @@ QRect CDockContainerWidget::contentRectGlobal() const
 CDockManager* CDockContainerWidget::dockManager() const
 {
 	return d->DockManager;
+}
+
+
+//===========================================================================
+void CDockContainerWidget::handleAutoHideWidgetEvent(QEvent* e, QWidget* w)
+{
+	if (!CDockManager::testAutoHideConfigFlag(CDockManager::ShowAutoHideOnMouseOver))
+	{
+		return;
+	}
+
+	if (dockManager()->isRestoringState())
+	{
+		return;
+	}
+
+	auto AutoHideTab = qobject_cast<CAutoHideTab*>(w);
+	if (AutoHideTab)
+	{
+		switch (e->type())
+		{
+		case QEvent::Enter:
+			 if (!AutoHideTab->dockWidget()->isVisible())
+			 {
+				 d->DelayedAutoHideTab = AutoHideTab;
+				 d->DelayedAutoHideShow = true;
+				 d->DelayedAutoHideTimer.start();
+			 }
+			 else
+			 {
+				 d->DelayedAutoHideTimer.stop();
+			 }
+			 break;
+
+		case QEvent::MouseButtonPress:
+			 d->DelayedAutoHideTimer.stop();
+			 break;
+
+		case QEvent::Leave:
+			 if (AutoHideTab->dockWidget()->isVisible())
+			 {
+				 d->DelayedAutoHideTab = AutoHideTab;
+				 d->DelayedAutoHideShow = false;
+				 d->DelayedAutoHideTimer.start();
+			 }
+			 else
+			 {
+				 d->DelayedAutoHideTimer.stop();
+			 }
+			 break;
+
+		default:
+			break;
+		}
+		return;
+	}
+
+	auto AutoHideContainer = qobject_cast<CAutoHideDockContainer*>(w);
+	if (AutoHideContainer)
+	{
+		switch (e->type())
+		{
+		case QEvent::Enter:
+		case QEvent::Hide:
+			 d->DelayedAutoHideTimer.stop();
+			 break;
+
+		case QEvent::Leave:
+			 if (AutoHideContainer->isVisible())
+			 {
+				 d->DelayedAutoHideTab = AutoHideContainer->autoHideTab();
+				 d->DelayedAutoHideShow = false;
+				 d->DelayedAutoHideTimer.start();
+			 }
+			 break;
+
+		default:
+			break;
+		}
+		return;
+		return;
+	}
 }
 } // namespace ads
 

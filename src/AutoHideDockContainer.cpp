@@ -35,6 +35,7 @@
 #include <QSplitter>
 #include <QPointer>
 #include <QApplication>
+#include <QCursor>
 
 #include "DockManager.h"
 #include "DockWidgetTab.h"
@@ -147,7 +148,7 @@ struct AutoHideDockContainerPrivate
 	 */
 	void updateResizeHandleSizeLimitMax()
 	{
-		auto Rect = _this->parentContainer()->contentRect();
+		auto Rect = _this->dockContainer()->contentRect();
 		const auto maxResizeHandleSize = ResizeHandle->orientation() == Qt::Horizontal
 			? Rect.width() : Rect.height();
 		ResizeHandle->setMaxResizeSize(maxResizeHandleSize - ResizeMargin);
@@ -159,6 +160,18 @@ struct AutoHideDockContainerPrivate
 	bool isHorizontal() const
 	{
 		return isHorizontalArea(SideTabBarArea);
+	}
+
+	/**
+	 * Forward this event to the dock container
+	 */
+	void forwardEventToDockContainer(QEvent* event)
+	{
+		auto DockContainer = _this->dockContainer();
+		if (DockContainer)
+		{
+			DockContainer->handleAutoHideWidgetEvent(event, _this);
+		}
 	}
 
 }; // struct AutoHideDockContainerPrivate
@@ -174,7 +187,7 @@ AutoHideDockContainerPrivate::AutoHideDockContainerPrivate(
 
 
 //============================================================================
-CDockContainerWidget* CAutoHideDockContainer::parentContainer() const
+CDockContainerWidget* CAutoHideDockContainer::dockContainer() const
 {
 	if (d->DockArea)
 	{
@@ -231,7 +244,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 //============================================================================
 void CAutoHideDockContainer::updateSize()
 {
-	auto dockContainerParent = parentContainer();
+	auto dockContainerParent = dockContainer();
 	if (!dockContainerParent)
 	{
 		return;
@@ -281,9 +294,9 @@ CAutoHideDockContainer::~CAutoHideDockContainer()
 
 	// Remove event filter in case there are any queued messages
 	qApp->removeEventFilter(this);
-	if (parentContainer())
+	if (dockContainer())
 	{
-		parentContainer()->removeAutoHideWidget(this);
+		dockContainer()->removeAutoHideWidget(this);
 	}
 
 	if (d->SideTab)
@@ -297,7 +310,7 @@ CAutoHideDockContainer::~CAutoHideDockContainer()
 //============================================================================
 CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
 {
-	return parentContainer()->sideTabBar(d->SideTabBarArea);
+	return dockContainer()->sideTabBar(d->SideTabBarArea);
 }
 
 
@@ -366,7 +379,7 @@ void CAutoHideDockContainer::moveContentsToParent()
 	// location like it had as a auto hide widget.  This brings the least surprise
 	// to the user and he does not have to search where the widget was inserted.
 	d->DockWidget->setDockArea(nullptr);
-	parentContainer()->addDockWidget(d->getDockWidgetArea(d->SideTabBarArea), d->DockWidget);
+	dockContainer()->addDockWidget(d->getDockWidgetArea(d->SideTabBarArea), d->DockWidget);
 }
 
 
@@ -479,7 +492,7 @@ bool CAutoHideDockContainer::eventFilter(QObject* watched, QEvent* event)
 	}
 	else if (event->type() == QEvent::MouseButtonPress)
 	{
-		auto Container = parentContainer();
+		auto Container = dockContainer();
 		// First we check, if the mouse button press is inside the container
 		// widget. If it is not, i.e. if someone resizes the main window or
 		// clicks into the application menu or toolbar, then we ignore the
@@ -541,6 +554,39 @@ void CAutoHideDockContainer::resizeEvent(QResizeEvent* event)
         d->Size = this->size();
 		d->updateResizeHandleSizeLimitMax();
 	}
+}
+
+
+//============================================================================
+void CAutoHideDockContainer::leaveEvent(QEvent *event)
+{
+	// Resizing of the dock container via the resize handle in non opaque mode
+	// mays cause a leave event that is not really a leave event. Therefore
+	// we check here, if we are really outside of our rect.
+	auto pos = mapFromGlobal(QCursor::pos());
+	if (!rect().contains(pos))
+	{
+		d->forwardEventToDockContainer(event);
+	}
+	Super::leaveEvent(event);
+}
+
+
+//============================================================================
+bool CAutoHideDockContainer::event(QEvent* event)
+{
+	switch (event->type())
+	{
+	case QEvent::Enter:
+	case QEvent::Hide:
+		 d->forwardEventToDockContainer(event);
+		 break;
+
+	default:
+		break;
+	}
+
+	return Super::event(event);
 }
 
 }

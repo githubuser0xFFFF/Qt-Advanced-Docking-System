@@ -161,7 +161,7 @@ public:
 	 * Close group tool tip based on the current state
 	 * Auto hide widgets can only have one dock widget so it does not make sense for the tooltip to show close group
 	 */
-	QString closeGroupToolTip() const;
+	QString titleBarButtonToolTip(TitleBarButton Button) const;
 
 Q_SIGNALS:
 	/**

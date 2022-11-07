@@ -465,7 +465,7 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 {
 	d->AutoHideDockContainer = AutoHideDockContainer;
 	updateAutoHideButtonCheckState();
-	updateTitleBarButtonToolTip();
+	updateTitleBarButtonsToolTips();
 }
 
 
@@ -880,9 +880,12 @@ void CDockAreaWidget::updateTitleBarButtonVisibility(bool IsTopLevel) const
 
 
 //============================================================================
-void CDockAreaWidget::updateTitleBarButtonToolTip()
+void CDockAreaWidget::updateTitleBarButtonsToolTips()
 {
-	internal::setToolTip(titleBarButton(TitleBarButtonClose), titleBar()->closeGroupToolTip());
+	internal::setToolTip(titleBarButton(TitleBarButtonClose),
+		titleBar()->titleBarButtonToolTip(TitleBarButtonClose));
+	internal::setToolTip(titleBarButton(TitleBarButtonAutoHide),
+		titleBar()->titleBarButtonToolTip(TitleBarButtonAutoHide));
 }
 
 

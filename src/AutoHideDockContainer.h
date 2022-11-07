@@ -59,8 +59,11 @@ private:
 	friend CAutoHideSideBar;
 
 protected:
-	bool eventFilter(QObject* watched, QEvent* event) override;
-	void resizeEvent(QResizeEvent* event) override;
+	virtual bool eventFilter(QObject* watched, QEvent* event) override;
+	virtual void resizeEvent(QResizeEvent* event) override;
+	virtual void leaveEvent(QEvent *event) override;
+	virtual bool event(QEvent* event) override;
+
 
 	/**
 	 * Updates the size considering the size limits and the resize margins
@@ -124,7 +127,7 @@ public:
 	/**
 	 * Returns the parent container that hosts this auto hide container
 	 */
-	CDockContainerWidget* parentContainer() const;
+	CDockContainerWidget* dockContainer() const;
 
 	/**
 	 * Moves the contents to the parent container widget

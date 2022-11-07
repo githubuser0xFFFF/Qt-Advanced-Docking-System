@@ -65,6 +65,7 @@ private slots:
 	void onEditorCloseRequested();
 	void showStatusDialog();
 	void toggleDockWidgetWindowTitle();
+	void applyVsStyle();
 };
 
 #endif // MAINWINDOW_H

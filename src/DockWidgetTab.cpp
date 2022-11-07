@@ -532,11 +532,11 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 		Action->setEnabled(isDetachable);
 		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Action = Menu.addAction(tr("Auto Hide"), this, SLOT(autoHideDockWidget()));
+			Action = Menu.addAction(tr("Pin"), this, SLOT(autoHideDockWidget()));
 			auto IsPinnable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable);
 			Action->setEnabled(IsPinnable);
 
-			auto menu = Menu.addMenu(tr("Auto Hide To..."));
+			auto menu = Menu.addMenu(tr("Pin To..."));
 			menu->setEnabled(IsPinnable);
 			d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
 			d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);

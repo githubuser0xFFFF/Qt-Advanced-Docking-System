@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 1023.99 1023.99"
+   id="svg26"
+   sodipodi:docname="ads_icon.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   width="1023.99"
+   height="1023.99"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs30" />
+  <sodipodi:namedview
+     id="namedview28"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="0.12999302"
+     inkscape:cx="3277.099"
+     inkscape:cy="-257.70614"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg26"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <desc
+     id="desc2">electric_iron icon - Licensed under Iconfu Standard License v1.0 (https://www.iconfu.com/iconfu_standard_license) - Incors GmbH</desc>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
+     x="1251.1022"
+     y="1305.4956"
+     id="text9788"><tspan
+       sodipodi:role="line"
+       id="tspan9786"
+       x="1251.1022"
+       y="1305.4956" /></text>
+  <g
+     id="g94691"
+     transform="translate(581.23034,1750.5233)">
+    <path
+       d="m 191.63966,-726.53328 h -521.75 c -138.69,0 -251.12,-112.43001 -251.12,-251.12 v -521.75002 c 0,-138.69 112.43,-251.12 251.12,-251.12 h 521.75 c 138.69,0 251.12,112.43 251.12,251.12 v 521.75002 c 0,138.68999 -112.43,251.12 -251.12,251.12 z"
+       fill="#707070"
+       id="path4-5"
+       style="mix-blend-mode:normal;fill:#e0e0e0;fill-opacity:1;fill-rule:nonzero" />
+    <path
+       id="path927"
+       style="mix-blend-mode:normal;fill:#009ddd;fill-opacity:1;fill-rule:nonzero"
+       d="m -175.90039,-1515.8633 v 256 h 469.3301 v -256 z" />
+    <path
+       id="path16513"
+       style="mix-blend-mode:normal;fill:#ff9833;fill-opacity:1;fill-rule:nonzero"
+       d="m 80.099609,-1217.1934 v 256.00004 H 293.42969 v -256.00004 z" />
+    <path
+       id="path16513-5"
+       style="mix-blend-mode:normal;fill:#accb01;fill-opacity:1;fill-rule:nonzero"
+       d="m -175.90039,-1217.1933 v 256 H 37.42969 v -256 z" />
+    <path
+       id="path24788"
+       style="mix-blend-mode:normal;fill:#0083c3;fill-opacity:1;fill-rule:nonzero"
+       d="m -431.90039,-1515.8633 v 554.66994 h 213.33008 v -554.66994 z" />
+  </g>
+</svg>
