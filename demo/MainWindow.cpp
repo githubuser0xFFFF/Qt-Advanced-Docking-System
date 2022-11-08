@@ -60,6 +60,7 @@
 #include <QToolButton>
 #include <QToolBar>
 #include <QPointer>
+#include <QRandomGenerator>
 
 
 #ifdef Q_OS_WIN
@@ -221,6 +222,7 @@ struct MainWindowPrivate
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Filesystem %1")
 			.arg(FileSystemCount++));
 		DockWidget->setWidget(w);
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/folder_open.svg"));
 		ui.menuView->addAction(DockWidget->toggleViewAction());
 		// We disable focus to test focus highlighting if the dock widget content
 		// does not support focus
@@ -281,6 +283,7 @@ struct MainWindowPrivate
 
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
 		DockWidget->setWidget(l);
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/font_download.svg"));
 		ui.menuView->addAction(DockWidget->toggleViewAction());
 		return DockWidget;
 	}
@@ -325,9 +328,22 @@ struct MainWindowPrivate
 	{
 		static int ImageViewerCount = 0;
 		auto w = new CImageViewer();
-		auto Result = w->loadFile(":adsdemo/images/ads_logo.svg");
+		auto ImageIndex = QRandomGenerator::global()->bounded(4);
+		auto FileName = ":adsdemo/images/ads_logo.svg";
+
+		// Pick a random image from a number of images
+		switch (ImageIndex)
+		{
+		case 0: FileName = ":adsdemo/images/ads_tile_blue.svg"; break;
+		case 1: FileName = ":adsdemo/images/ads_tile_blue_light.svg"; break;
+		case 2: FileName = ":adsdemo/images/ads_tile_green.svg"; break;
+		case 3: FileName = ":adsdemo/images/ads_tile_orange.svg"; break;
+		}
+
+		auto Result = w->loadFile(FileName);
 		qDebug() << "loadFile result: " << Result;
 		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Image Viewer %1").arg(ImageViewerCount++));
+		DockWidget->setIcon(svgIcon(":/adsdemo/images/photo.svg"));
 		DockWidget->setWidget(w,ads:: CDockWidget::ForceNoScrollArea);
 		auto ToolBar = DockWidget->createDefaultToolBar();
 		ToolBar->addActions(w->actions());
@@ -575,6 +591,22 @@ void MainWindowPrivate::createActions()
 	_this->connect(a, SIGNAL(triggered()), SLOT(createTable()));
 	ui.menuTests->addAction(a);
 
+	a = ui.toolBar->addAction("Create Image Viewer");
+	auto ToolButton = qobject_cast<QToolButton*>(ui.toolBar->widgetForAction(a));
+	ToolButton->setPopupMode(QToolButton::InstantPopup);
+	a->setToolTip("Creates floating, docked or pinned image viewer");
+	a->setIcon(svgIcon(":/adsdemo/images/panorama.svg"));
+	ui.menuTests->addAction(a);
+	auto Menu = new QMenu();
+	ToolButton->setMenu(Menu);
+	a = Menu->addAction("Floating Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+	a = Menu->addAction("Docked Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+	a = Menu->addAction("Pinned Image Viewer");
+	_this->connect(a, SIGNAL(triggered()), SLOT(createImageViewer()));
+
+
 	ui.menuTests->addSeparator();
 	a = ui.menuTests->addAction("Show Status Dialog");
 	_this->connect(a, SIGNAL(triggered()), SLOT(showStatusDialog()));
@@ -587,6 +619,7 @@ void MainWindowPrivate::createActions()
 	a->setToolTip("Applies a Visual Studio light style (visual_studio_light.css)." );
 	a->setIcon(svgIcon(":/adsdemo/images/color_lens.svg"));
 	QObject::connect(a, &QAction::triggered, _this, &CMainWindow::applyVsStyle);
+	ui.menuTests->addAction(a);
 }
 
 
@@ -857,6 +890,20 @@ void CMainWindow::onEditorCloseRequested()
 
 
 //============================================================================
+void CMainWindow::onImageViewerCloseRequested()
+{
+	auto DockWidget = qobject_cast<ads::CDockWidget*>(sender());
+	int Result = QMessageBox::question(this, "Close Image Viewer", QString("%1 "
+		"contains unsaved changes? Would you like to close it?")
+		.arg(DockWidget->windowTitle()));
+	if (QMessageBox::Yes == Result)
+	{
+		DockWidget->closeDockWidget();
+	}
+}
+
+
+//============================================================================
 void CMainWindow::createTable()
 {
 	auto DockWidget = d->createTableWidget();
@@ -900,5 +947,35 @@ void CMainWindow::applyVsStyle()
 	auto Stylesheet = StyleSheetStream.readAll();
 	StyleSheetFile.close();
 	d->DockManager->setStyleSheet(Stylesheet);
+}
+
+
+//============================================================================
+void CMainWindow::createImageViewer()
+{
+	QAction* a = qobject_cast<QAction*>(sender());
+	qDebug() << "createImageViewer " << a->text();
+
+	auto DockWidget = d->createImageViewer();
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetForceCloseWithArea, true);
+	DockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
+	DockWidget->resize(QSize(640, 480));
+	connect(DockWidget, &ads::CDockWidget::closeRequested, this,
+		&CMainWindow::onImageViewerCloseRequested);
+
+	if (a->text().startsWith("Floating"))
+	{
+		auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
+		FloatingWidget->move(QPoint(20, 20));
+	}
+	else if (a->text().startsWith("Docked"))
+	{
+		d->DockManager->addDockWidget(ads::RightDockWidgetArea, DockWidget);
+	}
+	else if (a->text().startsWith("Pinned"))
+	{
+		d->DockManager->addAutoHideDockWidget(ads::SideBarLeft, DockWidget);
+	}
 }
 

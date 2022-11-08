@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	a.setApplicationName("Advanced Docking System Demo");
 	a.setQuitOnLastWindowClosed(true);
+	a.setWindowIcon(QIcon(":/adsdemo/images/ads_icon2.svg"));
 
 	qInstallMessageHandler(myMessageOutput);
 	qDebug() << "Message handler test";

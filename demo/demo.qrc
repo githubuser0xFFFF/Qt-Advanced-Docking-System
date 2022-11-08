@@ -26,5 +26,14 @@
         <file>images/zoom_in.svg</file>
         <file>images/zoom_out.svg</file>
         <file>images/zoom_out_map.svg</file>
+        <file>images/ads_tile_blue.svg</file>
+        <file>images/ads_tile_blue_light.svg</file>
+        <file>images/ads_tile_green.svg</file>
+        <file>images/ads_tile_orange.svg</file>
+        <file>images/photo.svg</file>
+        <file>images/crop_original.svg</file>
+        <file>images/panorama.svg</file>
+        <file>images/ads_icon2.svg</file>
+        <file>images/font_download.svg</file>
     </qresource>
 </RCC>

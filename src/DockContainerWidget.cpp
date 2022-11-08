@@ -1360,6 +1360,7 @@ CDockContainerWidget::~CDockContainerWidget()
 CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
 	CDockAreaWidget* DockAreaWidget)
 {
+	auto TopLevelDockWidget = topLevelDockWidget();
 	CDockAreaWidget* OldDockArea = Dockwidget->dockAreaWidget();
 	if (OldDockArea)
 	{
@@ -1367,14 +1368,28 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 	}
 
 	Dockwidget->setDockManager(d->DockManager);
+	CDockAreaWidget* DockArea;
 	if (DockAreaWidget)
 	{
-		return d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget);
+		DockArea = d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget);
 	}
 	else
 	{
-		return d->addDockWidgetToContainer(area, Dockwidget);
+		DockArea = d->addDockWidgetToContainer(area, Dockwidget);
 	}
+
+	if (TopLevelDockWidget)
+	{
+		auto NewTopLevelDockWidget = topLevelDockWidget();
+		// If the container contained only one visible dock widget, the we need
+		// to emit a top level event for this widget because it is not the one and
+		// only visible docked widget anymore
+		if (!NewTopLevelDockWidget)
+		{
+			CDockWidget::emitTopLevelEventForWidget(TopLevelDockWidget, false);
+		}
+	}
+	return DockArea;
 }
 
 
@@ -2064,7 +2079,7 @@ CDockManager* CDockContainerWidget::dockManager() const
 //===========================================================================
 void CDockContainerWidget::handleAutoHideWidgetEvent(QEvent* e, QWidget* w)
 {
-	if (!CDockManager::testAutoHideConfigFlag(CDockManager::ShowAutoHideOnMouseOver))
+	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver))
 	{
 		return;
 	}

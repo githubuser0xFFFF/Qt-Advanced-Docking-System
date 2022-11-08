@@ -28,6 +28,18 @@
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
   - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+- [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
+  - [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
+  - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
+  - [Show / Hide Auto-Hide Widgets via Mouse Over](#show--hide-auto-hide-widgets-via-mouse-over)
+  - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
+  - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
+  - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
+  - [`DockAreaHasAutoHideButton`](#dockareahasautohidebutton)
+  - [`AutoHideButtonTogglesArea`](#autohidebuttontogglesarea)
+  - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
+  - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
+  - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -41,7 +53,6 @@
 - [Central Widget](#central-widget)
 - [Empty Dock Area](#empty-dock-area)
 - [Custom Close Handling](#custom-close-handling)
-- ['Auto Hide Dock Widgets'](#auto-hide-dock-widgets)
 - [Styling](#styling)
   - [Disabling the Internal Style Sheet](#disabling-the-internal-style-sheet)
 
@@ -487,6 +498,129 @@ possible in various web browsers.
 
 ![MiddleMouseButtonClosesTab true](cfg_flag_MiddleMouseButtonClosesTab.gif)
 
+## Auto-Hide Configuration Flags
+
+### Auto Hide Dock Widgets
+
+The Advanced Docking System supports "Auto-Hide" functionality for **all**
+dock containers. The "Auto Hide" feature allows to display more information
+using less screen space by hiding or showing windows pinned to one of the 
+four dock container borders.
+
+Enabling this feature adds a button with a pin icon to each dock area.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+By clicking this button, the current dock widget (or the complete area - depending on the
+configuration flags) will be pinned to a certain border. The border is choosen
+depending on the location of the dock area. If you click the pin button while
+holding down the **Ctrl** key, the whole dock area will be pinned to a certain
+border.
+
+### Pinning Auto-Hide Widgets to a certain border
+
+If you would like to pin a dock widget or a dock area to a certain border,
+then you can right-click into the dock widget tab or into the dock area title bar
+to show the context menu. Then you can select the location via the **Pin to** menu:
+
+![Pin to](AutoHide_PinTo.png)
+
+### Show / Hide Auto-Hide Widgets via Mouse Over
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and hidden by
+clicking the Auto-Hide tab again or by clicking into any other dock widget in
+the same container. If the Auto-Hide config flag `AutoHideShowOnMouseOver` is set,
+the Auto-Hide widget is shown, if the user hovers over the Auto-Hide tab and is
+collapsed if the mouse cursor leaves the Auto-Hide widget. Showing and hiding
+by mouse click still works if this feature is enabled.
+
+### Adding Auto Hide Widgets
+
+Adding an auto hide widget is similar to adding a dock widget, simply call
+`dockManager->addAutoHideDockWidget()`.
+
+```c++
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+d->DockManager = new CDockManager(this);
+CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+DockManager->addAutoHideDockWidget(SideBarLeft, TableDockWidget);
+```
+
+See `autohide` example or the demo application to learn how it works.
+
+### Setting Auto-Hide Flags
+
+The Advanced Docking System has a number of global configuration flags to
+configure the Auto-Hide functionality. You should set the Auto-Hide flags before
+creating the dock manager instance. That means, you should set the Auto-Hide
+flags after setting the configuration flags.
+
+```c++
+CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver, true);
+...
+d->DockManager = new CDockManager(this);
+```
+
+If you set the Auto-Hide flags, you can set individual flags using the
+function `CDockManager::setAutoHideConfigFlag` or you can set all flags using
+the function `CDockManager::setAutoHideConfigFlags`. Instead of settings all
+flags individually, it is better to pick a predefined set of configuration
+flags and then modify individual flags. The following predefined
+configurations are available
+
+- `DefaultAutoHideConfig` - default auto hide config
+
+Pick one of those predefined configurations and then modify the following
+configurations flags to adjust the docking system to your needs.
+
+### `AutoHideFeatureEnabled`
+
+Enables / disables the Auto-Hide functionality. Only if this flag is enabled,
+the other Auto-Hide flags will be evaluated.
+
+### `DockAreaHasAutoHideButton`
+
+If this flag is set (default), then each dock area has a pin button in the title 
+bar to toggle Auto-Hide state.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+### `AutoHideButtonTogglesArea`
+
+If set, the the pin button in the dock area title bar toggles the complete area.
+If not set (default), then the pin button toggles the current active tab / dock
+widget and pressing the **Ctrl** key while clicking the pin button toggles the
+complete ara.
+
+### `AutoHideButtonCheckable`
+
+Normally the pin button in the dock area title bar is not checkable. If this
+flag is set, then the button is checkable. That means, if button is checked,
+the dock widget is pinned.
+
+### `AutoHideSideBarsIconOnly`
+
+Normally the Auto-Hide tabs show the icon and title of the dock widget:
+
+![AutoHideSideBarsIconOnly false](cfg_flag_AutoHideSideBarsIconOnly_false.png)
+
+You can set this flag, if you would like to have only icons in the Auto-Hide
+tabs instead of icon and dock widget title. If this is set, the Auto-Hide tab
+needs less space. The tooltip of each tab still shows the dock widget title.
+
+![AutoHideSideBarsIconOnly true](cfg_flag_AutoHideSideBarsIconOnly_true.png)
+
+### `AutoHideShowOnMouseOver`
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and
+hidden by clicking the Auto-Hide tab again or by clicking into any other
+dock widget in the same container. If this flag is set, the Auto-Hide widget
+is shown, if the user hovers over the Auto-Hide tab or if the users moves the
+mouse outside of the Auto-Hide widget. Showing and hiding my mouse click still
+works if this feature is enabled.
+
 ## DockWidget Feature Flags
 
 ### `DockWidgetClosable`
@@ -610,54 +744,6 @@ auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
 Normally clicking the close button of a dock widget will just hide the widget and the user can show it again using the `toggleView()` action of the dock widget. This is meant for user interfaces with a static amount of widgets. But the advanced docking system also supports dynamic dock widgets that will get deleted on close. If you set the dock widget flag `DockWidgetDeleteOnClose` for a certain dock widget, then it will be deleted as soon as you close this dock widget. This enables the implementation of user interfaces with dynamically created editors, like in word processing applications or source code development tools.
 
 When an entire area is closed, the default behavior is to hide the dock widgets it contains regardless of the `DockWidgetDeleteOnClose` flag except if there is only one dock widget. In this special case, the `DockWidgetDeleteOnClose` flag is followed. This behavior can be changed by setting the `DockWidgetForceCloseWithArea` flag to all the dock widgets that needs to be closed with their area.
-
-## Auto Hide Dock Widgets
-
-Enabling this feature adds a pin icon to each dock area that will pin the dock widgets in the area to the left, right or bottom edge of the window as a side tab. The dock widget is then normally hidden, but showing the view by clicking the tab would overlay the dock widget on top of all the other widgets.
-
-![Auto hide demo](autohide-feature-demo.png)
-
-The area dock widgets are added to are based on the distance to the left, right and bottom edge.
-
-Note: Overlay, Pin, and Auto Hide here all refer to the same functionality.
-
-### Setting Configuration Flags
-
-Setting and enabling the overlay feature is similar to setting config flags, but do be aware that it uses a different eOverlayFlag enum and not the eConfigFlag enum. This is only relevant if you call `CDockManager::setConfigFlags` for the `ConfigFlags`, as it would mean you have to call `CDockManager::setConfigFlags` a second time for the `AutoHideFlags`.
-
-```c++
-CDockManager::setConfigFlags(CDockManager::DefaultAutoHideConfig);
-CDockManager::setConfigFlag(CDockManager::LeftSideBarPrioritizeIconOnly, true);
-...
-d->DockManager = new CDockManager(this);
-```
-
-### Adding Auto Hide Widgets
-
-Adding an auto hide widget is similar to adding a dock widget, simply call `dockManager->addAutoHideDockWidget`. 
-
-```c++
-d->DockManager = new CDockManager(this);
-CDockWidget* TableDockWidget = new CDockWidget("Table 1");
-TableDockWidget->setDefaultOverlayDockProportion(0.5); // Default size in proportion to the window size when adding the overlay widget
-DockManager->addOverlayDockWidget(CDockWidgetSideTab::SideTabBarArea::LeftTop, TableDockWidget, CDockWidget::Last);
-```
-
-See `autohide` example to learn how it works.
-
-### Configuration Flags For Auto Hide Widgets
-
-- `DockContainerHasTopSideBar`,`DockContainerHasLeftSideBar`, `DockContainerHasRightSideBar`, `DockContainerHasBottomSideBar` -> Enabling each of these enables the side bar at each location. Disabling any of them would mean that the widget cannot be added at that location, so it would be added at the next available location. E.g. If you only enable `DockContainerHasRightSideBar` and `DockContainerHasBottomSideBar` then it will be added to the bottom side bar or right side bar respectively. If none of these are enabled, the auto hide button will not be added, as at least one of them must be enabled to work.
-- `DockAreaHasAutoHideButton` -> Adds the auto hide button to the title bar of the dock area
-- `TopSideBarPrioritizeIconOnly`, `LeftSideBarPrioritizeIconOnly`, `RightSideBarPrioritizeIconOnly`, `BottomSideBarPrioritizeIconOnly` -> If this is set, the side bar this is enabled with will prioritize showing an icon only, as opposed to an icon and text. This is set per side bar, so if you only enable `LeftSideBarPrioritizeIconOnly`, the right and bottom side bars will still show the icon and the text. This is only relevant if an icon is set, otherwise it will only show text as usual.
-- `AutoHideDockAreaHasTitle` -> Adds the title of the dock window where the title bar would be. 
-- `DefaultAutoHideConfig` -> Enables `DockContainerHasTopSideBar`, `DockContainerHasLeftSideBar`, `DockContainerHasRightSideBar`, `DockContainerHasBottomSideBar`, `DockAreaHasAutoHideButton`, `AutoHideDockAreaHasTitle`
-
-### Limitations
-
-- Currently the `LeftBottom` and `RightBottom` areas can only be added programatically, and not through the pin icon. These are used if you'd like to add a new dock widget separated from the normal dock areas.
-
-- Adding a `DockWidget` (e.g. via `addDockWidget`) to an `DockArea` in an Auto Hide Widget that already has a dockwidget is undefined behavior. An overlayed dock area does not have tabs and does not support more than one `DockWidget` in it's area. If you want to add a `DockWidget` to a `DockArea` that *could* be in an auto hidden widget, check first if it's auto hidden via `CDockArea::isAutoHide` and handle it accordingly (typically by adding the overlay dock widget as a side tab instead of to the area).  
 
 ## Styling
 

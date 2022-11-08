@@ -31,6 +31,7 @@
 
 #include <QBoxLayout>
 #include <QApplication>
+#include <QElapsedTimer>
 
 #include "AutoHideDockContainer.h"
 #include "AutoHideSideBar.h"
@@ -49,6 +50,7 @@ struct AutoHideTabPrivate
     CDockWidget* DockWidget = nullptr;
     CAutoHideSideBar* SideBar = nullptr;
 	Qt::Orientation Orientation{Qt::Vertical};
+	QElapsedTimer TimeSinceHoverMousePress;
 
 	/**
 	 * Private data constructor
@@ -229,12 +231,32 @@ void CAutoHideTab::setDockWidget(CDockWidget* DockWidget)
 //============================================================================
 bool CAutoHideTab::event(QEvent* event)
 {
+	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver))
+	{
+		return Super::event(event);
+	}
+
 	switch (event->type())
 	{
 	case QEvent::Enter:
 	case QEvent::Leave:
-	case QEvent::MouseButtonPress:
 		 d->forwardEventToDockContainer(event);
+		 break;
+
+	case QEvent::MouseButtonPress:
+		 // If AutoHideShowOnMouseOver is active, then the showing is triggered
+		 // by a MousePressEvent sent to this tab. To prevent accidental hiding
+		 // of the tab by a mouse click, we wait at least 500 ms before we accept
+		 // the mouse click
+		 if (!event->spontaneous())
+		 {
+			 d->TimeSinceHoverMousePress.restart();
+			 d->forwardEventToDockContainer(event);
+		 }
+		 else if (d->TimeSinceHoverMousePress.hasExpired(500))
+		 {
+			 d->forwardEventToDockContainer(event);
+		 }
 		 break;
 
 	default:

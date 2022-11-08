@@ -19,12 +19,6 @@
 CRenderWidget::CRenderWidget(QWidget* Parent) :
 	QWidget(Parent), m_ScaleFactor(1)
 {
-	//
-	// OpaquePaintEvent indicates that we do not need an auto-filled
-	// background. It is used for widgets filling the whole paint area
-	// with its own opaque colors and need to draw its contents quickly.
-	// This applies for a capture widget.
-	//
 	this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	this->setCursor(Qt::OpenHandCursor);
 }

@@ -379,7 +379,8 @@ void CAutoHideDockContainer::moveContentsToParent()
 	// location like it had as a auto hide widget.  This brings the least surprise
 	// to the user and he does not have to search where the widget was inserted.
 	d->DockWidget->setDockArea(nullptr);
-	dockContainer()->addDockWidget(d->getDockWidgetArea(d->SideTabBarArea), d->DockWidget);
+	auto DockContainer = dockContainer();
+	DockContainer->addDockWidget(d->getDockWidgetArea(d->SideTabBarArea), d->DockWidget);
 }
 
 
