@@ -88,8 +88,7 @@ enum eStateFileVersion
 {
 	InitialVersion = 0,      //!< InitialVersion
 	Version1 = 1,            //!< Version1
-	Version2 = 2,            //!< Version2 - Version bump due to addition of Autohide functionality
-	CurrentVersion = Version2//!< CurrentVersion
+	CurrentVersion = Version1//!< CurrentVersion
 };
 
 static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
