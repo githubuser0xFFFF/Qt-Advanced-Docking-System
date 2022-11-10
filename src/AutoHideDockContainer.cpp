@@ -339,22 +339,16 @@ void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
 	d->DockWidget = DockWidget;
 	d->SideTab->setDockWidget(DockWidget);
     CDockAreaWidget* OldDockArea = DockWidget->dockAreaWidget();
-    if (OldDockArea) 
+    auto IsRestoringState = DockWidget->dockManager()->isRestoringState();
+    if (OldDockArea && !IsRestoringState)
     {
-        OldDockArea->removeDockWidget(DockWidget);
-    }
-	d->DockArea->addDockWidget(DockWidget);
-
-	// Prevent overriding of d->Size parameter when this function is called during
-	// state restoring
-	if (!DockWidget->dockManager()->isRestoringState() && OldDockArea)
-	{
 		// The initial size should be a little bit bigger than the original dock
 		// area size to prevent that the resize handle of this auto hid dock area
 		// is near of the splitter of the old dock area.
 		d->Size = OldDockArea->size() + QSize(16, 16);
-	}
-
+        OldDockArea->removeDockWidget(DockWidget);
+    }
+	d->DockArea->addDockWidget(DockWidget);
 	updateSize();
 }
 
