@@ -928,7 +928,7 @@ void CDockManager::removePerspective(const QString& Name)
 void CDockManager::removePerspectives(const QStringList& Names)
 {
 	int Count = 0;
-	for (auto Name : Names)
+	for (const QString& Name : Names)
 	{
 		Count += d->Perspectives.remove(Name);
 	}

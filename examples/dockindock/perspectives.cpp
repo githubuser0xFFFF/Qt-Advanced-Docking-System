@@ -21,7 +21,7 @@ PerspectivesManager::PerspectivesManager( const QString& perspectivesFolder ) :
 PerspectivesManager::~PerspectivesManager()
 {
     // remove temp files:
-    for ( auto perspective : m_perspectives )
+    for ( auto& perspective : m_perspectives )
     {
         QString fileName = perspective.settings->fileName();
         perspective.settings.reset();
@@ -219,7 +219,7 @@ void PerspectivesManager::loadPerspectives()
 
                 // load group info:
                 mainSettings->beginGroup(GROUP_PREFIX);
-                for ( auto key : mainSettings->allKeys() )
+                for ( const QString& key : mainSettings->allKeys() )
                     m_perspectives[perspective].groups[key] = mainSettings->value( key ).toStringList();
                 mainSettings->endGroup();
             }
