@@ -556,7 +556,7 @@ public Q_SLOTS:
 	 * This function only has an effect, if the flag CDockManager::FocusStyling
 	 * is enabled
 	 */
-	void setDockWidgetFocused(CDockWidget* DockWidget);
+	void setDockWidgetFocused(ads::CDockWidget* DockWidget);
 
     /**
      * hide CDockManager and all floating widgets (See Issue #380). Calling regular QWidget::hide()
