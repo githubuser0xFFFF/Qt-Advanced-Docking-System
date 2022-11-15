@@ -341,7 +341,7 @@ struct MainWindowPrivate
 		DockWidget->setMinimumSizeHintMode(ads::CDockWidget::MinimumSizeHintFromContent);
 		auto ToolBar = DockWidget->createDefaultToolBar();
 		auto Action = ToolBar->addAction(svgIcon(":/adsdemo/images/fullscreen.svg"), "Toggle Fullscreen");
-		QObject::connect(Action, &QAction::triggered, [=]()
+		QObject::connect(Action, &QAction::triggered, DockWidget, [=]()
 			{
 				if (DockWidget->isFullScreen())
 				{
@@ -419,7 +419,7 @@ void MainWindowPrivate::createContent()
 	auto DockArea = DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
     // Now we create a action to test resizing of DockArea widget
 	auto Action = ui.menuTests->addAction(QString("Resize %1").arg(DockWidget->windowTitle()));
-	QObject::connect(Action, &QAction::triggered, [DockArea]()
+	QObject::connect(Action, &QAction::triggered, DockArea, [DockArea]()
 	{
 		// Resizing only works, if the Splitter is visible and has a valid
 		// sizes
@@ -445,7 +445,7 @@ void MainWindowPrivate::createContent()
 	auto TitleBar = DockArea->titleBar();
 	int Index = TitleBar->indexOf(TitleBar->tabBar());
 	TitleBar->insertWidget(Index + 1, CustomButton);
-	QObject::connect(CustomButton, &QToolButton::clicked, [=]()
+	QObject::connect(CustomButton, &QToolButton::clicked, DockArea, [=]()
 	{
 		auto DockWidget = createEditorWidget();
 		DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
@@ -464,7 +464,7 @@ void MainWindowPrivate::createContent()
 
 	// Tests CustomCloseHandling without DeleteOnClose
 	LabelDockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
-	QObject::connect(LabelDockWidget, &ads::CDockWidget::closeRequested, [LabelDockWidget, this]()
+	QObject::connect(LabelDockWidget, &ads::CDockWidget::closeRequested, LabelDockWidget, [LabelDockWidget, this]()
 	{
 		int Result = QMessageBox::question(_this, "Custom Close Request",
 			"Do you really want to close this dock widget?");
