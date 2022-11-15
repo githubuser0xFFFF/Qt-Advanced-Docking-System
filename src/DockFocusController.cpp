@@ -223,8 +223,8 @@ CDockFocusController::CDockFocusController(CDockManager* DockManager) :
 	d(new DockFocusControllerPrivate(this))
 {
 	d->DockManager = DockManager;
-	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)),
-			this, SLOT(onApplicationFocusChanged(QWidget*, QWidget*)));
+	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
+			this, SLOT(onApplicationFocusChanged(QWidget*,QWidget*)));
 	connect(QApplication::instance(), SIGNAL(focusWindowChanged(QWindow*)),
 			this, SLOT(onFocusWindowChanged(QWindow*)));
 	connect(d->DockManager, SIGNAL(stateRestored()), SLOT(onStateRestored()));

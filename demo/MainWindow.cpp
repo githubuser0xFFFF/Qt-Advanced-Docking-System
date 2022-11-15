@@ -671,11 +671,11 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	d->DockManager = new CDockManager(this);
 
  #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-	connect(d->PerspectiveComboBox, SIGNAL(activated(const QString&)),
-		d->DockManager, SLOT(openPerspective(const QString&)));
+	connect(d->PerspectiveComboBox, SIGNAL(activated(QString)),
+        d->DockManager, SLOT(openPerspective(QString)));
  #else
-    connect(d->PerspectiveComboBox, SIGNAL(textActivated(const QString&)),
-        d->DockManager, SLOT(openPerspective(const QString&)));
+	connect(d->PerspectiveComboBox, SIGNAL(textActivated(QString)),
+        d->DockManager, SLOT(openPerspective(QString)));
  #endif
 
 	d->createContent();
