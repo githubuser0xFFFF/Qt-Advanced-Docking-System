@@ -106,7 +106,7 @@ void PerspectivesManager::openPerspective( const QString& name, DockInDockWidget
                 curGroups = widget.getManager()->allManagers(false,true);
                 for ( auto curgroup : curGroups )
                 {
-                    if ( !m_perspectives[name].groups.keys().contains( curgroup->getPersistGroupName() ) )
+                    if ( !m_perspectives[name].groups.contains( curgroup->getPersistGroupName() ) )
                     {
                         widget.destroyGroup( &curgroup->parent() );
                     }

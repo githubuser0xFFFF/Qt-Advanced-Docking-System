@@ -1000,12 +1000,12 @@ CDockAreaTitleBar* CDockAreaWidget::titleBar() const
 //============================================================================
 bool CDockAreaWidget::isCentralWidgetArea() const
 {
-    if (dockWidgetsCount()!= 1)
+    if (dockWidgetsCount() != 1)
     {
         return false;
     }
 
-    return dockManager()->centralWidget() == dockWidgets()[0];
+    return dockManager()->centralWidget() == dockWidgets().constFirst();
 }
 
 

@@ -568,7 +568,6 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 	}
 	else
 	{
-		QList<int> NewSplitterSizes;
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		bool AdjustSplitterSizes = true;
@@ -692,7 +691,6 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 	}
 	else
 	{
-		auto Sizes = TargetAreaSplitter->sizes();
 		int TargetAreaSize = (InsertParam.orientation() == Qt::Horizontal) ? TargetArea->width() : TargetArea->height();
 		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
 		NewSplitter->addWidget(TargetArea);
