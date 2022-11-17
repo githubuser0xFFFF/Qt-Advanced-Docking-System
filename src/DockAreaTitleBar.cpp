@@ -390,7 +390,11 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 //============================================================================
 void CDockAreaTitleBar::updateDockWidgetActionsButtons()
 {
-	CDockWidget* DockWidget = d->TabBar->currentTab()->dockWidget();
+	auto Tab = d->TabBar->currentTab();
+	if (!Tab)
+		return;
+
+	CDockWidget* DockWidget = Tab->dockWidget();
 	if (!d->DockWidgetActionsButtons.isEmpty())
 	{
 		for (auto Button : d->DockWidgetActionsButtons)
