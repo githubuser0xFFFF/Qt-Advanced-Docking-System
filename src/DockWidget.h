@@ -1,4 +1,4 @@
-#ifndef DockWidgetH
+﻿#ifndef DockWidgetH
 #define DockWidgetH
 /*******************************************************************************
 ** Qt Advanced Docking System
@@ -31,6 +31,7 @@
 //                                   INCLUDES
 //============================================================================
 #include <QFrame>
+#include <functional>
 
 #include "ads_globals.h"
 
