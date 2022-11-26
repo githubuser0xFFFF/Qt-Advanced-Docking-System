@@ -384,3 +384,4 @@ FodyWeavers.xsd
 /Settings.ini
 .vscode/settings.json
 /.settings
+compile_commands.json
