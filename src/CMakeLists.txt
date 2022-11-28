@@ -2,13 +2,17 @@ cmake_minimum_required(VERSION 3.5)
 project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets REQUIRED)
-if (UNIX AND NOT APPLE)
+
+if(UNIX AND NOT APPLE)
     include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
 endif()
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 if(BUILD_STATIC)
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
+
 set(ads_SRCS
     ads_globals.cpp
     DockAreaTabBar.cpp
@@ -50,10 +54,12 @@ set(ads_HEADERS
     DockComponentsFactory.h
 )
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-if (UNIX AND NOT APPLE)
+
+if(UNIX AND NOT APPLE)
     set(ads_SRCS linux/FloatingWidgetTitleBar.cpp ${ads_SRCS})
     set(ads_HEADERS linux/FloatingWidgetTitleBar.h ${ads_HEADERS})
 endif()
+
 if(BUILD_STATIC)
     add_library(qtadvanceddocking STATIC ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions(qtadvanceddocking PUBLIC ADS_STATIC)
@@ -64,22 +70,25 @@ endif()
 
 add_library(ads::qtadvanceddocking ALIAS qtadvanceddocking)
 
-target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core 
-                                               Qt${QT_VERSION_MAJOR}::Gui 
-                                               Qt${QT_VERSION_MAJOR}::Widgets)
-if (UNIX AND NOT APPLE)
-  target_link_libraries(qtadvanceddocking PUBLIC xcb)
+target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(qtadvanceddocking PUBLIC xcb)
 endif()
+
 set_target_properties(qtadvanceddocking PROPERTIES
     AUTOMOC ON
     AUTORCC ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
     EXPORT_NAME "qtadvanceddocking"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
 if(QT_VERSION_MAJOR STREQUAL "5")
     set_target_properties(qtadvanceddocking PROPERTIES
         CXX_STANDARD 14
