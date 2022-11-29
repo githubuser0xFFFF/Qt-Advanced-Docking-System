@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,1024,1024">
+	<desc>zoom_out_map icon - Licensed under Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0) - Created with Iconfu.com - Derivative work of Material icons (Copyright Google Inc.)</desc>
+	<g fill="#03b8e5" fill-rule="nonzero" style="mix-blend-mode: normal">
+		<path d="M896,896h-256l98.13,-98.13l-123.3,-122.46l60.58,-60.58l122.46,123.3l98.13,-98.13zM896,128v256l-98.13,-98.13l-122.46,123.3l-60.58,-60.58l123.3,-122.46l-98.13,-98.13zM128,896v-256l98.13,98.13l122.46,-123.3l60.58,60.58l-123.3,122.46l98.13,98.13zM128,128h256l-98.13,98.13l123.3,122.46l-60.58,60.58l-122.46,-123.3l-98.13,98.13z"/>
+	</g>
+</svg>

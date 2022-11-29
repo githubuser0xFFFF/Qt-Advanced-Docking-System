@@ -5,6 +5,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+using namespace ads;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)

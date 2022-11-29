@@ -8,6 +8,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideTab.h>
 #include "DockComponentsFactory.h"
 
 #include <memory>
@@ -27,6 +28,12 @@ static std::unique_ptr<CDockComponentsFactory> DefaultFactory(new CDockComponent
 CDockWidgetTab* CDockComponentsFactory::createDockWidgetTab(CDockWidget* DockWidget) const
 {
 	return new CDockWidgetTab(DockWidget);
+}
+
+//============================================================================
+CAutoHideTab* CDockComponentsFactory::createDockWidgetSideTab(CDockWidget *DockWidget) const
+{
+	return new CAutoHideTab(DockWidget);
 }
 
 

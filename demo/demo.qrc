@@ -17,5 +17,24 @@
         <file>images/create_floating_editor.svg</file>
         <file>images/create_floating_table.svg</file>
         <file>images/docked_editor.svg</file>
+        <file>images/tab.svg</file>
+        <file>res/visual_studio_light.css</file>
+        <file>images/color_lens.svg</file>
+        <file>images/ads_icon.svg</file>
+        <file>images/ads_logo.svg</file>
+        <file>images/find_in_page.svg</file>
+        <file>images/perm_media.svg</file>
+        <file>images/zoom_in.svg</file>
+        <file>images/zoom_out.svg</file>
+        <file>images/zoom_out_map.svg</file>
+        <file>images/ads_tile_blue.svg</file>
+        <file>images/ads_tile_blue_light.svg</file>
+        <file>images/ads_tile_green.svg</file>
+        <file>images/ads_tile_orange.svg</file>
+        <file>images/photo.svg</file>
+        <file>images/crop_original.svg</file>
+        <file>images/panorama.svg</file>
+        <file>images/ads_icon2.svg</file>
+        <file>images/font_download.svg</file>
     </qresource>
 </RCC>

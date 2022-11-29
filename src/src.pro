@@ -47,7 +47,12 @@ HEADERS += \
     ElidingLabel.h \
     IconProvider.h \
     DockComponentsFactory.h  \
-    DockFocusController.h
+    DockFocusController.h \
+    AutoHideDockContainer.h \
+    AutoHideSideBar.h \
+    AutoHideTab.h \
+    PushButton.h \
+    ResizeHandle.h
 
 
 SOURCES += \
@@ -67,7 +72,12 @@ SOURCES += \
     ElidingLabel.cpp \
     IconProvider.cpp \
     DockComponentsFactory.cpp \
-    DockFocusController.cpp
+    DockFocusController.cpp \
+    AutoHideDockContainer.cpp \
+    AutoHideSideBar.cpp \
+    AutoHideTab.cpp \
+    PushButton.cpp \
+    ResizeHandle.cpp
 
 
 unix:!macx {

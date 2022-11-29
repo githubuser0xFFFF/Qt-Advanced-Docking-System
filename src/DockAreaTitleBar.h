@@ -41,6 +41,7 @@ namespace ads
 class CDockAreaTabBar;
 class CDockAreaWidget;
 struct DockAreaTitleBarPrivate;
+class CElidingLabel;
 
 /**
  * Title bar of a dock area.
@@ -60,9 +61,12 @@ private Q_SLOTS:
 	void onUndockButtonClicked();
 	void onTabsMenuActionTriggered(QAction* Action);
 	void onCurrentTabChanged(int Index);
+	void onAutoHideButtonClicked();
+	void onAutoHideDockAreaActionClicked();
+	void onAutoHideToActionClicked();
 
 protected:
-		/**
+    /**
 	 * Stores mouse position to detect dragging
 	 */
 	virtual void mousePressEvent(QMouseEvent* ev) override;
@@ -120,6 +124,11 @@ public:
 	QAbstractButton* button(TitleBarButton which) const;
 
 	/**
+	 * Returns the auto hide title label, used when the dock area is expanded and auto hidden
+	 */
+	CElidingLabel* autoHideTitleLabel() const;
+
+	/**
 	 * Updates the visibility of the dock widget actions in the title bar
 	 */
 	void updateDockWidgetActionsButtons();
@@ -147,6 +156,12 @@ public:
 	 * \endcode
 	 */
 	int indexOf(QWidget *widget) const;
+
+	/**
+	 * Close group tool tip based on the current state
+	 * Auto hide widgets can only have one dock widget so it does not make sense for the tooltip to show close group
+	 */
+	QString titleBarButtonToolTip(TitleBarButton Button) const;
 
 Q_SIGNALS:
 	/**

@@ -404,9 +404,22 @@ struct FloatingDockContainerPrivate
 		return StateId == DraggingState;
 	}
 
+	/**
+	 * Sets the dragging state and posts a FloatingWidgetDragStartEvent
+	 * if dragging starts
+	 */
 	void setState(eDragState StateId)
 	{
+		if (DraggingState == StateId)
+		{
+			return;
+		}
+
 		DraggingState = StateId;
+        if (DraggingFloatingWidget == DraggingState)
+        {
+            qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
+        }
 	}
 
 	void setWindowTitle(const QString &Text)
@@ -433,7 +446,7 @@ struct FloatingDockContainerPrivate
 		}
 		else
 		{
-			setWindowTitle(qApp->applicationDisplayName());
+			setWindowTitle(floatingContainersTitle());
 		}
 
 		// reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
@@ -453,6 +466,18 @@ struct FloatingDockContainerPrivate
 	 * Handles escape key press when dragging around the floating widget
 	 */
 	void handleEscapeKey();
+
+	/**
+	 * Returns the title used by all FloatingContainer that does not
+	 * reflect the title of the current dock widget.
+	 *
+	 * If not title was set with CDockManager::setFloatingContainersTitle(),
+	 * it returns QGuiApplication::applicationDisplayName().
+	 */
+	static QString floatingContainersTitle()
+	{
+		return CDockManager::floatingContainersTitle();
+	}
 };
 // struct FloatingDockContainerPrivate
 
@@ -514,6 +539,15 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		return;
 	}
+
+#ifdef Q_OS_LINUX
+	// Prevent display of drop overlays and docking as long as a model dialog
+	// is active
+    if (qApp->activeModalWidget())
+    {
+        return;
+    }
+#endif
 
 	auto Containers = DockManager->dockContainers();
 	CDockContainerWidget *TopContainer = nullptr;
@@ -976,7 +1010,7 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			    SLOT(onDockAreaCurrentChanged(int)));
 			d->SingleDockArea = nullptr;
 		}
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -1003,7 +1037,7 @@ void CFloatingDockContainer::updateWindowTitle()
 	}
 	else
 	{
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -1260,11 +1294,12 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	Super::moveEvent(event);
 	if (!d->IsResizing && event->spontaneous() && s_mousePressed)
 	{
-		d->DraggingState = DraggingFloatingWidget;
+        d->setState(DraggingFloatingWidget);
 		d->updateDropOverlays(QCursor::pos());
 	}
 	d->IsResizing = false;
 }
+
 
 //============================================================================
 bool CFloatingDockContainer::event(QEvent *e)

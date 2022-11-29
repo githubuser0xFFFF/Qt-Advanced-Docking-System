@@ -50,6 +50,8 @@ namespace ads
 
 namespace internal
 {
+const int FloatingWidgetDragStartEvent = QEvent::registerEventType();
+const int DockedWidgetDragStartEvent = QEvent::registerEventType();
 #ifdef Q_OS_LINUX
 static QString _window_manager;
 static QHash<QString, xcb_atom_t> _xcb_atom_cache;
@@ -404,6 +406,15 @@ void repolishStyle(QWidget* w, eRepolishChildOptions Options)
 		Widget->style()->unpolish(Widget);
 		Widget->style()->polish(Widget);
 	}
+}
+
+
+//============================================================================
+QRect globalGeometry(QWidget* w)
+{
+    QRect g = w->geometry();
+    g.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));
+    return g;
 }
 
 } // namespace internal

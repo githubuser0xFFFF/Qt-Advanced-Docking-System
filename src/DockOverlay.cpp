@@ -431,6 +431,7 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 	d->LastLocation = InvalidDockWidgetArea;
 
 	// Move it over the target.
+	hide();
 	resize(target->size());
 	QPoint TopLeft = target->mapToGlobal(target->rect().topLeft());
 	move(TopLeft);

@@ -219,8 +219,10 @@ void PerspectivesManager::loadPerspectives()
 
                 // load group info:
                 mainSettings->beginGroup(GROUP_PREFIX);
-                for ( auto key : mainSettings->allKeys() )
+                for (const auto& key : mainSettings->allKeys())
+                {
                     m_perspectives[perspective].groups[key] = mainSettings->value( key ).toStringList();
+                }
                 mainSettings->endGroup();
             }
             else

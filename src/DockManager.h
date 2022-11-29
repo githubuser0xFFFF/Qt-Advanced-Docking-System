@@ -54,6 +54,7 @@ struct DockAreaWidgetPrivate;
 class CIconProvider;
 class CDockComponentsFactory;
 class CDockFocusController;
+class CAutoHideSideBar;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -84,6 +85,8 @@ private:
 	friend class CFloatingDragPreview;
 	friend struct FloatingDragPreviewPrivate;
 	friend class CDockAreaTitleBar;
+	friend class CAutoHideDockContainer;
+	friend CAutoHideSideBar;
 
 
 protected:
@@ -186,7 +189,7 @@ public:
 		DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
 		DockAreaHideDisabledButtons = 0x10000,    //!< If the flag is set disabled dock area buttons will not appear on the toolbar at all (enabling them will bring them back)
 		DockAreaDynamicTabsMenuButtonVisibility = 0x20000, //!< If the flag is set, the tabs menu button will be shown only when it is required - that means, if the tabs are elided. If the tabs are not elided, it is hidden
-		FloatingContainerHasWidgetTitle = 0x40000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays application name as window title
+		FloatingContainerHasWidgetTitle = 0x40000, //!< If set, the Floating Widget window title reflects the title of the current dock widget otherwise it displays the title set with `CDockManager::setFloatingContainersTitle` or application name as window title
 		FloatingContainerHasWidgetIcon = 0x80000, //!< If set, the Floating Widget icon reflects the icon of the current dock widget otherwise it displays application icon
 		HideSingleCentralWidgetTitleBar = 0x100000, //!< If there is only one single visible dock widget in the main dock container (the dock manager) and if this flag is set, then the titlebar of this dock widget will be hidden
 		                                            //!< this only makes sense for non draggable and non floatable widgets and enables the creation of some kind of "central" widget
@@ -204,12 +207,12 @@ public:
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
 							   | DockAreaHasUndockButton
-		                       | DockAreaHasTabsMenuButton,///< default configuration of dock area title bar buttons
+		                       | DockAreaHasTabsMenuButton, ///< default configuration of dock area title bar buttons
 
 		DefaultBaseConfig = DefaultDockAreaButtons
 		                  | ActiveTabHasCloseButton
 		                  | XmlCompressionEnabled
-		                  | FloatingContainerHasWidgetTitle,///< default base configuration settings
+		                  | FloatingContainerHasWidgetTitle, ///< default base configuration settings
 
         DefaultOpaqueConfig = DefaultBaseConfig
 		                    | OpaqueSplitterResize
@@ -222,6 +225,27 @@ public:
 		              | DragPreviewHasWindowFrame ///< the default configuration for non opaque operations that show a real window with frame
 	};
 	Q_DECLARE_FLAGS(ConfigFlags, eConfigFlag)
+
+
+	/**
+	 * These global configuration flags configure some dock manager auto hide
+	 * settings
+	 * Set the dock manager flags, before you create the dock manager instance.
+	 */
+    enum eAutoHideFlag
+	{
+		AutoHideFeatureEnabled = 0x01, //!< enables / disables auto hide feature
+		DockAreaHasAutoHideButton = 0x02,     //!< If the flag is set each dock area has a auto hide menu button
+		AutoHideButtonTogglesArea = 0x04, //!< If the flag is set, the auto hide button enables auto hiding for all dock widgets in an area, if disabled, only the current dock widget will be toggled
+		AutoHideButtonCheckable = 0x08, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
+		AutoHideSideBarsIconOnly = 0x10,///< show only icons in auto hide side tab - if a tab has no icon, then the text will be shown
+		AutoHideShowOnMouseOver = 0x20, ///< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
+
+		DefaultAutoHideConfig = AutoHideFeatureEnabled
+			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+	};
+    Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
+
 
 	/**
 	 * Default Constructor.
@@ -243,11 +267,23 @@ public:
 	static ConfigFlags configFlags();
 
 	/**
+	 * This function returns the auto hide configuration flags
+	 */
+	static AutoHideFlags autoHideConfigFlags();
+
+	/**
 	 * Sets the global configuration flags for the whole docking system.
 	 * Call this function before you create the dock manager and before
 	 * your create the first dock widget.
 	 */
 	static void setConfigFlags(const ConfigFlags Flags);
+
+	/**
+	 * Sets the global configuration flags for the whole docking system.
+	 * Call this function before you create the dock manager and before
+	 * your create the first dock widget.
+	 */
+	static void setAutoHideConfigFlags(const AutoHideFlags Flags);
 
 	/**
 	 * Set a certain config flag.
@@ -256,9 +292,20 @@ public:
 	static void setConfigFlag(eConfigFlag Flag, bool On = true);
 
 	/**
+	 * Set a certain overlay config flag.
+	 * \see setConfigFlags()
+	 */
+	static void setAutoHideConfigFlag(eAutoHideFlag Flag, bool On = true);
+
+	/**
 	 * Returns true if the given config flag is set
 	 */
 	static bool testConfigFlag(eConfigFlag Flag);
+
+	/**
+	 * Returns true if the given overlay config flag is set
+	 */
+	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
 
 	/**
 	 * Returns the global icon provider.
@@ -281,7 +328,7 @@ public:
 	 * \return Returns the dock area widget that contains the new DockWidget
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget = nullptr);
+		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1);
 
 	/**
 	 * Adds dockwidget into the given container.
@@ -291,6 +338,21 @@ public:
 	 */
 	CDockAreaWidget* addDockWidgetToContainer(DockWidgetArea area, CDockWidget* Dockwidget,
 		CDockContainerWidget* DockContainerWidget);
+
+	/**
+	 * Adds an Auto-Hide widget to the dock manager container pinned to
+	 * the given side bar location.
+	 * \return Returns the CAutoHideDockContainer that contains the new DockWidget
+	 */
+	CAutoHideDockContainer* addAutoHideDockWidget(SideBarLocation Location, CDockWidget* Dockwidget);
+
+	/**
+	 * Adds an Auto-Hide widget to the given DockContainerWidget pinned to
+	 * the given side bar location in this container.
+	 * \return Returns the CAutoHideDockContainer that contains the new DockWidget
+	 */
+	CAutoHideDockContainer* addAutoHideDockWidgetToContainer(SideBarLocation Location,
+		CDockWidget* Dockwidget, CDockContainerWidget* DockContainerWidget);
 
 	/**
 	 * This function will add the given Dockwidget to the given dock area as
@@ -304,9 +366,11 @@ public:
 	/**
 	 * This function will add the given Dockwidget to the given DockAreaWidget
 	 * as a new tab.
+	 * If index is out of range, the tab is simply appended. Otherwise it is
+	 * inserted at the specified position.
 	 */
 	CDockAreaWidget* addDockWidgetTabToArea(CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget);
+		CDockAreaWidget* DockAreaWidget, int Index = -1);
 
 	/**
 	 * Adds the given DockWidget floating and returns the created
@@ -527,6 +591,21 @@ public:
      * effect.
      */
     void setSplitterSizes(CDockAreaWidget *ContainedArea, const QList<int>& sizes);
+
+	/**
+	 * Set a custom title for all FloatingContainer that does not reflect
+	 * the title of the current dock widget.
+	 */
+	static void setFloatingContainersTitle(const QString& Title);
+
+	/**
+	 * Returns the title used by all FloatingContainer that does not
+	 * reflect the title of the current dock widget.
+	 *
+	 * If not title was set with setFloatingContainersTitle(), it returns
+	 * QGuiApplication::applicationDisplayName().
+	 */
+	static QString floatingContainersTitle();
 
 public Q_SLOTS:
 	/**

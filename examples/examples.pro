@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS = \
+    autohide \
     centralwidget \
 	simple \
 	hideshow \

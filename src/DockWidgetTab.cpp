@@ -28,6 +28,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideDockContainer.h>
 #include "FloatingDragPreview.h"
 #include "ElidingLabel.h"
 #include "DockWidgetTab.h"
@@ -55,7 +56,7 @@
 
 namespace ads
 {
-
+static const char* const LocationProperty = "Location";
 using tTabLabel = CElidingLabel;
 
 /**
@@ -216,6 +217,18 @@ struct DockWidgetTabPrivate
 		return DockWidget->dockManager()->dockFocusController();
 	}
 
+	/**
+	 * Helper function to create and initialize the menu entries for
+	 * the "Auto Hide Group To..." menu
+	 */
+	QAction* createAutoHideToAction(const QString& Title, SideBarLocation Location,
+		QMenu* Menu)
+	{
+		auto Action = Menu->addAction(Title);
+		Action->setProperty("Location", Location);
+		QObject::connect(Action, &QAction::triggered, _this, &CDockWidgetTab::onAutoHideToActionClicked);
+		return Action;
+	}
 };
 // struct DockWidgetTabPrivate
 
@@ -320,9 +333,11 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
     if (DraggingFloatingWidget == DraggingState)
     {
         FloatingWidget->startFloating(DragStartMousePosition, Size, DraggingFloatingWidget, _this);
-    	auto Overlay = DockWidget->dockManager()->containerOverlay();
+        auto DockManager = DockWidget->dockManager();
+    	auto Overlay = DockManager->containerOverlay();
     	Overlay->setAllowedAreas(OuterDockAreas);
     	this->FloatingWidget = FloatingWidget;
+    	qApp->postEvent(DockWidget, new QEvent((QEvent::Type)internal::DockedWidgetDragStartEvent));
     }
     else
     {
@@ -342,10 +357,6 @@ CDockWidgetTab::CDockWidgetTab(CDockWidget* DockWidget, QWidget *parent) :
 	d->DockWidget = DockWidget;
 	d->createLayout();
 	setFocusPolicy(Qt::NoFocus);
-	/*if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
-	{
-		setFocusPolicy(Qt::ClickFocus);
-	}*/
 }
 
 //============================================================================
@@ -509,19 +520,40 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 	}
 
 	d->saveDragStartMousePosition(ev->globalPos());
-	QMenu Menu(this);
 
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
     const bool isNotOnlyTabInContainer =  !d->DockArea->dockContainer()->hasTopLevelDockWidget();
-
+    const bool isTopLevelArea = d->DockArea->isTopLevelArea();
     const bool isDetachable = isFloatable && isNotOnlyTabInContainer;
+	QAction* Action;
+	QMenu Menu(this);
 
-	auto Action = Menu.addAction(tr("Detach"), this, SLOT(detachDockWidget()));
-    Action->setEnabled(isDetachable);
+    if (!isTopLevelArea)
+    {
+		Action = Menu.addAction(tr("Detach"), this, SLOT(detachDockWidget()));
+		Action->setEnabled(isDetachable);
+		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
+		{
+			Action = Menu.addAction(tr("Pin"), this, SLOT(autoHideDockWidget()));
+			auto IsPinnable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable);
+			Action->setEnabled(IsPinnable);
+
+			auto menu = Menu.addMenu(tr("Pin To..."));
+			menu->setEnabled(IsPinnable);
+			d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
+			d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
+			d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
+			d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
+		}
+    }
+
 	Menu.addSeparator();
 	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
 	Action->setEnabled(isClosable());
-	Menu.addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
+	if (d->DockArea->openDockWidgetsCount() > 1)
+	{
+		Action = Menu.addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
+	}
 	Menu.exec(ev->globalPos());
 }
 
@@ -703,6 +735,21 @@ void CDockWidgetTab::detachDockWidget()
 }
 
 
+//===========================================================================
+void CDockWidgetTab::autoHideDockWidget()
+{
+	d->DockWidget->setAutoHide(true);
+}
+
+
+//===========================================================================
+void CDockWidgetTab::onAutoHideToActionClicked()
+{
+	int Location = sender()->property(LocationProperty).toInt();
+	d->DockWidget->toggleAutoHide((SideBarLocation)Location);
+}
+
+
 //============================================================================
 bool CDockWidgetTab::event(QEvent *e)
 {
@@ -752,17 +799,12 @@ QSize CDockWidgetTab::iconSize() const
 	return d->IconSize;
 }
 
-
 //============================================================================
 void CDockWidgetTab::setIconSize(const QSize& Size)
 {
 	d->IconSize = Size;
 	d->updateIcon();
 }
-
-
-
-
 } // namespace ads
 //---------------------------------------------------------------------------
 // EOF DockWidgetTab.cpp

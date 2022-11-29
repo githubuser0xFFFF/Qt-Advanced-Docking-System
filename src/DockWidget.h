@@ -46,6 +46,9 @@ class CDockContainerWidget;
 class CDockAreaWidget;
 class DockContainerWidgetPrivate;
 class CFloatingDockContainer;
+class CAutoHideTab;
+class CAutoHideDockContainer;
+class CAutoHideSideBar;
 
 /**
  * The QDockWidget class provides a widget that can be docked inside a
@@ -75,6 +78,8 @@ protected:
     friend class CDockWidgetTab;
     friend struct DockWidgetTabPrivate;
     friend struct DockAreaTitleBarPrivate;
+    friend class CAutoHideDockContainer;
+    friend CAutoHideSideBar;
 
     /**
      * Assigns the dock manager that manages this dock widget
@@ -156,7 +161,8 @@ public:
         DockWidgetForceCloseWithArea = 0x040, ///< dock widget will be closed when the dock area hosting it is closed
         NoTab = 0x080, ///< dock widget tab will never be shown if this flag is set
         DeleteContentOnClose = 0x100, ///< deletes only the contained widget on close, keeping the dock widget intact and in place. Attempts to rebuild the contents widget on show if there is a widget factory set.
-        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable,
+        DockWidgetPinnable = 0x200, ///< dock widget can be pinned and added to an auto hide dock container
+        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable | DockWidgetPinnable,
         AllDockWidgetFeatures = DefaultDockWidgetFeatures | DockWidgetDeleteOnClose | CustomCloseHandling,
         DockWidgetAlwaysCloseAndDelete = DockWidgetForceCloseWithArea | DockWidgetDeleteOnClose,
         NoDockWidgetFeatures = 0x000
@@ -342,6 +348,29 @@ public:
      * if this dock widget has not been docked yet
      */
     CDockAreaWidget* dockAreaWidget() const;
+
+    /**
+     * Returns the side tab widget for this dock, if this dock widget is in
+     * a auto hide container. If it is not in a auto hide container, then this
+     * function returns a nullptr,
+     */
+    CAutoHideTab* sideTabWidget() const;
+
+    /**
+     * Assign a side tab widget if this dock widget is an auto hide container
+     */
+    void setSideTabWidget(CAutoHideTab* SideTab) const;
+
+    /**
+     * Returns true, if this dock widget is in an auto hide container
+     */
+    bool isAutoHide() const;
+
+    /**
+     * Returns the auto hide dock container of this dock widget
+     * or 0 if there is none
+     */
+    CAutoHideDockContainer* autoHideDockContainer() const;
 
     /**
      * This property holds whether the dock widget is floating.
@@ -562,6 +591,18 @@ public Q_SLOTS:
      * after it has been in full screen mode.
      */
     void showNormal();
+
+	/**
+	 * Sets the dock widget into auto hide mode if this feature is enabled
+	 * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
+	 */
+	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone);
+
+	/**
+	 * Switches the dock widget to auto hide mode or vice versa depending on its
+	 * current state.
+	 */
+	void toggleAutoHide(SideBarLocation Location = SideBarNone);
 
 
 Q_SIGNALS:

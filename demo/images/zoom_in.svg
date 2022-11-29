@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,1024,1024">
+	<desc>zoom_in icon - Licensed under Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0) - Created with Iconfu.com - Derivative work of Material icons (Copyright Google Inc.)</desc>
+	<g fill="#03b8e5" fill-rule="nonzero" style="mix-blend-mode: normal">
+		<path d="M874.24,810.67l-63.57,63.57l-213.34,-212.91v-33.7l-11.52,-11.95c-48.64,41.81 -111.79,66.99 -180.48,66.99c-153.17,0 -277.33,-124.17 -277.33,-277.34c0,-153.17 124.16,-277.33 277.33,-277.33c153.17,0 277.34,124.16 277.34,277.33c0,68.69 -25.18,131.84 -66.99,180.48l11.95,11.52h33.7zM597.33,405.33c0,-106.24 -85.76,-192 -192,-192c-106.24,0 -192,85.76 -192,192c0,106.24 85.76,192 192,192c106.24,0 192,-85.76 192,-192zM512,426.67h-85.33v85.33h-42.67v-85.33h-85.33v-42.67h85.33v-85.33h42.67v85.33h85.33z"/>
+	</g>
+</svg>

@@ -33,6 +33,7 @@
 #include <QFrame>
 
 #include "ads_globals.h"
+#include "AutoHideTab.h"
 #include "DockWidget.h"
 
 QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
@@ -50,6 +51,10 @@ struct FloatingDockContainerPrivate;
 class CFloatingDragPreview;
 struct FloatingDragPreviewPrivate;
 class CDockingStateReader;
+class CAutoHideSideBar;
+class CAutoHideTab;
+struct AutoHideTabPrivate;
+struct AutoHideDockContainerPrivate;
 
 
 /**
@@ -74,6 +79,11 @@ private:
 	friend class CDockWidget;
 	friend class CFloatingDragPreview;
 	friend struct FloatingDragPreviewPrivate;
+	friend CAutoHideDockContainer;
+	friend CAutoHideTab;
+	friend AutoHideTabPrivate;
+	friend AutoHideDockContainerPrivate;
+	friend CAutoHideSideBar;
 
 protected:
 	/**
@@ -87,9 +97,21 @@ protected:
 	QSplitter* rootSplitter() const;
 
 	/**
+	 * Creates and initializes a dockwidget auto hide container into the given area.
+	 * Initializing inserts the tabs into the side tab widget and hides it
+	 * Returns nullptr if you try and insert into an area where the configuration is not enabled
+	 */
+	CAutoHideDockContainer* createAndSetupAutoHideContainer(SideBarLocation area, CDockWidget* DockWidget);
+
+	/**
 	 * Helper function for creation of the root splitter
 	 */
 	void createRootSplitter();
+
+	/**
+	 * Helper function for creation of the side tab bar widgets
+	 */
+	void createSideTabBarWidgets();
 
 	/**
 	 * Drop floating widget into the container
@@ -142,7 +164,8 @@ protected:
 	CDockWidget* topLevelDockWidget() const;
 
 	/**
-	 * Returns the top level dock area.
+	 * If the container has only one single visible dock area, then this
+	 * functions returns this top level dock area
 	 */
 	CDockAreaWidget* topLevelDockArea() const;
 
@@ -161,6 +184,24 @@ protected:
      * based on resize modes of dock widgets contained in the container.
      */
     void updateSplitterHandles(QSplitter* splitter);
+
+	/**
+	 * Registers the given floating widget in the internal list of
+	 * auto hide widgets
+	 */
+    void registerAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
+
+    /**
+	 * Remove the given auto hide widget from the list of registered auto hide
+	 * widgets
+	 */
+    void removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
+
+    /**
+     * Handles widget events of auto hide widgets to trigger delayed show
+     * or hide actions for auto hide container on auto hide tab mouse over
+     */
+    void handleAutoHideWidgetEvent(QEvent* e, QWidget* w);
 
 public:
 	/**
@@ -181,7 +222,7 @@ public:
 	 * \return Returns the dock area widget that contains the new DockWidget
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget = nullptr);
+		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1);
 
 	/**
 	 * Removes dockwidget
@@ -278,6 +319,36 @@ public:
 	 */
 	void closeOtherAreas(CDockAreaWidget* KeepOpenArea);
 
+	/**
+	 * Returns the side tab widget for the given area
+	 */
+	CAutoHideSideBar* sideTabBar(SideBarLocation area) const;
+
+
+	/**
+	 * Access function for auto hide widgets
+	 */
+	QList<CAutoHideDockContainer*> autoHideWidgets() const;
+
+	/**
+	 * Returns the content rectangle without the autohide side bars
+	 */
+	QRect contentRect() const;
+
+	/**
+	 * Returns the content rectangle mapped to global space.
+	 * The content rectangle is the rectangle of the dock manager widget minus
+	 * the auto hide side bars. So that means, it is the geometry of the
+	 * internal root splitter mapped to global space.
+	 */
+	QRect contentRectGlobal() const;
+
+	/**
+	 * Returns the dock manager that owns this container
+	 */
+	CDockManager* dockManager() const;
+
+
 Q_SIGNALS:
 	/**
 	 * This signal is emitted if one or multiple dock areas has been added to
@@ -285,6 +356,11 @@ Q_SIGNALS:
 	 * If multiple dock areas are inserted, this signal is emitted only once
 	 */
 	void dockAreasAdded();
+
+	/**
+	 * This signal is emitted, if a new auto hide widget has been created.
+	 */
+	void autoHideWidgetCreated(ads::CAutoHideDockContainer* AutoHideWidget);
 
 	/**
 	 * This signal is emitted if one or multiple dock areas has been removed
