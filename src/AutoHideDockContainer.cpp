@@ -187,14 +187,7 @@ AutoHideDockContainerPrivate::AutoHideDockContainerPrivate(
 //============================================================================
 CDockContainerWidget* CAutoHideDockContainer::dockContainer() const
 {
-	if (d->DockArea)
-	{
-		return d->DockArea->dockContainer();
-	}
-	else
-	{
-		return internal::findParent<CDockContainerWidget*>(this);
-	}
+	return internal::findParent<CDockContainerWidget*>(this);
 }
 
 
