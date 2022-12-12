@@ -163,6 +163,11 @@ public:
 	 * Setter for spacing property - sets the spacing
 	 */
 	void setSpacing(int Spacing);
+
+	/**
+	 * Returns the dock container that hosts this sideBar()
+	 */
+	CDockContainerWidget* dockContainer() const;
 };
 } // namespace ads
 //-----------------------------------------------------------------------------

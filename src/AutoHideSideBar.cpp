@@ -378,10 +378,18 @@ int CAutoHideSideBar::spacing() const
 	return d->TabsLayout->spacing();
 }
 
+
 //===========================================================================
 void CAutoHideSideBar::setSpacing(int Spacing)
 {
 	d->TabsLayout->setSpacing(Spacing);
+}
+
+
+//===========================================================================
+CDockContainerWidget* CAutoHideSideBar::dockContainer() const
+{
+	return d->ContainerWidget;
 }
 
 } // namespace ads

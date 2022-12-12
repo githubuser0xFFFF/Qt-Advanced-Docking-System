@@ -248,17 +248,31 @@ void DockWidgetPrivate::updateParentDockArea()
 //============================================================================
 void DockWidgetPrivate::closeAutoHideDockWidgetsIfNeeded()
 {
-	if (_this->dockContainer() && _this->dockContainer()->openedDockWidgets().isEmpty() && !_this->dockManager()->isRestoringState())
+	auto DockContainer = _this->dockContainer();
+	if (!DockContainer)
 	{
-        for (auto autoHideWidget : _this->dockContainer()->autoHideWidgets())
-        {
-            if (autoHideWidget->dockWidget() == _this)
-            {
-                continue;
-            }
+		return;
+	}
 
-            autoHideWidget->dockWidget()->toggleView(false);
-        }
+	if (_this->dockManager()->isRestoringState())
+	{
+		return;
+	}
+
+	if (!DockContainer->openedDockWidgets().isEmpty())
+	{
+		return;
+	}
+
+	for (auto autoHideWidget : DockContainer->autoHideWidgets())
+	{
+		auto DockWidget = autoHideWidget->dockWidget();
+		if (DockWidget == _this)
+		{
+			continue;
+		}
+
+		DockWidget->toggleView(false);
 	}
 }
 

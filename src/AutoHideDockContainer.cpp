@@ -187,14 +187,7 @@ AutoHideDockContainerPrivate::AutoHideDockContainerPrivate(
 //============================================================================
 CDockContainerWidget* CAutoHideDockContainer::dockContainer() const
 {
-	if (d->DockArea)
-	{
-		return d->DockArea->dockContainer();
-	}
-	else
-	{
-		return internal::findParent<CDockContainerWidget*>(this);
-	}
+	return internal::findParent<CDockContainerWidget*>(this);
 }
 
 
@@ -303,8 +296,15 @@ CAutoHideDockContainer::~CAutoHideDockContainer()
 //============================================================================
 CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
 {
-	auto DockContainer = dockContainer();
-	return DockContainer ? DockContainer->sideTabBar(d->SideTabBarArea) : nullptr;
+	if (d->SideTab)
+	{
+		return d->SideTab->sideBar();
+	}
+	else
+	{
+		auto DockContainer = dockContainer();
+		return DockContainer ? DockContainer->sideTabBar(d->SideTabBarArea) : nullptr;
+	}
 }
 
 
