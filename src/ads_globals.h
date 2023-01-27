@@ -38,6 +38,8 @@
 #include <QStyle>
 #include <QMouseEvent>
 
+#include <iostream>
+
 #ifdef Q_OS_LINUX
 #include <xcb/xcb.h>
 #endif

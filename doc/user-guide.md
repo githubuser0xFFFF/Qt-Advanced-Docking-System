@@ -11,7 +11,6 @@
   - [`TabCloseButtonIsToolButton`](#tabclosebuttonistoolbutton)
   - [`AllTabsHaveCloseButton`](#alltabshaveclosebutton)
   - [`RetainTabSizeWhenCloseButtonHidden`](#retaintabsizewhenclosebuttonhidden)
-  - [`OpaqueUndocking`](#opaqueundocking)
   - [`DragPreviewIsDynamic`](#dragpreviewisdynamic)
   - [`DragPreviewShowsContentPixmap`](#dragpreviewshowscontentpixmap)
   - [`DragPreviewHasWindowFrame`](#dragpreviewhaswindowframe)
@@ -169,37 +168,6 @@ visible / hidden in a tab. If this flag is enabled, the tab size always remains
 constant, that means, if enabled, the tabs need more space.
 
 ![AllTabsHaveCloseButton false](cfg_flag_RetainTabSizeWhenCloseButtonHidden_true.png)
-
-### `OpaqueUndocking`
-
-If this flag is set, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediately. You can compare this with opaque splitter resizing.
-
-![OpaqueUndocking true](opaque_undocking.gif)
-
-If you would like to test opaque undocking, you should set the predefined config
-flags `CDockManager::DefaultOpaqueConfig`.
-
-```c++
-CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
-```
-
-If this flag is cleared (default), then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
-
-![OpaqueUndocking true](non_opaque_undocking.gif)
-
-The drag preview widget can be configured by a number of global dock manager flags:
-
-- `DragPreviewIsDynamic`
-- `DragPreviewShowsContentPixmap`
-- `DragPreviewHasWindowFrame`
-
-Non-opaque undocking is enabled by default. If you would like to enable it
-explicitely, you can do this by setting the predefined configuration flags
-`CDockManager::DefaultNonOpaqueConfig`.
-
-```c++
-CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
-```
 
 ### `DragPreviewIsDynamic`
 
@@ -631,10 +599,7 @@ If set, the dock widget will have a close button.
 
 If a dock widget is movable, then it and can be moved to a new position in the
 current dock container. Disable this flag to prevent moving of a dock widget
-via mouse. If the `OpaqueUndocking` configuration flag is set, then dock widgets
-are immediately undocked into floating widgets. That means, moving is only
-possible in this case, if the dock widget is also floatable (feature flag
-`DockWidgetFloatable` is set).
+via mouse.
 
 ### `DockWidgetFloatable`
 

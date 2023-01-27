@@ -5,9 +5,9 @@
 ------------------
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System?color=%23ff9833)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 [![GitHub contributors](https://img.shields.io/github/contributors/githubuser0xFFFF/Qt-Advanced-Docking-System?color=ffdf00)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/graphs/contributors)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
@@ -26,7 +26,13 @@ The [release 4.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System
 adds the following features:
 
 - Auto-Hide functionality ([read more...](#auto-hide-functionality))
+
+![Auto Hide Functionality](doc/AutoHide_Animation.gif)
+
 - improved demo application with new image viewer dock widgets
+  
+![Auto Hide Functionality](doc/Feature_ImageViewer.png)
+
 - Visual Studio like CSS theme in demo application
 
 The [release 3.8](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/3.8.3)
@@ -78,7 +84,7 @@ know it from Visual Studio.
   - [Grouped dragging](#grouped-dragging)
   - [Perspectives for fast switching of the complete main window layout](#perspectives-for-fast-switching-of-the-complete-main-window-layout)
   - [Opaque and non-opaque splitter resizing](#opaque-and-non-opaque-splitter-resizing)
-  - [Opaque and non-opaque undocking](#opaque-and-non-opaque-undocking)
+  - [Cancelable docking process](#cancelable-docking-process)
   - [Tab-menu for easy handling of many tabbed dock widgets](#tab-menu-for-easy-handling-of-many-tabbed-dock-widgets)
   - [Many different ways to detach dock widgets](#many-different-ways-to-detach-dock-widgets)
   - [Supports deletion of dynamically created dock widgets](#supports-deletion-of-dynamically-created-dock-widgets)
@@ -107,6 +113,8 @@ know it from Visual Studio.
   - [Notepad Next](#notepad-next)
   - [MetGem](#metgem)
   - [PRE Workbench](#pre-workbench)
+  - [RDE – Robox Development Environment](#rde--robox-development-environment)
+  - [ResInsight](#resinsight)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
@@ -163,16 +171,14 @@ If this flag is cleared, the widget resizing is deferred until the mouse button 
 
 ![Non-opaque resizing](doc/non_opaque_resizing.gif)
 
-### Opaque and non-opaque undocking
+### Cancelable docking process
 
-By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediately. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediately. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
+In contrast to the standard Qt docking system, docking with the ADS works more like a drag & drop operation. That means, the dragged dock widget or dock area is not undocked immediately. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
 
 The drag preview widget can be configured by a number of global dock manager flags:
 - `DragPreviewIsDynamic`: if this flag is enabled, the preview will be adjusted dynamically to the drop area
 - `DragPreviewShowsContentPixmap`: the created drag preview window shows a static copy of the content of the dock widget / dock are that is dragged
 - `DragPreviewHasWindowFrame`: this flag configures if the drag preview is frameless like a QRubberBand or looks like a real window
-
-The best way to test non-opaque undocking is to set the standard flags: `CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig)`.
 
 ### Tab-menu for easy handling of many tabbed dock widgets
 
@@ -519,6 +525,33 @@ PRE Workbench is a Python software and uses the ADS PyQt integration.
 [read more...](https://luelista.github.io/pre_workbench/)
 
 [![PRE Workbench](doc/showcase_pre_workbench.png)](https://youtu.be/U3op5UreV1Q)
+
+### [RDE – Robox Development Environment](https://www.robox.it/en/product/rde-robox-development-environment/)
+
+This software is a development environment for PAC (Programmable Automation Controllers)
+from ROBOX. It offers a lot of tools to write, compile and debug machine control
+and application software. The Advanced Docking System helps to organize all the tools and
+windows (Project window, Shell window, Monitor windows, Oscilloscope window...)
+on the screen to provide a easy to use, highly configurable and visual pleasing
+development experience.
+
+[read more...](https://www.robox.it/en/product/rde-robox-development-environment/)
+
+![RDE](doc/showcase_robox_ide.png)
+
+### [ResInsight](https://www.ceetronsolutions.com/projects/resinsight)
+
+ResInsight as a software from Ceetron Solutions for visualization of oil and
+gas reservoir simulation data. It allows reservoir models, simulation results,
+and measurements to be visualized with very high performance. Optimized use of
+graphics technology and simultaneous processing on multiple CPU cores have been
+vital to enhance the performance and capacity of ResInsight for large data sets.
+The Advanced Docking System has empowered Ceetron to build a much more intuitive
+user interface for its ResInsight users.
+
+[read more...](https://resinsight.org/)
+
+![ResInsight](doc/showcase_resinsight.png)
 
 ## Alternative Docking System Implementations
 

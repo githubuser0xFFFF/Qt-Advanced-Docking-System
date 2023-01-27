@@ -262,12 +262,15 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 {
 	QSize Size = DockArea->size();
 	this->DragState = DragState;
-	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
-		(DraggingFloatingWidget != DragState);
+	bool CreateFloatingDockContainer = (DraggingFloatingWidget != DragState);
 	CFloatingDockContainer* FloatingDockContainer = nullptr;
 	IFloatingWidget* FloatingWidget;
-	if (OpaqueUndocking)
+	if (CreateFloatingDockContainer)
 	{
+		if (DockArea->autoHideDockContainer())
+        {
+            DockArea->autoHideDockContainer()->cleanupAndDelete();
+        }
 		FloatingWidget = FloatingDockContainer = new CFloatingDockContainer(DockArea);
 	}
 	else
@@ -297,7 +300,7 @@ IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset,
 //============================================================================
 void DockAreaTitleBarPrivate::startFloating(const QPoint& Offset)
 {
-	if (DockArea->autoHideDockContainer() != nullptr)
+	if (DockArea->autoHideDockContainer())
 	{
 		DockArea->autoHideDockContainer()->hide();
 	}
@@ -428,11 +431,6 @@ void CDockAreaTitleBar::onUndockButtonClicked()
 {
 	if (d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
 	{
-        if (d->DockArea->autoHideDockContainer())
-        {
-            d->DockArea->autoHideDockContainer()->cleanupAndDelete();
-        }
-
 		d->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
 	}
 }
@@ -634,11 +632,9 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 
 	// If one single dock widget in this area is not floatable then the whole
 	// area is not floatable
-	// If we do non opaque undocking, then we can create the floating drag
-	// preview if the dock widget is movable
+	// We can create the floating drag preview if the dock widget is movable
 	auto Features = d->DockArea->features();
-    if (!Features.testFlag(CDockWidget::DockWidgetFloatable)
-    && !(Features.testFlag(CDockWidget::DockWidgetMovable) && !CDockManager::testConfigFlag(CDockManager::OpaqueUndocking)))
+    if (!Features.testFlag(CDockWidget::DockWidgetFloatable) && !(Features.testFlag(CDockWidget::DockWidgetMovable)))
 	{
 		return;
 	}
@@ -670,10 +666,6 @@ void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 	if (!d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
 	{
 		return;
-	}
-	if (d->DockArea->autoHideDockContainer())
-	{
-		d->DockArea->autoHideDockContainer()->cleanupAndDelete();
 	}
 
 	d->makeAreaFloating(event->pos(), DraggingInactive);

@@ -162,9 +162,9 @@ struct DockWidgetTabPrivate
 	}
 
 	template <typename T>
-	IFloatingWidget* createFloatingWidget(T* Widget, bool OpaqueUndocking)
+	IFloatingWidget* createFloatingWidget(T* Widget, bool CreateContainer)
 	{
-		if (OpaqueUndocking)
+		if (CreateContainer)
 		{
 			return new CFloatingDockContainer(Widget);
 		}
@@ -312,8 +312,7 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
     ADS_PRINT("startFloating");
 	DragState = DraggingState;
 	IFloatingWidget* FloatingWidget = nullptr;
-	bool OpaqueUndocking = CDockManager::testConfigFlag(CDockManager::OpaqueUndocking) ||
-		(DraggingFloatingWidget != DraggingState);
+	bool CreateContainer = (DraggingFloatingWidget != DraggingState);
 
 	// If section widget has multiple tabs, we take only one tab
 	// If it has only one single tab, we can move the complete
@@ -321,12 +320,12 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
 	QSize Size;
 	if (DockArea->dockWidgetsCount() > 1)
 	{
-		FloatingWidget = createFloatingWidget(DockWidget, OpaqueUndocking);
+		FloatingWidget = createFloatingWidget(DockWidget, CreateContainer);
 		Size = DockWidget->size();
 	}
 	else
 	{
-		FloatingWidget = createFloatingWidget(DockArea, OpaqueUndocking);
+		FloatingWidget = createFloatingWidget(DockArea, CreateContainer);
 		Size = DockArea->size();
 	}
 
@@ -477,15 +476,13 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
 
 
     	// Floating is only allowed for widgets that are floatable
-		// If we do non opaque undocking, then can create the drag preview
-		// if the widget is movable.
+		// We can create the drag preview if the widget is movable.
 		auto Features = d->DockWidget->features();
-        if (Features.testFlag(CDockWidget::DockWidgetFloatable)
-        || (Features.testFlag(CDockWidget::DockWidgetMovable) && !CDockManager::testConfigFlag(CDockManager::OpaqueUndocking)))
+        if (Features.testFlag(CDockWidget::DockWidgetFloatable) || (Features.testFlag(CDockWidget::DockWidgetMovable)))
         {
         	// If we undock, we need to restore the initial position of this
         	// tab because it looks strange if it remains on its dragged position
-        	if (d->isDraggingState(DraggingTab) && !CDockManager::testConfigFlag(CDockManager::OpaqueUndocking))
+        	if (d->isDraggingState(DraggingTab))
 			{
         		parentWidget()->layout()->update();
 			}
