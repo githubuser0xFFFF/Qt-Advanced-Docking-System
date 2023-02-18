@@ -68,6 +68,10 @@ private:
 	friend DockContainerWidgetPrivate;
 	friend CDockContainerWidget;
 
+private Q_SLOTS:
+    void onAutoHideTabMoved(const QPoint& GlobalPos);
+    void onAutoHideTabMoving(const QPoint& GlobalPos);
+
 protected:
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
@@ -168,6 +172,11 @@ public:
 	 * Returns the dock container that hosts this sideBar()
 	 */
 	CDockContainerWidget* dockContainer() const;
+
+  /**
+   * Returns the tab with the given index
+   */
+  CAutoHideTab* tab(int Index) const;
 };
 } // namespace ads
 //-----------------------------------------------------------------------------

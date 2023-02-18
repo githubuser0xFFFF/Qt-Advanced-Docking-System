@@ -52,24 +52,27 @@ class ADS_EXPORT CAutoHideTab : public CPushButton
 
     Q_PROPERTY(int sideBarLocation READ sideBarLocation)
     Q_PROPERTY(Qt::Orientation orientation READ orientation)
-	Q_PROPERTY(bool activeTab READ isActiveTab)
-	Q_PROPERTY(bool iconOnly READ iconOnly)
+    Q_PROPERTY(bool activeTab READ isActiveTab)
+    Q_PROPERTY(bool iconOnly READ iconOnly)
 
 private:    
-	AutoHideTabPrivate* d; ///< private data (pimpl)
+    AutoHideTabPrivate* d; ///< private data (pimpl)
     friend struct AutoHideTabPrivate;
-	friend class CDockWidget;
-	friend class CAutoHideDockContainer;
-	friend class CAutoHideSideBar;
-	friend class CDockAreaWidget;
-	friend class CDockContainerWidget;
-	friend DockContainerWidgetPrivate;
-
+    friend class CDockWidget;
+    friend class CAutoHideDockContainer;
+    friend class CAutoHideSideBar;
+    friend class CDockAreaWidget;
+    friend class CDockContainerWidget;
+    friend DockContainerWidgetPrivate;
 
 protected:
-	void setSideBar(CAutoHideSideBar *SideTabBar);
-	void removeFromSideBar();
-	virtual bool event(QEvent* event) override;
+    void setSideBar(CAutoHideSideBar *SideTabBar);
+    void removeFromSideBar();
+    bool event(QEvent* event) override;
+    void mousePressEvent(QMouseEvent* ev) override;
+    void mouseReleaseEvent(QMouseEvent* ev) override;
+    void mouseMoveEvent(QMouseEvent* ev) override;
+
 
 public:
     using Super = CPushButton;
@@ -133,6 +136,10 @@ public:
 	 * not in a side bar
 	 */
 	CAutoHideSideBar* sideBar() const;
+
+Q_SIGNALS:
+	void moved(const QPoint& GlobalPos);
+	void moving(const QPoint& GlobalPos);
 }; // class AutoHideTab
 }
  // namespace ads

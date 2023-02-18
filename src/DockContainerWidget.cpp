@@ -382,7 +382,7 @@ DockContainerWidgetPrivate::DockContainerWidgetPrivate(CDockContainerWidget* _pu
 	DelayedAutoHideTimer.setInterval(500);
 	QObject::connect(&DelayedAutoHideTimer, &QTimer::timeout, [this](){
 		auto GlobalPos = DelayedAutoHideTab->mapToGlobal(QPoint(0, 0));
-		qApp->sendEvent(DelayedAutoHideTab, new QMouseEvent(QEvent::MouseButtonPress,
+		qApp->sendEvent(DelayedAutoHideTab, new QMouseEvent(QEvent::MouseButtonRelease,
 				QPoint(0, 0), GlobalPos, Qt::LeftButton, {Qt::LeftButton}, Qt::NoModifier));
 	});
 }
@@ -2118,7 +2118,7 @@ void CDockContainerWidget::handleAutoHideWidgetEvent(QEvent* e, QWidget* w)
 			 }
 			 break;
 
-		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
 			 d->DelayedAutoHideTimer.stop();
 			 break;
 

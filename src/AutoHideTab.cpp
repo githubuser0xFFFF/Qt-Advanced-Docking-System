@@ -49,8 +49,12 @@ struct AutoHideTabPrivate
     CAutoHideTab* _this;
     CDockWidget* DockWidget = nullptr;
     CAutoHideSideBar* SideBar = nullptr;
-	Qt::Orientation Orientation{Qt::Vertical};
-	QElapsedTimer TimeSinceHoverMousePress;
+    Qt::Orientation Orientation{Qt::Vertical};
+    QElapsedTimer TimeSinceHoverMousePress;
+    QPoint GlobalDragStartMousePosition;
+    QPoint DragStartMousePosition;
+    QPoint TabDragStartPosition;
+    eDragState DragState = DraggingInactive;
 
 	/**
 	 * Private data constructor
@@ -82,6 +86,28 @@ struct AutoHideTabPrivate
 			DockContainer->handleAutoHideWidgetEvent(event, _this);
 		}
 	}
+
+	/**
+	 * Saves the drag start position in global and local coordinates
+	 */
+	void saveDragStartMousePosition(const QPoint& GlobalPos)
+	{
+		GlobalDragStartMousePosition = GlobalPos;
+		DragStartMousePosition = _this->mapFromGlobal(GlobalPos);
+	}
+
+	/**
+	 * Test function for current drag state
+	 */
+	bool isDraggingState(eDragState dragState) const
+	{
+		return this->DragState == dragState;
+	}
+
+	/**
+	 * Moves the tab depending on the position in the given mouse event
+	 */
+	void moveTab(QMouseEvent* ev);
 }; // struct DockWidgetTabPrivate
 
 
@@ -111,6 +137,30 @@ void AutoHideTabPrivate::updateOrientation()
 
 
 //============================================================================
+void AutoHideTabPrivate::moveTab(QMouseEvent* ev)
+{
+    ev->accept();
+    QPoint Distance = internal::globalPositionOf(ev) - GlobalDragStartMousePosition;
+	Orientation == Qt::Horizontal ? Distance.setY(0) : Distance.setX(0);
+    auto TargetPos = Distance + TabDragStartPosition;
+
+	if (Orientation == Qt::Horizontal)
+	{
+        TargetPos.rx() = qMax(TargetPos.x(), 0);
+        TargetPos.rx() = qMin(_this->parentWidget()->rect().right() - _this->width() + 1, TargetPos.rx());
+	}
+	else
+	{
+        TargetPos.ry() = qMax(0, TargetPos.y());
+        TargetPos.ry() = qMin(_this->parentWidget()->rect().bottom() - _this->height() + 1, TargetPos.ry());
+	}
+
+    _this->move(TargetPos);
+    _this->raise();
+}
+
+
+//============================================================================
 void CAutoHideTab::setSideBar(CAutoHideSideBar* SideTabBar)
 {
 	d->SideBar = SideTabBar;
@@ -135,8 +185,9 @@ void CAutoHideTab::removeFromSideBar()
 	{
 		return;
 	}
+	disconnect(d->SideBar);
 	d->SideBar->removeTab(this);
-    setSideBar(nullptr);
+	setSideBar(nullptr);
 }
 
 //============================================================================
@@ -250,9 +301,9 @@ bool CAutoHideTab::event(QEvent* event)
 		 d->forwardEventToDockContainer(event);
 		 break;
 
-	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonRelease:
 		 // If AutoHideShowOnMouseOver is active, then the showing is triggered
-		 // by a MousePressEvent sent to this tab. To prevent accidental hiding
+		 // by a MousePresRelease sent to this tab. To prevent accidental hiding
 		 // of the tab by a mouse click, we wait at least 500 ms before we accept
 		 // the mouse click
 		 if (!event->spontaneous())
@@ -270,6 +321,86 @@ bool CAutoHideTab::event(QEvent* event)
 		break;
 	}
 	return Super::event(event);
+}
+
+
+//============================================================================
+void CAutoHideTab::mousePressEvent(QMouseEvent* ev)
+{
+    if (ev->button() == Qt::LeftButton)
+    {
+        ev->accept();
+        d->saveDragStartMousePosition(internal::globalPositionOf(ev));
+        d->DragState = DraggingMousePressed;
+        Q_EMIT clicked();
+        return;
+    }
+    Super::mousePressEvent(ev);
+}
+
+
+//============================================================================
+void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
+{
+	if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
+	{
+		d->DragState = DraggingInactive;
+		Super::mouseMoveEvent(ev);
+		return;
+	}
+
+	// move tab
+	if (d->isDraggingState(DraggingTab))
+	{
+		// Moving the tab is always allowed because it does not mean moving the
+		// dock widget around
+		d->moveTab(ev);
+		Q_EMIT moving(internal::globalPositionOf(ev));
+	}
+
+	else if (
+		(internal::globalPositionOf(ev) - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving 
+	{
+		// If we start dragging the tab, we save its inital position to
+		// restore it later
+		if (DraggingTab != d->DragState)
+		{
+			d->TabDragStartPosition = this->pos();
+		}
+		d->DragState = DraggingTab;
+		return;
+    }
+
+    Super::mouseMoveEvent(ev);
+}
+
+
+//============================================================================
+void CAutoHideTab::mouseReleaseEvent(QMouseEvent* ev)
+{
+	if (ev->button() == Qt::LeftButton)
+	{
+		auto CurrentDragState = d->DragState;
+		d->GlobalDragStartMousePosition = QPoint();
+		d->DragStartMousePosition = QPoint();
+		d->DragState = DraggingInactive;
+
+		switch (CurrentDragState)
+		{
+		case DraggingInactive:
+		case DraggingMousePressed:
+			Q_EMIT released();
+			break;
+		case DraggingTab:
+			// End of tab moving, emit signal
+			ev->accept();
+			Q_EMIT moved(internal::globalPositionOf(ev));
+			break;
+		default:; // do nothing
+		}
+	} 
+
+	Super::mouseReleaseEvent(ev);
 }
 
 //============================================================================

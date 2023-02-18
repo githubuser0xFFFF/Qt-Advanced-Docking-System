@@ -199,7 +199,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	hide(); // auto hide dock container is initially always hidden
 	d->SideTabBarArea = area;
 	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
-	connect(d->SideTab, &CAutoHideTab::pressed, this, &CAutoHideDockContainer::toggleCollapseState);
+	connect(d->SideTab, &CAutoHideTab::released, this, &CAutoHideDockContainer::toggleCollapseState);
 	d->DockArea = new CDockAreaWidget(DockWidget->dockManager(), parent);
 	d->DockArea->setObjectName("autoHideDockArea");
 	d->DockArea->setAutoHideDockContainer(this);
@@ -540,7 +540,7 @@ bool CAutoHideDockContainer::eventFilter(QObject* watched, QEvent* event)
 			updateSize();
 		}
 	}
-	else if (event->type() == QEvent::MouseButtonPress)
+	else if (event->type() == QEvent::MouseButtonRelease)
 	{
 		auto widget = qobject_cast<QWidget*>(watched);
 		// Ignore non widget events
