@@ -98,6 +98,9 @@ know it from Visual Studio.
   - [macOS](#macos)
   - [Linux](#linux)
 - [Build](#build)
+  - [Qt5 on Ubuntu 18.04 or 20.04](#qt5-on-ubuntu-1804-or-2004)
+  - [Qt5 on Ubuntu 22.04](#qt5-on-ubuntu-2204)
+  - [Qt6 on Ubuntu 22.04](#qt6-on-ubuntu-2204)
 - [Getting started / Example](#getting-started--example)
 - [License information](#license-information)
 - [Donation](#donation)
@@ -292,10 +295,13 @@ The application can be compiled for macOS. A user reported, that the library wor
 [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the following Linux distributions:
+Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the some Linux distributions. Depending on the used window manager or compositor, dock widgets
+with native title bars are supported or not. If native title bars are not supported,
+the library switches to `QWidget` based title bars.
 
-- **Kubuntu 18.04 and 19.10**
-- **Ubuntu 18.04, 19.10 and 20.04**
+- **Kubuntu 18.04 and 19.10** - uses KWin - no native title bars
+- **Ubuntu 18.04, 19.10 and 20.04** - native title bars are supported
+- **Ubuntu 22.04** - uses Wayland -> no native title bars
 
 There are some requirements for the Linux distribution that have to be met:
 
@@ -310,10 +316,25 @@ Screenshot Ubuntu:
 
 ## Build
 
-The Linux build requires private header files. Make sure that they are installed:
+The Linux build requires private header files. Make sure that they are installed.
+The library uses SVG icons, so ensure that Qt SVG support is installed.
+
+### Qt5 on Ubuntu 18.04 or 20.04
 
 ```bash
-sudo apt install qtbase5-private-dev
+sudo apt install qt5-default qtbase5-private-dev
+```
+
+### Qt5 on Ubuntu 22.04
+
+```bash
+sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5
+```
+
+### Qt6 on Ubuntu 22.04
+
+```bash
+sudo apt install qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6
 ```
 
 Open the `ads.pro` file with QtCreator and start the build, that's it.

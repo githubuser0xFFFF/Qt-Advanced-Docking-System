@@ -674,6 +674,17 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
                 native_window = window_manager != "KWIN";
 	}
 
+    if (native_window)
+    {
+        // Native windows do not work if wayland is used. Ubuntu 22.04 uses wayland by default. To use
+        // native windows, switch to Xorg
+        QString XdgSessionType = qgetenv("XDG_SESSION_TYPE").toLower();
+        if ("wayland" == XdgSessionType)
+        {
+            native_window = false;
+        }
+    }
+
 	if (native_window)
 	{
 		setTitleBarWidget(new QWidget());
