@@ -18,7 +18,6 @@
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-
 //============================================================================
 /// \file   AutoHideTab.h
 /// \author Syarif Fakhri
@@ -55,8 +54,8 @@ class ADS_EXPORT CAutoHideTab : public CPushButton
     Q_PROPERTY(bool activeTab READ isActiveTab)
     Q_PROPERTY(bool iconOnly READ iconOnly)
 
-private:    
-    AutoHideTabPrivate* d; ///< private data (pimpl)
+private:
+    AutoHideTabPrivate *d; ///< private data (pimpl)
     friend struct AutoHideTabPrivate;
     friend class CDockWidget;
     friend class CAutoHideDockContainer;
@@ -68,81 +67,80 @@ private:
 protected:
     void setSideBar(CAutoHideSideBar *SideTabBar);
     void removeFromSideBar();
-    bool event(QEvent* event) override;
-    void mousePressEvent(QMouseEvent* ev) override;
-    void mouseReleaseEvent(QMouseEvent* ev) override;
-    void mouseMoveEvent(QMouseEvent* ev) override;
-
+    bool event(QEvent *event) override;
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
+    void mouseMoveEvent(QMouseEvent *ev) override;
 
 public:
     using Super = CPushButton;
 
-	/**
-	 * Default Constructor
-	 * param[in] DockWidget The dock widget this title bar belongs to
-	 * param[in] parent The parent widget of this title bar
-	 */
-	CAutoHideTab(QWidget* parent = nullptr);
+    /**
+     * Default Constructor
+     * param[in] DockWidget The dock widget this title bar belongs to
+     * param[in] parent The parent widget of this title bar
+     */
+    CAutoHideTab(QWidget *parent = nullptr);
 
-	/**
-	 * Virtual Destructor
-	 */
-	virtual ~CAutoHideTab();
+    /**
+     * Virtual Destructor
+     */
+    virtual ~CAutoHideTab();
 
-	/**
-	 * Update stylesheet style if a property changes
-	 */
-	void updateStyle();
+    /**
+     * Update stylesheet style if a property changes
+     */
+    void updateStyle();
 
-	/**
-	 * Getter for side tab bar area property
-	 */
-	SideBarLocation sideBarLocation() const;
+    /**
+     * Getter for side tab bar area property
+     */
+    SideBarLocation sideBarLocation() const;
 
-	/**
-	 * Set orientation vertical or horizontal
-	 */
-	void setOrientation(Qt::Orientation Orientation);
+    /**
+     * Set orientation vertical or horizontal
+     */
+    void setOrientation(Qt::Orientation Orientation);
 
-	/**
-	 * Returns the current orientation
-	 */
-	Qt::Orientation orientation() const;
+    /**
+     * Returns the current orientation
+     */
+    Qt::Orientation orientation() const;
 
-	/**
-	 * Returns true, if this is the active tab. The tab is active if the auto
-	 * hide widget is visible
-	 */
-	bool isActiveTab() const;
+    /**
+     * Returns true, if this is the active tab. The tab is active if the auto
+     * hide widget is visible
+     */
+    bool isActiveTab() const;
 
-	/**
-	 * returns the dock widget this belongs to
-	 */
-	CDockWidget* dockWidget() const;
+    /**
+     * returns the dock widget this belongs to
+     */
+    CDockWidget *dockWidget() const;
 
-	/**
-	 * Sets the dock widget that is controlled by this tab
-	 */
-	void setDockWidget(CDockWidget* DockWidget);
+    /**
+     * Sets the dock widget that is controlled by this tab
+     */
+    void setDockWidget(CDockWidget *DockWidget);
 
-	/**
-	 * Returns true if the auto hide config flag AutoHideSideBarsIconOnly
-	 * is set and if the tab has an icon - that means the icon is not null
-	 */
-	bool iconOnly() const;
+    /**
+     * Returns true if the auto hide config flag AutoHideSideBarsIconOnly
+     * is set and if the tab has an icon - that means the icon is not null
+     */
+    bool iconOnly() const;
 
-	/**
-	 * Returns the side bar that contains this tab or a nullptr if the tab is
-	 * not in a side bar
-	 */
-	CAutoHideSideBar* sideBar() const;
+    /**
+     * Returns the side bar that contains this tab or a nullptr if the tab is
+     * not in a side bar
+     */
+    CAutoHideSideBar *sideBar() const;
 
 Q_SIGNALS:
-	void moved(const QPoint& GlobalPos);
-	void moving(const QPoint& GlobalPos);
+    void moved(const QPoint &GlobalPos);
+    void moving(const QPoint &GlobalPos);
 }; // class AutoHideTab
 }
- // namespace ads
+// namespace ads
 //-----------------------------------------------------------------------------
 
 #endif
