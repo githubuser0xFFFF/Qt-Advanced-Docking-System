@@ -414,11 +414,11 @@ void CAutoHideSideBar::onAutoHideTabMoving(const QPoint &GlobalPos)
     }
 
     d->PlaceholderTab->setText(MovingTab->text());
+    d->PlaceholderTab->setIcon(MovingTab->icon());
     d->PlaceholderTab->setOrientation(MovingTab->orientation());
     QSizePolicy sp_retain = d->PlaceholderTab->sizePolicy();
     sp_retain.setRetainSizeWhenHidden(true);
     d->PlaceholderTab->setSizePolicy(sp_retain);
-    d->PlaceholderTab->setGeometry(MovingTab->geometry());
 
     if (const auto index = d->TabsLayout->indexOf(MovingTab); index > -1)
     {
@@ -430,38 +430,44 @@ void CAutoHideSideBar::onAutoHideTabMoving(const QPoint &GlobalPos)
     int fromIndex = d->TabsLayout->indexOf(d->PlaceholderTab);
 
     auto MousePos = mapFromGlobal(GlobalPos);
-    MousePos.rx() = qMax(d->firstTab()->geometry().left(), MousePos.x());
-    MousePos.rx() = qMin(d->lastTab()->geometry().right(), MousePos.x());
-    MousePos.ry() = qMax(d->firstTab()->geometry().top(), MousePos.y());
-    MousePos.ry() = qMin(d->lastTab()->geometry().bottom(), MousePos.y());
+    const auto sideBarGeometry = geometry();
+    MousePos.rx() = qMax(sideBarGeometry.left(), MousePos.x());
+    MousePos.rx() = qMin(sideBarGeometry.right(), MousePos.x());
+    MousePos.ry() = qMax(sideBarGeometry.top(), MousePos.y());
+    MousePos.ry() = qMin(sideBarGeometry.bottom(), MousePos.y());
 
-    int toIndex = -1;
+    int toIndex = fromIndex;
     // Find tab under mouse
     for (int i = 0; i < tabCount(); ++i)
     {
         CAutoHideTab *DropTab = tab(i);
-        if (DropTab == d->PlaceholderTab || !DropTab->isVisibleTo(this) || !DropTab->geometry().contains(MousePos))
+
+        // Truncate the geometry so that it will only switch if the mouse is still outside the tab after switching
+        // This prevents tab flickering while dragging
+        const auto geometry = DropTab->geometry();
+        auto truncatedGeometry = geometry;
+        if (d->PlaceholderTab->orientation() == Qt::Vertical)
+        {
+            truncatedGeometry = geometry.adjusted(0, geometry.height() - d->PlaceholderTab->geometry().height(), 0, 0);
+        }
+        else
+        {
+            truncatedGeometry = geometry.adjusted( geometry.width() - d->PlaceholderTab->geometry().width(), 0, 0, 0);
+        }
+
+        if (!truncatedGeometry.contains(MousePos))
         {
             continue;
         }
 
         toIndex = d->TabsLayout->indexOf(DropTab);
-        if (toIndex == fromIndex)
-        {
-            toIndex = -1;
-        }
         break;
     }
 
-    if (toIndex > -1)
+    if (toIndex > -1 && fromIndex != toIndex)
     {
         d->TabsLayout->removeWidget(d->PlaceholderTab);
         d->TabsLayout->insertWidget(toIndex, d->PlaceholderTab);
-    }
-    else
-    {
-        // Ensure that the moved tab is reset to its start position
-        d->TabsLayout->update();
     }
 }
 
