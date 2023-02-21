@@ -420,7 +420,8 @@ void CAutoHideSideBar::onAutoHideTabMoving(const QPoint &GlobalPos)
     sp_retain.setRetainSizeWhenHidden(true);
     d->PlaceholderTab->setSizePolicy(sp_retain);
 
-    if (const auto index = d->TabsLayout->indexOf(MovingTab); index > -1)
+    const auto index = d->TabsLayout->indexOf(MovingTab);
+    if (index > -1)
     {
         // First time moving, set the placeholder tab into the moving tab position
         d->TabsLayout->removeWidget(MovingTab);
@@ -443,7 +444,7 @@ void CAutoHideSideBar::onAutoHideTabMoving(const QPoint &GlobalPos)
         CAutoHideTab *DropTab = tab(i);
 
         // Truncate the geometry so that it will only switch if the mouse is still outside the tab after switching
-        // This prevents tab flickering while dragging
+        // This prevents the tab position flickering back and forth while dragging
         const auto geometry = DropTab->geometry();
         auto truncatedGeometry = geometry;
         if (d->PlaceholderTab->orientation() == Qt::Vertical)
