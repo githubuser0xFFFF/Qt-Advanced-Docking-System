@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+ <desc>electric_iron icon - Licensed under Iconfu Standard License v1.0 (https://www.iconfu.com/iconfu_standard_license) - Incors GmbH</desc>
+ <g transform="matrix(1.4118 0 0 1.4118 -210.82 -210.82)" stroke-width=".50173">
+  <text x="1251.1022" y="1305.4956" fill="#000000" font-family="sans-serif" font-size="40px" style="line-height:1.25" xml:space="preserve"><tspan x="1251.1022" y="1305.4956" stroke-width=".70833"/></text>
+  <path d="m405.33 234.66v256h469.33v-256z" fill="#009ddd" style="mix-blend-mode:normal"/>
+  <path d="m661.33 533.33v256h213.33v-256z" fill="#ff9833" style="mix-blend-mode:normal"/>
+  <path d="m405.33 533.33v256h213.33v-256z" fill="#accb01" style="mix-blend-mode:normal"/>
+  <path d="m149.33 234.66v554.67h213.33v-554.67z" fill="#0083c3" style="mix-blend-mode:normal"/>
+ </g>
+</svg>

@@ -75,6 +75,11 @@ public:
 	 */
 	void setDockWidgetTabFocused(CDockWidgetTab* Tab);
 
+	/*
+	 * Request clear focus for a dock widget
+	 */
+	void clearDockWidgetFocus(CDockWidget* dockWidget);
+
 public Q_SLOTS:
 	/**
 	 * Request a focus change to the given dock widget

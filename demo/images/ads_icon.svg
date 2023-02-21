@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" version="1.1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+ <text x="1251.1022" y="1305.4956" fill="#000000" font-family="sans-serif" font-size="40px" style="line-height:1.25" xml:space="preserve"><tspan x="1251.1022" y="1305.4956"/></text>
+ <g transform="translate(581.23 1750.5)">
+  <path d="m191.64-726.53h-521.75c-138.69 0-251.12-112.43-251.12-251.12v-521.75c0-138.69 112.43-251.12 251.12-251.12h521.75c138.69 0 251.12 112.43 251.12 251.12v521.75c0 138.69-112.43 251.12-251.12 251.12z" fill="#e0e0e0" style="mix-blend-mode:normal"/>
+  <path d="m-175.9-1515.9v256h469.33v-256z" fill="#009ddd" style="mix-blend-mode:normal"/>
+  <path d="m80.1-1217.2v256h213.33v-256z" fill="#ff9833" style="mix-blend-mode:normal"/>
+  <path d="m-175.9-1217.2v256h213.33v-256z" fill="#accb01" style="mix-blend-mode:normal"/>
+  <path d="m-431.9-1515.9v554.67h213.33v-554.67z" fill="#0083c3" style="mix-blend-mode:normal"/>
+ </g>
+</svg>

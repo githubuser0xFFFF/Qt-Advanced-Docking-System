@@ -96,7 +96,7 @@ void CMainWindow::createPerspectiveUi()
 	PerspectiveComboBox = new QComboBox(this);
 	PerspectiveComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	PerspectiveComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	connect(PerspectiveComboBox, SIGNAL(activated(const QString&)),
+	connect(PerspectiveComboBox, SIGNAL(currentTextChanged(const QString&)),
 		DockManager, SLOT(openPerspective(const QString&)));
 	PerspectiveListAction->setDefaultWidget(PerspectiveComboBox);
 	ui->toolBar->addSeparator();

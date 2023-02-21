@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,1024,1024">
+	<desc>perm_media icon - Licensed under Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0) - Created with Iconfu.com - Derivative work of Material icons (Copyright Google Inc.)</desc>
+	<g fill="#03b8e5" fill-rule="nonzero" style="mix-blend-mode: normal">
+		<path d="M1024,256v426.67c0,46.93 -38.4,85.33 -85.33,85.33h-682.67c-46.93,0 -85.33,-38.4 -85.33,-85.33l0.42,-512c0,-46.93 37.98,-85.34 84.91,-85.34h256l85.33,85.34h341.34c46.93,0 85.33,38.4 85.33,85.33zM85.33,853.33h768v85.34h-768c-46.93,0 -85.33,-38.41 -85.33,-85.34l0.43,-384h-0.43v-213.33h85.33zM896,640l-149.33,-192l-106.67,128.43l-149.33,-192.43l-192,256z"/>
+	</g>
+</svg>

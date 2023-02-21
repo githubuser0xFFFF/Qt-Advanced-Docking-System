@@ -11,7 +11,6 @@
   - [`TabCloseButtonIsToolButton`](#tabclosebuttonistoolbutton)
   - [`AllTabsHaveCloseButton`](#alltabshaveclosebutton)
   - [`RetainTabSizeWhenCloseButtonHidden`](#retaintabsizewhenclosebuttonhidden)
-  - [`OpaqueUndocking`](#opaqueundocking)
   - [`DragPreviewIsDynamic`](#dragpreviewisdynamic)
   - [`DragPreviewShowsContentPixmap`](#dragpreviewshowscontentpixmap)
   - [`DragPreviewHasWindowFrame`](#dragpreviewhaswindowframe)
@@ -28,6 +27,18 @@
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
   - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+- [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
+  - [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
+  - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
+  - [Show / Hide Auto-Hide Widgets via Mouse Over](#show--hide-auto-hide-widgets-via-mouse-over)
+  - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
+  - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
+  - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
+  - [`DockAreaHasAutoHideButton`](#dockareahasautohidebutton)
+  - [`AutoHideButtonTogglesArea`](#autohidebuttontogglesarea)
+  - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
+  - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
+  - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -47,7 +58,7 @@
 ## Configuration Flags
 
 The Advanced Docking System has a number of global configuration options to
-configure the design and the functionality of the docking system. Eachs
+configure the design and the functionality of the docking system. Each
 configuration will be explained in detail in the following sections.
 
 ### Setting Configuration Flags
@@ -67,9 +78,9 @@ d->DockManager = new CDockManager(this);
 If you set the configurations flags, you can set individual flags using the
 function `CDockManager::setConfigFlag` or you can set all flags using
 the function `CDockManager::setConfigFlags`. Instead of settings all
-flags individualy, it is better to pick a predefined set of configuration
+flags individually, it is better to pick a predefined set of configuration
 flags and then modify individual flags. The following predefined
-configurations are avilable
+configurations are available
 
 - `DefaultNonOpaqueConfig` - uses non opaque splitter resizing and non opaque docking
 - `DefaultOpaqueConfig` - uses opaque splitter resizing and opaque docking
@@ -157,37 +168,6 @@ visible / hidden in a tab. If this flag is enabled, the tab size always remains
 constant, that means, if enabled, the tabs need more space.
 
 ![AllTabsHaveCloseButton false](cfg_flag_RetainTabSizeWhenCloseButtonHidden_true.png)
-
-### `OpaqueUndocking`
-
-If this flag is set, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing.
-
-![OpaqueUndocking true](opaque_undocking.gif)
-
-If you would like to test opaque undocking, you should set the pedefined config
-flags `CDockManager::DefaultOpaqueConfig`.
-
-```c++
-CDockManager::setConfigFlags(CDockManager::DefaultOpaqueConfig);
-```
-
-If this flag is cleared (default), then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
-
-![OpaqueUndocking true](non_opaque_undocking.gif)
-
-The drag preview widget can be configured by a number of global dock manager flags:
-
-- `DragPreviewIsDynamic`
-- `DragPreviewShowsContentPixmap`
-- `DragPreviewHasWindowFrame`
-
-Non-opaque undocking is enabled by default. If you would like to enable it
-explicitely, you can do this by setting the predefined configuration flags
-`CDockManager::DefaultNonOpaqueConfig`.
-
-```c++
-CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
-```
 
 ### `DragPreviewIsDynamic`
 
@@ -287,7 +267,8 @@ current dock widget.
 
 ![FloatingContainerHasWidgetTitle true](cfg_flag_FloatingContainerHasWidgetTitle_true.png)
 
-otherwise it displays application name as window title.
+otherwise it displays the title set with `CDockManager::setFloatingContainersTitle` or
+application name as window title.
 
 ![FloatingContainerHasWidgetTitle false](cfg_flag_FloatingContainerHasWidgetTitle_false.png)
 
@@ -323,7 +304,7 @@ still has a titlebar to drag it out of the main window.
 
 If this is enabled, the docking system is able to highlight the tab and the
 components of a dock area with a different style (i.e. a different color).
-This option is disabled by default and needs to be enabled explicitely
+This option is disabled by default and needs to be enabled explicitly
 because it adds some overhead. The dock manager needs to react on focus
 changes and dock widget dragging to highlight the right dock widget. You should
 enable it only, if you really need it for your application.
@@ -343,7 +324,7 @@ be set to true and you can use this property to style the focused dock
 widget differently. The picture above uses the following styling:
 
 ```css
-/* Color the tab with the nhighlight color */
+/* Color the tab with the highlight color */
 ads--CDockWidgetTab[focused="true"]
 {
     background: palette(highlight);
@@ -485,6 +466,129 @@ possible in various web browsers.
 
 ![MiddleMouseButtonClosesTab true](cfg_flag_MiddleMouseButtonClosesTab.gif)
 
+## Auto-Hide Configuration Flags
+
+### Auto Hide Dock Widgets
+
+The Advanced Docking System supports "Auto-Hide" functionality for **all**
+dock containers. The "Auto Hide" feature allows to display more information
+using less screen space by hiding or showing windows pinned to one of the 
+four dock container borders.
+
+Enabling this feature adds a button with a pin icon to each dock area.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+By clicking this button, the current dock widget (or the complete area - depending on the
+configuration flags) will be pinned to a certain border. The border is choosen
+depending on the location of the dock area. If you click the pin button while
+holding down the **Ctrl** key, the whole dock area will be pinned to a certain
+border.
+
+### Pinning Auto-Hide Widgets to a certain border
+
+If you would like to pin a dock widget or a dock area to a certain border,
+then you can right-click into the dock widget tab or into the dock area title bar
+to show the context menu. Then you can select the location via the **Pin to** menu:
+
+![Pin to](AutoHide_PinTo.png)
+
+### Show / Hide Auto-Hide Widgets via Mouse Over
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and hidden by
+clicking the Auto-Hide tab again or by clicking into any other dock widget in
+the same container. If the Auto-Hide config flag `AutoHideShowOnMouseOver` is set,
+the Auto-Hide widget is shown, if the user hovers over the Auto-Hide tab and is
+collapsed if the mouse cursor leaves the Auto-Hide widget. Showing and hiding
+by mouse click still works if this feature is enabled.
+
+### Adding Auto Hide Widgets
+
+Adding an auto hide widget is similar to adding a dock widget, simply call
+`dockManager->addAutoHideDockWidget()`.
+
+```c++
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+d->DockManager = new CDockManager(this);
+CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+DockManager->addAutoHideDockWidget(SideBarLeft, TableDockWidget);
+```
+
+See `autohide` example or the demo application to learn how it works.
+
+### Setting Auto-Hide Flags
+
+The Advanced Docking System has a number of global configuration flags to
+configure the Auto-Hide functionality. You should set the Auto-Hide flags before
+creating the dock manager instance. That means, you should set the Auto-Hide
+flags after setting the configuration flags.
+
+```c++
+CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver, true);
+...
+d->DockManager = new CDockManager(this);
+```
+
+If you set the Auto-Hide flags, you can set individual flags using the
+function `CDockManager::setAutoHideConfigFlag` or you can set all flags using
+the function `CDockManager::setAutoHideConfigFlags`. Instead of settings all
+flags individually, it is better to pick a predefined set of configuration
+flags and then modify individual flags. The following predefined
+configurations are available
+
+- `DefaultAutoHideConfig` - default auto hide config
+
+Pick one of those predefined configurations and then modify the following
+configurations flags to adjust the docking system to your needs.
+
+### `AutoHideFeatureEnabled`
+
+Enables / disables the Auto-Hide functionality. Only if this flag is enabled,
+the other Auto-Hide flags will be evaluated.
+
+### `DockAreaHasAutoHideButton`
+
+If this flag is set (default), then each dock area has a pin button in the title 
+bar to toggle Auto-Hide state.
+
+![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
+
+### `AutoHideButtonTogglesArea`
+
+If set, the the pin button in the dock area title bar toggles the complete area.
+If not set (default), then the pin button toggles the current active tab / dock
+widget and pressing the **Ctrl** key while clicking the pin button toggles the
+complete ara.
+
+### `AutoHideButtonCheckable`
+
+Normally the pin button in the dock area title bar is not checkable. If this
+flag is set, then the button is checkable. That means, if button is checked,
+the dock widget is pinned.
+
+### `AutoHideSideBarsIconOnly`
+
+Normally the Auto-Hide tabs show the icon and title of the dock widget:
+
+![AutoHideSideBarsIconOnly false](cfg_flag_AutoHideSideBarsIconOnly_false.png)
+
+You can set this flag, if you would like to have only icons in the Auto-Hide
+tabs instead of icon and dock widget title. If this is set, the Auto-Hide tab
+needs less space. The tooltip of each tab still shows the dock widget title.
+
+![AutoHideSideBarsIconOnly true](cfg_flag_AutoHideSideBarsIconOnly_true.png)
+
+### `AutoHideShowOnMouseOver`
+
+Normally Auto-Hide widgets are shown by clicking the Auto-Hide tab and
+hidden by clicking the Auto-Hide tab again or by clicking into any other
+dock widget in the same container. If this flag is set, the Auto-Hide widget
+is shown, if the user hovers over the Auto-Hide tab or if the users moves the
+mouse outside of the Auto-Hide widget. Showing and hiding my mouse click still
+works if this feature is enabled.
+
 ## DockWidget Feature Flags
 
 ### `DockWidgetClosable`
@@ -495,10 +599,7 @@ If set, the dock widget will have a close button.
 
 If a dock widget is movable, then it and can be moved to a new position in the
 current dock container. Disable this flag to prevent moving of a dock widget
-via mouse. If the `OpaqueUndocking` configuration flag is set, then dock widgets
-are immediately undocked into floating widgets. That means, moving is only
-possible in this case, if the dock widget is also floatable (feature flag
-`DockWidgetFloatable` is set).
+via mouse.
 
 ### `DockWidgetFloatable`
 
@@ -625,3 +726,4 @@ just call the function for settings the stylesheet with an empty string.
 ```c++
 DockManager->setStyleSheet("");
 ```
+

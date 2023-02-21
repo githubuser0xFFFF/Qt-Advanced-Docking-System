@@ -1,0 +1,65 @@
+# Specify the build system.
+[build-system]
+requires = ["sip >=6.0.2, <6.6", "PyQt-builder >=1.6, <2", "PyQt5>=5.15.4", "PyQt5-sip<13,>=12.8"]
+build-backend = "sipbuild.api"
+
+# Specify the PEP 566 metadata for the project.
+[tool.sip.metadata]
+name = "PyQtAds"
+version = "3.8.2"
+summary = "Python bindings for Qt Advanced Docking System"
+home-page = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/"
+license = "LGPL v2.1"
+description-file = "README.md"
+requires-dist = "PyQt5 (>=5.15.4)"
+description-content-type = "text/markdown"
+
+[tool.sip.project]
+tag-prefix = "QtAds"
+
+[tool.sip.bindings.ads]
+define-macros = ["ADS_SHARED_EXPORT"]
+sip-file = "ads.sip"
+include-dirs = ["src"]
+qmake-QT = ["widgets"]
+headers = [
+	"src/DockAreaTabBar.h",
+	"src/DockAreaTitleBar.h",
+	"src/DockAreaTitleBar_p.h",
+	"src/DockAreaWidget.h",
+	"src/DockComponentsFactory.h",
+	"src/DockContainerWidget.h",
+	"src/DockFocusController.h",
+	"src/DockManager.h",
+	"src/DockOverlay.h",
+	"src/DockSplitter.h",
+	"src/DockWidget.h",
+	"src/DockWidgetTab.h",
+	"src/DockingStateReader.h",
+	"src/ElidingLabel.h",
+	"src/FloatingDockContainer.h",
+	"src/FloatingDragPreview.h",
+	"src/IconProvider.h",
+	"src/ads_globals.h",
+	# "src/linux/FloatingWidgetTitleBar.h",
+]
+sources = [
+	"src/DockAreaTabBar.cpp",
+	"src/DockAreaTitleBar.cpp",
+	"src/DockAreaWidget.cpp",
+	"src/DockComponentsFactory.cpp",
+	"src/DockContainerWidget.cpp",
+	"src/DockFocusController.cpp",
+	"src/DockManager.cpp",
+	"src/DockOverlay.cpp",
+	"src/DockSplitter.cpp",
+	"src/DockWidget.cpp",
+	"src/DockWidgetTab.cpp",
+	"src/DockingStateReader.cpp",
+	"src/ElidingLabel.cpp",
+	"src/FloatingDockContainer.cpp",
+	"src/FloatingDragPreview.cpp",
+	"src/IconProvider.cpp",
+	"src/ads_globals.cpp",
+	# "src/linux/FloatingWidgetTitleBar.cpp",
+]

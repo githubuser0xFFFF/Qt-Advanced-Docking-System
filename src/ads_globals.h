@@ -38,6 +38,8 @@
 #include <QStyle>
 #include <QMouseEvent>
 
+#include <iostream>
+
 #ifdef Q_OS_LINUX
 #include <xcb/xcb.h>
 #endif
@@ -69,6 +71,7 @@ QT_FORWARD_DECLARE_CLASS(QSplitter)
 
 namespace ads
 {
+Q_NAMESPACE
 class CDockSplitter;
 
 enum DockWidgetArea
@@ -91,7 +94,8 @@ enum TitleBarButton
 {
 	TitleBarButtonTabsMenu,
 	TitleBarButtonUndock,
-	TitleBarButtonClose
+	TitleBarButtonClose,
+	TitleBarButtonAutoHide
 };
 
 /**
@@ -111,6 +115,7 @@ enum eDragState
 enum eIcon
 {
 	TabCloseIcon,      //!< TabCloseIcon
+	AutoHideIcon,      //!< AutoHideIcon
 	DockAreaMenuIcon,  //!< DockAreaMenuIcon
 	DockAreaUndockIcon,//!< DockAreaUndockIcon
 	DockAreaCloseIcon, //!< DockAreaCloseIcon
@@ -128,12 +133,28 @@ enum eBitwiseOperator
 };
 
 
+/**
+ * Each dock container supports 4 sidebars
+ */
+enum SideBarLocation
+{
+	SideBarTop,
+	SideBarLeft,
+	SideBarRight,
+	SideBarBottom,
+	SideBarNone
+};
+Q_ENUMS(SideBarLocation);
+
+
 namespace internal
 {
 static const bool RestoreTesting = true;
 static const bool Restore = false;
 static const char* const ClosedProperty = "close";
 static const char* const DirtyProperty = "dirty";
+extern const int FloatingWidgetDragStartEvent;
+extern const int DockedWidgetDragStartEvent;
 
 #ifdef Q_OS_LINUX
 // Utils to directly communicate with the X server
@@ -304,6 +325,11 @@ enum eRepolishChildOptions
  */
 void repolishStyle(QWidget* w, eRepolishChildOptions Options = RepolishIgnoreChildren);
 
+
+/**
+ * Returns the geometry of the given widget in global space
+ */
+QRect globalGeometry(QWidget* w);
 
 } // namespace internal
 } // namespace ads

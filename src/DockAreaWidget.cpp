@@ -28,22 +28,21 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <AutoHideDockContainer.h>
+#include <AutoHideTab.h>
 #include "DockAreaWidget.h"
 
 #include <QStackedLayout>
 #include <QScrollBar>
-#include <QScrollArea>
 #include <QWheelEvent>
 #include <QStyle>
 #include <QPushButton>
 #include <QDebug>
 #include <QMenu>
-#include <QSplitter>
 #include <QXmlStreamWriter>
-#include <QVector>
 #include <QList>
 
-
+#include "ElidingLabel.h"
 #include "DockContainerWidget.h"
 #include "DockWidget.h"
 #include "FloatingDockContainer.h"
@@ -54,12 +53,22 @@
 #include "DockAreaTitleBar.h"
 #include "DockComponentsFactory.h"
 #include "DockWidgetTab.h"
+#include "DockingStateReader.h"
 
 
 namespace ads
 {
 static const char* const INDEX_PROPERTY = "index";
 static const char* const ACTION_PROPERTY = "action";
+
+/**
+ * Check, if auto hide is enabled
+ */
+static bool isAutoHideFeatureEnabled()
+{
+	return CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled);
+}
+
 
 /**
  * Internal dock area layout mimics stack layout but only inserts the current
@@ -249,6 +258,7 @@ struct DockAreaWidgetPrivate
 	DockAreaLayout*		ContentsLayout	= nullptr;
 	CDockAreaTitleBar*	TitleBar		= nullptr;
 	CDockManager*		DockManager		= nullptr;
+	CAutoHideDockContainer* AutoHideDockContainer = nullptr;
 	bool UpdateTitleBarButtons = false;
 	DockWidgetAreas		AllowedAreas	= DefaultAllowedAreas;
 	QSize MinSizeHint;
@@ -311,6 +321,11 @@ struct DockAreaWidgetPrivate
 	void updateTitleBarButtonStates();
 
 	/**
+	 * Udpates the enable state of the close and detach button
+	 */
+	void updateTitleBarButtonVisibility(bool isTopLevel);
+
+	/**
 	 * Scans all contained dock widgets for the max. minimum size hint
 	 */
 	void updateMinimumSizeHint()
@@ -358,8 +373,37 @@ void DockAreaWidgetPrivate::updateTitleBarButtonStates()
 		_this->features().testFlag(CDockWidget::DockWidgetClosable));
 	TitleBar->button(TitleBarButtonUndock)->setEnabled(
 		_this->features().testFlag(CDockWidget::DockWidgetFloatable));
+	TitleBar->button(TitleBarButtonAutoHide)->setEnabled(
+		_this->features().testFlag(CDockWidget::DockWidgetPinnable));
 	TitleBar->updateDockWidgetActionsButtons();
 	UpdateTitleBarButtons = false;
+}
+
+
+//============================================================================
+void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool IsTopLevel)
+{
+	auto *const container = _this->dockContainer();
+	if (!container)
+	{
+		return;
+	}
+
+	if (IsTopLevel)
+	{
+		TitleBar->button(TitleBarButtonClose)->setVisible(!container->isFloating());
+		TitleBar->button(TitleBarButtonAutoHide)->setVisible(!container->isFloating());
+        // Undock and tabs should never show when auto hidden
+		TitleBar->button(TitleBarButtonUndock)->setVisible(!container->isFloating() && !_this->isAutoHide());
+        TitleBar->button(TitleBarButtonTabsMenu)->setVisible(!_this->isAutoHide());
+	}
+	else
+	{
+		TitleBar->button(TitleBarButtonClose)->setVisible(true);
+		TitleBar->button(TitleBarButtonAutoHide)->setVisible(true);
+		TitleBar->button(TitleBarButtonUndock)->setVisible(!_this->isAutoHide());
+        TitleBar->button(TitleBarButtonTabsMenu)->setVisible(!_this->isAutoHide());
+	}
 }
 
 
@@ -404,6 +448,26 @@ CDockContainerWidget* CDockAreaWidget::dockContainer() const
 	return internal::findParent<CDockContainerWidget*>(this);
 }
 
+//============================================================================
+CAutoHideDockContainer* CDockAreaWidget::autoHideDockContainer() const
+{
+	return d->AutoHideDockContainer;
+}
+
+//============================================================================
+bool CDockAreaWidget::isAutoHide() const
+{
+	return d->AutoHideDockContainer != nullptr;
+}
+
+//============================================================================
+void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideDockContainer)
+{
+	d->AutoHideDockContainer = AutoHideDockContainer;
+	updateAutoHideButtonCheckState();
+	updateTitleBarButtonsToolTips();
+}
+
 
 //============================================================================
 void CDockAreaWidget::addDockWidget(CDockWidget* DockWidget)
@@ -416,6 +480,10 @@ void CDockAreaWidget::addDockWidget(CDockWidget* DockWidget)
 void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	bool Activate)
 {
+	if (index < 0 || index > d->ContentsLayout->count())
+	{
+		index = d->ContentsLayout->count();
+	}
 	d->ContentsLayout->insertWidget(index, DockWidget);
 	DockWidget->setDockArea(this);
 	DockWidget->tabWidget()->setDockAreaWidget(this);
@@ -426,12 +494,14 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	d->tabBar()->insertTab(index, TabWidget);
 	d->tabBar()->blockSignals(false);
 	TabWidget->setVisible(!DockWidget->isClosed());
+	d->TitleBar->autoHideTitleLabel()->setText(DockWidget->windowTitle());
 	DockWidget->setProperty(INDEX_PROPERTY, index);
 	d->MinSizeHint.setHeight(qMax(d->MinSizeHint.height(), DockWidget->minimumSizeHint().height()));
 	d->MinSizeHint.setWidth(qMax(d->MinSizeHint.width(), DockWidget->minimumSizeHint().width()));
 	if (Activate)
 	{
 		setCurrentIndex(index);
+		DockWidget->setClosedState(false); // Set current index can show the widget without changing the close state, added to keep the close state consistent
 	}
 	// If this dock area is hidden, then we need to make it visible again
 	// by calling DockWidget->toggleViewInternal(true);
@@ -448,6 +518,20 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 {
     ADS_PRINT("CDockAreaWidget::removeDockWidget");
+    if (!DockWidget)
+    {
+    	return;
+    }
+
+
+    // If this dock area is in a auto hide container, then we can delete
+    // the auto hide container now
+    if (isAutoHide())
+    {
+    	autoHideDockContainer()->cleanupAndDelete();
+    	return;
+    }
+
     auto CurrentDockWidget = currentDockWidget();
   	auto NextOpenDockWidget = (DockWidget == CurrentDockWidget) ? nextOpenDockWidget(DockWidget) : nullptr;
 
@@ -530,6 +614,10 @@ void CDockAreaWidget::hideAreaWithNoVisibleContent()
 	{
 		FloatingWidget->hide();
 	}
+	if (isAutoHide())
+	{
+		autoHideDockContainer()->hide();
+	}
 }
 
 
@@ -538,7 +626,7 @@ void CDockAreaWidget::onTabCloseRequested(int Index)
 {
     ADS_PRINT("CDockAreaWidget::onTabCloseRequested " << Index);
     auto* DockWidget = dockWidget(Index);
-    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
     {
     	DockWidget->closeDockWidgetInternal();
     }
@@ -584,6 +672,7 @@ void CDockAreaWidget::internalSetCurrentDockWidget(CDockWidget* DockWidget)
 	}
 
 	setCurrentIndex(Index);
+	DockWidget->setClosedState(false); // Set current index can show the widget without changing the close state, added to keep the close state consistent
 }
 
 
@@ -747,17 +836,27 @@ void CDockAreaWidget::updateTitleBarVisibility()
 		return;
 	}
 
-    if (CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
+    if (!d->TitleBar)
     {
-        return;
+    	return;
     }
 
-	if (d->TitleBar)
-	{
+    bool IsAutoHide = isAutoHide();
+    if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
+    {
 		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
 			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
 		Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
+		Hidden &= !IsAutoHide; // Titlebar must always be visible when auto hidden so it can be dragged
 		d->TitleBar->setVisible(!Hidden);
+    }
+
+	if (isAutoHideFeatureEnabled())
+	{
+		auto tabBar = d->TitleBar->tabBar();
+		tabBar->setVisible(!IsAutoHide);  // Never show tab bar when auto hidden
+		d->TitleBar->autoHideTitleLabel()->setVisible(IsAutoHide);  // Always show when auto hidden, never otherwise
+		updateTitleBarButtonVisibility(Container->topLevelDockArea() == this);
 	}
 }
 
@@ -772,6 +871,32 @@ void CDockAreaWidget::markTitleBarMenuOutdated()
 }
 
 
+//============================================================================
+void CDockAreaWidget::updateAutoHideButtonCheckState()
+{
+	auto autoHideButton = titleBarButton(TitleBarButtonAutoHide);
+	autoHideButton->blockSignals(true);
+	autoHideButton->setChecked(isAutoHide());
+	autoHideButton->blockSignals(false);
+}
+
+
+//============================================================================
+void CDockAreaWidget::updateTitleBarButtonVisibility(bool IsTopLevel) const
+{
+	d->updateTitleBarButtonVisibility(IsTopLevel);
+}
+
+
+//============================================================================
+void CDockAreaWidget::updateTitleBarButtonsToolTips()
+{
+	internal::setToolTip(titleBarButton(TitleBarButtonClose),
+		titleBar()->titleBarButtonToolTip(TitleBarButtonClose));
+	internal::setToolTip(titleBarButton(TitleBarButtonAutoHide),
+		titleBar()->titleBarButtonToolTip(TitleBarButtonAutoHide));
+}
+
 
 //============================================================================
 void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
@@ -781,8 +906,7 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 	auto CurrentDockWidget = currentDockWidget();
 	QString Name = CurrentDockWidget ? CurrentDockWidget->objectName() : "";
 	s.writeAttribute("Current", Name);
-	// To keep the saved XML data small, we only save the allowed areas and the
-	// dock area flags if the values are different from the default values
+
 	if (d->AllowedAreas != DefaultAllowedAreas)
 	{
 		s.writeAttribute("AllowedAreas", QString::number(d->AllowedAreas, 16));
@@ -799,6 +923,103 @@ void CDockAreaWidget::saveState(QXmlStreamWriter& s) const
 		dockWidget(i)->saveState(s);
 	}
 	s.writeEndElement();
+}
+
+
+//============================================================================
+bool CDockAreaWidget::restoreState(CDockingStateReader& s, CDockAreaWidget*& CreatedWidget,
+		bool Testing, CDockContainerWidget* Container)
+{
+	bool Ok;
+#ifdef ADS_DEBUG_PRINT
+	int Tabs = s.attributes().value("Tabs").toInt(&Ok);
+	if (!Ok)
+	{
+		return false;
+	}
+#endif
+
+	QString CurrentDockWidget = s.attributes().value("Current").toString();
+    ADS_PRINT("Restore NodeDockArea Tabs: " << Tabs << " Current: "
+            << CurrentDockWidget);
+
+    auto DockManager = Container->dockManager();
+	CDockAreaWidget* DockArea = nullptr;
+	if (!Testing)
+	{
+		DockArea = new CDockAreaWidget(DockManager, Container);
+		const auto AllowedAreasAttribute = s.attributes().value("AllowedAreas");
+		if (!AllowedAreasAttribute.isEmpty())
+		{
+			DockArea->setAllowedAreas((DockWidgetArea)AllowedAreasAttribute.toInt(nullptr, 16));
+		}
+
+		const auto FlagsAttribute = s.attributes().value("Flags");
+		if (!FlagsAttribute.isEmpty())
+		{
+			DockArea->setDockAreaFlags((CDockAreaWidget::DockAreaFlags)FlagsAttribute.toInt(nullptr, 16));
+		}
+	}
+
+	while (s.readNextStartElement())
+	{
+        if (s.name() != QLatin1String("Widget"))
+		{
+			continue;
+		}
+
+		auto ObjectName = s.attributes().value("Name");
+		if (ObjectName.isEmpty())
+		{
+			return false;
+		}
+
+		bool Closed = s.attributes().value("Closed").toInt(&Ok);
+		if (!Ok)
+		{
+			return false;
+		}
+
+		s.skipCurrentElement();
+		CDockWidget* DockWidget = DockManager->findDockWidget(ObjectName.toString());
+		if (!DockWidget || Testing)
+		{
+			continue;
+		}
+
+        ADS_PRINT("Dock Widget found - parent " << DockWidget->parent());
+        if (DockWidget->autoHideDockContainer())
+        {
+        	DockWidget->autoHideDockContainer()->cleanupAndDelete();
+        }
+
+		// We hide the DockArea here to prevent the short display (the flashing)
+		// of the dock areas during application startup
+		DockArea->hide();
+        DockArea->addDockWidget(DockWidget);
+		DockWidget->setToggleViewActionChecked(!Closed);
+		DockWidget->setClosedState(Closed);
+		DockWidget->setProperty(internal::ClosedProperty, Closed);
+		DockWidget->setProperty(internal::DirtyProperty, false);
+	}
+
+	if (Testing)
+	{
+		return true;
+	}
+
+	if (!DockArea->dockWidgetsCount())
+	{
+		delete DockArea;
+		DockArea = nullptr;
+	}
+	else
+	{
+		DockArea->setProperty("currentDockWidget", CurrentDockWidget);
+	}
+
+	CreatedWidget = DockArea;
+	return true;
 }
 
 
@@ -956,9 +1177,13 @@ QAbstractButton* CDockAreaWidget::titleBarButton(TitleBarButton which) const
 void CDockAreaWidget::closeArea()
 {
 	// If there is only one single dock widget and this widget has the
-	// DeleteOnClose feature, then we delete the dock widget now
+	// DeleteOnClose feature or CustomCloseHandling, then we delete the dock widget now;
+	// in the case of CustomCloseHandling, the CDockWidget class will emit its
+	// closeRequested signal and not actually delete unless the signal is handled in a way that deletes it
 	auto OpenDockWidgets = openedDockWidgets();
-    if (OpenDockWidgets.count() == 1 && OpenDockWidgets[0]->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+    if (OpenDockWidgets.count() == 1 &&
+			(OpenDockWidgets[0]->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || OpenDockWidgets[0]->features().testFlag(CDockWidget::CustomCloseHandling))
+			&& !isAutoHide())
 	{
 		OpenDockWidgets[0]->closeDockWidgetInternal();
 	}
@@ -966,12 +1191,169 @@ void CDockAreaWidget::closeArea()
 	{
         for (auto DockWidget : openedDockWidgets())
         {
-            if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) && DockWidget->features().testFlag(CDockWidget::DockWidgetForceCloseWithArea))
+			if ((DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) && DockWidget->features().testFlag(CDockWidget::DockWidgetForceCloseWithArea)) ||
+				DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
+			{
+				DockWidget->closeDockWidgetInternal();
+			}
+			else if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) && isAutoHide())
+			{
                 DockWidget->closeDockWidgetInternal();
+			}
             else
+            {
                 DockWidget->toggleView(false);
+            }
         }
     }
+}
+
+
+enum eBorderLocation
+{
+	BorderNone = 0,
+	BorderLeft = 0x01,
+	BorderRight = 0x02,
+	BorderTop = 0x04,
+	BorderBottom = 0x08,
+	BorderVertical = BorderLeft | BorderRight,
+	BorderHorizontal = BorderTop | BorderBottom,
+	BorderTopLeft = BorderTop | BorderLeft,
+	BorderTopRight = BorderTop | BorderRight,
+	BorderBottomLeft = BorderBottom | BorderLeft,
+	BorderBottomRight = BorderBottom | BorderRight,
+	BorderVerticalBottom = BorderVertical | BorderBottom,
+	BorderVerticalTop = BorderVertical | BorderTop,
+	BorderHorizontalLeft = BorderHorizontal | BorderLeft,
+	BorderHorizontalRight = BorderHorizontal | BorderRight,
+	BorderAll = BorderVertical | BorderHorizontal
+};
+
+
+//============================================================================
+SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
+{
+	auto Container = dockContainer();
+	auto ContentRect = Container->contentRect();
+
+	int borders = BorderNone; // contains all borders that are touched by the dock ware
+	auto DockAreaTopLeft = mapTo(Container, rect().topLeft());
+	auto DockAreaRect = rect();
+	DockAreaRect.moveTo(DockAreaTopLeft);
+	const qreal aspectRatio = DockAreaRect.width() / (qMax(1, DockAreaRect.height()) * 1.0);
+	const qreal sizeRatio = (qreal)ContentRect.width() / DockAreaRect.width();
+	static const int MinBorderDistance = 16;
+	bool HorizontalOrientation = (aspectRatio > 1.0) && (sizeRatio < 3.0);
+
+	// measure border distances - a distance less than 16 px means we touch the
+	// border
+	int BorderDistance[4];
+
+	int Distance = qAbs(ContentRect.topLeft().y() - DockAreaRect.topLeft().y());
+	BorderDistance[SideBarLocation::SideBarTop] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarTop])
+	{
+		borders |= BorderTop;
+	}
+
+	Distance = qAbs(ContentRect.bottomRight().y() - DockAreaRect.bottomRight().y());
+	BorderDistance[SideBarLocation::SideBarBottom] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarBottom])
+	{
+		borders |= BorderBottom;
+	}
+
+	Distance = qAbs(ContentRect.topLeft().x() - DockAreaRect.topLeft().x());
+	BorderDistance[SideBarLocation::SideBarLeft] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarLeft])
+	{
+		borders |= BorderLeft;
+	}
+
+	Distance = qAbs(ContentRect.bottomRight().x() - DockAreaRect.bottomRight().x());
+	BorderDistance[SideBarLocation::SideBarRight] = (Distance < MinBorderDistance) ? 0 : Distance;
+	if (!BorderDistance[SideBarLocation::SideBarRight])
+	{
+		borders |= BorderRight;
+	}
+
+	auto SideTab = SideBarLocation::SideBarRight;
+	switch (borders)
+	{
+	// 1. It's touching all borders
+	case BorderAll: SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
+
+	// 2. It's touching 3 borders
+	case BorderVerticalBottom : SideTab = SideBarLocation::SideBarBottom; break;
+	case BorderVerticalTop : SideTab = SideBarLocation::SideBarTop; break;
+	case BorderHorizontalLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderHorizontalRight: SideTab = SideBarLocation::SideBarRight; break;
+
+	// 3. Its touching horizontal or vertical borders
+	case BorderVertical : SideTab = SideBarLocation::SideBarBottom; break;
+	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
+
+	// 4. Its in a corner
+	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
+	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
+	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
+	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
+
+	// 5 Ists touching only one border
+	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;
+	case BorderRight: SideTab = SideBarLocation::SideBarRight; break;
+	case BorderTop: SideTab = SideBarLocation::SideBarTop; break;
+	case BorderBottom: SideTab = SideBarLocation::SideBarBottom; break;
+	}
+
+	return SideTab;
+}
+
+
+//============================================================================
+void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
+{
+	if (!isAutoHideFeatureEnabled())
+	{
+		return;
+	}
+
+	if (!Enable)
+	{
+		if (isAutoHide())
+		{
+			autoHideDockContainer()->moveContentsToParent();
+		}
+		return;
+	}
+
+	auto area = (SideBarNone == Location) ? calculateSideTabBarArea() : Location;
+	for (const auto DockWidget : openedDockWidgets())
+	{
+		if (Enable == isAutoHide())
+		{
+			continue;
+		}
+
+		if (!DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable))
+		{
+			continue;
+		}
+
+		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget);
+	}
+}
+
+
+//============================================================================
+void CDockAreaWidget::toggleAutoHide(SideBarLocation Location)
+{
+	if (!isAutoHideFeatureEnabled())
+	{
+		return;
+	}
+
+	setAutoHide(!isAutoHide(), Location);
 }
 
 
@@ -997,7 +1379,23 @@ bool CDockAreaWidget::isCentralWidgetArea() const
         return false;
     }
 
-    return dockManager()->centralWidget() == dockWidgets()[0];
+    return dockManager()->centralWidget() == dockWidgets().constFirst();
+}
+
+
+//============================================================================
+bool CDockAreaWidget::containsCentralWidget() const
+{
+	auto centralWidget = dockManager()->centralWidget();
+	for (const auto &dockWidget : dockWidgets())
+	{
+		if (dockWidget == centralWidget)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 
@@ -1027,6 +1425,19 @@ void CDockAreaWidget::onDockWidgetFeaturesChanged()
 	{
 		d->updateTitleBarButtonStates();
 	}
+}
+
+
+//============================================================================
+bool CDockAreaWidget::isTopLevelArea() const
+{
+	auto Container = dockContainer();
+	if (!Container)
+	{
+		return false;
+	}
+
+	return (Container->topLevelDockArea() == this);
 }
 
 

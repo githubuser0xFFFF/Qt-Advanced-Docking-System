@@ -206,11 +206,15 @@ void DockInDockWidget::fillPerspectivesMenu( QMenu* menu )
     if ( !perspectiveNames.isEmpty() )
     {
         QMenu* load = menu->addMenu( "Load perspective" );
-        for ( auto name : perspectiveNames )
-            load->addAction( new LoadPerspectiveAction( load, name, *this ) );
+        for (const auto& name : perspectiveNames)
+        {
+            load->addAction(new LoadPerspectiveAction( load, name, *this));
+        }
         QMenu* remove = menu->addMenu( "Remove perspective" );
-        for ( auto name : perspectiveNames )
-            remove->addAction( new RemovePerspectiveAction( remove, name, *this ) );
+        for (const auto& name : perspectiveNames)
+        {
+            remove->addAction( new RemovePerspectiveAction( remove, name, *this ));
+        }
     }
 }
 

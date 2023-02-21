@@ -404,9 +404,22 @@ struct FloatingDockContainerPrivate
 		return StateId == DraggingState;
 	}
 
+	/**
+	 * Sets the dragging state and posts a FloatingWidgetDragStartEvent
+	 * if dragging starts
+	 */
 	void setState(eDragState StateId)
 	{
+		if (DraggingState == StateId)
+		{
+			return;
+		}
+
 		DraggingState = StateId;
+        if (DraggingFloatingWidget == DraggingState)
+        {
+            qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
+        }
 	}
 
 	void setWindowTitle(const QString &Text)
@@ -433,7 +446,7 @@ struct FloatingDockContainerPrivate
 		}
 		else
 		{
-			setWindowTitle(qApp->applicationDisplayName());
+			setWindowTitle(floatingContainersTitle());
 		}
 
 		// reflect CurrentWidget's icon if configured to do so, otherwise display application icon as window icon
@@ -453,6 +466,18 @@ struct FloatingDockContainerPrivate
 	 * Handles escape key press when dragging around the floating widget
 	 */
 	void handleEscapeKey();
+
+	/**
+	 * Returns the title used by all FloatingContainer that does not
+	 * reflect the title of the current dock widget.
+	 *
+	 * If not title was set with CDockManager::setFloatingContainersTitle(),
+	 * it returns QGuiApplication::applicationDisplayName().
+	 */
+	static QString floatingContainersTitle()
+	{
+		return CDockManager::floatingContainersTitle();
+	}
 };
 // struct FloatingDockContainerPrivate
 
@@ -514,6 +539,15 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		return;
 	}
+
+#ifdef Q_OS_LINUX
+	// Prevent display of drop overlays and docking as long as a model dialog
+	// is active
+    if (qApp->activeModalWidget())
+    {
+        return;
+    }
+#endif
 
 	auto Containers = DockManager->dockContainers();
 	CDockContainerWidget *TopContainer = nullptr;
@@ -639,6 +673,17 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 		QString window_manager = internal::windowManager().toUpper().split(" ")[0];
                 native_window = window_manager != "KWIN";
 	}
+
+    if (native_window)
+    {
+        // Native windows do not work if wayland is used. Ubuntu 22.04 uses wayland by default. To use
+        // native windows, switch to Xorg
+        QString XdgSessionType = qgetenv("XDG_SESSION_TYPE").toLower();
+        if ("wayland" == XdgSessionType)
+        {
+            native_window = false;
+        }
+    }
 
 	if (native_window)
 	{
@@ -807,16 +852,26 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 		return;
 	}
 
+	bool HasOpenDockWidgets = false;
 	for (auto DockWidget : d->DockContainer->openedDockWidgets())
 	{
-		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
 		{
-			DockWidget->closeDockWidgetInternal();
+			bool Closed = DockWidget->closeDockWidgetInternal();
+			if (!Closed)
+			{
+				HasOpenDockWidgets = true;
+			}
 		}
 		else
 		{
 			DockWidget->toggleView(false);
 		}
+	}
+
+	if (HasOpenDockWidgets)
+	{
+		return;
 	}
 
 	// In Qt version after 5.9.2 there seems to be a bug that causes the
@@ -966,7 +1021,7 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			    SLOT(onDockAreaCurrentChanged(int)));
 			d->SingleDockArea = nullptr;
 		}
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -993,7 +1048,7 @@ void CFloatingDockContainer::updateWindowTitle()
 	}
 	else
 	{
-		d->setWindowTitle(qApp->applicationDisplayName());
+		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -1250,11 +1305,12 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 	Super::moveEvent(event);
 	if (!d->IsResizing && event->spontaneous() && s_mousePressed)
 	{
-		d->DraggingState = DraggingFloatingWidget;
+        d->setState(DraggingFloatingWidget);
 		d->updateDropOverlays(QCursor::pos());
 	}
 	d->IsResizing = false;
 }
+
 
 //============================================================================
 bool CFloatingDockContainer::event(QEvent *e)

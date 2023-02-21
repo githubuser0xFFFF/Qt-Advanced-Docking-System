@@ -13,6 +13,8 @@ set(ads_demo_SRCS
     mainwindow.ui
     StatusDialog.cpp
     StatusDialog.ui
+    ImageViewer.cpp
+    RenderWidget.cpp
 	demo.qrc
 )
 add_executable(AdvancedDockingSystemDemo WIN32 ${ads_demo_SRCS})

@@ -15,19 +15,25 @@ lessThan(QT_MAJOR_VERSION, 6) {
 CONFIG += c++14
 CONFIG += debug_and_release
 DEFINES += QT_DEPRECATED_WARNINGS
+RC_FILE += app.rc
 
 adsBuildStatic {
     DEFINES += ADS_STATIC
 }
 
-SOURCES += \
-	main.cpp \
-	MainWindow.cpp \
-	StatusDialog.cpp
 
 HEADERS += \
 	MainWindow.h \
-	StatusDialog.h
+	StatusDialog.h \
+	ImageViewer.h \
+	RenderWidget.h
+
+SOURCES += \
+	main.cpp \
+	MainWindow.cpp \
+	StatusDialog.cpp \
+	ImageViewer.cpp \
+	RenderWidget.cpp
 
 FORMS += \
 	mainwindow.ui \
