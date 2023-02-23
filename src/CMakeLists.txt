@@ -64,50 +64,52 @@ if (UNIX AND NOT APPLE)
     set(ads_SRCS linux/FloatingWidgetTitleBar.cpp ${ads_SRCS})
     set(ads_HEADERS linux/FloatingWidgetTitleBar.h ${ads_HEADERS})
 endif()
+
+set(library_name "qt${QT_VERSION_MAJOR}advanceddocking")
 if(BUILD_STATIC)
-    add_library(qtadvanceddocking STATIC ${ads_SRCS} ${ads_HEADERS})
-    target_compile_definitions(qtadvanceddocking PUBLIC ADS_STATIC)
+    add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
+    target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)
 else()
-    add_library(qtadvanceddocking SHARED ${ads_SRCS} ${ads_HEADERS})
-    target_compile_definitions(qtadvanceddocking PRIVATE ADS_SHARED_EXPORT)
+    add_library( ${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
+    target_compile_definitions( ${library_name} PRIVATE ADS_SHARED_EXPORT)
 endif()
 
-add_library(ads::qtadvanceddocking ALIAS qtadvanceddocking)
+add_library(ads::${library_name} ALIAS ${library_name})
 
-target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core 
+target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
 if (UNIX AND NOT APPLE)
-  target_link_libraries(qtadvanceddocking PUBLIC xcb)
+  target_link_libraries(${library_name} PUBLIC xcb)
 endif()
-set_target_properties(qtadvanceddocking PROPERTIES
+set_target_properties(${library_name} PROPERTIES
     AUTOMOC ON
     AUTORCC ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
-    EXPORT_NAME "qtadvanceddocking"
+    EXPORT_NAME ${library_name}
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
 )
 if(QT_VERSION_MAJOR STREQUAL "5")
-    set_target_properties(qtadvanceddocking PROPERTIES
+    set_target_properties(${library_name} PROPERTIES
         CXX_STANDARD 14
         CXX_STANDARD_REQUIRED ON)
 elseif(QT_VERSION_MAJOR STREQUAL "6")
-    set_target_properties(qtadvanceddocking PROPERTIES
+    set_target_properties(${library_name} PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED ON)
 endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    "qtadvanceddockingConfigVersion.cmake"
+    "${library_name}ConfigVersion.cmake"
     VERSION ${VERSION_SHORT}
     COMPATIBILITY SameMajorVersion
 )
 install(FILES ${ads_HEADERS}
-    DESTINATION include
+    DESTINATION include/${library_name}
     COMPONENT headers
 )
 install(FILES
@@ -116,7 +118,7 @@ install(FILES
     DESTINATION license/ads
     COMPONENT license
 )
-install(TARGETS qtadvanceddocking
+install(TARGETS ${library_name}
     EXPORT adsTargets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
@@ -127,13 +129,16 @@ install(TARGETS qtadvanceddocking
 install(EXPORT adsTargets
     FILE adsTargets.cmake
     NAMESPACE ads::
-    DESTINATION lib/cmake/qtadvanceddocking
+    DESTINATION lib/cmake/${library_name}
 )
-install(FILES qtadvanceddockingConfig.cmake "${CMAKE_CURRENT_BINARY_DIR}/qtadvanceddockingConfigVersion.cmake"
-    DESTINATION lib/cmake/qtadvanceddocking
+install(FILES qtadvanceddockingConfig.cmake RENAME ${library_name}Config.cmake
+    DESTINATION lib/cmake/${library_name}
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${library_name}ConfigVersion.cmake"
+    DESTINATION lib/cmake/${library_name}
 )
 
-target_include_directories(qtadvanceddocking PUBLIC
+target_include_directories(${library_name} PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

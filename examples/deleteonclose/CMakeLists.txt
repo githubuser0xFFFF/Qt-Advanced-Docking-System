@@ -7,7 +7,7 @@ add_executable(DeleteOnCloseTest WIN32
     main.cpp
 )
 target_include_directories(DeleteOnCloseTest PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(DeleteOnCloseTest PRIVATE qtadvanceddocking)
+target_link_libraries(DeleteOnCloseTest PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
 target_link_libraries(DeleteOnCloseTest PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
