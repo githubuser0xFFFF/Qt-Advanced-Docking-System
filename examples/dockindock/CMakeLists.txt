@@ -12,7 +12,7 @@ add_executable(DockInDockExample WIN32
     mainframe.cpp
 )
 target_include_directories(DockInDockExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(DockInDockExample PRIVATE qtadvanceddocking)
+target_link_libraries(DockInDockExample PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
 target_link_libraries(DockInDockExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                            Qt${QT_VERSION_MAJOR}::Gui 
                                            Qt${QT_VERSION_MAJOR}::Widgets)
