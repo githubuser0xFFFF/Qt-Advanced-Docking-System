@@ -190,6 +190,8 @@ public:
 		{
 			parent->setUpdatesEnabled(true);
 		}
+		if(m_CurrentWidget)
+			m_CurrentWidget->setFocus();
 	}
 
 	/**
