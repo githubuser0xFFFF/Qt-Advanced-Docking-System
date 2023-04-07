@@ -118,6 +118,7 @@ know it from Visual Studio.
   - [PRE Workbench](#pre-workbench)
   - [RDE – Robox Development Environment](#rde--robox-development-environment)
   - [ResInsight](#resinsight)
+  - [ADTF 3](#adtf-3)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
@@ -572,7 +573,25 @@ user interface for its ResInsight users.
 
 [read more...](https://resinsight.org/)
 
-![ResInsight](doc/showcase_resinsight.png)
+[![ResInsight](doc/showcase_resinsight.png)](https://www.youtube.com/watch?v=HzLaQ1p6AUc)
+
+### [ADTF 3](https://www.digitalwerk.net/adtf/)
+
+The Automotive Data and Time-Triggered Framework was designed as a Rapid Prototyping Toolset, Simulation Framework and Test- and Measurement Tool. It is meant for:
+
+- Developing and testing ADAS and HAD components
+- Recording of vehicle data for visualisation
+- Simulation of complex scenarios in SIL/HIL test environments
+
+The software features time-based processing of multiple data streams and graphical editing of dynamic filter graphs. It also includes an SDK for custom plug-ins and reusable components, as well as components for data visualization in both 2D and 3D. This is was the 
+[manual](https://support.digitalwerk.net/adtf/v3/adtf_html/page_adtf_xsystem_plugin.html)
+says about the switch to Qt Advanced Docking:
+
+> After several minor improvements the Qt5 ADTF XSystem uses the Advanced Docking System for Qt since ADTF 3.10.0 for more convenience and usability regarding layouting, docking and embedding several widgets.
+
+[read more...](https://support.digitalwerk.net/adtf/v3/adtf_html/index.html)
+
+![ADTF](doc/showcase_adtf.png)
 
 ## Alternative Docking System Implementations
 

@@ -35,6 +35,7 @@ public:
         DockWidgetForceCloseWithArea,
         NoTab,
         DeleteContentOnClose,
+        DockWidgetPinnable,
         DefaultDockWidgetFeatures,
         AllDockWidgetFeatures,
         DockWidgetAlwaysCloseAndDelete,
@@ -81,7 +82,12 @@ public:
 	ads::CDockWidget::DockWidgetFeatures features() const;
 	ads::CDockManager* dockManager() const;
 	ads::CDockContainerWidget* dockContainer() const;
+    ads::CFloatingDockContainer* floatingDockContainer() const;
 	ads::CDockAreaWidget* dockAreaWidget() const;
+    ads::CAutoHideTab* sideTabWidget() const;
+    void setSideTabWidget(ads::CAutoHideTab* SideTab /Transfer/) const;
+    bool isAutoHide() const;
+    ads::CAutoHideDockContainer* autoHideDockContainer() const;
 	bool isFloating() const;
 	bool isInFloatingContainer() const;
 	bool isClosed() const;
@@ -118,6 +124,8 @@ public slots:
     void closeDockWidget();
     void showFullScreen();
     void showNormal();
+    void setAutoHide(bool Enable, ads::SideBarLocation Location = ads::SideBarNone);
+	void toggleAutoHide(ads::SideBarLocation Location = ads::SideBarNone);
 
 signals:
 	void viewToggled(bool Open);

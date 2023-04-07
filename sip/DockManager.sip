@@ -156,7 +156,6 @@ public:
 		TabCloseButtonIsToolButton,
 		AllTabsHaveCloseButton,
 		RetainTabSizeWhenCloseButtonHidden,
-		OpaqueUndocking,
 		DragPreviewIsDynamic,
 		DragPreviewShowsContentPixmap,
 		DragPreviewHasWindowFrame,
@@ -180,6 +179,17 @@ public:
 		NonOpaqueWithWindowFrame,
 	};
     typedef QFlags<ads::CDockManager::eConfigFlag> ConfigFlags;
+	enum eAutoHideFlag
+	{
+		AutoHideFeatureEnabled,
+		DockAreaHasAutoHideButton,
+		AutoHideButtonTogglesArea,
+		AutoHideButtonCheckable,
+		AutoHideSideBarsIconOnly,
+		AutoHideShowOnMouseOver,
+		DefaultAutoHideConfig,
+	};
+    typedef QFlags<ads::CDockManager::eAutoHideFlag> AutoHideFlags;
 
 	CDockManager(QWidget* parent /TransferThis/ = 0);
 	virtual ~CDockManager();
@@ -187,13 +197,24 @@ public:
 	static void setConfigFlags(const ads::CDockManager::ConfigFlags Flags);
 	static void setConfigFlag(ads::CDockManager::eConfigFlag Flag, bool On = true);
 	static bool testConfigFlag(eConfigFlag Flag);
+	static ads::CDockManager::AutoHideFlags autoHideConfigFlags();
+	static void setAutoHideConfigFlags(const ads::CDockManager::AutoHideFlags Flags);
+	static void setAutoHideConfigFlag(ads::CDockManager::eAutoHideFlag Flag, bool On = true);
+	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
     static ads::CIconProvider& iconProvider();
 	ads::CDockAreaWidget* addDockWidget(ads::DockWidgetArea area, ads::CDockWidget* Dockwidget /Transfer/,
-		ads::CDockAreaWidget* DockAreaWidget /Transfer/ = 0);
+        ads::CDockAreaWidget* DockAreaWidget /Transfer/ = 0,
+		int Index = -1);
+	ads::CDockAreaWidget* addDockWidgetToContainer(ads::DockWidgetArea area, ads::CDockWidget* Dockwidget /Transfer/,
+	ads::CDockContainerWidget* DockContainerWidget /Transfer/ = 0);
+    ads::CAutoHideDockContainer* addAutoHideDockWidget(ads::SideBarLocation Location, ads::CDockWidget* Dockwidget /Transfer/);
+	ads::CAutoHideDockContainer* addAutoHideDockWidgetToContainer(SideBarLocation Location,
+		ads::CDockWidget* Dockwidget /Transfer/, ads::CDockContainerWidget* DockContainerWidget);
 	ads::CDockAreaWidget* addDockWidgetTab(ads::DockWidgetArea area,
 		ads::CDockWidget* Dockwidget /Transfer/);
 	ads::CDockAreaWidget* addDockWidgetTabToArea(ads::CDockWidget* Dockwidget /Transfer/,
-		ads::CDockAreaWidget* DockAreaWidget /Transfer/);
+        ads::CDockAreaWidget* DockAreaWidget /Transfer/,
+		int Index = -1);
     ads::CFloatingDockContainer* addDockWidgetFloating(ads::CDockWidget* DockWidget /Transfer/);
 	ads::CDockWidget* findDockWidget(const QString& ObjectName) const;
 	void removeDockWidget(ads::CDockWidget* Dockwidget) /TransferBack/;
@@ -220,6 +241,8 @@ public:
     ads::CDockWidget* focusedDockWidget() const;
     QList<int> splitterSizes(ads::CDockAreaWidget *ContainedArea) const;
     void setSplitterSizes(ads::CDockAreaWidget *ContainedArea, const QList<int>& sizes);
+    static void setFloatingContainersTitle(const QString& Title);
+	static QString floatingContainersTitle();
 
 public slots:
 	void openPerspective(const QString& PerspectiveName);

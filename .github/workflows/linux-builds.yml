@@ -1,4 +1,4 @@
-name: linux-builds
+ilds
 
 on: [push]
 
@@ -36,12 +36,12 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        version: 6.4.2
-        host: linux
-        target: desktop
+        version: '6.4.2'
+        host: 'linux'
+        target: 'desktop'
         install-deps: true
         cached: ${{ steps.cache-qt-6-4.outputs.cache-hit }}
-        setup-python: false
+        setup-python: true
         tools: ''
         tools-only: false
 

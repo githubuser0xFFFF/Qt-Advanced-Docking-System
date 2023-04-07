@@ -1,12 +1,12 @@
 # Specify the build system.
 [build-system]
-requires = ["sip >=6.0.2, <6.6", "PyQt-builder >=1.6, <2", "PyQt5>=5.15.4", "PyQt5-sip<13,>=12.8"]
+requires = ["sip >=6.0.2, <6.3", "PyQt-builder >=1.6, <2", "PyQt5==5.15.4", "PyQt5-sip<13,>=12.8"]
 build-backend = "sipbuild.api"
 
 # Specify the PEP 566 metadata for the project.
 [tool.sip.metadata]
 name = "PyQtAds"
-version = "3.8.2"
+version = "4.0.2"
 summary = "Python bindings for Qt Advanced Docking System"
 home-page = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/"
 license = "LGPL v2.1"
@@ -21,8 +21,11 @@ tag-prefix = "QtAds"
 define-macros = ["ADS_SHARED_EXPORT"]
 sip-file = "ads.sip"
 include-dirs = ["src"]
-qmake-QT = ["widgets"]
+qmake-QT = ["widgets", "gui-private; platform_system == 'Linux'"]
 headers = [
+    "src/AutoHideDockContainer.h",
+    "src/AutoHideSideBar.h",
+    "src/AutoHideTab.h",
 	"src/DockAreaTabBar.h",
 	"src/DockAreaTitleBar.h",
 	"src/DockAreaTitleBar_p.h",
@@ -40,10 +43,15 @@ headers = [
 	"src/FloatingDockContainer.h",
 	"src/FloatingDragPreview.h",
 	"src/IconProvider.h",
+    "src/PushButton.h",
+    "src/ResizeHandle.h",
 	"src/ads_globals.h",
-	# "src/linux/FloatingWidgetTitleBar.h",
+	"src/linux/FloatingWidgetTitleBar.h; platform_system == 'Linux'",
 ]
 sources = [
+    "src/AutoHideTab.cpp",
+    "src/AutoHideDockContainer.cpp",
+    "src/AutoHideSideBar.cpp",
 	"src/DockAreaTabBar.cpp",
 	"src/DockAreaTitleBar.cpp",
 	"src/DockAreaWidget.cpp",
@@ -60,6 +68,8 @@ sources = [
 	"src/FloatingDockContainer.cpp",
 	"src/FloatingDragPreview.cpp",
 	"src/IconProvider.cpp",
+	"src/PushButton.cpp",
+	"src/ResizeHandle.cpp",
 	"src/ads_globals.cpp",
-	# "src/linux/FloatingWidgetTitleBar.cpp",
+	"src/linux/FloatingWidgetTitleBar.h; platform_system == 'Linux'",
 ]
