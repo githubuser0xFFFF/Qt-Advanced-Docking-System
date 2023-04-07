@@ -71,5 +71,5 @@ sources = [
 	"src/PushButton.cpp",
 	"src/ResizeHandle.cpp",
 	"src/ads_globals.cpp",
-	"src/linux/FloatingWidgetTitleBar.h; platform_system == 'Linux'",
+	"src/linux/FloatingWidgetTitleBar.cpp; platform_system == 'Linux'",
 ]
