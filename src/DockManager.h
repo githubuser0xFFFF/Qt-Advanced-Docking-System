@@ -560,7 +560,7 @@ public:
 		widget->setFocus(Qt::OtherFocusReason);
 	}
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 	bool eventFilter(QObject *obj, QEvent *e) override;
 #endif
 

@@ -40,7 +40,7 @@
 
 #include <iostream>
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <xcb/xcb.h>
 #endif
 
@@ -156,7 +156,7 @@ static const char* const DirtyProperty = "dirty";
 extern const int FloatingWidgetDragStartEvent;
 extern const int DockedWidgetDragStartEvent;
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 // Utils to directly communicate with the X server
 /**
  * Get atom from cache or request it from the XServer.
