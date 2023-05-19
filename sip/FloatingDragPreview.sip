@@ -27,10 +27,9 @@ public:
 public: // implements IFloatingWidget
     virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
         ads::eDragState DragState, QWidget* MouseEventHandler);
-
     virtual void moveFloating();
-
     virtual void finishDragging();
+    void cleanupAutoHideContainerWidget();
 
 signals:
     void draggingCanceled();

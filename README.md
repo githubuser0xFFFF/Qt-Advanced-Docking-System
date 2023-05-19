@@ -118,6 +118,9 @@ know it from Visual Studio.
   - [PRE Workbench](#pre-workbench)
   - [RDE – Robox Development Environment](#rde--robox-development-environment)
   - [ResInsight](#resinsight)
+  - [ADTF 3](#adtf-3)
+  - [DREAM.3D NX](#dream3d-nx)
+  - [LabPlot](#labplot)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
@@ -572,7 +575,45 @@ user interface for its ResInsight users.
 
 [read more...](https://resinsight.org/)
 
-![ResInsight](doc/showcase_resinsight.png)
+[![ResInsight](doc/showcase_resinsight.png)](https://www.youtube.com/watch?v=HzLaQ1p6AUc)
+
+### [ADTF 3](https://www.digitalwerk.net/adtf/)
+
+The Automotive Data and Time-Triggered Framework was designed as a Rapid Prototyping Toolset, Simulation Framework and Test- and Measurement Tool. It is meant for:
+
+- Developing and testing ADAS and HAD components
+- Recording of vehicle data for visualisation
+- Simulation of complex scenarios in SIL/HIL test environments
+
+The software features time-based processing of multiple data streams and graphical editing of dynamic filter graphs. It also includes an SDK for custom plug-ins and reusable components, as well as components for data visualization in both 2D and 3D. This is was the 
+[manual](https://support.digitalwerk.net/adtf/v3/adtf_html/page_adtf_xsystem_plugin.html)
+says about the switch to Qt Advanced Docking:
+
+> After several minor improvements the Qt5 ADTF XSystem uses the Advanced Docking System for Qt since ADTF 3.10.0 for more convenience and usability regarding layouting, docking and embedding several widgets.
+
+[read more...](https://support.digitalwerk.net/adtf/v3/adtf_html/index.html)
+
+![ADTF](doc/showcase_adtf.png)
+
+### [DREAM.3D NX](https://github.com/BlueQuartzSoftware/DREAM3D)
+
+DREAM.3D *(Digital Representation Environment for Analysis of Materials in 3D)* is an open source, cross-platform and modular, software suite that allows users to prepare, reconstruct, quantify, instantiate, and mesh, multidimensional, multimodal microstructural data, as well as many other applications.
+
+[BlueQuartz Software](http://www.bluequartz.net/) is currently completely rewriting the DREAM.3D application. For the upcoming version **[DREAM3D NX](http://www.dream3d.io/)** they improved the UI by using the Advanced Docking System. An [early version](http://www.dream3d.io/) of **DREAM3D NX** with ADS is already available to any user who would like to take the brand new version out for a spin.
+
+![DREAM.3D NX](doc/showcase_dream3d_nx.png)
+
+[read more...](http://dream3d.bluequartz.net/)
+
+### [LabPlot](https://labplot.kde.org/)
+
+KDE LabPlot is the ultimate free, open source and cross-platform tool for scientists, engineers, and students who need to analyze and visualize data. With its intuitive interface and powerful features, you can create stunning plots and diagrams with ease. Whether you're working with CSV, FITS, or HDF5 data, KDE LabPlot makes it simple to import and analyze your data.
+
+The LabPlot project recently switched to the Qt Advanced Docking System for their user interface. This switch represents a significant improvement to the LabPlot software, allowing users to create and manage complex data visualization layouts with ease.
+
+![LabPlot](doc/showcase_labplot.png)
+
+[read more...](https://labplot.kde.org/)
 
 ## Alternative Docking System Implementations
 
@@ -580,7 +621,7 @@ If this Qt Advanced Docking System does not fit to your needs you may consider s
 
 ### KDDockWidgets
 
-This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future. 
+This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
 
 - [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
 - [GitHub project](https://github.com/KDAB/KDDockWidgets)

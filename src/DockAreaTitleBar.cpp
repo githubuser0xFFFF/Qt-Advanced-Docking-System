@@ -415,7 +415,12 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 void CDockAreaTitleBar::onCloseButtonClicked()
 {
     ADS_PRINT("CDockAreaTitleBar::onCloseButtonClicked");
-	if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
+	if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideCloseButtonCollapsesDock) &&
+		d->DockArea->autoHideDockContainer())
+	{
+		d->DockArea->autoHideDockContainer()->collapseView(true);
+	}
+	else if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
 		d->TabBar->closeTab(d->TabBar->currentIndex());
 	}

@@ -23,6 +23,7 @@ protected:
 	void updateTitleBarVisibility();
 	void internalSetCurrentDockWidget(ads::CDockWidget* DockWidget /Transfer/);
 	void markTitleBarMenuOutdated();
+    void updateTitleBarButtonVisibility(bool IsTopLevel) const;
 
 protected slots:
 	void toggleView(bool Open);
@@ -52,6 +53,8 @@ public:
 	ads::CDockWidget* currentDockWidget() const;
 	void setCurrentDockWidget(ads::CDockWidget* DockWidget);
 	void saveState(QXmlStreamWriter& Stream) const;
+    static bool restoreState(ads::CDockingStateReader& Stream, ads::CDockAreaWidget*& CreatedWidget,
+		bool Testing, ads::CDockContainerWidget* ParentContainer);
  	ads::CDockWidget::DockWidgetFeatures features(ads::eBitwiseOperator Mode = ads::BitwiseAnd) const;
 	QAbstractButton* titleBarButton(ads::TitleBarButton which) const;
 	virtual void setVisible(bool Visible);
@@ -65,6 +68,8 @@ public:
     void setDockAreaFlag(eDockAreaFlag Flag, bool On);
     
     bool isCentralWidgetArea() const;
+    bool containsCentralWidget() const;
+    bool isTopLevelArea() const;
 
 public slots:
 	void setCurrentIndex(int index);

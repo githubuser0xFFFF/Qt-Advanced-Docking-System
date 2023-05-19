@@ -64,6 +64,7 @@ protected:
     %If (WS_X11)
     virtual void moveEvent(QMoveEvent *event);
 	virtual void resizeEvent(QResizeEvent *event);
+    virtual bool event(QEvent *e);
     %End
     
 	%If (WS_WIN)

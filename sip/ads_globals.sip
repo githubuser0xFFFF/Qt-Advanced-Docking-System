@@ -50,7 +50,6 @@ namespace ads
         TopDockWidgetArea,
         BottomDockWidgetArea,
         CenterDockWidgetArea,
-
         InvalidDockWidgetArea,
         OuterDockAreas,
         AllDockAreas
@@ -62,7 +61,8 @@ namespace ads
     {
         TitleBarButtonTabsMenu,
         TitleBarButtonUndock,
-        TitleBarButtonClose
+        TitleBarButtonClose,
+        TitleBarButtonAutoHide
     };
 
     enum eDragState
@@ -76,10 +76,10 @@ namespace ads
     enum eIcon
     {
         TabCloseIcon,
+        AutoHideIcon,
         DockAreaMenuIcon,
         DockAreaUndockIcon,
         DockAreaCloseIcon,
-
         IconCount,
     };
 
@@ -87,6 +87,15 @@ namespace ads
     {
         BitwiseAnd,
         BitwiseOr
+    };
+    
+    enum SideBarLocation
+    {
+        SideBarTop,
+        SideBarLeft,
+        SideBarRight,
+        SideBarBottom,
+        SideBarNone
     };
     
     namespace internal
@@ -131,6 +140,7 @@ namespace ads
         };
         
        void repolishStyle(QWidget* w, ads::internal::eRepolishChildOptions Options = ads::internal::RepolishIgnoreChildren); 
+       QRect globalGeometry(QWidget* w);
     };
 
 };

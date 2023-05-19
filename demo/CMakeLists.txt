@@ -25,7 +25,7 @@ target_link_libraries(AdvancedDockingSystemDemo PUBLIC Qt${QT_VERSION_MAJOR}::Co
 if(WIN32 AND QT_VERSION_MAJOR LESS 6)
     target_link_libraries(AdvancedDockingSystemDemo PUBLIC Qt${QT_VERSION_MAJOR}::AxContainer)
 endif()
-target_link_libraries(AdvancedDockingSystemDemo PRIVATE qtadvanceddocking)
+target_link_libraries(AdvancedDockingSystemDemo PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
 set_target_properties(AdvancedDockingSystemDemo PROPERTIES 
     AUTOMOC ON
     AUTORCC ON

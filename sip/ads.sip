@@ -3,6 +3,9 @@
 %DefaultSupertype sip.simplewrapper
 
 %Include ads_globals.sip
+%Include AutoHideDockContainer.sip
+%Include AutoHideSideBar.sip
+%Include AutoHideTab.sip
 %Include DockWidget.sip
 %Include DockAreaTabBar.sip
 %Include DockAreaTitleBar_p.sip
@@ -20,6 +23,8 @@
 %Include FloatingDockContainer.sip
 %Include FloatingDragPreview.sip
 %Include IconProvider.sip
+%Include PushButton.sip
+%Include ResizeHandle.sip
 %If (WS_X11)
     %Include linux/FloatingWidgetTitleBar.sip
 %End

@@ -130,7 +130,7 @@ protected:
 	/**
 	 * Adds the given dock area to this container widget
 	 */
-	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = CenterDockWidgetArea);
+	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = ads::CenterDockWidgetArea);
 
 	/**
 	 * Removes the given dock area from this container

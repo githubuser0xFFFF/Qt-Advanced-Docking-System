@@ -88,6 +88,12 @@ private:
 	friend class CAutoHideDockContainer;
 	friend CAutoHideSideBar;
 
+public Q_SLOTS:
+	/**
+	 * Ends the isRestoringFromMinimizedState
+	 */
+	void endLeavingMinimizedState();
+
 
 protected:
 	/**
@@ -239,6 +245,7 @@ public:
 		AutoHideButtonCheckable = 0x08, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
 		AutoHideSideBarsIconOnly = 0x10,///< show only icons in auto hide side tab - if a tab has no icon, then the text will be shown
 		AutoHideShowOnMouseOver = 0x20, ///< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
+		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
@@ -540,6 +547,15 @@ public:
 	bool isRestoringState() const;
 
 	/**
+	 * This function returns true, if the DockManager window is restoring from
+	 * minimized state.
+	 * The DockManager is in this state starting from the QWindowStateChangeEvent
+	 * that signals the state change from minimized to normal until
+	 * endLeavingMinimizedState() function is called.
+	 */
+	bool isLeavingMinimizedState() const;
+
+	/**
 	 * The distance the user needs to move the mouse with the left button
 	 * hold down before a dock widget start floating
 	 */
@@ -560,9 +576,7 @@ public:
 		widget->setFocus(Qt::OtherFocusReason);
 	}
 
-#ifdef Q_OS_LINUX
 	bool eventFilter(QObject *obj, QEvent *e) override;
-#endif
 
 	/**
 	 * Returns the dock widget that has focus style in the ui or a nullptr if

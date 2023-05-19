@@ -643,13 +643,19 @@ void CDockWidget::toggleView(bool Open)
 	// If the dock widget state is different, then we really need to toggle
 	// the state. If we are in the right state, then we simply make this
 	// dock widget the current dock widget
+	auto AutoHideContainer = autoHideDockContainer();
 	if (d->Closed != !Open)
 	{
 		toggleViewInternal(Open);
 	}
-	else if (Open && d->DockArea)
+	else if (Open && d->DockArea && !AutoHideContainer)
 	{
 		raise();
+	}
+
+	if (Open && AutoHideContainer)
+	{
+		AutoHideContainer->collapseView(false);
 	}
 }
 

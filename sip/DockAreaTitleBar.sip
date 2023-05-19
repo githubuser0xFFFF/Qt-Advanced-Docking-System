@@ -27,10 +27,12 @@ public:
 	virtual ~CDockAreaTitleBar();
 	ads::CDockAreaTabBar* tabBar() const;
 	QAbstractButton* button(ads::TitleBarButton which) const;
+    ads::CElidingLabel* autoHideTitleLabel() const;
  	void updateDockWidgetActionsButtons();
 	virtual void setVisible(bool Visible);
 	void insertWidget(int index, QWidget *widget /Transfer/ );
 	int indexOf(QWidget *widget) const;
+    QString titleBarButtonToolTip(ads::TitleBarButton Button) const;
 
 
 signals:

@@ -72,6 +72,26 @@ struct FloatingDragPreviewPrivate
 	 * outside of any drop area
 	 */
 	void createFloatingWidget();
+
+	/**
+	 * Returns true, if the content is floatable
+	 */
+	bool isContentFloatable() const
+	{
+		CDockWidget* DockWidget = qobject_cast<CDockWidget*>(Content);
+		if (DockWidget && DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+		{
+			return true;
+		}
+
+		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(Content);
+		if (DockArea && DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+		{
+			return true;
+		}
+
+		return false;
+	}
 };
 // struct LedArrayPanelPrivate
 
@@ -242,7 +262,7 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 		setAttribute(Qt::WA_TranslucentBackground);
 	}
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     auto Flags = windowFlags();
     Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
     setWindowFlags(Flags);
@@ -328,10 +348,17 @@ void CFloatingDragPreview::finishDragging()
 {
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
 
-	cleanupAutoHideContainerWidget();
-
 	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
 	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
+	bool ValidDropArea = (DockDropArea != InvalidDockWidgetArea)  || (ContainerDropArea != InvalidDockWidgetArea);
+
+	// Non floatable auto hide widgets should stay in its current auto hide
+	// state if they are dragged into a floating window
+	if (ValidDropArea || d->isContentFloatable())
+	{
+		cleanupAutoHideContainerWidget();
+	}
+
 	if (!d->DropContainer)
 	{
 		d->createFloatingWidget();

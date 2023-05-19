@@ -9,7 +9,7 @@ add_executable(SidebarExample WIN32
     MainWindow.ui
 )
 target_include_directories(SidebarExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(SidebarExample PRIVATE qtadvanceddocking)
+target_link_libraries(SidebarExample PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
 target_link_libraries(SidebarExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                             Qt${QT_VERSION_MAJOR}::Gui 
                                             Qt${QT_VERSION_MAJOR}::Widgets)

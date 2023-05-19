@@ -47,6 +47,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QWindow>
+#include <QWindowStateChangeEvent>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -59,7 +60,7 @@
 #include "DockFocusController.h"
 #include "DockSplitter.h"
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include "linux/FloatingWidgetTitleBar.h"
 #endif
 
@@ -116,6 +117,7 @@ struct DockManagerPrivate
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
     CDockWidget* CentralWidget = nullptr;
+    bool IsLeavingMinimized = false;
 
 	/**
 	 * Private data constructor
@@ -192,7 +194,7 @@ void DockManagerPrivate::loadStylesheet()
 	QString FileName = ":ads/stylesheets/";
 	FileName += CDockManager::testConfigFlag(CDockManager::FocusHighlighting)
 		? "focus_highlighting" : "default";
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     FileName += "_linux";
 #endif
     FileName += ".css";
@@ -510,9 +512,10 @@ CDockManager::CDockManager(QWidget *parent) :
 		d->FocusController = new CDockFocusController(this);
 	}
 
-#ifdef Q_OS_LINUX
+
 	window()->installEventFilter(this);
 
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     connect(qApp, &QApplication::focusWindowChanged, [](QWindow* focusWindow)
     {
         // bring modal dialogs to foreground to ensure that they are in front of any
@@ -552,7 +555,7 @@ CDockManager::~CDockManager()
 }
 
 //============================================================================
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 {
 	// Emulate Qt:Tool behaviour.
@@ -629,7 +632,38 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 	}
 	return Super::eventFilter(obj, e);
 }
+#else
+//============================================================================
+bool CDockManager::eventFilter(QObject *obj, QEvent *e)
+{
+	if (e->type() == QEvent::WindowStateChange)
+	{
+		QWindowStateChangeEvent* ev = static_cast<QWindowStateChangeEvent*>(e);
+		if (ev->oldState().testFlag(Qt::WindowMinimized))
+		{
+			d->IsLeavingMinimized = true;
+			QMetaObject::invokeMethod(this, "endLeavingMinimizedState", Qt::QueuedConnection);
+		}
+	}
+	return Super::eventFilter(obj, e);
+}
 #endif
+
+
+//============================================================================
+void CDockManager::endLeavingMinimizedState()
+{
+	d->IsLeavingMinimized = false;
+	this->activateWindow();
+}
+
+
+//============================================================================
+bool CDockManager::isLeavingMinimizedState() const
+{
+	return d->IsLeavingMinimized;
+}
+
 
 //============================================================================
 void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget)

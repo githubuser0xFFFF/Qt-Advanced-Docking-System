@@ -39,6 +39,7 @@
   - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
   - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
   - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
+  - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -588,6 +589,21 @@ dock widget in the same container. If this flag is set, the Auto-Hide widget
 is shown, if the user hovers over the Auto-Hide tab or if the users moves the
 mouse outside of the Auto-Hide widget. Showing and hiding my mouse click still
 works if this feature is enabled.
+
+### `AutoHideCloseButtonCollapsesDock`
+
+Some users don't understand the distinction between closing an auto hide dock and
+collapsing an auto hide dock. This may lead to situations where they press the
+close button (losing the side tab widget) instead of simply clicking outside
+the auto hide dock (collapsing the dock). 
+
+![AutoHideCloseButtonCollapsesDock false](cfg_flag_AutoHideCloseButtonCollapsesDock_false.gif)
+
+If `AutoHideCloseButtonCollapsesDock` option is active, the
+close button in an auto hide widget collapses the auto hide widget instead of
+closing it.
+
+![AutoHideCloseButtonCollapsesDock true](cfg_flag_AutoHideCloseButtonCollapsesDock_true.gif)
 
 ## DockWidget Feature Flags
 
