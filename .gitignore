@@ -385,3 +385,4 @@ FodyWeavers.xsd
 /Settings.ini
 .vscode/settings.json
 /.settings
+/CMakePresets.json
