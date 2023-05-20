@@ -209,11 +209,14 @@ public:
      * size hint. If you would like to adhere the minimumSizeHint() from the
      * content widget, then set the minimumSizeHintMode() to
      * MinimumSizeHintFromContent.
+     * Set minimumSizeHint to the docks or widgets minimumSize for special control.
      */
     enum eMinimumSizeHintMode
     {
     	MinimumSizeHintFromDockWidget,
-    	MinimumSizeHintFromContent
+    	MinimumSizeHintFromContent,
+        MinimumSizeHintFromDockWidgetMinimumSize,
+        MinimumSizeHintFromContentMinimumSize,
     };
 
 
@@ -410,6 +413,11 @@ public:
      * \see eMinimumSizeHintMode for a detailed description
      */
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
+
+    /**
+     * Get the minimum size hint mode configured by setMinimumSizeHintMode
+     */
+    eMinimumSizeHintMode getMinimumSizeHintMode() const;
 
     /**
      * Returns true if the dock widget is set as central widget of it's dock manager
