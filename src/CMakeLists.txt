@@ -75,11 +75,13 @@ if(BUILD_STATIC)
     add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)
 else()
-    add_library( ${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
-    target_compile_definitions( ${library_name} PRIVATE ADS_SHARED_EXPORT)
+    add_library(${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
+    target_compile_definitions(${library_name} PRIVATE ADS_SHARED_EXPORT)
 endif()
 
 add_library(ads::${library_name} ALIAS ${library_name})
+# alias qtadvanceddocking to qt(5|6)advanceddocking for compatability
+add_library(qtadvanceddocking ALIAS ${library_name})
 
 target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
