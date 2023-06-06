@@ -623,6 +623,13 @@ void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
 
 
 //============================================================================
+CDockWidget::eMinimumSizeHintMode CDockWidget::minimumSizeHintMode() const
+{
+	return d->MinimumSizeHintMode;
+}
+
+
+//============================================================================
 bool CDockWidget::isCentralWidget() const
 {
 	return dockManager()->centralWidget() == this;
@@ -990,14 +997,20 @@ void CDockWidget::setClosedState(bool Closed)
 //============================================================================
 QSize CDockWidget::minimumSizeHint() const
 {
-	if (d->MinimumSizeHintMode == CDockWidget::MinimumSizeHintFromDockWidget || !d->Widget)
+	if (!d->Widget)
 	{
 		return QSize(60, 40);
 	}
-	else
+
+	switch (d->MinimumSizeHintMode)
 	{
-		return d->Widget->minimumSizeHint();
+		case MinimumSizeHintFromDockWidget: return QSize(60, 40);
+    	case MinimumSizeHintFromContent: return d->Widget->minimumSizeHint();
+    	case MinimumSizeHintFromDockWidgetMinimumSize: return minimumSize();
+    	case MinimumSizeHintFromContentMinimumSize: return d->Widget->minimumSize();
 	}
+
+	return d->Widget->minimumSizeHint();
 }
 
 
