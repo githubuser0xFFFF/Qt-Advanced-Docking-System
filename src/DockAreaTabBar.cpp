@@ -36,6 +36,7 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QtGlobal>
+#include <QTimer>
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -107,7 +108,9 @@ void DockAreaTabBarPrivate::updateTabs()
 		{
 			TabWidget->show();
 			TabWidget->setActiveTab(true);
-			_this->ensureWidgetVisible(TabWidget);
+			QTimer::singleShot(0, [&, TabWidget]{
+			    _this->ensureWidgetVisible(TabWidget);
+			});
 		}
 		else
 		{
