@@ -140,6 +140,7 @@ public:
 			{
 				LayoutItem->widget()->setParent(nullptr);
 			}
+			delete LayoutItem;
 			m_CurrentWidget = nullptr;
 			m_CurrentIndex = -1;
 		}
