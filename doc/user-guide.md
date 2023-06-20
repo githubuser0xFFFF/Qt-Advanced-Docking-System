@@ -40,6 +40,7 @@
   - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
   - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
   - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
+  - [`Autohide tab dock order`](#autohide-tab-dock-order)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -604,6 +605,14 @@ close button in an auto hide widget collapses the auto hide widget instead of
 closing it.
 
 ![AutoHideCloseButtonCollapsesDock true](cfg_flag_AutoHideCloseButtonCollapsesDock_true.gif)
+
+### Auto Hide Tab Dock Order
+
+Optionally, you may set the auto hide tab order preference, set via `DockWidget->setAutoHideTabOrder(n)`. You must set it to a positive float value (negative float values are ignored). The default value is -1.0 and will be ignored. Setting it to a lower positive float value will order tabs behind docks that have higher float values. For example, if `Dock Widget A` is set to 1.0 and `Dock Widget B` is set to 2.0, `Dock Widget A` will always be inserted behind `Dock Widget B` in the auto hide sidebar.
+
+If some dock widgets have an order but others do not, the widgets without an order set will be skipped. If none of the dock widgets have a set order, then the dock widget with an order set will be set at the end (the default behavior). 
+
+![Auto hide tab dock order set](insert_tab_with_dock_order.gif)
 
 ## DockWidget Feature Flags
 
