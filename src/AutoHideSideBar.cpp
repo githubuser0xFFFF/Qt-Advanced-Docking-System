@@ -242,6 +242,41 @@ CAutoHideDockContainer* CAutoHideSideBar::insertDockWidget(int Index, CDockWidge
 
 
 //============================================================================
+CAutoHideDockContainer* CAutoHideSideBar::insertDockWidgetByOrder(CDockWidget* DockWidget)
+{
+	auto AutoHideContainer = new CAutoHideDockContainer(DockWidget, d->SideTabArea, d->ContainerWidget);
+	DockWidget->dockManager()->dockFocusController()->clearDockWidgetFocus(DockWidget);
+	auto Tab = AutoHideContainer->autoHideTab();
+	DockWidget->setSideTabWidget(Tab);
+
+	const auto insertDockOrder = DockWidget->autoHideTabOrder();
+	for (auto i = 0;  i < d->TabsLayout->count(); i++)
+	{
+		const auto autoHideTab = qobject_cast<CAutoHideTab*>(d->TabsLayout->itemAt(i)->widget());
+		if (autoHideTab == nullptr)
+		{
+			continue;
+		}
+
+		const auto order = autoHideTab->dockWidget()->autoHideTabOrder();
+		if (order < 0) // less than 0 means that a preferred order was not set
+		{
+			continue;
+		}
+
+		if (order > insertDockOrder)
+		{
+			insertTab(i, Tab);
+			return AutoHideContainer;
+		}
+	}
+
+	insertTab(-1, Tab);
+	return AutoHideContainer;
+}
+
+
+//============================================================================
 void CAutoHideSideBar::removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidget)
 {
 	AutoHideWidget->autoHideTab()->removeFromSideBar();

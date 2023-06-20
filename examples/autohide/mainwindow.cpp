@@ -43,6 +43,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table->setColumnCount(3);
     table->setRowCount(10);
     CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+    //TableDockWidget->setAutoHideTabOrder(1.0); // Uncomment if you would like the table dock widget to always be pinned before the second table dock widget
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->setMinimumSize(200,150);
@@ -54,6 +55,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table->setColumnCount(5);
     table->setRowCount(1020);
     TableDockWidget = new CDockWidget("Table 2");
+    //TableDockWidget->setAutoHideTabOrder(2.0);  // Uncomment if you would like the table dock widget to always be pinned after the first table dock widget
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->resize(250, 150);

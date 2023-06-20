@@ -536,6 +536,19 @@ public:
      */
     bool isCurrentTab() const;
 
+    /*
+     * Sets the relative order preference for auto hide tabs.
+     * Lower numbers will be closer to the start, higher numbers will be closer to the end.
+     * Set to < 0 to ignore this setting (default is -1)
+     * This is relevant when pinning and unpinning via the auto hide button (not programmatically)
+     */
+    void setAutoHideTabOrder(float order);
+
+    /*
+     * Get the relative order preference for auto hide tabs.
+     */
+    float autoHideTabOrder() const;
+
 public: // reimplements QFrame -----------------------------------------------
     /**
      * Emits titleChanged signal if title change event occurs
@@ -613,7 +626,6 @@ public Q_SLOTS:
 	 * current state.
 	 */
 	void toggleAutoHide(SideBarLocation Location = SideBarNone);
-
 
 Q_SIGNALS:
     /**

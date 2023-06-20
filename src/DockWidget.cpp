@@ -95,7 +95,8 @@ struct DockWidgetPrivate
 	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
 	WidgetFactory* Factory = nullptr;
 	QPointer<CAutoHideTab> SideTabWidget;
-	
+	float AutoHideTabOrder = -1.0;
+
 	/**
 	 * Private data constructor
 	 */
@@ -1228,6 +1229,18 @@ void CDockWidget::toggleAutoHide(SideBarLocation Location)
 }
 
 
+//============================================================================
+void CDockWidget::setAutoHideTabOrder(float order)
+{
+	d->AutoHideTabOrder = order;
+}
+
+
+//============================================================================
+float CDockWidget::autoHideTabOrder() const
+{
+	return d->AutoHideTabOrder;
+}
 } // namespace ads
 
 //---------------------------------------------------------------------------

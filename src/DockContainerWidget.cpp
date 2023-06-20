@@ -1417,6 +1417,11 @@ CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
         DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
 	}
 
+	if (DockWidget->autoHideTabOrder() > 0)
+	{
+        return sideTabBar(area)->insertDockWidgetByOrder(DockWidget);
+	}
+
 	return sideTabBar(area)->insertDockWidget(-1, DockWidget);
 }
 

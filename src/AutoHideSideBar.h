@@ -108,6 +108,13 @@ public:
 	CAutoHideDockContainer* insertDockWidget(int Index, CDockWidget* DockWidget);
 
 	/**
+	 * Insert dock widget into the side bar, following auto hide tab order preferences from the dock widget.
+	 * The function creates the auto hide dock container, inserts the
+	 * auto hide tab
+	 */
+	CAutoHideDockContainer* insertDockWidgetByOrder(CDockWidget* DockWidget);
+
+	/**
 	 * Removes the auto hide widget from this side bar
 	 */
 	void removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
