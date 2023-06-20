@@ -1133,6 +1133,11 @@ void CFloatingDockContainer::hideAndDeleteLater()
 	d->AutoHideChildren = false;
 	hide();
 	deleteLater();
+	if (d->DockManager)
+	{
+		d->DockManager->removeFloatingWidget(this);
+		d->DockManager->removeDockContainer(this->dockContainer());
+	}
 }
 
 //============================================================================
