@@ -134,6 +134,11 @@ public:
 	 */
 	int tabCount() const;
 
+	/*
+	 * Gets the count of visible tab widgets
+	 */
+	int visibleTabCount() const;
+
 	/**
 	 * Getter for side tab bar area property
 	 */
