@@ -127,27 +127,6 @@ void AutoHideSideBarPrivate::handleViewportEvent(QEvent* e)
 		}
 		break;
 
-	case QEvent::Resize:
-		if (_this->tabCount())
-		{
-			auto ev = static_cast<QResizeEvent*>(e);
-			auto Tab = _this->tabAt(0);
-			int Size = isHorizontal() ? ev->size().height() : ev->size().width();
-			int TabSize = isHorizontal() ? Tab->size().height() : Tab->size().width();
-			// If the size of the side bar is less than the size of the first tab
-			// then there are no visible tabs in this side bar. This check will
-			// fail if someone will force a very big border via CSS!!
-			if (Size < TabSize)
-			{
-				_this->hide();
-			}
-		}
-		else
-		{
-			_this->hide();
-		}
-		break;
-
 	default:
 		break;
 	}
@@ -288,19 +267,32 @@ void CAutoHideSideBar::removeTab(CAutoHideTab* SideTab)
 //============================================================================
 bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 {
-	if (event->type() != QEvent::ShowToParent)
+	auto Tab = qobject_cast<CAutoHideTab*>(watched);
+	if (!Tab)
 	{
 		return false;
 	}
 
-	// As soon as on tab is shown, we need to show the side tab bar
-	auto Tab = qobject_cast<CAutoHideTab*>(watched);
-	if (Tab)
+	switch (event->type())
 	{
-		show();
+	case QEvent::ShowToParent:
+		 show();
+	     break;
+
+	case QEvent::Hide:
+		 if (!hasVisibleTabs())
+		 {
+			 hide();
+		 }
+		 break;
+
+	default:
+		break;
 	}
+
 	return false;
 }
+
 
 //============================================================================
 Qt::Orientation CAutoHideSideBar::orientation() const
@@ -320,6 +312,37 @@ CAutoHideTab* CAutoHideSideBar::tabAt(int index) const
 int CAutoHideSideBar::tabCount() const
 {
     return d->TabsLayout->count() - 1;
+}
+
+
+//============================================================================
+int CAutoHideSideBar::visibleTabCount() const
+{
+	int count = 0;
+	for (auto i = 0; i < tabCount(); i++)
+	{
+		if (tabAt(i)->isVisible())
+		{
+			count++;
+		}
+	}
+
+	return count;
+}
+
+
+//============================================================================
+bool CAutoHideSideBar::hasVisibleTabs() const
+{
+	for (auto i = 0; i < tabCount(); i++)
+	{
+		if (tabAt(i)->isVisible())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

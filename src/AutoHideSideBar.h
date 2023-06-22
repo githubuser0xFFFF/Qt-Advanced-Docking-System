@@ -135,6 +135,19 @@ public:
 	int tabCount() const;
 
 	/**
+	 * Returns the number of visible tabs
+	 */
+	int visibleTabCount() const;
+
+	/**
+	 * Returns true, if the sidebar contains visible tabs.
+	 * The function returns as soon as it finds the first visible tab.
+	 * That means, if you just want to find out if theee are visible tabs
+	 * then this function is quicker than visibleTabCount()
+	 */
+	bool hasVisibleTabs() const;
+
+	/**
 	 * Getter for side tab bar area property
 	 */
 	SideBarLocation sideBarLocation() const;
