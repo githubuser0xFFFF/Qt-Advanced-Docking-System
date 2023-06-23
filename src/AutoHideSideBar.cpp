@@ -279,7 +279,7 @@ bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 		 show();
 	     break;
 
-	case QEvent::Hide:
+	case QEvent::HideToParent:
 		 if (!hasVisibleTabs())
 		 {
 			 hide();
@@ -321,7 +321,7 @@ int CAutoHideSideBar::visibleTabCount() const
 	int count = 0;
 	for (auto i = 0; i < tabCount(); i++)
 	{
-		if (tabAt(i)->isVisible())
+		if (tabAt(i)->isVisibleTo(parentWidget()))
 		{
 			count++;
 		}
@@ -336,7 +336,7 @@ bool CAutoHideSideBar::hasVisibleTabs() const
 {
 	for (auto i = 0; i < tabCount(); i++)
 	{
-		if (tabAt(i)->isVisible())
+		if (tabAt(i)->isVisibleTo(parentWidget()))
 		{
 			return true;
 		}
