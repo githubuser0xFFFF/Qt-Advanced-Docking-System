@@ -49,6 +49,7 @@ struct DockFocusControllerPrivate
 #endif
 	CDockManager* DockManager;
     bool ForceFocusChangedSignal = false;
+    bool TabPressed = false;
 
 	/**
 	 * Private data constructor
@@ -267,7 +268,9 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
 {
     Q_UNUSED(focusedOld);
 
-	if (d->DockManager->isRestoringState())
+    // Ignore focus changes if we are restoring state, or if user clicked
+    // a tab wich in turn caused the focus change
+	if (d->DockManager->isRestoringState() || d->TabPressed)
 	{
 		return;
 	}
@@ -418,6 +421,12 @@ CDockWidget* CDockFocusController::focusedDockWidget() const
 	return d->FocusedDockWidget.data();
 }
 
+
+//==========================================================================
+void CDockFocusController::setDockWidgetTabPressed(bool Value)
+{
+	d->TabPressed = Value;
+}
 } // namespace ads
 
 //---------------------------------------------------------------------------
