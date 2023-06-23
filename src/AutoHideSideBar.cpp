@@ -319,9 +319,10 @@ int CAutoHideSideBar::tabCount() const
 int CAutoHideSideBar::visibleTabCount() const
 {
 	int count = 0;
+	auto ParentWidget = parentWidget();
 	for (auto i = 0; i < tabCount(); i++)
 	{
-		if (tabAt(i)->isVisibleTo(parentWidget()))
+		if (tabAt(i)->isVisibleTo(ParentWidget))
 		{
 			count++;
 		}
@@ -334,9 +335,10 @@ int CAutoHideSideBar::visibleTabCount() const
 //============================================================================
 bool CAutoHideSideBar::hasVisibleTabs() const
 {
+	auto ParentWidget = parentWidget();
 	for (auto i = 0; i < tabCount(); i++)
 	{
-		if (tabAt(i)->isVisibleTo(parentWidget()))
+		if (tabAt(i)->isVisibleTo(ParentWidget))
 		{
 			return true;
 		}
