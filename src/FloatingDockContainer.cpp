@@ -1010,7 +1010,7 @@ void CFloatingDockContainer::moveFloating()
 		// the main window as the active window for some reason. This fixes
 		// that by resetting the active window to the floating widget after
 		// updating the overlays.
-		QApplication::setActiveWindow(this);
+		activateWindow();
 #endif
 		break;
 	default:
@@ -1248,7 +1248,7 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 		// the main window as the active window for some reason. This fixes
 		// that by resetting the active window to the floating widget after
 		// updating the overlays.
-		QApplication::setActiveWindow(this);
+		activateWindow();
 		break;
 	default:
 		break;
