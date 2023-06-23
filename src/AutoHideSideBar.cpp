@@ -279,7 +279,7 @@ bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 		 show();
 	     break;
 
-	case QEvent::Hide:
+	case QEvent::HideToParent:
 		 if (!hasVisibleTabs())
 		 {
 			 hide();
