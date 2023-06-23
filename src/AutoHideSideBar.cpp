@@ -321,7 +321,7 @@ int CAutoHideSideBar::visibleTabCount() const
 	int count = 0;
 	for (auto i = 0; i < tabCount(); i++)
 	{
-		if (tabAt(i)->isVisible())
+		if (tabAt(i)->isVisibleTo(parentWidget()))
 		{
 			count++;
 		}
