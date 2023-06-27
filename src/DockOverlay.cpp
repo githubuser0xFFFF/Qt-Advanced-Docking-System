@@ -38,11 +38,15 @@
 
 #include "DockAreaWidget.h"
 #include "DockAreaTitleBar.h"
+#include "DockContainerWidget.h"
+#include "AutoHideSideBar.h"
+#include "DockManager.h"
 
 #include <iostream>
 
 namespace ads
 {
+static const int AutoHideAreaWidth = 32;
 
 /**
  * Private data class of CDockOverlay
@@ -62,6 +66,12 @@ struct DockOverlayPrivate
 	 * Private data constructor
 	 */
 	DockOverlayPrivate(CDockOverlay* _public) : _this(_public) {}
+
+	/**
+	 * Returns the overlay width / height depending on the visibility
+	 * of the sidebar
+	 */
+	int sideBarOverlaySize(SideBarLocation sideBarLocation);
 };
 
 /**
@@ -155,8 +165,20 @@ struct DockOverlayCrossPrivate
 		QLabel* l = new QLabel();
 		l->setObjectName("DockWidgetAreaLabel");
 
-        const qreal metric = dropIndicatiorWidth(l);
-		const QSizeF size(metric, metric);
+        qreal metric = dropIndicatiorWidth(l);
+		QSizeF size(metric, metric);
+		if (internal::isSideBarArea(DockWidgetArea))
+        {
+			auto SideBarLocation = internal::toSideBarLocation(DockWidgetArea);
+			if (internal::isHorizontalSideBarLocation(SideBarLocation))
+			{
+				size.setHeight(size.height() / 2);
+			}
+			else
+			{
+				size.setWidth(size.width() / 2);
+			}
+        }
 
 		l->setPixmap(createHighDpiDropIndicatorPixmap(size, DockWidgetArea, Mode));
 		l->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
@@ -283,7 +305,7 @@ struct DockOverlayCrossPrivate
 		p.restore();
 
 		// Draw arrow for outer container drop indicators
-		if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
+		/*if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
 		{
 			QRectF ArrowRect;
 			ArrowRect.setSize(baseSize);
@@ -317,13 +339,29 @@ struct DockOverlayCrossPrivate
 			}
 
 			p.drawPolygon(Arrow);
-		}
+		}*/
 
 		pm.setDevicePixelRatio(DevicePixelRatio);
 		return pm;
 	}
 
 };
+
+
+//============================================================================
+int DockOverlayPrivate::sideBarOverlaySize(SideBarLocation sideBarLocation)
+{
+	auto Container = qobject_cast<CDockContainerWidget*>(TargetWidget.data());
+	auto SideBar = Container->sideTabBar(sideBarLocation);
+	if (!SideBar || !SideBar->isVisibleTo(Container))
+	{
+		return AutoHideAreaWidth;
+	}
+	else
+	{
+		return (SideBar->orientation() == Qt::Horizontal) ? SideBar->height() : SideBar->width();
+	}
+}
 
 
 //============================================================================
@@ -375,15 +413,42 @@ DockWidgetAreas CDockOverlay::allowedAreas() const
 //============================================================================
 DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 {
+	if (!d->TargetWidget)
+	{
+		return InvalidDockWidgetArea;
+	}
+
 	DockWidgetArea Result = d->Cross->cursorLocation();
 	if (Result != InvalidDockWidgetArea)
 	{
 		return Result;
 	}
 
-	CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
+	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea)
 	{
+		/*auto Rect = rect();
+		const QPoint pos = mapFromGlobal(QCursor::pos());
+		if (pos.x() < d->sideBarOverlaySize(SideBarLeft))
+		{
+			return LeftAutoHideArea;
+		}
+		else if (pos.x() > (Rect.width() - d->sideBarOverlaySize(SideBarRight)))
+		{
+			return RightAutoHideArea;
+		}
+		else if (pos.y() < d->sideBarOverlaySize(SideBarTop))
+		{
+			return TopAutoHideArea;
+		}
+		else if (pos.y() > (Rect.height() - d->sideBarOverlaySize(SideBarBottom)))
+		{
+			return BottomAutoHideArea;
+		}
+		else
+		{
+			return Result;
+		}*/
 		return Result;
 	}
 
@@ -490,6 +555,10 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	case BottomDockWidgetArea: r.setY(r.height() * (1 - 1 / Factor)); break;
 	case LeftDockWidgetArea: r.setWidth(r.width() / Factor); break;
 	case CenterDockWidgetArea: r = rect();break;
+	case LeftAutoHideArea: r.setWidth(d->sideBarOverlaySize(SideBarLeft)); break;
+	case RightAutoHideArea: r.setX(r.width() - d->sideBarOverlaySize(SideBarRight)); break;
+	case TopAutoHideArea: r.setHeight(d->sideBarOverlaySize(SideBarTop)); break;
+	case BottomAutoHideArea: r.setY(r.height() - d->sideBarOverlaySize(SideBarBottom)); break;
 	default: return;
 	}
 	QPainter painter(this);
@@ -574,6 +643,23 @@ QPoint DockOverlayCrossPrivate::areaGridPosition(const DockWidgetArea area)
 			default: return QPoint();
 		}
 	}
+	else if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
+	{
+		switch (area)
+		{
+			case TopDockWidgetArea: return QPoint(1, 3);
+			case RightDockWidgetArea: return QPoint(3, 5);
+			case BottomDockWidgetArea: return QPoint(5, 3);
+			case LeftDockWidgetArea: return QPoint(3, 1);
+			case CenterDockWidgetArea: return QPoint(3, 3);
+
+			case TopAutoHideArea: return QPoint(0, 3);
+			case RightAutoHideArea: return QPoint(3, 6);
+			case BottomAutoHideArea: return QPoint(6, 3);
+			case LeftAutoHideArea: return QPoint(3, 0);
+			default: return QPoint();
+		}
+	}
 	else
 	{
 		switch (area)
@@ -627,6 +713,16 @@ void CDockOverlayCross::setupOverlayCross(CDockOverlay::eMode Mode)
 	areaWidgets.insert(BottomDockWidgetArea, d->createDropIndicatorWidget(BottomDockWidgetArea, Mode));
 	areaWidgets.insert(LeftDockWidgetArea, d->createDropIndicatorWidget(LeftDockWidgetArea, Mode));
 	areaWidgets.insert(CenterDockWidgetArea, d->createDropIndicatorWidget(CenterDockWidgetArea, Mode));
+
+	if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled)
+	 && CDockOverlay::ModeContainerOverlay == Mode)
+	{
+		areaWidgets.insert(TopAutoHideArea, d->createDropIndicatorWidget(TopAutoHideArea, Mode));
+		areaWidgets.insert(RightAutoHideArea, d->createDropIndicatorWidget(RightAutoHideArea, Mode));
+		areaWidgets.insert(BottomAutoHideArea, d->createDropIndicatorWidget(BottomAutoHideArea, Mode));
+		areaWidgets.insert(LeftAutoHideArea, d->createDropIndicatorWidget(LeftAutoHideArea, Mode));
+	}
+
 #if QT_VERSION >= 0x050600
 	d->LastDevicePixelRatio = devicePixelRatioF();
 #else
@@ -712,6 +808,26 @@ void CDockOverlayCross::setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& wi
 		d->GridLayout->setColumnStretch(2, 0);
 		d->GridLayout->setColumnStretch(3, 0);
 		d->GridLayout->setColumnStretch(4, 1);
+	}
+	else if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
+	{
+		d->GridLayout->setContentsMargins(4, 4, 4, 4);
+		d->GridLayout->setSpacing(4);
+		d->GridLayout->setRowStretch(0, 0);
+		d->GridLayout->setRowStretch(1, 0);
+		d->GridLayout->setRowStretch(2, 1);
+		d->GridLayout->setRowStretch(3, 1);
+		d->GridLayout->setRowStretch(4, 1);
+		d->GridLayout->setRowStretch(5, 0);
+		d->GridLayout->setRowStretch(6, 0);
+
+		d->GridLayout->setColumnStretch(0, 0);
+		d->GridLayout->setColumnStretch(1, 0);
+		d->GridLayout->setColumnStretch(2, 1);
+		d->GridLayout->setColumnStretch(3, 1);
+		d->GridLayout->setColumnStretch(4, 1);
+		d->GridLayout->setColumnStretch(5, 0);
+		d->GridLayout->setColumnStretch(6, 0);
 	}
 	else
 	{

@@ -347,6 +347,7 @@ void CFloatingDragPreview::startFloating(const QPoint &DragStartMousePos,
 void CFloatingDragPreview::finishDragging()
 {
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
+	std::cout << "CFloatingDragPreview::finishDragging" << std::endl;
 
 	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
 	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
@@ -369,11 +370,27 @@ void CFloatingDragPreview::finishDragging()
 	}
 	else if (ContainerDropArea != InvalidDockWidgetArea)
 	{
+		std::cout << "ContainerDropArea != InvalidDockWidgetArea " << ContainerDropArea << std::endl;
 		// If there is only one single dock area, and we drop into the center
 		// then we tabify the dropped widget into the only visible dock area
 		if (d->DropContainer->visibleDockAreaCount() <= 1 && CenterDockWidgetArea == ContainerDropArea)
 		{
 			d->DropContainer->dropWidget(d->Content, ContainerDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
+		}
+		else if (internal::isSideBarArea(ContainerDropArea))
+		{
+			// Drop into AutoHideArea
+			auto DockWidget = qobject_cast<CDockWidget*>(d->Content);
+			auto DockArea = qobject_cast<CDockAreaWidget*>(d->Content);
+			auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
+			if (DockWidget)
+			{
+				DockWidget->toggleAutoHide(SideBarLocation);
+			}
+			else if (DockArea)
+			{
+				DockArea->toggleAutoHide(SideBarLocation);
+			}
 		}
 		else
 		{

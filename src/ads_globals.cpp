@@ -334,6 +334,47 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area)
 
 
 //============================================================================
+SideBarLocation toSideBarLocation(DockWidgetArea Area)
+{
+	switch (Area)
+	{
+	case LeftAutoHideArea: return SideBarLeft;
+	case RightAutoHideArea: return SideBarRight;
+	case TopAutoHideArea: return SideBarTop;
+	case BottomAutoHideArea: return SideBarBottom;
+	default:
+		return SideBarNone;
+	}
+
+	return SideBarNone;
+}
+
+
+//============================================================================
+bool isHorizontalSideBarLocation(SideBarLocation Location)
+{
+	switch (Location)
+	{
+	case SideBarTop:
+	case SideBarBottom: return true;
+	case SideBarLeft:
+	case SideBarRight: return false;
+	default:
+		return false;
+	}
+
+	return false;
+}
+
+
+//============================================================================
+bool isSideBarArea(DockWidgetArea Area)
+{
+	return toSideBarLocation(Area) != SideBarNone;
+}
+
+
+//============================================================================
 QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity)
 {
 	QPixmap TransparentPixmap(Source.size());

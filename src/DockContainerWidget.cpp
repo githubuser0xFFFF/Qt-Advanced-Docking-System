@@ -1626,14 +1626,16 @@ int CDockContainerWidget::visibleDockAreaCount() const
 void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWidget,
 	const QPoint& TargetPos)
 {
+	//dockContainer()->createAndSetupAutoHideContainer(area, this);
     ADS_PRINT("CDockContainerWidget::dropFloatingWidget");
 	CDockWidget* SingleDroppedDockWidget = FloatingWidget->topLevelDockWidget();
 	CDockWidget* SingleDockWidget = topLevelDockWidget();
-	CDockAreaWidget* DockArea = dockAreaAt(TargetPos);
 	auto dropArea = InvalidDockWidgetArea;
 	auto ContainerDropArea = d->DockManager->containerOverlay()->dropAreaUnderCursor();
 	bool Dropped = false;
 
+	CDockAreaWidget* DockArea = dockAreaAt(TargetPos);
+	std::cout << "DockArea: " << DockArea << " dropArea: " << dropArea << std::endl;
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
@@ -1654,15 +1656,30 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	}
 
 	// mouse is over container
-	if (InvalidDockWidgetArea == dropArea)
+	std::cout << "Mouse is over container" << std::endl;
+	if (InvalidDockWidgetArea == dropArea && InvalidDockWidgetArea != ContainerDropArea)
 	{
-		dropArea = ContainerDropArea;
-        ADS_PRINT("Container Drop Content: " << dropArea);
-		if (dropArea != InvalidDockWidgetArea)
-		{
-			d->dropIntoContainer(FloatingWidget, dropArea);
-			Dropped = true;
-		}
+        if (internal::isSideBarArea(ContainerDropArea))
+        {
+        	auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
+        	std::cout << "Drop into sidebar " << std::endl;
+        	auto NewDockAreas = FloatingWidget->findChildren<CDockAreaWidget*>(
+        		QString(), Qt::FindChildrenRecursively);
+        	for (auto DockArea : NewDockAreas)
+        	{
+        		auto DockWidgets = DockArea->dockWidgets();
+        		for (auto DockWidget : DockWidgets)
+        		{
+        			createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
+        		}
+        	}
+        }
+        else
+        {
+        	ADS_PRINT("Container Drop Content: " << ContainerDropArea);
+        	d->dropIntoContainer(FloatingWidget, ContainerDropArea);
+        }
+		Dropped = true;
 	}
 
     // Remove the auto hide widgets from the FloatingWidget and insert
