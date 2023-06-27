@@ -48,6 +48,7 @@
 namespace ads
 {
 static const int AutoHideAreaWidth = 32;
+static const int AutoHideAreaMouseZone = 8;
 
 /**
  * Private data class of CDockOverlay
@@ -73,6 +74,11 @@ struct DockOverlayPrivate
 	 * of the sidebar
 	 */
 	int sideBarOverlaySize(SideBarLocation sideBarLocation);
+
+	/**
+	 * The area where the mouse is considered in the sidebar
+	 */
+	int sideBarMouseZone(SideBarLocation sideBarLocation);
 };
 
 /**
@@ -407,6 +413,22 @@ int DockOverlayPrivate::sideBarOverlaySize(SideBarLocation sideBarLocation)
 
 
 //============================================================================
+int DockOverlayPrivate::sideBarMouseZone(SideBarLocation sideBarLocation)
+{
+	auto Container = qobject_cast<CDockContainerWidget*>(TargetWidget.data());
+	auto SideBar = Container->sideTabBar(sideBarLocation);
+	if (!SideBar || !SideBar->isVisibleTo(Container))
+	{
+		return AutoHideAreaMouseZone;
+	}
+	else
+	{
+		return (SideBar->orientation() == Qt::Horizontal) ? SideBar->height() : SideBar->width();
+	}
+}
+
+
+//============================================================================
 CDockOverlay::CDockOverlay(QWidget* parent, eMode Mode) :
 	QFrame(parent),
 	d(new DockOverlayPrivate(this))
@@ -469,28 +491,28 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea)
 	{
-		/*auto Rect = rect();
+		auto Rect = rect();
 		const QPoint pos = mapFromGlobal(QCursor::pos());
-		if (pos.x() < d->sideBarOverlaySize(SideBarLeft))
+		if (pos.x() < d->sideBarMouseZone(SideBarLeft))
 		{
 			return LeftAutoHideArea;
 		}
-		else if (pos.x() > (Rect.width() - d->sideBarOverlaySize(SideBarRight)))
+		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight)))
 		{
 			return RightAutoHideArea;
 		}
-		else if (pos.y() < d->sideBarOverlaySize(SideBarTop))
+		else if (pos.y() < d->sideBarMouseZone(SideBarTop))
 		{
 			return TopAutoHideArea;
 		}
-		else if (pos.y() > (Rect.height() - d->sideBarOverlaySize(SideBarBottom)))
+		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom)))
 		{
 			return BottomAutoHideArea;
 		}
 		else
 		{
 			return Result;
-		}*/
+		}
 		return Result;
 	}
 
