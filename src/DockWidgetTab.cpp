@@ -417,7 +417,10 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			 break;
 
 		default:
-			d->focusController()->setDockWidgetTabPressed(false);
+			if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+			{
+				d->focusController()->setDockWidgetTabPressed(false);
+			}
 			break; // do nothing
 		}
 	} 
