@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QMap>
 #include <QWindow>
+#include <QSvgRenderer>
 
 #include "DockAreaWidget.h"
 #include "DockAreaTitleBar.h"
@@ -204,6 +205,11 @@ struct DockOverlayCrossPrivate
 	{
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
+		QColor overlayColor = iconColor(CDockOverlayCross::OverlayColor);
+		if (overlayColor.alpha() == 255)
+		{
+			overlayColor.setAlpha(64);
+		}
 
 #if QT_VERSION >= 0x050600
 		double DevicePixelRatio = _this->window()->devicePixelRatioF();
@@ -261,22 +267,25 @@ struct DockOverlayCrossPrivate
 		}
 
 		QSizeF baseSize = baseRect.size();
-		if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
+		bool IsOuterContainerArea = (CDockOverlay::ModeContainerOverlay == Mode)
+			&& (DockWidgetArea != CenterDockWidgetArea)
+			&& !internal::isSideBarArea(DockWidgetArea);
+
+		if (IsOuterContainerArea)
 		{
 			baseRect = areaRect;
 		}
 
-		p.fillRect(baseRect, backgroundColor);
+		//if (!internal::isSideBarArea(DockWidgetArea))
+		//{
+			p.fillRect(baseRect, backgroundColor);
+		//}
+
 		if (areaRect.isValid())
 		{
 			pen = p.pen();
 			pen.setColor(borderColor);
-			QColor Color = iconColor(CDockOverlayCross::OverlayColor);
-			if (Color.alpha() == 255)
-			{
-				Color.setAlpha(64);
-			}
-			p.setBrush(Color);
+			p.setBrush(overlayColor);
 			p.setPen(Qt::NoPen);
 			p.drawRect(areaRect);
 
@@ -289,23 +298,26 @@ struct DockOverlayCrossPrivate
 		}
 		p.restore();
 
-		p.save();
-		// Draw outer border
-		pen = p.pen();
-		pen.setColor(borderColor);
-		pen.setWidth(1);
-		p.setBrush(Qt::NoBrush);
-		p.setPen(pen);
-		p.drawRect(baseRect);
+		//if (!internal::isSideBarArea(DockWidgetArea))
+		//{
+			p.save();
+			// Draw outer border
+			pen = p.pen();
+			pen.setColor(borderColor);
+			pen.setWidth(1);
+			p.setBrush(Qt::NoBrush);
+			p.setPen(pen);
+			p.drawRect(baseRect);
 
-		// draw window title bar
-		p.setBrush(borderColor);
-		QRectF FrameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
-		p.drawRect(FrameRect);
-		p.restore();
+			// draw window title bar
+			p.setBrush(borderColor);
+			QRectF FrameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
+			p.drawRect(FrameRect);
+			p.restore();
+		//}
 
 		// Draw arrow for outer container drop indicators
-		/*if (CDockOverlay::ModeContainerOverlay == Mode && DockWidgetArea != CenterDockWidgetArea)
+		if (IsOuterContainerArea)
 		{
 			QRectF ArrowRect;
 			ArrowRect.setSize(baseSize);
@@ -339,7 +351,37 @@ struct DockOverlayCrossPrivate
 			}
 
 			p.drawPolygon(Arrow);
-		}*/
+		}
+
+		// Draw the pin icons
+		if (internal::isSideBarArea(DockWidgetArea))
+		{
+			static QIcon PinIcon;
+			if (PinIcon.isNull())
+			{
+				std::cout << "Initializing pin icon" << std::endl;
+				QFile file(":/ads/images/vs-pin-button.svg");
+				file.open(QIODevice::ReadOnly);
+				QByteArray baData = file.readAll();
+				baData.replace("#000000", borderColor.name(QColor::HexRgb).toLatin1());
+				//baData.replace("#ffffff", overlayColor.name(QColor::HexArgb).toLatin1());
+				//std::cout << borderColor.name(QColor::HexRgb) << std::endl;
+				QSvgRenderer svgRenderer(baData);
+				QPixmap pix(svgRenderer.defaultSize());
+				pix.fill(Qt::transparent);
+				// create painter to act over pixmap
+				QPainter pixPainter(&pix);
+				svgRenderer.render(&pixPainter);
+				PinIcon = QIcon(pix);
+			}
+			//p.drawPixmap(0, PinIcon.paint(painter, rect, alignment, mode, state));
+			auto Rect = QRect(0, 0, 16, 16);
+			//Rect.setSize(baseRect.size() * 0.8);
+			Rect.moveCenter(baseRect.center().toPoint());
+			PinIcon.paint(&p, Rect, Qt::AlignCenter);
+			//auto Pixmap = PinIcon.pixmap(_this->windowHandle(), QSize(16, 16));
+			//p.drawPixmap(QPoint(0, 0), Pixmap);
+		}
 
 		pm.setDevicePixelRatio(DevicePixelRatio);
 		return pm;
