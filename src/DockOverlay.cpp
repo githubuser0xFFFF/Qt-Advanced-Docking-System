@@ -282,10 +282,7 @@ struct DockOverlayCrossPrivate
 			baseRect = areaRect;
 		}
 
-		//if (!internal::isSideBarArea(DockWidgetArea))
-		//{
-			p.fillRect(baseRect, backgroundColor);
-		//}
+		p.fillRect(baseRect, backgroundColor);
 
 		if (areaRect.isValid())
 		{
@@ -304,23 +301,22 @@ struct DockOverlayCrossPrivate
 		}
 		p.restore();
 
-		//if (!internal::isSideBarArea(DockWidgetArea))
-		//{
-			p.save();
-			// Draw outer border
-			pen = p.pen();
-			pen.setColor(borderColor);
-			pen.setWidth(1);
-			p.setBrush(Qt::NoBrush);
-			p.setPen(pen);
-			p.drawRect(baseRect);
 
-			// draw window title bar
-			p.setBrush(borderColor);
-			QRectF FrameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
-			p.drawRect(FrameRect);
-			p.restore();
-		//}
+		p.save();
+		// Draw outer border
+		pen = p.pen();
+		pen.setColor(borderColor);
+		pen.setWidth(1);
+		p.setBrush(Qt::NoBrush);
+		p.setPen(pen);
+		p.drawRect(baseRect);
+
+		// draw window title bar
+		p.setBrush(borderColor);
+		QRectF FrameRect(baseRect.topLeft(), QSizeF(baseRect.width(), baseSize.height() / 10));
+		p.drawRect(FrameRect);
+		p.restore();
+
 
 		// Draw arrow for outer container drop indicators
 		if (IsOuterContainerArea)
@@ -357,36 +353,6 @@ struct DockOverlayCrossPrivate
 			}
 
 			p.drawPolygon(Arrow);
-		}
-
-		// Draw the pin icons
-		if (internal::isSideBarArea(DockWidgetArea))
-		{
-			static QIcon PinIcon;
-			if (PinIcon.isNull())
-			{
-				std::cout << "Initializing pin icon" << std::endl;
-				QFile file(":/ads/images/vs-pin-button.svg");
-				file.open(QIODevice::ReadOnly);
-				QByteArray baData = file.readAll();
-				baData.replace("#000000", borderColor.name(QColor::HexRgb).toLatin1());
-				//baData.replace("#ffffff", overlayColor.name(QColor::HexArgb).toLatin1());
-				//std::cout << borderColor.name(QColor::HexRgb) << std::endl;
-				QSvgRenderer svgRenderer(baData);
-				QPixmap pix(svgRenderer.defaultSize());
-				pix.fill(Qt::transparent);
-				// create painter to act over pixmap
-				QPainter pixPainter(&pix);
-				svgRenderer.render(&pixPainter);
-				PinIcon = QIcon(pix);
-			}
-			//p.drawPixmap(0, PinIcon.paint(painter, rect, alignment, mode, state));
-			auto Rect = QRect(0, 0, 16, 16);
-			//Rect.setSize(baseRect.size() * 0.8);
-			Rect.moveCenter(baseRect.center().toPoint());
-			PinIcon.paint(&p, Rect, Qt::AlignCenter);
-			//auto Pixmap = PinIcon.pixmap(_this->windowHandle(), QSize(16, 16));
-			//p.drawPixmap(QPoint(0, 0), Pixmap);
 		}
 
 		pm.setDevicePixelRatio(DevicePixelRatio);
@@ -489,10 +455,12 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	}
 
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
-	if (!DockArea)
+	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 	{
 		auto Rect = rect();
 		const QPoint pos = mapFromGlobal(QCursor::pos());
+
+		std::cout << "pos.y: " << pos.y() << " d->sideBarMouseZone(SideBarTop) " << d->sideBarMouseZone(SideBarTop) << std::endl;
 		if (pos.x() < d->sideBarMouseZone(SideBarLeft))
 		{
 			return LeftAutoHideArea;
@@ -513,6 +481,10 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		{
 			return Result;
 		}
+		return Result;
+	}
+	else if (!DockArea)
+	{
 		return Result;
 	}
 
@@ -612,6 +584,7 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	double Factor = (CDockOverlay::ModeContainerOverlay == d->Mode) ?
 		3 : 2;
 
+	std::cout << "paint: da: " << da << std::endl;
 	switch (da)
 	{
     case TopDockWidgetArea: r.setHeight(r.height() / Factor); break;
@@ -707,23 +680,6 @@ QPoint DockOverlayCrossPrivate::areaGridPosition(const DockWidgetArea area)
 			default: return QPoint();
 		}
 	}
-	else if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
-	{
-		switch (area)
-		{
-			case TopDockWidgetArea: return QPoint(1, 3);
-			case RightDockWidgetArea: return QPoint(3, 5);
-			case BottomDockWidgetArea: return QPoint(5, 3);
-			case LeftDockWidgetArea: return QPoint(3, 1);
-			case CenterDockWidgetArea: return QPoint(3, 3);
-
-			case TopAutoHideArea: return QPoint(0, 3);
-			case RightAutoHideArea: return QPoint(3, 6);
-			case BottomAutoHideArea: return QPoint(6, 3);
-			case LeftAutoHideArea: return QPoint(3, 0);
-			default: return QPoint();
-		}
-	}
 	else
 	{
 		switch (area)
@@ -777,15 +733,6 @@ void CDockOverlayCross::setupOverlayCross(CDockOverlay::eMode Mode)
 	areaWidgets.insert(BottomDockWidgetArea, d->createDropIndicatorWidget(BottomDockWidgetArea, Mode));
 	areaWidgets.insert(LeftDockWidgetArea, d->createDropIndicatorWidget(LeftDockWidgetArea, Mode));
 	areaWidgets.insert(CenterDockWidgetArea, d->createDropIndicatorWidget(CenterDockWidgetArea, Mode));
-
-	if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled)
-	 && CDockOverlay::ModeContainerOverlay == Mode)
-	{
-		areaWidgets.insert(TopAutoHideArea, d->createDropIndicatorWidget(TopAutoHideArea, Mode));
-		areaWidgets.insert(RightAutoHideArea, d->createDropIndicatorWidget(RightAutoHideArea, Mode));
-		areaWidgets.insert(BottomAutoHideArea, d->createDropIndicatorWidget(BottomAutoHideArea, Mode));
-		areaWidgets.insert(LeftAutoHideArea, d->createDropIndicatorWidget(LeftAutoHideArea, Mode));
-	}
 
 #if QT_VERSION >= 0x050600
 	d->LastDevicePixelRatio = devicePixelRatioF();
@@ -872,26 +819,6 @@ void CDockOverlayCross::setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& wi
 		d->GridLayout->setColumnStretch(2, 0);
 		d->GridLayout->setColumnStretch(3, 0);
 		d->GridLayout->setColumnStretch(4, 1);
-	}
-	else if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
-	{
-		d->GridLayout->setContentsMargins(4, 4, 4, 4);
-		d->GridLayout->setSpacing(4);
-		d->GridLayout->setRowStretch(0, 0);
-		d->GridLayout->setRowStretch(1, 0);
-		d->GridLayout->setRowStretch(2, 1);
-		d->GridLayout->setRowStretch(3, 1);
-		d->GridLayout->setRowStretch(4, 1);
-		d->GridLayout->setRowStretch(5, 0);
-		d->GridLayout->setRowStretch(6, 0);
-
-		d->GridLayout->setColumnStretch(0, 0);
-		d->GridLayout->setColumnStretch(1, 0);
-		d->GridLayout->setColumnStretch(2, 1);
-		d->GridLayout->setColumnStretch(3, 1);
-		d->GridLayout->setColumnStretch(4, 1);
-		d->GridLayout->setColumnStretch(5, 0);
-		d->GridLayout->setColumnStretch(6, 0);
 	}
 	else
 	{

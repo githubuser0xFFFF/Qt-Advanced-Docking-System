@@ -128,6 +128,8 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	auto DockAreaOverlay = DockManager->dockAreaOverlay();
 	auto DockDropArea = DockAreaOverlay->dropAreaUnderCursor();
 	auto ContainerDropArea = ContainerOverlay->dropAreaUnderCursor();
+	std::cout << "ContainerDropArea  " << ContainerDropArea << std::endl;
+	std::cout << "DockDropArea " << DockDropArea << std::endl;
 
 	if (!TopContainer)
 	{
