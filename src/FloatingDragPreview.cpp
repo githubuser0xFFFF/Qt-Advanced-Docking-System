@@ -128,8 +128,6 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	auto DockAreaOverlay = DockManager->dockAreaOverlay();
 	auto DockDropArea = DockAreaOverlay->dropAreaUnderCursor();
 	auto ContainerDropArea = ContainerOverlay->dropAreaUnderCursor();
-	std::cout << "ContainerDropArea  " << ContainerDropArea << std::endl;
-	std::cout << "DockDropArea " << DockDropArea << std::endl;
 
 	if (!TopContainer)
 	{
@@ -349,7 +347,6 @@ void CFloatingDragPreview::startFloating(const QPoint &DragStartMousePos,
 void CFloatingDragPreview::finishDragging()
 {
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
-	std::cout << "CFloatingDragPreview::finishDragging" << std::endl;
 
 	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
 	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
@@ -372,32 +369,15 @@ void CFloatingDragPreview::finishDragging()
 	}
 	else if (ContainerDropArea != InvalidDockWidgetArea)
 	{
-		std::cout << "ContainerDropArea != InvalidDockWidgetArea " << ContainerDropArea << std::endl;
+		CDockAreaWidget* DockArea = nullptr;
 		// If there is only one single dock area, and we drop into the center
 		// then we tabify the dropped widget into the only visible dock area
 		if (d->DropContainer->visibleDockAreaCount() <= 1 && CenterDockWidgetArea == ContainerDropArea)
 		{
-			d->DropContainer->dropWidget(d->Content, ContainerDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
+			DockArea = d->DropContainer->dockAreaAt(QCursor::pos());
 		}
-		else if (internal::isSideBarArea(ContainerDropArea))
-		{
-			// Drop into AutoHideArea
-			auto DockWidget = qobject_cast<CDockWidget*>(d->Content);
-			auto DockArea = qobject_cast<CDockAreaWidget*>(d->Content);
-			auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
-			if (DockWidget)
-			{
-				DockWidget->toggleAutoHide(SideBarLocation);
-			}
-			else if (DockArea)
-			{
-				DockArea->toggleAutoHide(SideBarLocation);
-			}
-		}
-		else
-		{
-			d->DropContainer->dropWidget(d->Content, ContainerDropArea, nullptr);
-		}
+
+		d->DropContainer->dropWidget(d->Content, ContainerDropArea, DockArea);
 	}
 	else
 	{

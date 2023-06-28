@@ -35,7 +35,6 @@
 #include <QDebug>
 #include <QMap>
 #include <QWindow>
-#include <QSvgRenderer>
 
 #include "DockAreaWidget.h"
 #include "DockAreaTitleBar.h"
@@ -459,8 +458,6 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	{
 		auto Rect = rect();
 		const QPoint pos = mapFromGlobal(QCursor::pos());
-
-		std::cout << "pos.y: " << pos.y() << " d->sideBarMouseZone(SideBarTop) " << d->sideBarMouseZone(SideBarTop) << std::endl;
 		if (pos.x() < d->sideBarMouseZone(SideBarLeft))
 		{
 			return LeftAutoHideArea;
@@ -584,7 +581,6 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	double Factor = (CDockOverlay::ModeContainerOverlay == d->Mode) ?
 		3 : 2;
 
-	std::cout << "paint: da: " << da << std::endl;
 	switch (da)
 	{
     case TopDockWidgetArea: r.setHeight(r.height() / Factor); break;

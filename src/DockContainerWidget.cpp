@@ -182,6 +182,11 @@ public:
 	void dropIntoContainer(CFloatingDockContainer* FloatingWidget, DockWidgetArea area);
 
 	/**
+	 * Drop floating widget into auto hide side bar
+	 */
+	void dropIntoAutoHideSideBar(CFloatingDockContainer* FloatingWidget, DockWidgetArea area);
+
+	/**
 	 * Drop floating widget into dock area
 	 */
 	void dropIntoSection(CFloatingDockContainer* FloatingWidget,
@@ -502,6 +507,23 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 		Splitter->show();
     }
 	_this->dumpLayout();
+}
+
+
+//============================================================================
+void DockContainerWidgetPrivate::dropIntoAutoHideSideBar(CFloatingDockContainer* FloatingWidget, DockWidgetArea area)
+{
+	auto SideBarLocation = internal::toSideBarLocation(area);
+	auto NewDockAreas = FloatingWidget->findChildren<CDockAreaWidget*>(
+		QString(), Qt::FindChildrenRecursively);
+	for (auto DockArea : NewDockAreas)
+	{
+		auto DockWidgets = DockArea->dockWidgets();
+		for (auto DockWidget : DockWidgets)
+		{
+			_this->createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
+		}
+	}
 }
 
 
@@ -1661,18 +1683,8 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	{
         if (internal::isSideBarArea(ContainerDropArea))
         {
-        	auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
-        	std::cout << "Drop into sidebar " << std::endl;
-        	auto NewDockAreas = FloatingWidget->findChildren<CDockAreaWidget*>(
-        		QString(), Qt::FindChildrenRecursively);
-        	for (auto DockArea : NewDockAreas)
-        	{
-        		auto DockWidgets = DockArea->dockWidgets();
-        		for (auto DockWidget : DockWidgets)
-        		{
-        			createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
-        		}
-        	}
+        	ADS_PRINT("Container Drop Content: " << ContainerDropArea);
+        	d->dropIntoAutoHideSideBar(FloatingWidget, ContainerDropArea);
         }
         else
         {
@@ -1712,10 +1724,29 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	d->DockManager->notifyFloatingWidgetDrop(FloatingWidget);
 }
 
+/*
+ * 		else if (internal::isSideBarArea(ContainerDropArea))
+		{
+			// Drop into AutoHideArea
+			auto DockWidget = qobject_cast<CDockWidget*>(d->Content);
+			auto DockArea = qobject_cast<CDockAreaWidget*>(d->Content);
+			auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
+			if (DockWidget)
+			{
+				DockWidget->toggleAutoHide(SideBarLocation);
+			}
+			else if (DockArea)
+			{
+				DockArea->toggleAutoHide(SideBarLocation);
+			}
+		}
+ */
+
 
 //============================================================================
 void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget)
 {
+	std::cout << "CDockContainerWidget::dropWidget" << std::endl;
     CDockWidget* SingleDockWidget = topLevelDockWidget();
 	if (TargetAreaWidget)
 	{
