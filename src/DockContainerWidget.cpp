@@ -145,7 +145,7 @@ public:
 	QList<CAutoHideDockContainer*> AutoHideWidgets;
 	QMap<SideBarLocation, CAutoHideSideBar*> SideTabBarWidgets;
 	QGridLayout* Layout = nullptr;
-	QSplitter* RootSplitter = nullptr;
+	CDockSplitter* RootSplitter = nullptr;
 	bool isFloating = false;
 	CDockAreaWidget* LastAddedAreaCache[5];
 	int VisibleDockAreaCount = -1;
@@ -465,7 +465,7 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 	CDockContainerWidget* FloatingDockContainer = FloatingWidget->dockContainer();
 	auto NewDockAreas = FloatingDockContainer->findChildren<CDockAreaWidget*>(
 		QString(), Qt::FindChildrenRecursively);
-	QSplitter* Splitter = RootSplitter;
+	auto Splitter = RootSplitter;
 
 	if (DockAreas.count() <= 1)
 	{
@@ -473,7 +473,7 @@ void DockContainerWidgetPrivate::dropIntoContainer(CFloatingDockContainer* Float
 	}
 	else if (Splitter->orientation() != InsertParam.orientation())
 	{
-		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
+		auto NewSplitter = newSplitter(InsertParam.orientation());
 		QLayoutItem* li = Layout->replaceWidget(Splitter, NewSplitter);
 		NewSplitter->addWidget(Splitter);
         updateSplitterHandles(NewSplitter);
@@ -1248,7 +1248,7 @@ void DockContainerWidgetPrivate::addDockArea(CDockAreaWidget* NewDockArea, DockW
 	}
 	else
 	{
-		QSplitter* NewSplitter = newSplitter(InsertParam.orientation());
+		auto NewSplitter = newSplitter(InsertParam.orientation());
 		if (InsertParam.append())
 		{
 			QLayoutItem* li = Layout->replaceWidget(Splitter, NewSplitter);
@@ -1583,7 +1583,7 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 		}
 
 		QWidget* widget = Splitter->widget(0);
-		QSplitter* ChildSplitter = qobject_cast<QSplitter*>(widget);
+		auto ChildSplitter = qobject_cast<CDockSplitter*>(widget);
 		// If the one and only content widget of the splitter is not a splitter
 		// then we are finished
 		if (!ChildSplitter)
@@ -1913,8 +1913,8 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 	}
 
 	d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
-	QSplitter* OldRoot = d->RootSplitter;
-	d->RootSplitter = qobject_cast<QSplitter*>(NewRootSplitter);
+	auto OldRoot = d->RootSplitter;
+	d->RootSplitter = qobject_cast<CDockSplitter*>(NewRootSplitter);
 	OldRoot->deleteLater();
 
 	return true;
@@ -2132,7 +2132,21 @@ QRect CDockContainerWidget::contentRect() const
 		return QRect();
 	}
 
-	return d->RootSplitter->geometry();
+	if (d->RootSplitter->hasVisibleContent())
+	{
+		return d->RootSplitter->geometry();
+	}
+	else
+	{
+		auto ContentRect = this->rect();
+		ContentRect.adjust(
+			sideTabBar(SideBarLeft)->sizeHint().width(),
+			sideTabBar(SideBarTop)->sizeHint().height(),
+			-sideTabBar(SideBarRight)->sizeHint().width(),
+			-sideTabBar(SideBarBottom)->sizeHint().height());
+
+		return ContentRect;
+	}
 }
 
 
