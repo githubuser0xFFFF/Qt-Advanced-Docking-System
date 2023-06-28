@@ -104,6 +104,13 @@ protected:
 	CAutoHideDockContainer* createAndSetupAutoHideContainer(SideBarLocation area, CDockWidget* DockWidget);
 
 	/**
+	 * The funtion does the same like createAndSetupAutoHideContainer() but checks
+	 * if the given DockWidget is pinnable. If it is not pinnable, the
+	 * function returns a nullptr.
+	 */
+	CAutoHideDockContainer* createAutoHideContainerIfPinnable(SideBarLocation area, CDockWidget* DockWidget);
+
+	/**
 	 * Helper function for creation of the root splitter
 	 */
 	void createRootSplitter();

@@ -187,6 +187,12 @@ public:
 	void dropIntoAutoHideSideBar(CFloatingDockContainer* FloatingWidget, DockWidgetArea area);
 
 	/**
+	 * Creates a new tab for a widget dropped into the center of a section
+	 */
+	void dropIntoCenterOfSection(CFloatingDockContainer* FloatingWidget,
+		CDockAreaWidget* TargetArea);
+
+	/**
 	 * Drop floating widget into dock area
 	 */
 	void dropIntoSection(CFloatingDockContainer* FloatingWidget,
@@ -207,13 +213,13 @@ public:
 	/**
 	 * Creates a new tab for a widget dropped into the center of a section
 	 */
-	void dropIntoCenterOfSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea);
+	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea);
 
 	/**
-	 * Creates a new tab for a widget dropped into the center of a section
+	 * Moves the dock widget or dock area given in Widget parameter to
+	 * a auto hide sidebar area
 	 */
-	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea);
+	void moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area);
 
 
 	/**
@@ -757,6 +763,33 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 	TargetAreaSplitter->setSizes(Sizes);
 
 	addDockAreasToList({NewDockArea});
+}
+
+
+//============================================================================
+void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area)
+{
+	std::cout << "DockContainerWidgetPrivate::moveToAutoHideSideBar " << area << std::endl;
+	CDockWidget* DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
+	CDockAreaWidget* DroppedDockArea = qobject_cast<CDockAreaWidget*>(Widget);
+	auto SideBarLocation = internal::toSideBarLocation(area);
+
+	if (DroppedDockWidget)
+	{
+		_this->createAndSetupAutoHideContainer(SideBarLocation, DroppedDockWidget);
+	}
+	else
+	{
+		for (const auto DockWidget : DroppedDockArea->openedDockWidgets())
+		{
+			if (!DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable))
+			{
+				continue;
+			}
+
+			_this->createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
+		}
+	}
 }
 
 
@@ -1724,24 +1757,6 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	d->DockManager->notifyFloatingWidgetDrop(FloatingWidget);
 }
 
-/*
- * 		else if (internal::isSideBarArea(ContainerDropArea))
-		{
-			// Drop into AutoHideArea
-			auto DockWidget = qobject_cast<CDockWidget*>(d->Content);
-			auto DockArea = qobject_cast<CDockAreaWidget*>(d->Content);
-			auto SideBarLocation = internal::toSideBarLocation(ContainerDropArea);
-			if (DockWidget)
-			{
-				DockWidget->toggleAutoHide(SideBarLocation);
-			}
-			else if (DockArea)
-			{
-				DockArea->toggleAutoHide(SideBarLocation);
-			}
-		}
- */
-
 
 //============================================================================
 void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget)
@@ -1751,6 +1766,10 @@ void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, 
 	if (TargetAreaWidget)
 	{
 		d->moveToNewSection(Widget, TargetAreaWidget, DropArea);
+	}
+	else if (internal::isSideBarArea(DropArea))
+	{
+		d->moveToAutoHideSideBar(Widget, DropArea);
 	}
 	else
 	{

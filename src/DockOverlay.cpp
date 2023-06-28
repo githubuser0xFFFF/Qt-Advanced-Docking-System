@@ -209,6 +209,11 @@ struct DockOverlayCrossPrivate
 		CDockOverlay::eMode Mode)
 	{
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
+		// TODO: remove, this is just for debugging
+		if (Mode == CDockOverlay::ModeContainerOverlay)
+		{
+			borderColor = Qt::red;
+		}
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
 		QColor overlayColor = iconColor(CDockOverlayCross::OverlayColor);
 		if (overlayColor.alpha() == 255)
@@ -426,9 +431,23 @@ CDockOverlay::~CDockOverlay()
 void CDockOverlay::setAllowedAreas(DockWidgetAreas areas)
 {
 	if (areas == d->AllowedAreas)
+	{
 		return;
+	}
 	d->AllowedAreas = areas;
 	d->Cross->reset();
+}
+
+
+//============================================================================
+void CDockOverlay::setAllowedArea(DockWidgetArea area, bool Enable)
+{
+	auto AreasOld = d->AllowedAreas;
+	d->AllowedAreas.setFlag(area, Enable);
+	if (AreasOld != d->AllowedAreas)
+	{
+		d->Cross->reset();
+	}
 }
 
 
@@ -456,6 +475,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 	{
+		std::cout << d->Mode << " Find out side bar area " << std::endl;
 		auto Rect = rect();
 		const QPoint pos = mapFromGlobal(QCursor::pos());
 		if (pos.x() < d->sideBarMouseZone(SideBarLeft))
@@ -468,6 +488,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		}
 		else if (pos.y() < d->sideBarMouseZone(SideBarTop))
 		{
+			std::cout << d->Mode << " TopAutoHideArea " << std::endl;
 			return TopAutoHideArea;
 		}
 		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom)))
@@ -513,12 +534,14 @@ DockWidgetArea CDockOverlay::visibleDropAreaUnderCursor() const
 //============================================================================
 DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 {
+	std::cout << d->Mode << " CDockOverlay::showOverlay()" << target << " " << target->objectName().toStdString() << std::endl;
 	if (d->TargetWidget == target)
 	{
 		// Hint: We could update geometry of overlay here.
 		DockWidgetArea da = dropAreaUnderCursor();
 		if (da != d->LastLocation)
 		{
+			std::cout << d->Mode << " repaint()" << std::endl;
 			repaint();
 			d->LastLocation = da;
 		}
@@ -543,6 +566,7 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 //============================================================================
 void CDockOverlay::hideOverlay()
 {
+	std::cout << d->Mode << " CDockOverlay::hideOverlay()" << std::endl;
 	hide();
 	d->TargetWidget.clear();
 	d->LastLocation = InvalidDockWidgetArea;
@@ -554,6 +578,7 @@ void CDockOverlay::hideOverlay()
 void CDockOverlay::enableDropPreview(bool Enable)
 {
 	d->DropPreviewEnabled = Enable;
+	std::cout << d->Mode << " update() " << Enable << std::endl;
 	update();
 }
 
@@ -581,6 +606,7 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	double Factor = (CDockOverlay::ModeContainerOverlay == d->Mode) ?
 		3 : 2;
 
+	std::cout << "CDockOverlay::paintEvent da: " << da << std::endl;
 	switch (da)
 	{
     case TopDockWidgetArea: r.setHeight(r.height() / Factor); break;
@@ -596,6 +622,11 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	}
 	QPainter painter(this);
     QColor Color = palette().color(QPalette::Active, QPalette::Highlight);
+    // TODO: This is just for debugging - remove later
+    if (d->Mode == CDockOverlay::ModeContainerOverlay)
+    {
+    	Color = Qt::red;
+    }
     QPen Pen = painter.pen();
     Pen.setColor(Color.darker(120));
     Pen.setStyle(Qt::SolidLine);

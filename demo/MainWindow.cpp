@@ -448,8 +448,8 @@ void MainWindowPrivate::createContent()
 
 	// For this Special Dock Area we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
 	{
-		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
-		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
+		//SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
+		SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea, ads::TopDockWidgetArea}); // just for testing
 	}
 
 	DockWidget = createLongTextLabelDockWidget();
@@ -517,7 +517,9 @@ void MainWindowPrivate::createContent()
 
 	// Test dock area docking
 	auto RighDockArea = DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(), TopDockArea);
-	DockManager->addDockWidget(ads::TopDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
+	DockWidget = createLongTextLabelDockWidget();
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
+	DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget, RighDockArea);
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	auto LabelDockWidget = createLongTextLabelDockWidget();

@@ -73,6 +73,11 @@ public:
 	void setAllowedAreas(DockWidgetAreas areas);
 
 	/**
+	 * Enable / disable a certain area
+	 */
+	void setAllowedArea(DockWidgetArea area, bool Enable);
+
+	/**
 	 * Returns flags with all allowed drop areas
 	 */
 	DockWidgetAreas allowedAreas() const;
