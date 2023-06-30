@@ -320,7 +320,9 @@ Screenshot Ubuntu:
 ## Build
 
 The Linux build requires private header files. Make sure that they are installed.
-The library uses SVG icons, so ensure that Qt SVG support is installed.
+The library uses SVG icons, so ensure that Qt SVG support is installed. The demo
+application creates a `QQuickWidget` for testing, so ensure that the required
+libraries are installed.
 
 ### Qt5 on Ubuntu 18.04 or 20.04
 
@@ -331,13 +333,13 @@ sudo apt install qt5-default qtbase5-private-dev
 ### Qt5 on Ubuntu 22.04
 
 ```bash
-sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5
+sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5 libqt5qml5 qtdeclarative5-dev
 ```
 
 ### Qt6 on Ubuntu 22.04
 
 ```bash
-sudo apt install qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6
+sudo apt install qt6-default qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6 qt6-qtdeclarative
 ```
 
 Open the `ads.pro` file with QtCreator and start the build, that's it.
