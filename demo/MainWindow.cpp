@@ -62,6 +62,7 @@
 #include <QPointer>
 #include <QMap>
 #include <QElapsedTimer>
+#include <QQuickWidget>
 
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
@@ -407,6 +408,17 @@ struct MainWindowPrivate
 		return DockWidget;
 	}
 
+	/**
+	 * Create QQuickWidget for test for OpenGL and QQuick
+	 */
+	ads::CDockWidget *createQQuickWidget()
+	{
+		QQuickWidget *widget = new QQuickWidget();
+		ads::CDockWidget *dockWidget = new ads::CDockWidget("Quick");
+		dockWidget->setWidget(widget);
+		return dockWidget;
+	}
+
 
 #ifdef Q_OS_WIN
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -424,7 +436,6 @@ struct MainWindowPrivate
 	}
 #endif
 #endif
-
 };
 
 //============================================================================
@@ -556,6 +567,11 @@ void MainWindowPrivate::createContent()
 
 	// Create image viewer
 	DockWidget = createImageViewer();
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+
+    // Create quick widget
+	DockWidget = createQQuickWidget();
+	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, true);
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 }
 
