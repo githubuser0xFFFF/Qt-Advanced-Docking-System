@@ -60,7 +60,9 @@ public:
     enum eMinimumSizeHintMode
     {
     	MinimumSizeHintFromDockWidget,
-    	MinimumSizeHintFromContent
+    	MinimumSizeHintFromContent,
+        MinimumSizeHintFromDockWidgetMinimumSize,
+    	MinimumSizeHintFromContentMinimumSize,
     };
 
 	enum eToggleViewActionMode
@@ -94,6 +96,7 @@ public:
 	QAction* toggleViewAction() const;
 	void setToggleViewActionMode(ads::CDockWidget::eToggleViewActionMode Mode);
 	void setMinimumSizeHintMode(ads::CDockWidget::eMinimumSizeHintMode Mode);
+    ads::CDockWidget::eMinimumSizeHintMode minimumSizeHintMode() const;
     bool isCentralWidget() const;
 	void setIcon(const QIcon& Icon);
 	QIcon icon() const;

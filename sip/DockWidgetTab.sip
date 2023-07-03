@@ -37,6 +37,7 @@ public:
     void updateStyle();
     QSize iconSize() const;
     void setIconSize(const QSize& Size);
+    bool mousePressed() const;
 
 public slots:
 	virtual void setVisible(bool visible);
