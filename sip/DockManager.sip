@@ -188,6 +188,7 @@ public:
 		AutoHideSideBarsIconOnly,
 		AutoHideShowOnMouseOver,
 		DefaultAutoHideConfig,
+        AutoHideCloseButtonCollapsesDock,
 	};
     typedef QFlags<ads::CDockManager::eAutoHideFlag> AutoHideFlags;
 
@@ -237,6 +238,7 @@ public:
 	QMenu* viewMenu() const;
 	void setViewMenuInsertionOrder(ads::CDockManager::eViewMenuInsertionOrder Order);
 	bool isRestoringState() const;
+    bool isLeavingMinimizedState() const;
 	static int startDragDistance();
     ads::CDockWidget* focusedDockWidget() const;
     QList<int> splitterSizes(ads::CDockAreaWidget *ContainedArea) const;
@@ -245,6 +247,7 @@ public:
 	static QString floatingContainersTitle();
 
 public slots:
+    void endLeavingMinimizedState();
 	void openPerspective(const QString& PerspectiveName);
     void setDockWidgetFocused(ads::CDockWidget* DockWidget);
 
