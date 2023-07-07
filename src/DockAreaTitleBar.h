@@ -163,6 +163,12 @@ public:
 	 */
 	QString titleBarButtonToolTip(TitleBarButton Button) const;
 
+	/**
+	 * Moves the dock area into its own floating widget if the area
+	 * DockWidgetFloatable flag is true
+	 */
+	void setAreaFloating();
+
 Q_SIGNALS:
 	/**
 	 * This signal is emitted if a tab in the tab bar is clicked by the user

@@ -1021,7 +1021,15 @@ void CDockWidget::setFloating()
 	{
 		return;
 	}
-	d->TabWidget->detachDockWidget();
+
+	if (this->isAutoHide())
+	{
+		dockAreaWidget()->setFloating();
+	}
+	else
+	{
+		d->TabWidget->detachDockWidget();
+	}
 }
 
 

@@ -32,6 +32,7 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QElapsedTimer>
+#include <QMenu>
 
 #include "AutoHideDockContainer.h"
 #include "AutoHideSideBar.h"
@@ -272,10 +273,65 @@ bool CAutoHideTab::event(QEvent* event)
 	return Super::event(event);
 }
 
+
 //============================================================================
 bool CAutoHideTab::iconOnly() const
 {
 	return CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideSideBarsIconOnly) && !icon().isNull();
 }
+
+
+//============================================================================
+void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
+{
+	ev->accept();
+	//d->saveDragStartMousePosition(ev->globalPos());
+
+    const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
+	QAction* Action;
+	QMenu Menu(this);
+
+
+	Action = Menu.addAction(tr("Detach"), this, SLOT(setDockWidgetFloating()));
+	Action->setEnabled(isFloatable);
+	auto IsPinnable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable);
+	Action->setEnabled(IsPinnable);
+
+	auto menu = Menu.addMenu(tr("Pin To..."));
+	menu->setEnabled(IsPinnable);
+	//d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
+	//d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
+	//d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
+	//d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
+
+	/*Menu.addSeparator();
+	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
+	Action->setEnabled(isClosable());
+	if (d->DockArea->openDockWidgetsCount() > 1)
+	{
+		Action = Menu.addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
+	}*/
+	Menu.exec(ev->globalPos());
+}
+
+
+//============================================================================
+void CAutoHideTab::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+	{
+		setDockWidgetFloating();
+	}
+
+	Super::mouseDoubleClickEvent(event);
+}
+
+
+//============================================================================
+void CAutoHideTab::setDockWidgetFloating()
+{
+	dockWidget()->setFloating();
+}
+
 
 }

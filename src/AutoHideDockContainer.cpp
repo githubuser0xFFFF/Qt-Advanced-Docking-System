@@ -230,7 +230,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 //============================================================================
 void CAutoHideDockContainer::updateSize()
 {
-	std::cout << "CAutoHideDockContainer::updateSize()" << std::endl;
+	qDebug() << "CAutoHideDockContainer::updateSize()";
 	auto dockContainerParent = dockContainer();
 	if (!dockContainerParent)
 	{
@@ -239,6 +239,10 @@ void CAutoHideDockContainer::updateSize()
 
 	auto rect = dockContainerParent->contentRect();
 	qDebug() << "dockContainerParent->contentRect() " << rect;
+	qDebug() << "dockWidget()->rect()" << dockWidget()->rect();
+	qDebug() << "dockAreaWidget()->rect(): " << dockAreaWidget()->rect();
+	qDebug() << "CAutoHideDockContainer::isVisible " << this->isVisible();
+	qDebug() << "CAutoHideDockContainer::rect " << this->rect();
 
 	switch (sideBarLocation())
 	{
@@ -273,6 +277,9 @@ void CAutoHideDockContainer::updateSize()
 	default:
 		break;
 	}
+
+	qDebug() << "CAutoHideDockContainer::rect (after): " << this->rect();
+	qDebug() << "dockAreaWidget()->rect(): " << dockAreaWidget()->rect();
 }
 
 //============================================================================
@@ -326,6 +333,7 @@ CDockWidget* CAutoHideDockContainer::dockWidget() const
 //============================================================================
 void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
 {
+	std::cout << "CAutoHideDockContainer::addDockWidget " << std::endl;
 	if (d->DockWidget)
 	{
 		// Remove the old dock widget at this area
@@ -346,6 +354,10 @@ void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
     }
 	d->DockArea->addDockWidget(DockWidget);
 	updateSize();
+	// The dock area is not visible and will not update the size when updateSize()
+	// is called for this auto hide container. Therefore we explicitely resize
+	// it here. As soon as it will become visible, it will get the right size
+    d->DockArea->resize(size());
 }
 
 

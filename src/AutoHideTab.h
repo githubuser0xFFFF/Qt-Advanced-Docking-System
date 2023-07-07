@@ -65,11 +65,12 @@ private:
 	friend class CDockContainerWidget;
 	friend DockContainerWidgetPrivate;
 
-
 protected:
 	void setSideBar(CAutoHideSideBar *SideTabBar);
 	void removeFromSideBar();
 	virtual bool event(QEvent* event) override;
+	virtual void contextMenuEvent(QContextMenuEvent* ev) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 public:
     using Super = CPushButton;
@@ -133,6 +134,12 @@ public:
 	 * not in a side bar
 	 */
 	CAutoHideSideBar* sideBar() const;
+
+public Q_SLOTS:
+	/**
+	 * Set the dock widget floating, if it is floatable
+	 */
+	void setDockWidgetFloating();
 }; // class AutoHideTab
 }
  // namespace ads

@@ -1442,6 +1442,13 @@ bool CDockAreaWidget::isTopLevelArea() const
 }
 
 
+//============================================================================
+void CDockAreaWidget::setFloating()
+{
+	d->TitleBar->setAreaFloating();
+}
+
+
 #ifdef Q_OS_WIN
 //============================================================================
 bool CDockAreaWidget::event(QEvent *e)

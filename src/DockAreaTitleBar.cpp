@@ -260,6 +260,7 @@ void DockAreaTitleBarPrivate::createTabBar()
 //============================================================================
 IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState DragState)
 {
+	qDebug() << "DockAreaTitleBarPrivate::makeAreaFloating " <<  DockArea->size();
 	QSize Size = DockArea->size();
 	this->DragState = DragState;
 	bool CreateFloatingDockContainer = (DraggingFloatingWidget != DragState);
@@ -660,6 +661,7 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 //============================================================================
 void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
+	std::cout << "CDockAreaTitleBar::mouseDoubleClickEvent" << std::endl;
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
 	// empty
@@ -674,6 +676,26 @@ void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 	}
 
 	d->makeAreaFloating(event->pos(), DraggingInactive);
+}
+
+
+//============================================================================
+void CDockAreaTitleBar::setAreaFloating()
+{
+	// If this is the last dock area in a dock container it does not make
+	// sense to move it to a new floating widget and leave this one
+	// empty
+	if (d->DockArea->dockContainer()->isFloating() && d->DockArea->dockContainer()->dockAreaCount() == 1)
+	{
+		return;
+	}
+
+	if (!d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+	{
+		return;
+	}
+
+	d->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
 }
 
 

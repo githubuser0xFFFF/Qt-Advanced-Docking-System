@@ -414,6 +414,12 @@ public Q_SLOTS:
 	 */
 	void closeOtherAreas();
 
+	/**
+	 * Moves the dock area into its own floating widget if the area
+	 * DockWidgetFloatable flag is true
+	 */
+	void setFloating();
+
 Q_SIGNALS:
 	/**
 	 * This signal is emitted when user clicks on a tab at an index.
