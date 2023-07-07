@@ -117,7 +117,7 @@ struct AutoHideDockContainerPrivate
 	CResizeHandle* ResizeHandle = nullptr;
 	QSize Size; // creates invalid size
 	QPointer<CAutoHideTab> SideTab;
-	QSize OriginalDockWidgetSize;
+	QSize InitialDockWidgetSize;
 
 	/**
 	 * Private data constructor
@@ -197,6 +197,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	Super(parent),
     d(new AutoHideDockContainerPrivate(this))
 {
+	std::cout << "CAutoHideDockContainer::constructor" << std::endl;
 	hide(); // auto hide dock container is initially always hidden
 	d->SideTabBarArea = area;
 	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
@@ -217,7 +218,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	d->ResizeHandle->setOpaqueResize(OpaqueResize);
 	std::cout << "d->DockArea->size(); " << d->DockArea->size().width() << std::endl;
 	d->Size = d->DockArea->size();
-	d->OriginalDockWidgetSize = DockWidget->size();
+	d->InitialDockWidgetSize = DockWidget->size();
 
 	addDockWidget(DockWidget);
 	parent->registerAutoHideWidget(this);
@@ -662,9 +663,9 @@ bool CAutoHideDockContainer::event(QEvent* event)
 
 
 //============================================================================
-QSize CAutoHideDockContainer::originalDockWidgetSize() const
+QSize CAutoHideDockContainer::initialDockWidgetSize() const
 {
-	return d->OriginalDockWidgetSize;
+	return d->InitialDockWidgetSize;
 }
 
 
@@ -672,6 +673,21 @@ QSize CAutoHideDockContainer::originalDockWidgetSize() const
 Qt::Orientation CAutoHideDockContainer::orientation() const
 {
 	return autoHideSideBar()->orientation();
+}
+
+
+//============================================================================
+void CAutoHideDockContainer::resetToInitialDockWidgetSize()
+{
+	auto OriginalSize = initialDockWidgetSize();
+	if (orientation() == Qt::Horizontal)
+	{
+		setSize(OriginalSize.height());
+	}
+	else
+	{
+		setSize(OriginalSize.width());
+	}
 }
 
 }

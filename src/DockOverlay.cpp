@@ -209,11 +209,6 @@ struct DockOverlayCrossPrivate
 		CDockOverlay::eMode Mode)
 	{
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
-		// TODO: remove, this is just for debugging
-		if (Mode == CDockOverlay::ModeContainerOverlay)
-		{
-			borderColor = Qt::red;
-		}
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
 		QColor overlayColor = iconColor(CDockOverlayCross::OverlayColor);
 		if (overlayColor.alpha() == 255)
@@ -615,11 +610,6 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	}
 	QPainter painter(this);
     QColor Color = palette().color(QPalette::Active, QPalette::Highlight);
-    // TODO: This is just for debugging - remove later
-    if (d->Mode == CDockOverlay::ModeContainerOverlay)
-    {
-    	Color = Qt::red;
-    }
     QPen Pen = painter.pen();
     Pen.setColor(Color.darker(120));
     Pen.setStyle(Qt::SolidLine);

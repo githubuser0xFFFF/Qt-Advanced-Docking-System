@@ -61,6 +61,7 @@ struct AutoHideTabPrivate
 	QPoint GlobalDragStartMousePosition;
 	QPoint DragStartMousePosition;
 	IFloatingWidget* FloatingWidget = nullptr;
+	Qt::Orientation DragStartOrientation;
 
 	/**
 	 * Private data constructor
@@ -182,6 +183,7 @@ bool AutoHideTabPrivate::startFloating(eDragState DraggingState)
 	auto Size = DockArea->size();
 	auto StartPos = DragStartMousePosition;
 	auto AutoHideContainer = DockWidget->autoHideDockContainer();
+	DragStartOrientation = AutoHideContainer->orientation();
 	switch (SideBar->sideBarLocation())
 	{
 	case SideBarLeft:
@@ -373,12 +375,11 @@ bool CAutoHideTab::iconOnly() const
 void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 {
 	ev->accept();
-	//d->saveDragStartMousePosition(ev->globalPos());
+	d->saveDragStartMousePosition(ev->globalPos());
 
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
 	QAction* Action;
 	QMenu Menu(this);
-
 
 	Action = Menu.addAction(tr("Detach"), this, SLOT(setDockWidgetFloating()));
 	Action->setEnabled(isFloatable);
@@ -392,13 +393,6 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 	d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
 	d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
 
-	/*Menu.addSeparator();
-	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
-	Action->setEnabled(isClosable());
-	if (d->DockArea->openDockWidgetsCount() > 1)
-	{
-		Action = Menu.addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
-	}*/
 	Menu.exec(ev->globalPos());
 }
 
@@ -406,19 +400,6 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 //============================================================================
 void CAutoHideTab::setDockWidgetFloating()
 {
-	/*auto DockArea = dockWidget()->dockAreaWidget();
-	auto AutoHideContainer = dockWidget()->autoHideDockContainer();
-	auto OriginalSize = AutoHideContainer->originalDockWidgetSize();
-	auto DockAreaSize = DockArea->size();
-	if (ads::internal::isHorizontalSideBarLocation(sideBarLocation()))
-	{
-		DockAreaSize.setHeight(OriginalSize.height());
-	}
-	else
-	{
-		DockAreaSize.setWidth(OriginalSize.width());
-	}
-	DockArea->resize(DockAreaSize);*/
 	dockWidget()->setFloating();
 }
 
@@ -427,7 +408,6 @@ void CAutoHideTab::setDockWidgetFloating()
 void CAutoHideTab::onAutoHideToActionClicked()
 {
 	int Location = sender()->property(LocationProperty).toInt();
-	std::cout << "CAutoHideTab::onAutoHideToActionClicked " << Location << std::endl;
 	d->DockWidget->setAutoHide(true, (SideBarLocation)Location);
 }
 
@@ -484,15 +464,16 @@ void CAutoHideTab::mouseReleaseEvent(QMouseEvent* ev)
 			break;
 
 		case DraggingFloatingWidget:
+			 std::cout << "CAutoHideTab::mouseReleaseEvent" << std::endl;
 			 ev->accept();
 			 d->FloatingWidget->finishDragging();
+			 if (d->DockWidget->isAutoHide() && d->DragStartOrientation != orientation())
+			 {
+				 d->DockWidget->autoHideDockContainer()->resetToInitialDockWidgetSize();
+			 }
 			 break;
 
 		default:
-			/*if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
-			{
-				d->focusController()->setDockWidgetTabPressed(false);
-			}*/
 			break; // do nothing
 		}
 	}
@@ -504,7 +485,6 @@ void CAutoHideTab::mouseReleaseEvent(QMouseEvent* ev)
 //============================================================================
 void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
 {
-	std::cout << "CAutoHideTab::mouseMoveEvent" << std::endl;
     if (!(ev->buttons() & Qt::LeftButton) || d->isDraggingState(DraggingInactive))
     {
     	d->DragState = DraggingInactive;
@@ -532,7 +512,6 @@ void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
     bool MouseOutsideBar = (MappedPos.x() < 0) || (MappedPos.x() > parentWidget()->rect().right());
     // Maybe a fixed drag distance is better here ?
     int DragDistanceY = qAbs(d->GlobalDragStartMousePosition.y() - internal::globalPositionOf(ev).y());
-    std::cout << "DragDistanceY " << DragDistanceY << "  MouseOutsideBar " << MouseOutsideBar << std::endl;
     if (DragDistanceY >= CDockManager::startDragDistance() || MouseOutsideBar)
 	{
     	// Floating is only allowed for widgets that are floatable
@@ -540,30 +519,12 @@ void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
 		auto Features = d->DockWidget->features();
         if (Features.testFlag(CDockWidget::DockWidgetFloatable) || (Features.testFlag(CDockWidget::DockWidgetMovable)))
         {
-        	// If we undock, we need to restore the initial position of this
-        	// tab because it looks strange if it remains on its dragged position
-        	/*if (d->isDraggingState(DraggingTab))
-			{
-        		parentWidget()->layout()->update();
-			}*/
             d->startFloating();
         }
     	return;
 	}
-    /*else if (d->DockArea->openDockWidgetsCount() > 1
-     && (internal::globalPositionOf(ev) - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
-	{
-    	// If we start dragging the tab, we save its inital position to
-    	// restore it later
-    	if (DraggingTab != d->DragState)
-    	{
-    		d->TabDragStartPosition = this->pos();
-    	}
-        d->DragState = DraggingTab;
-		return;
-	}*/
 
-   Super::mouseMoveEvent(ev);
+    Super::mouseMoveEvent(ev);
 }
 
 
