@@ -55,6 +55,8 @@ class CIconProvider;
 class CDockComponentsFactory;
 class CDockFocusController;
 class CAutoHideSideBar;
+class CAutoHideTab;
+struct AutoHideTabPrivate;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -87,6 +89,8 @@ private:
 	friend class CDockAreaTitleBar;
 	friend class CAutoHideDockContainer;
 	friend CAutoHideSideBar;
+	friend CAutoHideTab;
+	friend AutoHideTabPrivate;
 
 public Q_SLOTS:
 	/**

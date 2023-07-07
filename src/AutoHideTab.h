@@ -73,6 +73,9 @@ protected:
 	void removeFromSideBar();
 	virtual bool event(QEvent* event) override;
 	virtual void contextMenuEvent(QContextMenuEvent* ev) override;
+	virtual void mousePressEvent(QMouseEvent* ev) override;
+	virtual void mouseReleaseEvent(QMouseEvent* ev) override;
+	virtual void mouseMoveEvent(QMouseEvent* ev) override;
 
 public:
     using Super = CPushButton;
