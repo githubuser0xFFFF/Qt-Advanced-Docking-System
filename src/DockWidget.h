@@ -378,6 +378,12 @@ public:
     CAutoHideDockContainer* autoHideDockContainer() const;
 
     /**
+     * Returns the auto hide side bar location or SideBarNone if, this is not
+     * an autohide dock widget
+     */
+    SideBarLocation autoHideLocation() const;
+
+    /**
      * This property holds whether the dock widget is floating.
      * A dock widget is only floating, if it is the one and only widget inside
      * of a floating container. If there are more than one dock widget in a

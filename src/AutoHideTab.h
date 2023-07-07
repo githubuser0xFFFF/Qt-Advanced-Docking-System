@@ -65,12 +65,14 @@ private:
 	friend class CDockContainerWidget;
 	friend DockContainerWidgetPrivate;
 
+private Q_SLOTS:
+	void onAutoHideToActionClicked();
+
 protected:
 	void setSideBar(CAutoHideSideBar *SideTabBar);
 	void removeFromSideBar();
 	virtual bool event(QEvent* event) override;
 	virtual void contextMenuEvent(QContextMenuEvent* ev) override;
-	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 public:
     using Super = CPushButton;

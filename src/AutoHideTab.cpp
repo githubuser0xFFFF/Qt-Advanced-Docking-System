@@ -42,6 +42,8 @@
 
 namespace ads
 {
+static const char* const LocationProperty = "Location";
+
 /**
  * Private data class of CDockWidgetTab class (pimpl)
  */
@@ -82,6 +84,20 @@ struct AutoHideTabPrivate
 		{
 			DockContainer->handleAutoHideWidgetEvent(event, _this);
 		}
+	}
+
+	/**
+	 * Helper function to create and initialize the menu entries for
+	 * the "Auto Hide Group To..." menu
+	 */
+	QAction* createAutoHideToAction(const QString& Title, SideBarLocation Location,
+		QMenu* Menu)
+	{
+		auto Action = Menu->addAction(Title);
+		Action->setProperty("Location", Location);
+		QObject::connect(Action, &QAction::triggered, _this, &CAutoHideTab::onAutoHideToActionClicked);
+		Action->setEnabled(Location != _this->sideBarLocation());
+		return Action;
 	}
 }; // struct DockWidgetTabPrivate
 
@@ -299,10 +315,10 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 
 	auto menu = Menu.addMenu(tr("Pin To..."));
 	menu->setEnabled(IsPinnable);
-	//d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
-	//d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
-	//d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
-	//d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
+	d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
+	d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
+	d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
+	d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
 
 	/*Menu.addSeparator();
 	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
@@ -316,21 +332,31 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 
 
 //============================================================================
-void CAutoHideTab::mouseDoubleClickEvent(QMouseEvent *event)
+void CAutoHideTab::setDockWidgetFloating()
 {
-	if (event->button() == Qt::LeftButton)
+	/*auto DockArea = dockWidget()->dockAreaWidget();
+	auto AutoHideContainer = dockWidget()->autoHideDockContainer();
+	auto OriginalSize = AutoHideContainer->originalDockWidgetSize();
+	auto DockAreaSize = DockArea->size();
+	if (ads::internal::isHorizontalSideBarLocation(sideBarLocation()))
 	{
-		setDockWidgetFloating();
+		DockAreaSize.setHeight(OriginalSize.height());
 	}
-
-	Super::mouseDoubleClickEvent(event);
+	else
+	{
+		DockAreaSize.setWidth(OriginalSize.width());
+	}
+	DockArea->resize(DockAreaSize);*/
+	dockWidget()->setFloating();
 }
 
 
-//============================================================================
-void CAutoHideTab::setDockWidgetFloating()
+//===========================================================================
+void CAutoHideTab::onAutoHideToActionClicked()
 {
-	dockWidget()->setFloating();
+	int Location = sender()->property(LocationProperty).toInt();
+	std::cout << "CAutoHideTab::onAutoHideToActionClicked " << Location << std::endl;
+	d->DockWidget->setAutoHide(true, (SideBarLocation)Location);
 }
 
 

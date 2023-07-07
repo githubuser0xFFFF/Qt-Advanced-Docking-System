@@ -556,6 +556,13 @@ bool CDockWidget::isAutoHide() const
 
 
 //============================================================================
+SideBarLocation CDockWidget::autoHideLocation() const
+{
+	return isAutoHide() ? autoHideDockContainer()->sideBarLocation() : SideBarNone;
+}
+
+
+//============================================================================
 bool CDockWidget::isFloating() const
 {
 	if (!isInFloatingContainer())
@@ -1206,7 +1213,7 @@ void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	}
 
 	// Do nothing if nothing changes
-	if (Enable == isAutoHide())
+	if (Enable == isAutoHide() && Location == autoHideLocation())
 	{
 		return;
 	}
@@ -1215,6 +1222,25 @@ void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	if (!Enable)
 	{
 		DockArea->setAutoHide(false);
+	}
+	else if (isAutoHide())
+	{
+		auto AutoHideContainer = autoHideDockContainer();
+		auto OldOrientation = AutoHideContainer->orientation();
+		auto SideBar = dockContainer()->autoHideSideBar(Location);
+		SideBar->addAutoHideWidget(AutoHideContainer);
+		if (SideBar->orientation() != OldOrientation)
+		{
+			auto OriginalSize = AutoHideContainer->originalDockWidgetSize();
+			if (SideBar->orientation() == Qt::Horizontal)
+			{
+				AutoHideContainer->setSize(OriginalSize.height());
+			}
+			else
+			{
+				AutoHideContainer->setSize(OriginalSize.width());
+			}
+		}
 	}
 	else
 	{

@@ -117,6 +117,7 @@ struct AutoHideDockContainerPrivate
 	CResizeHandle* ResizeHandle = nullptr;
 	QSize Size; // creates invalid size
 	QPointer<CAutoHideTab> SideTab;
+	QSize OriginalDockWidgetSize;
 
 	/**
 	 * Private data constructor
@@ -214,7 +215,9 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	d->ResizeHandle->setMinResizeSize(64);
 	bool OpaqueResize = CDockManager::testConfigFlag(CDockManager::OpaqueSplitterResize);
 	d->ResizeHandle->setOpaqueResize(OpaqueResize);
+	std::cout << "d->DockArea->size(); " << d->DockArea->size().width() << std::endl;
 	d->Size = d->DockArea->size();
+	d->OriginalDockWidgetSize = DockWidget->size();
 
 	addDockWidget(DockWidget);
 	parent->registerAutoHideWidget(this);
@@ -303,7 +306,7 @@ CAutoHideDockContainer::~CAutoHideDockContainer()
 }
 
 //============================================================================
-CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
+CAutoHideSideBar* CAutoHideDockContainer::autoHideSideBar() const
 {
 	if (d->SideTab)
 	{
@@ -312,7 +315,7 @@ CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
 	else
 	{
 		auto DockContainer = dockContainer();
-		return DockContainer ? DockContainer->sideTabBar(d->SideTabBarArea) : nullptr;
+		return DockContainer ? DockContainer->autoHideSideBar(d->SideTabBarArea) : nullptr;
 	}
 }
 
@@ -655,6 +658,20 @@ bool CAutoHideDockContainer::event(QEvent* event)
 	}
 
 	return Super::event(event);
+}
+
+
+//============================================================================
+QSize CAutoHideDockContainer::originalDockWidgetSize() const
+{
+	return d->OriginalDockWidgetSize;
+}
+
+
+//============================================================================
+Qt::Orientation CAutoHideDockContainer::orientation() const
+{
+	return autoHideSideBar()->orientation();
 }
 
 }

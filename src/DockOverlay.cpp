@@ -370,7 +370,7 @@ struct DockOverlayCrossPrivate
 int DockOverlayPrivate::sideBarOverlaySize(SideBarLocation sideBarLocation)
 {
 	auto Container = qobject_cast<CDockContainerWidget*>(TargetWidget.data());
-	auto SideBar = Container->sideTabBar(sideBarLocation);
+	auto SideBar = Container->autoHideSideBar(sideBarLocation);
 	if (!SideBar || !SideBar->isVisibleTo(Container))
 	{
 		return AutoHideAreaWidth;
@@ -386,7 +386,7 @@ int DockOverlayPrivate::sideBarOverlaySize(SideBarLocation sideBarLocation)
 int DockOverlayPrivate::sideBarMouseZone(SideBarLocation sideBarLocation)
 {
 	auto Container = qobject_cast<CDockContainerWidget*>(TargetWidget.data());
-	auto SideBar = Container->sideTabBar(sideBarLocation);
+	auto SideBar = Container->autoHideSideBar(sideBarLocation);
 	if (!SideBar || !SideBar->isVisibleTo(Container))
 	{
 		return AutoHideAreaMouseZone;

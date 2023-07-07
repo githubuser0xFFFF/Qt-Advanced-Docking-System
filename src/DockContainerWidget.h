@@ -329,7 +329,7 @@ public:
 	/**
 	 * Returns the side tab widget for the given area
 	 */
-	CAutoHideSideBar* sideTabBar(SideBarLocation area) const;
+	CAutoHideSideBar* autoHideSideBar(SideBarLocation area) const;
 
 
 	/**

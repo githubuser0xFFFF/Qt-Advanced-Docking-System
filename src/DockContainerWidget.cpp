@@ -1156,12 +1156,12 @@ bool DockContainerWidgetPrivate::restoreSideBar(CDockingStateReader& s,
 			continue;
 		}
 
-		auto SideBar = _this->sideTabBar(Area);
+		auto SideBar = _this->autoHideSideBar(Area);
 		CAutoHideDockContainer* AutoHideContainer;
 		if (DockWidget->isAutoHide())
 		{
 			AutoHideContainer = DockWidget->autoHideDockContainer();
-			if (AutoHideContainer->sideBar() != SideBar)
+			if (AutoHideContainer->autoHideSideBar() != SideBar)
 			{
 				SideBar->addAutoHideWidget(AutoHideContainer);
 			}
@@ -1472,7 +1472,7 @@ CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
         DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
 	}
 
-	return sideTabBar(area)->insertDockWidget(-1, DockWidget);
+	return autoHideSideBar(area)->insertDockWidget(-1, DockWidget);
 }
 
 
@@ -1731,7 +1731,7 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	// them into this widget
 	for (auto AutohideWidget : FloatingWidget->dockContainer()->autoHideWidgets())
 	{
-		auto SideBar = sideTabBar(AutohideWidget->sideBarLocation());
+		auto SideBar = autoHideSideBar(AutohideWidget->sideBarLocation());
 		SideBar->addAutoHideWidget(AutohideWidget);
 	}
 
@@ -2118,7 +2118,7 @@ void CDockContainerWidget::closeOtherAreas(CDockAreaWidget* KeepOpenArea)
 }
 
 //============================================================================
-CAutoHideSideBar* CDockContainerWidget::sideTabBar(SideBarLocation area) const
+CAutoHideSideBar* CDockContainerWidget::autoHideSideBar(SideBarLocation area) const
 {
 	return d->SideTabBarWidgets[area];
 }
@@ -2140,10 +2140,10 @@ QRect CDockContainerWidget::contentRect() const
 	{
 		auto ContentRect = this->rect();
 		ContentRect.adjust(
-			sideTabBar(SideBarLeft)->sizeHint().width(),
-			sideTabBar(SideBarTop)->sizeHint().height(),
-			-sideTabBar(SideBarRight)->sizeHint().width(),
-			-sideTabBar(SideBarBottom)->sizeHint().height());
+			autoHideSideBar(SideBarLeft)->sizeHint().width(),
+			autoHideSideBar(SideBarTop)->sizeHint().height(),
+			-autoHideSideBar(SideBarRight)->sizeHint().width(),
+			-autoHideSideBar(SideBarBottom)->sizeHint().height());
 
 		return ContentRect;
 	}
