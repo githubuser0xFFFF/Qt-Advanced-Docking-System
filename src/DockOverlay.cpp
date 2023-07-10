@@ -583,6 +583,7 @@ bool CDockOverlay::dropPreviewEnabled() const
 void CDockOverlay::paintEvent(QPaintEvent* event)
 {
 	Q_UNUSED(event);
+
 	// Draw rect based on location
 	if (!d->DropPreviewEnabled)
 	{
@@ -608,6 +609,7 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	case BottomAutoHideArea: r.setY(r.height() - d->sideBarOverlaySize(SideBarBottom)); break;
 	default: return;
 	}
+
 	QPainter painter(this);
     QColor Color = palette().color(QPalette::Active, QPalette::Highlight);
     QPen Pen = painter.pen();

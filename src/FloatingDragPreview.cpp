@@ -103,7 +103,6 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 {
 	if (!_this->isVisible() || !DockManager)
 	{
-		std::cout << "return 1" << std::endl;
 		return;
 	}
 
@@ -132,13 +131,10 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 
 	if (!TopContainer)
 	{
-		std::cout << "ContainerOverlay->hideOverlay() 1" << std::endl;
 		ContainerOverlay->hideOverlay();
-		std::cout << "DockAreaOverlay->hideOverlay() 1" << std::endl;
 		DockAreaOverlay->hideOverlay();
 		if (CDockManager::testConfigFlag(CDockManager::DragPreviewIsDynamic))
 		{
-			std::cout << "return 2" << std::endl;
 			setHidden(false);
 		}
 		return;
@@ -155,7 +151,6 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		VisibleDockAreas++;
 	}
-	std::cout << "VisibleDockAreas " << VisibleDockAreas << std::endl;
 
 	DockWidgetAreas AllowedAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
 	//ContainerOverlay->enableDropPreview(ContainerDropArea != InvalidDockWidgetArea);
@@ -168,12 +163,12 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		AllowedAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
 	}
 	ContainerOverlay->setAllowedAreas(AllowedAreas);
+	ContainerOverlay->enableDropPreview(ContainerDropArea != InvalidDockWidgetArea);
 	if (DockArea && DockArea->isVisible() && VisibleDockAreas >= 0 && DockArea != ContentSourceArea)
 	{
 		DockAreaOverlay->enableDropPreview(true);
 		DockAreaOverlay->setAllowedAreas( (VisibleDockAreas == 1) ? NoDockWidgetArea : DockArea->allowedAreas());
 		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea);
-		std::cout << "DockWidgetArea " << Area << std::endl;
 
 		// A CenterDockWidgetArea for the dockAreaOverlay() indicates that
 		// the mouse is in the title bar. If the ContainerArea is valid
@@ -182,20 +177,16 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		if ((Area == CenterDockWidgetArea) && (ContainerDropArea != InvalidDockWidgetArea))
 		{
 			DockAreaOverlay->enableDropPreview(false);
-
-			std::cout << "ContainerOverlay->enableDropPreview(true) 1" << std::endl;
 			ContainerOverlay->enableDropPreview(true);
 		}
 		else
 		{
-			std::cout << "ContainerOverlay->enableDropPreview 2" << std::endl;
 			ContainerOverlay->enableDropPreview(InvalidDockWidgetArea == Area);
 		}
 		ContainerOverlay->showOverlay(TopContainer);
 	}
 	else
 	{
-		std::cout << "DockAreaOverlay->hideOverlay() 2" << std::endl;
 		DockAreaOverlay->hideOverlay();
 		// If there is only one single visible dock area in a container, then
 		// it does not make sense to show a dock overlay because the dock area
