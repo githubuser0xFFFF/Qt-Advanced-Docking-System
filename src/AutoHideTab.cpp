@@ -393,6 +393,8 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 	d->createAutoHideToAction(tr("Right"), SideBarRight, menu);
 	d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
 
+	Action = Menu.addAction(tr("Unpin (Dock)"), this, SLOT(unpinDockWidget()));
+
 	Menu.exec(ev->globalPos());
 }
 
@@ -400,7 +402,14 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 //============================================================================
 void CAutoHideTab::setDockWidgetFloating()
 {
-	dockWidget()->setFloating();
+	d->DockWidget->setFloating();
+}
+
+
+//============================================================================
+void CAutoHideTab::unpinDockWidget()
+{
+	d->DockWidget->setAutoHide(false);
 }
 
 

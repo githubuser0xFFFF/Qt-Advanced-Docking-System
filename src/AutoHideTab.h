@@ -145,6 +145,11 @@ public Q_SLOTS:
 	 * Set the dock widget floating, if it is floatable
 	 */
 	void setDockWidgetFloating();
+
+	/**
+	 * Unpin and dock the auto hide widget
+	 */
+	void unpinDockWidget();
 }; // class AutoHideTab
 }
  // namespace ads
