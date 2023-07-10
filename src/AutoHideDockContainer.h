@@ -190,6 +190,12 @@ public:
 	 * side bar.
 	 */
 	Qt::Orientation orientation() const;
+
+	/**
+	 * Removes the AutoHide container from the current side bar and adds
+	 * it to the new side bar given in SideBarLocation
+	 */
+	void moveToNewSideBarLocation(SideBarLocation SideBarLocation);
 };
 } // namespace ads
 

@@ -221,7 +221,6 @@ public:
 	 */
 	bool isAutoHide() const;
 
-
 	/**
 	 * Sets the current auto hide dock container
 	 */

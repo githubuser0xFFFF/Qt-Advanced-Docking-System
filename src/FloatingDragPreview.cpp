@@ -22,6 +22,8 @@
 #include "DockManager.h"
 #include "DockContainerWidget.h"
 #include "DockOverlay.h"
+#include "AutoHideDockContainer.h"
+#include "ads_globals.h"
 
 namespace ads
 {
@@ -373,7 +375,7 @@ void CFloatingDragPreview::finishDragging()
 	// state if they are dragged into a floating window
 	if (ValidDropArea || d->isContentFloatable())
 	{
-		cleanupAutoHideContainerWidget();
+		cleanupAutoHideContainerWidget(ContainerDropArea);
 	}
 
 	if (!d->DropContainer)
@@ -408,18 +410,29 @@ void CFloatingDragPreview::finishDragging()
 
 
 //============================================================================
-void CFloatingDragPreview::cleanupAutoHideContainerWidget()
+void CFloatingDragPreview::cleanupAutoHideContainerWidget(DockWidgetArea ContainerDropArea)
 {
 	auto DroppedDockWidget = qobject_cast<CDockWidget*>(d->Content);
 	auto DroppedArea = qobject_cast<CDockAreaWidget*>(d->Content);
-	if (DroppedDockWidget && DroppedDockWidget->autoHideDockContainer())
+	auto AutoHideContainer = DroppedDockWidget
+		? DroppedDockWidget->autoHideDockContainer()
+		: DroppedArea->autoHideDockContainer();
+
+	if (!AutoHideContainer)
 	{
-		DroppedDockWidget->autoHideDockContainer()->cleanupAndDelete();
+		return;
 	}
-	if (DroppedArea && DroppedArea->autoHideDockContainer())
+
+	// If the dropped widget is already an auto hide widget and if it is moved
+	// to a new side bar location in the same container, then we do not need
+	// to cleanup
+	if (ads::internal::isSideBarArea(ContainerDropArea)
+	&& (d->DropContainer == AutoHideContainer->dockContainer()))
 	{
-		DroppedArea->autoHideDockContainer()->cleanupAndDelete();
+		return;
 	}
+
+	AutoHideContainer->cleanupAndDelete();
 }
 
 

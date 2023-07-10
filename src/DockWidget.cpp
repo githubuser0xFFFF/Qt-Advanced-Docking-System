@@ -1219,23 +1219,14 @@ void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	}
 
 	auto DockArea = dockAreaWidget();
+
 	if (!Enable)
 	{
 		DockArea->setAutoHide(false);
 	}
 	else if (isAutoHide())
 	{
-		auto AutoHideContainer = autoHideDockContainer();
-		auto OldOrientation = AutoHideContainer->orientation();
-		auto SideBar = dockContainer()->autoHideSideBar(Location);
-		SideBar->addAutoHideWidget(AutoHideContainer);
-		// If we move a horizontal auto hide container to a vertical position
-		// then we resize it to the orginal dock widget size, to avoid
-		// an extremely streched dock widget after insertion
-		if (SideBar->orientation() != OldOrientation)
-		{
-			AutoHideContainer->resetToInitialDockWidgetSize();
-		}
+		autoHideDockContainer()->moveToNewSideBarLocation(Location);
 	}
 	else
 	{

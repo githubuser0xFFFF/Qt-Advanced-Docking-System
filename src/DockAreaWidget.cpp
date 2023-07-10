@@ -1323,8 +1323,15 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	{
 		if (isAutoHide())
 		{
-			autoHideDockContainer()->moveContentsToParent();
+			d->AutoHideDockContainer->moveContentsToParent();
 		}
+		return;
+	}
+
+	// If this is already an auto hide container, then move it to new location
+	if (isAutoHide())
+	{
+		d->AutoHideDockContainer->moveToNewSideBarLocation(Location);
 		return;
 	}
 

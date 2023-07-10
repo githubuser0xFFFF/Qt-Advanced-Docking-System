@@ -776,18 +776,34 @@ void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidg
 
 	if (DroppedDockWidget)
 	{
-		_this->createAndSetupAutoHideContainer(SideBarLocation, DroppedDockWidget);
+		if (_this == DroppedDockWidget->dockContainer())
+		{
+			DroppedDockWidget->setAutoHide(true, SideBarLocation);
+		}
+		else
+		{
+			_this->createAndSetupAutoHideContainer(SideBarLocation, DroppedDockWidget);
+		}
 	}
 	else
 	{
-		for (const auto DockWidget : DroppedDockArea->openedDockWidgets())
+		if (_this == DroppedDockArea->dockContainer())
 		{
-			if (!DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable))
+			DroppedDockArea->setAutoHide(true, SideBarLocation);
+		}
+		else
+		{
+			for (const auto DockWidget : DroppedDockArea->openedDockWidgets())
 			{
-				continue;
-			}
+				if (!DockWidget->features().testFlag(
+				    CDockWidget::DockWidgetPinnable))
+				{
+					continue;
+				}
 
-			_this->createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
+				_this->createAndSetupAutoHideContainer(SideBarLocation,
+				    DockWidget);
+			}
 		}
 	}
 }

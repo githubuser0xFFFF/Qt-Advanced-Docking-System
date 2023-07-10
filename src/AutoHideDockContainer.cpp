@@ -411,6 +411,7 @@ void CAutoHideDockContainer::moveContentsToParent()
 //============================================================================
 void CAutoHideDockContainer::cleanupAndDelete()
 {
+	std::cout << "CAutoHideDockContainer::cleanupAndDelete()" << std::endl;
 	const auto dockWidget = d->DockWidget;
 	if (dockWidget)
 	{
@@ -687,6 +688,27 @@ void CAutoHideDockContainer::resetToInitialDockWidgetSize()
 	else
 	{
 		setSize(OriginalSize.width());
+	}
+}
+
+
+//============================================================================
+void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation)
+{
+	if (NewSideBarLocation == sideBarLocation())
+	{
+		return;
+	}
+
+	auto OldOrientation = orientation();
+	auto SideBar = dockContainer()->autoHideSideBar(NewSideBarLocation);
+	SideBar->addAutoHideWidget(this);
+	// If we move a horizontal auto hide container to a vertical position
+	// then we resize it to the orginal dock widget size, to avoid
+	// an extremely streched dock widget after insertion
+	if (SideBar->orientation() != OldOrientation)
+	{
+		resetToInitialDockWidgetSize();
 	}
 }
 

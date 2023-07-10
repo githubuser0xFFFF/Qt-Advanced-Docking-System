@@ -95,7 +95,7 @@ public: // implements IFloatingWidget -----------------------------------------
 	/**
 	 * Cleanup auto hide container if the dragged widget has one
 	 */
-	void cleanupAutoHideContainerWidget();
+	void cleanupAutoHideContainerWidget(DockWidgetArea ContainerDropArea);
 
 Q_SIGNALS:
 	/**
