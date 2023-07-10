@@ -1059,6 +1059,22 @@ void CDockWidget::closeDockWidget()
 }
 
 
+
+//============================================================================
+void CDockWidget::requestCloseDockWidget()
+{
+    if (features().testFlag(CDockWidget::DockWidgetDeleteOnClose)
+     || features().testFlag(CDockWidget::CustomCloseHandling))
+    {
+    	closeDockWidgetInternal(false);
+    }
+    else
+    {
+    	toggleView(false);
+    }
+}
+
+
 //============================================================================
 bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
 {

@@ -394,6 +394,9 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 	d->createAutoHideToAction(tr("Bottom"), SideBarBottom, menu);
 
 	Action = Menu.addAction(tr("Unpin (Dock)"), this, SLOT(unpinDockWidget()));
+	Menu.addSeparator();
+	Action = Menu.addAction(tr("Close"), this, SLOT(requestCloseDockWidget()));
+	Action->setEnabled(d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable));
 
 	Menu.exec(ev->globalPos());
 }
@@ -534,6 +537,13 @@ void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
 	}
 
     Super::mouseMoveEvent(ev);
+}
+
+
+//============================================================================
+void CAutoHideTab::requestCloseDockWidget()
+{
+	d->DockWidget->requestCloseDockWidget();
 }
 
 

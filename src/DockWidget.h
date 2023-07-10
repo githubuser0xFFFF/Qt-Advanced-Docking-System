@@ -584,9 +584,18 @@ public Q_SLOTS:
     void deleteDockWidget();
 
     /**
-     * Closes the dock widget
+     * Closes the dock widget.
+     * The function forces closing of the dock widget even for CustomCloseHandling.
      */
     void closeDockWidget();
+
+    /**
+     * Request closing of the dock widget.
+     * For DockWidget with default close handling, the function does the same
+     * like clodeDockWidget() but if the flas CustomCloseHandling is set,
+     * the function only emits the closeRequested() signal.
+     */
+    void requestCloseDockWidget();
 
     /**
      * Shows the widget in full-screen mode.

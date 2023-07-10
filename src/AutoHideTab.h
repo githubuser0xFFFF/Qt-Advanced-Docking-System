@@ -150,6 +150,11 @@ public Q_SLOTS:
 	 * Unpin and dock the auto hide widget
 	 */
 	void unpinDockWidget();
+
+	/**
+	 * Calls the requestCloseDockWidget() function for the assigned dock widget
+	 */
+	void requestCloseDockWidget();
 }; // class AutoHideTab
 }
  // namespace ads
