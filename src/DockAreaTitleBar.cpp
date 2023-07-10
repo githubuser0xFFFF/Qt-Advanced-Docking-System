@@ -684,8 +684,10 @@ void CDockAreaTitleBar::setAreaFloating()
 {
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
-	// empty
-	if (d->DockArea->dockContainer()->isFloating() && d->DockArea->dockContainer()->dockAreaCount() == 1)
+	// empty.
+	auto DockContainer = d->DockArea->dockContainer();
+	if (DockContainer->isFloating() && DockContainer->dockAreaCount() == 1
+	 && !d->DockArea->isAutoHide())
 	{
 		return;
 	}
