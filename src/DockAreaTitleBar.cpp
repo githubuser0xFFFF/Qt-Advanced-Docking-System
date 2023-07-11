@@ -661,7 +661,6 @@ void CDockAreaTitleBar::mouseMoveEvent(QMouseEvent* ev)
 //============================================================================
 void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
-	std::cout << "CDockAreaTitleBar::mouseDoubleClickEvent" << std::endl;
 	// If this is the last dock area in a dock container it does not make
 	// sense to move it to a new floating widget and leave this one
 	// empty

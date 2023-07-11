@@ -769,7 +769,6 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 //============================================================================
 void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area)
 {
-	std::cout << "DockContainerWidgetPrivate::moveToAutoHideSideBar " << area << std::endl;
 	CDockWidget* DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
 	CDockAreaWidget* DroppedDockArea = qobject_cast<CDockAreaWidget*>(Widget);
 	auto SideBarLocation = internal::toSideBarLocation(area);
@@ -1727,7 +1726,6 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	}
 
 	// mouse is over container
-	std::cout << "Mouse is over container" << std::endl;
 	if (InvalidDockWidgetArea == dropArea && InvalidDockWidgetArea != ContainerDropArea)
 	{
         if (internal::isSideBarArea(ContainerDropArea))
@@ -1777,7 +1775,6 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 //============================================================================
 void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget)
 {
-	std::cout << "CDockContainerWidget::dropWidget" << std::endl;
     CDockWidget* SingleDockWidget = topLevelDockWidget();
 	if (TargetAreaWidget)
 	{

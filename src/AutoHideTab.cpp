@@ -476,7 +476,6 @@ void CAutoHideTab::mouseReleaseEvent(QMouseEvent* ev)
 			break;
 
 		case DraggingFloatingWidget:
-			 std::cout << "CAutoHideTab::mouseReleaseEvent" << std::endl;
 			 ev->accept();
 			 d->FloatingWidget->finishDragging();
 			 if (d->DockWidget->isAutoHide() && d->DragStartOrientation != orientation())

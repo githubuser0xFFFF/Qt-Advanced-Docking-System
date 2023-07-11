@@ -197,7 +197,6 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	Super(parent),
     d(new AutoHideDockContainerPrivate(this))
 {
-	std::cout << "CAutoHideDockContainer::constructor" << std::endl;
 	hide(); // auto hide dock container is initially always hidden
 	d->SideTabBarArea = area;
 	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
@@ -216,7 +215,6 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	d->ResizeHandle->setMinResizeSize(64);
 	bool OpaqueResize = CDockManager::testConfigFlag(CDockManager::OpaqueSplitterResize);
 	d->ResizeHandle->setOpaqueResize(OpaqueResize);
-	std::cout << "d->DockArea->size(); " << d->DockArea->size().width() << std::endl;
 	d->Size = d->DockArea->size();
 	d->InitialDockWidgetSize = DockWidget->size();
 
@@ -337,7 +335,6 @@ CDockWidget* CAutoHideDockContainer::dockWidget() const
 //============================================================================
 void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
 {
-	std::cout << "CAutoHideDockContainer::addDockWidget " << std::endl;
 	if (d->DockWidget)
 	{
 		// Remove the old dock widget at this area
@@ -411,7 +408,6 @@ void CAutoHideDockContainer::moveContentsToParent()
 //============================================================================
 void CAutoHideDockContainer::cleanupAndDelete()
 {
-	std::cout << "CAutoHideDockContainer::cleanupAndDelete()" << std::endl;
 	const auto dockWidget = d->DockWidget;
 	if (dockWidget)
 	{
