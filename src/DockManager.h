@@ -252,7 +252,9 @@ public:
 		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
-			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+			                  | DockAreaHasAutoHideButton
+			                  | AutoHideCloseButtonCollapsesDock
+
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 
