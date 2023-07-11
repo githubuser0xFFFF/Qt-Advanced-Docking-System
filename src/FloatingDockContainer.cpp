@@ -590,16 +590,22 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	}
 
 	int VisibleDockAreas = TopContainer->visibleDockAreaCount();
-	DockWidgetAreas AllowedAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
+	DockWidgetAreas AllowedContainerAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
 	auto DockArea = TopContainer->dockAreaAt(GlobalPos);
 	// If the dock container contains only one single DockArea, then we need
 	// to respect the allowed areas - only the center area is relevant here because
 	// all other allowed areas are from the container
 	if (VisibleDockAreas == 1 && DockArea)
 	{
-		AllowedAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
+		AllowedContainerAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
 	}
-	ContainerOverlay->setAllowedAreas(AllowedAreas);
+
+	if (DockContainer->features().testFlag(CDockWidget::DockWidgetPinnable))
+	{
+		AllowedContainerAreas |= AutoHideDockAreas;
+	}
+
+	ContainerOverlay->setAllowedAreas(AllowedContainerAreas);
 
 	DockWidgetArea ContainerArea = ContainerOverlay->showOverlay(TopContainer);
 	ContainerOverlay->enableDropPreview(ContainerArea != InvalidDockWidgetArea);

@@ -472,19 +472,23 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	{
 		auto Rect = rect();
 		const QPoint pos = mapFromGlobal(QCursor::pos());
-		if (pos.x() < d->sideBarMouseZone(SideBarLeft))
+		if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
+		  && d->AllowedAreas.testFlag(LeftAutoHideArea))
 		{
 			return LeftAutoHideArea;
 		}
-		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight)))
+		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
+			  && d->AllowedAreas.testFlag(RightAutoHideArea))
 		{
 			return RightAutoHideArea;
 		}
-		else if (pos.y() < d->sideBarMouseZone(SideBarTop))
+		else if (pos.y() < d->sideBarMouseZone(SideBarTop)
+			&& d->AllowedAreas.testFlag(TopAutoHideArea))
 		{
 			return TopAutoHideArea;
 		}
-		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom)))
+		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
+			&& d->AllowedAreas.testFlag(BottomAutoHideArea))
 		{
 			return BottomAutoHideArea;
 		}

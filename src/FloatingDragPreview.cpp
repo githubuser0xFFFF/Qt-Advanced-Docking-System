@@ -35,6 +35,7 @@ struct FloatingDragPreviewPrivate
 {
 	CFloatingDragPreview *_this;
 	QWidget* Content;
+	CDockWidget::DockWidgetFeatures ContentFeatures;
 	CDockAreaWidget* ContentSourceArea = nullptr;
 	QPoint DragStartMousePosition;
 	CDockManager* DockManager;
@@ -80,19 +81,35 @@ struct FloatingDragPreviewPrivate
 	 */
 	bool isContentFloatable() const
 	{
+		return this->ContentFeatures.testFlag(CDockWidget::DockWidgetFloatable);
+	}
+
+	/**
+	 * Returns true, if the content is pinnable
+	 */
+	bool isContentPinnable() const
+	{
+		return this->ContentFeatures.testFlag(CDockWidget::DockWidgetPinnable);
+	}
+
+	/**
+	 * Returns the content features
+	 */
+	CDockWidget::DockWidgetFeatures contentFeatures() const
+	{
 		CDockWidget* DockWidget = qobject_cast<CDockWidget*>(Content);
-		if (DockWidget && DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable))
+		if (DockWidget)
 		{
-			return true;
+			return DockWidget->features();
 		}
 
 		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(Content);
-		if (DockArea && DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+		if (DockArea)
 		{
-			return true;
+			return DockArea->features();
 		}
 
-		return false;
+		return CDockWidget::DockWidgetFeatures();
 	}
 };
 // struct LedArrayPanelPrivate
@@ -152,7 +169,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		VisibleDockAreas++;
 	}
 
-	DockWidgetAreas AllowedAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
+	DockWidgetAreas AllowedContainerAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
 	//ContainerOverlay->enableDropPreview(ContainerDropArea != InvalidDockWidgetArea);
 	auto DockArea = TopContainer->dockAreaAt(GlobalPos);
 	// If the dock container contains only one single DockArea, then we need
@@ -160,9 +177,14 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	// all other allowed areas are from the container
 	if (VisibleDockAreas == 1 && DockArea)
 	{
-		AllowedAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
+		AllowedContainerAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
 	}
-	ContainerOverlay->setAllowedAreas(AllowedAreas);
+
+	if (isContentPinnable())
+	{
+		AllowedContainerAreas |= AutoHideDockAreas;
+	}
+	ContainerOverlay->setAllowedAreas(AllowedContainerAreas);
 	ContainerOverlay->enableDropPreview(ContainerDropArea != InvalidDockWidgetArea);
 	if (DockArea && DockArea->isVisible() && VisibleDockAreas >= 0 && DockArea != ContentSourceArea)
 	{
@@ -259,6 +281,7 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 	d(new FloatingDragPreviewPrivate(this))
 {
 	d->Content = Content;
+	d->ContentFeatures = d->contentFeatures();
 	setAttribute(Qt::WA_DeleteOnClose);
 	if (CDockManager::testConfigFlag(CDockManager::DragPreviewHasWindowFrame))
 	{
@@ -277,8 +300,6 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
     Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
     setWindowFlags(Flags);
 #endif
-
-	setWindowOpacity(0.6);
 
 	// Create a static image of the widget that should get undocked
 	// This is like some kind preview image like it is uses in drag and drop
@@ -437,6 +458,7 @@ void CFloatingDragPreview::paintEvent(QPaintEvent* event)
 	}
 
 	QPainter painter(this);
+	painter.setOpacity(0.6);
 	if (CDockManager::testConfigFlag(CDockManager::DragPreviewShowsContentPixmap))
 	{
 		painter.drawPixmap(QPoint(0, 0), d->ContentPreviewPixmap);
