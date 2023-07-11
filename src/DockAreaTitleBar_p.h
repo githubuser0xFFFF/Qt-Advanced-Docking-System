@@ -31,43 +31,12 @@
 //                                   INCLUDES
 //============================================================================
 #include <QFrame>
-#include <QToolButton>
 
 #include "ads_globals.h"
 
 namespace ads
 {
-using tTitleBarButton = QToolButton;
 
-/**
-* Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
-* according to various config flags such as:
-* CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
-* CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
-*/
-class CTitleBarButton : public tTitleBarButton
-{
-	Q_OBJECT
-		
-private:
-	bool Visible = true;
-	bool HideWhenDisabled = false;
-
-public:
-	using Super = tTitleBarButton;
-	CTitleBarButton(bool visible = true, QWidget* parent = nullptr);
-
-	/**
-	* Adjust this visibility change request with our internal settings:
-	*/
-	virtual void setVisible(bool visible) override;
-
-protected:
-	/**
-	* Handle EnabledChanged signal to set button invisible if the configured
-	*/
-	bool event(QEvent *ev) override;
-};
 
 
 /**

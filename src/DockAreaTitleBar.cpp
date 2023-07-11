@@ -68,10 +68,10 @@ static const char* const LocationProperty = "Location";
 struct DockAreaTitleBarPrivate
 {
 	CDockAreaTitleBar* _this;
-	QPointer<tTitleBarButton> TabsMenuButton;
-	QPointer<tTitleBarButton> AutoHideButton;
-	QPointer<tTitleBarButton> UndockButton;
-	QPointer<tTitleBarButton> CloseButton;
+	QPointer<CTitleBarButton> TabsMenuButton;
+	QPointer<CTitleBarButton> AutoHideButton;
+	QPointer<CTitleBarButton> UndockButton;
+	QPointer<CTitleBarButton> CloseButton;
 	QBoxLayout* Layout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
@@ -540,7 +540,7 @@ void CDockAreaTitleBar::onAutoHideToActionClicked()
 
 
 //============================================================================
-QAbstractButton* CDockAreaTitleBar::button(TitleBarButton which) const
+CTitleBarButton* CDockAreaTitleBar::button(TitleBarButton which) const
 {
 	switch (which)
 	{
@@ -805,9 +805,9 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 }
 
 //============================================================================
-CTitleBarButton::CTitleBarButton(bool visible, QWidget* parent)
+CTitleBarButton::CTitleBarButton(bool showInTitleBar, QWidget* parent)
 	: tTitleBarButton(parent),
-	  Visible(visible),
+	  ShowInTitleBar(showInTitleBar),
 	  HideWhenDisabled(CDockManager::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
 {
     setFocusPolicy(Qt::NoFocus);
@@ -817,7 +817,7 @@ CTitleBarButton::CTitleBarButton(bool visible, QWidget* parent)
 void CTitleBarButton::setVisible(bool visible)
 {
 	// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
-	visible = visible && this->Visible;
+	visible = visible && this->ShowInTitleBar;
 
 	// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
 	if (visible && HideWhenDisabled)
@@ -827,6 +827,18 @@ void CTitleBarButton::setVisible(bool visible)
 
 	Super::setVisible(visible);
 }
+
+
+//============================================================================
+void CTitleBarButton::setShowInTitleBar(bool Show)
+{
+	this->ShowInTitleBar = Show;
+	if (!Show)
+	{
+		setVisible(false);
+	}
+}
+
 
 //============================================================================
 bool CTitleBarButton::event(QEvent *ev)

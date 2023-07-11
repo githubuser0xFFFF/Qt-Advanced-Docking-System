@@ -467,6 +467,7 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 	d->AutoHideDockContainer = AutoHideDockContainer;
 	updateAutoHideButtonCheckState();
 	updateTitleBarButtonsToolTips();
+	d->TitleBar->button(TitleBarButtonAutoHide)->setShowInTitleBar(true);
 }
 
 
