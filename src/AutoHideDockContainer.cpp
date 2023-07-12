@@ -689,7 +689,8 @@ void CAutoHideDockContainer::resetToInitialDockWidgetSize()
 
 
 //============================================================================
-void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation)
+void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation,
+	int TabIndex)
 {
 	if (NewSideBarLocation == sideBarLocation())
 	{
@@ -698,7 +699,7 @@ void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBar
 
 	auto OldOrientation = orientation();
 	auto SideBar = dockContainer()->autoHideSideBar(NewSideBarLocation);
-	SideBar->addAutoHideWidget(this);
+	SideBar->addAutoHideWidget(this, TabIndex);
 	// If we move a horizontal auto hide container to a vertical position
 	// then we resize it to the orginal dock widget size, to avoid
 	// an extremely streched dock widget after insertion

@@ -409,7 +409,8 @@ void CFloatingDragPreview::finishDragging()
 			DockArea = d->DropContainer->dockAreaAt(QCursor::pos());
 		}
 
-		d->DropContainer->dropWidget(d->Content, ContainerDropArea, DockArea);
+		d->DropContainer->dropWidget(d->Content, ContainerDropArea, DockArea,
+			d->DockManager->containerOverlay()->tabIndexUnderCursor());
 	}
 	else
 	{

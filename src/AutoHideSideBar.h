@@ -117,7 +117,7 @@ public:
 	 * If the AutoHideWidget is in another sidebar, then it will be removed
 	 * from this sidebar.
 	 */
-	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
+	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = -1);
 
 	/**
 	 * Returns orientation of side tab.
@@ -127,12 +127,25 @@ public:
 	/*
 	 * get the side tab widget at position, returns nullptr if it's out of bounds
 	 */
-	CAutoHideTab* tabAt(int index) const;
+	CAutoHideTab* tab(int index) const;
+
+	/**
+	 * Returns the tab at the given position.
+	 * Returns -1 if the position is left of the first tab and count() if the
+	 * position is right of the last tab. Returns -2 to indicate an invalid
+	 * value.
+	 */
+	int tabAt(const QPoint& Pos) const;
+
+	/**
+	 * Returns the tab insertion index for the given mouse cursor position
+	 */
+	int tabInsertIndexAt(const QPoint& Pos) const;
 
 	/*
 	 * Gets the count of the tab widgets
 	 */
-	int tabCount() const;
+	int count() const;
 
 	/**
 	 * Returns the number of visible tabs to its parent widget.

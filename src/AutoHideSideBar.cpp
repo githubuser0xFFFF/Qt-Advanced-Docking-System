@@ -233,7 +233,8 @@ void CAutoHideSideBar::removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidg
 }
 
 //============================================================================
-void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget)
+void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget,
+	int Index)
 {
 	auto SideBar = AutoHideWidget->autoHideTab()->sideBar();
 	if (SideBar == this)
@@ -248,7 +249,7 @@ void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget)
 	AutoHideWidget->setParent(d->ContainerWidget);
 	AutoHideWidget->setSideBarLocation(d->SideTabArea);
 	d->ContainerWidget->registerAutoHideWidget(AutoHideWidget);
-	insertTab(-1, AutoHideWidget->autoHideTab());
+	insertTab(Index, AutoHideWidget->autoHideTab());
 }
 
 
@@ -302,14 +303,14 @@ Qt::Orientation CAutoHideSideBar::orientation() const
 
 
 //============================================================================
-CAutoHideTab* CAutoHideSideBar::tabAt(int index) const
+CAutoHideTab* CAutoHideSideBar::tab(int index) const
 {
     return qobject_cast<CAutoHideTab*>(d->TabsLayout->itemAt(index)->widget());
 }
 
 
 //============================================================================
-int CAutoHideSideBar::tabCount() const
+int CAutoHideSideBar::count() const
 {
     return d->TabsLayout->count() - 1;
 }
@@ -318,17 +319,17 @@ int CAutoHideSideBar::tabCount() const
 //============================================================================
 int CAutoHideSideBar::visibleTabCount() const
 {
-	int count = 0;
+	int VisibleTabCount = 0;
 	auto ParentWidget = parentWidget();
-	for (auto i = 0; i < tabCount(); i++)
+	for (auto i = 0; i < count(); i++)
 	{
-		if (tabAt(i)->isVisibleTo(ParentWidget))
+		if (tab(i)->isVisibleTo(ParentWidget))
 		{
-			count++;
+			VisibleTabCount++;
 		}
 	}
 
-	return count;
+	return VisibleTabCount;
 }
 
 
@@ -336,9 +337,9 @@ int CAutoHideSideBar::visibleTabCount() const
 bool CAutoHideSideBar::hasVisibleTabs() const
 {
 	auto ParentWidget = parentWidget();
-	for (auto i = 0; i < tabCount(); i++)
+	for (auto i = 0; i < count(); i++)
 	{
-		if (tabAt(i)->isVisibleTo(ParentWidget))
+		if (tab(i)->isVisibleTo(ParentWidget))
 		{
 			return true;
 		}
@@ -358,18 +359,18 @@ SideBarLocation CAutoHideSideBar::sideBarLocation() const
 //============================================================================
 void CAutoHideSideBar::saveState(QXmlStreamWriter& s) const
 {
-	if (!tabCount())
+	if (!count())
 	{
 		return;
 	}
 
 	s.writeStartElement("SideBar");
 	s.writeAttribute("Area", QString::number(sideBarLocation()));
-	s.writeAttribute("Tabs", QString::number(tabCount()));
+	s.writeAttribute("Tabs", QString::number(count()));
 
-	for (auto i = 0; i < tabCount(); ++i)
+	for (auto i = 0; i < count(); ++i)
 	{
-		auto Tab = tabAt(i);
+		auto Tab = tab(i);
 		if (!Tab)
 		{
 			continue;
@@ -415,6 +416,39 @@ void CAutoHideSideBar::setSpacing(int Spacing)
 CDockContainerWidget* CAutoHideSideBar::dockContainer() const
 {
 	return d->ContainerWidget;
+}
+
+
+//===========================================================================
+int CAutoHideSideBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return -2;
+	}
+
+	if (Pos.x() < tab(0)->geometry().x())
+	{
+		return -1;
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
+
+//===========================================================================
+int CAutoHideSideBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	return (Index < 0) ? -1 : Index;
 }
 
 } // namespace ads

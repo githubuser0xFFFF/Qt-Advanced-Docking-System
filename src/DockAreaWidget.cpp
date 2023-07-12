@@ -1305,7 +1305,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 
 
 //============================================================================
-void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
+void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location, int TabIndex)
 {
 	if (!isAutoHideFeatureEnabled())
 	{
@@ -1324,7 +1324,7 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	// If this is already an auto hide container, then move it to new location
 	if (isAutoHide())
 	{
-		d->AutoHideDockContainer->moveToNewSideBarLocation(Location);
+		d->AutoHideDockContainer->moveToNewSideBarLocation(Location, TabIndex);
 		return;
 	}
 
@@ -1341,7 +1341,7 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 			continue;
 		}
 
-		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget);
+		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget, TabIndex++);
 	}
 }
 

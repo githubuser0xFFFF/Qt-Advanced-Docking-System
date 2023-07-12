@@ -471,6 +471,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return Result;
 	}
 
+	auto CursorPos = QCursor::pos();
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 	{
@@ -479,26 +480,34 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
 		  && d->AllowedAreas.testFlag(LeftAutoHideArea))
 		{
-			return LeftAutoHideArea;
+			Result = LeftAutoHideArea;
 		}
 		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
 			  && d->AllowedAreas.testFlag(RightAutoHideArea))
 		{
-			return RightAutoHideArea;
+			Result = RightAutoHideArea;
 		}
 		else if (pos.y() < d->sideBarMouseZone(SideBarTop)
 			&& d->AllowedAreas.testFlag(TopAutoHideArea))
 		{
-			return TopAutoHideArea;
+			Result = TopAutoHideArea;
 		}
 		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
 			&& d->AllowedAreas.testFlag(BottomAutoHideArea))
 		{
-			return BottomAutoHideArea;
+			Result = BottomAutoHideArea;
 		}
-		else
+
+		auto SideBarLocation = ads::internal::toSideBarLocation(Result);
+		if (SideBarLocation != SideBarNone)
 		{
-			return Result;
+			auto Container = qobject_cast<CDockContainerWidget*>(d->TargetWidget.data());
+			auto SideBar = Container->autoHideSideBar(SideBarLocation);
+			if (SideBar->isVisible())
+			{
+				d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
+				qDebug() << "TabIndex " << d->TabIndex;
+			}
 		}
 		return Result;
 	}
@@ -507,13 +516,13 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return Result;
 	}
 
-	auto CursorPos = QCursor::pos();
 	if (DockArea->allowedAreas().testFlag(CenterDockWidgetArea)
 	 && !DockArea->titleBar()->isHidden()
 	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(CursorPos)))
 	{
 		auto TabBar = DockArea->titleBar()->tabBar();
 		d->TabIndex = TabBar->tabAt(TabBar->mapFromGlobal(CursorPos));
+		qDebug() << "TabIndex " << d->TabIndex;
 		return CenterDockWidgetArea;
 	}
 

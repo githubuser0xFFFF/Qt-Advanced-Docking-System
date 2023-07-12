@@ -195,7 +195,7 @@ public:
 	 * Removes the AutoHide container from the current side bar and adds
 	 * it to the new side bar given in SideBarLocation
 	 */
-	void moveToNewSideBarLocation(SideBarLocation SideBarLocation);
+	void moveToNewSideBarLocation(SideBarLocation SideBarLocation, int TabIndex = -1);
 };
 } // namespace ads
 

@@ -220,7 +220,7 @@ public:
 	 * Moves the dock widget or dock area given in Widget parameter to
 	 * a auto hide sidebar area
 	 */
-	void moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area);
+	void moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area, int TabIndex = -2);
 
 
 	/**
@@ -777,7 +777,7 @@ void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidg
 
 
 //============================================================================
-void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area)
+void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area, int TabIndex)
 {
 	CDockWidget* DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
 	CDockAreaWidget* DroppedDockArea = qobject_cast<CDockAreaWidget*>(Widget);
@@ -787,18 +787,18 @@ void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidg
 	{
 		if (_this == DroppedDockWidget->dockContainer())
 		{
-			DroppedDockWidget->setAutoHide(true, SideBarLocation);
+			DroppedDockWidget->setAutoHide(true, SideBarLocation, TabIndex);
 		}
 		else
 		{
-			_this->createAndSetupAutoHideContainer(SideBarLocation, DroppedDockWidget);
+			_this->createAndSetupAutoHideContainer(SideBarLocation, DroppedDockWidget, TabIndex);
 		}
 	}
 	else
 	{
 		if (_this == DroppedDockArea->dockContainer())
 		{
-			DroppedDockArea->setAutoHide(true, SideBarLocation);
+			DroppedDockArea->setAutoHide(true, SideBarLocation, TabIndex);
 		}
 		else
 		{
@@ -811,7 +811,7 @@ void DockContainerWidgetPrivate::moveToAutoHideSideBar(QWidget* Widget, DockWidg
 				}
 
 				_this->createAndSetupAutoHideContainer(SideBarLocation,
-				    DockWidget);
+				    DockWidget, TabIndex++);
 			}
 		}
 	}
@@ -988,7 +988,7 @@ void DockContainerWidgetPrivate::saveAutoHideWidgetsState(QXmlStreamWriter& s)
 {
 	for (const auto sideTabBar : SideTabBarWidgets.values())
     {
-		if (!sideTabBar->tabCount())
+		if (!sideTabBar->count())
 		{
 			continue;
 		}
@@ -1484,7 +1484,7 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 
 //============================================================================
 CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
-	SideBarLocation area, CDockWidget* DockWidget)
+	SideBarLocation area, CDockWidget* DockWidget, int TabIndex)
 {
 	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
@@ -1497,7 +1497,8 @@ CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
         DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
 	}
 
-	return autoHideSideBar(area)->insertDockWidget(-1, DockWidget);
+	qDebug() << "CDockContainerWidget::createAndSetupAutoHideContainer TabIndex: " << TabIndex;
+	return autoHideSideBar(area)->insertDockWidget(TabIndex, DockWidget);
 }
 
 
@@ -1794,7 +1795,7 @@ void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, 
 	}
 	else if (internal::isSideBarArea(DropArea))
 	{
-		d->moveToAutoHideSideBar(Widget, DropArea);
+		d->moveToAutoHideSideBar(Widget, DropArea, TabIndex);
 	}
 	else
 	{

@@ -101,7 +101,7 @@ protected:
 	 * Initializing inserts the tabs into the side tab widget and hides it
 	 * Returns nullptr if you try and insert into an area where the configuration is not enabled
 	 */
-	CAutoHideDockContainer* createAndSetupAutoHideContainer(SideBarLocation area, CDockWidget* DockWidget);
+	CAutoHideDockContainer* createAndSetupAutoHideContainer(SideBarLocation area, CDockWidget* DockWidget, int TabIndex = -1);
 
 	/**
 	 * The funtion does the same like createAndSetupAutoHideContainer() but checks
@@ -133,7 +133,7 @@ protected:
 	 * TargetAreaWidget
 	 */
 	void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget,
-		int TabIndex = -2);
+		int TabIndex = -1);
 
 	/**
 	 * Adds the given dock area to this container widget
