@@ -122,6 +122,11 @@ public:
 	int tabAt(const QPoint& Pos) const;
 
 	/**
+	 * Returns the tab insertion index for the given mouse cursor position
+	 */
+	int tabInsertIndexAt(const QPoint& Pos) const;
+
+	/**
 	 * Filters the tab widget events
 	 */
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;

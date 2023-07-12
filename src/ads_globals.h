@@ -95,6 +95,13 @@ enum DockWidgetArea
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 
 
+enum eTabIndex
+{
+	TabDefaultInsertIndex = -1,
+	TabInvalidIndex = -2
+};
+
+
 enum TitleBarButton
 {
 	TitleBarButtonTabsMenu,

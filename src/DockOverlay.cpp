@@ -520,7 +520,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(CursorPos)))
 	{
 		auto TabBar = DockArea->titleBar()->tabBar();
-		d->TabIndex = TabBar->tabAt(TabBar->mapFromGlobal(CursorPos));
+		d->TabIndex = TabBar->tabInsertIndexAt(TabBar->mapFromGlobal(CursorPos));
 		return CenterDockWidgetArea;
 	}
 

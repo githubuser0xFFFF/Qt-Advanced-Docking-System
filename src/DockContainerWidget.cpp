@@ -190,20 +190,20 @@ public:
 	 * Creates a new tab for a widget dropped into the center of a section
 	 */
 	void dropIntoCenterOfSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea, int TabIndex = -2);
+		CDockAreaWidget* TargetArea, int TabIndex = 0);
 
 	/**
 	 * Drop floating widget into dock area
 	 */
 	void dropIntoSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea, DockWidgetArea area, int TabIndex = -2);
+		CDockAreaWidget* TargetArea, DockWidgetArea area, int TabIndex = 0);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to a
 	 * new dock widget area
 	 */
 	void moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area,
-		int TabIndex = -2);
+		int TabIndex = 0);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to a
@@ -214,13 +214,13 @@ public:
 	/**
 	 * Creates a new tab for a widget dropped into the center of a section
 	 */
-	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea, int TabIndex = -2);
+	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea, int TabIndex = 0);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to
 	 * a auto hide sidebar area
 	 */
-	void moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area, int TabIndex = -2);
+	void moveToAutoHideSideBar(QWidget* Widget, DockWidgetArea area, int TabIndex = TabDefaultInsertIndex);
 
 
 	/**
@@ -543,7 +543,7 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 	auto NewDockWidgets = FloatingContainer->dockWidgets();
 	auto TopLevelDockArea = FloatingContainer->topLevelDockArea();
 	int NewCurrentIndex = -1;
-	TabIndex = (TabIndex < 0) ? 0 : TabIndex;
+	TabIndex = qMax(0, TabIndex);
 
 	// If the floating widget contains only one single dock are, then the
 	// current dock widget of the dock area will also be the future current
@@ -675,7 +675,7 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 	auto DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
 	auto DroppedArea = qobject_cast<CDockAreaWidget*>(Widget);
 
-	TabIndex = (TabIndex < 0) ? 0 : TabIndex;
+	TabIndex = qMax(0, TabIndex);
 	if (DroppedDockWidget)
 	{
 		CDockAreaWidget* OldDockArea = DroppedDockWidget->dockAreaWidget();
@@ -1493,7 +1493,6 @@ CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
         DockWidget->setDockManager(d->DockManager); // Auto hide Dock Container needs a valid dock manager
 	}
 
-	qDebug() << "CDockContainerWidget::createAndSetupAutoHideContainer TabIndex: " << TabIndex;
 	return autoHideSideBar(area)->insertDockWidget(TabIndex, DockWidget);
 }
 

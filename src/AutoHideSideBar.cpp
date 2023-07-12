@@ -196,6 +196,7 @@ void CAutoHideSideBar::insertTab(int Index, CAutoHideTab* SideTab)
 {
     SideTab->setSideBar(this);
 	SideTab->installEventFilter(this);
+	// Default insertion is append
     if (Index < 0)
     {
     	d->TabsLayout->insertWidget(d->TabsLayout->count() - 1, SideTab);
@@ -451,7 +452,7 @@ int CAutoHideSideBar::tabAt(const QPoint& Pos) const
 {
 	if (!isVisible())
 	{
-		return InvalidTabIndex;
+		return TabInvalidIndex;
 	}
 
 	if (orientation() == Qt::Horizontal)
@@ -486,9 +487,9 @@ int CAutoHideSideBar::tabAt(const QPoint& Pos) const
 int CAutoHideSideBar::tabInsertIndexAt(const QPoint& Pos) const
 {
 	int Index = tabAt(Pos);
-	if (Index == InvalidTabIndex)
+	if (Index == TabInvalidIndex)
 	{
-		return Append;
+		return TabDefaultInsertIndex;
 	}
 	else
 	{

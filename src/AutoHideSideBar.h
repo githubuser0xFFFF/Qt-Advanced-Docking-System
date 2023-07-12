@@ -84,8 +84,6 @@ protected:
 
 public:
     using Super = QScrollArea;
-    static constexpr int Append = -1;
-    static constexpr int InvalidTabIndex = -2;
 
 	/**
 	 * Default Constructor
@@ -119,7 +117,7 @@ public:
 	 * If the AutoHideWidget is in another sidebar, then it will be removed
 	 * from this sidebar.
 	 */
-	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = Append);
+	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = TabDefaultInsertIndex);
 
 	/**
 	 * Returns orientation of side tab.

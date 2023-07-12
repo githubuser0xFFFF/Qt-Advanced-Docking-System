@@ -510,7 +510,7 @@ int CDockAreaTabBar::tabAt(const QPoint& Pos) const
 {
 	if (!isVisible())
 	{
-		return -2;
+		return TabInvalidIndex;
 	}
 
 	if (Pos.x() < tab(0)->geometry().x())
@@ -527,6 +527,21 @@ int CDockAreaTabBar::tabAt(const QPoint& Pos) const
 	}
 
 	return count();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	if (Index == TabInvalidIndex)
+	{
+		return TabDefaultInsertIndex;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
 }
 
 } // namespace ads
