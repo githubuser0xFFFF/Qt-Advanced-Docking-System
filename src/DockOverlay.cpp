@@ -41,6 +41,7 @@
 #include "DockContainerWidget.h"
 #include "AutoHideSideBar.h"
 #include "DockManager.h"
+#include "DockAreaTabBar.h"
 
 #include <iostream>
 
@@ -48,6 +49,7 @@ namespace ads
 {
 static const int AutoHideAreaWidth = 32;
 static const int AutoHideAreaMouseZone = 8;
+static const int InvalidTabIndex = -2;
 
 /**
  * Private data class of CDockOverlay
@@ -62,6 +64,7 @@ struct DockOverlayPrivate
 	bool DropPreviewEnabled = true;
 	CDockOverlay::eMode Mode = CDockOverlay::ModeDockAreaOverlay;
 	QRect DropAreaRect;
+	int TabIndex = InvalidTabIndex;
 
 	/**
 	 * Private data constructor
@@ -456,6 +459,7 @@ DockWidgetAreas CDockOverlay::allowedAreas() const
 //============================================================================
 DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 {
+	d->TabIndex = InvalidTabIndex;
 	if (!d->TargetWidget)
 	{
 		return InvalidDockWidgetArea;
@@ -503,14 +507,24 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return Result;
 	}
 
+	auto CursorPos = QCursor::pos();
 	if (DockArea->allowedAreas().testFlag(CenterDockWidgetArea)
 	 && !DockArea->titleBar()->isHidden()
-	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(QCursor::pos())))
+	 && DockArea->titleBarGeometry().contains(DockArea->mapFromGlobal(CursorPos)))
 	{
+		auto TabBar = DockArea->titleBar()->tabBar();
+		d->TabIndex = TabBar->tabAt(TabBar->mapFromGlobal(CursorPos));
 		return CenterDockWidgetArea;
 	}
 
 	return Result;
+}
+
+
+//============================================================================
+int CDockOverlay::tabIndexUnderCursor() const
+{
+	return d->TabIndex;
 }
 
 

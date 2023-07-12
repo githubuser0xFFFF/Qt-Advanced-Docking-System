@@ -190,19 +190,20 @@ public:
 	 * Creates a new tab for a widget dropped into the center of a section
 	 */
 	void dropIntoCenterOfSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea);
+		CDockAreaWidget* TargetArea, int TabIndex = -2);
 
 	/**
 	 * Drop floating widget into dock area
 	 */
 	void dropIntoSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea, DockWidgetArea area);
+		CDockAreaWidget* TargetArea, DockWidgetArea area, int TabIndex = -2);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to a
 	 * new dock widget area
 	 */
-	void moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area);
+	void moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area,
+		int TabIndex = -2);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to a
@@ -213,7 +214,7 @@ public:
 	/**
 	 * Creates a new tab for a widget dropped into the center of a section
 	 */
-	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea);
+	void moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea, int TabIndex = -2);
 
 	/**
 	 * Moves the dock widget or dock area given in Widget parameter to
@@ -535,12 +536,13 @@ void DockContainerWidgetPrivate::dropIntoAutoHideSideBar(CFloatingDockContainer*
 
 //============================================================================
 void DockContainerWidgetPrivate::dropIntoCenterOfSection(
-	CFloatingDockContainer* FloatingWidget, CDockAreaWidget* TargetArea)
+	CFloatingDockContainer* FloatingWidget, CDockAreaWidget* TargetArea, int TabIndex)
 {
 	CDockContainerWidget* FloatingContainer = FloatingWidget->dockContainer();
 	auto NewDockWidgets = FloatingContainer->dockWidgets();
 	auto TopLevelDockArea = FloatingContainer->topLevelDockArea();
 	int NewCurrentIndex = -1;
+	TabIndex = (TabIndex < 0) ? 0 : TabIndex;
 
 	// If the floating widget contains only one single dock are, then the
 	// current dock widget of the dock area will also be the future current
@@ -553,7 +555,7 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 	for (int i = 0; i < NewDockWidgets.count(); ++i)
 	{
 		CDockWidget* DockWidget = NewDockWidgets[i];
-		TargetArea->insertDockWidget(i, DockWidget, false);
+		TargetArea->insertDockWidget(TabIndex + i, DockWidget, false);
 		// If the floating widget contains multiple visible dock areas, then we
 		// simply pick the first visible open dock widget and make it
 		// the current one.
@@ -562,7 +564,7 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 			NewCurrentIndex = i;
 		}
 	}
-	TargetArea->setCurrentIndex(NewCurrentIndex);
+	TargetArea->setCurrentIndex(NewCurrentIndex + TabIndex);
 	TargetArea->updateTitleBarVisibility();
 	return;
 }
@@ -570,13 +572,14 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 
 //============================================================================
 void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* FloatingWidget,
-		CDockAreaWidget* TargetArea, DockWidgetArea area)
+		CDockAreaWidget* TargetArea, DockWidgetArea area, int TabIndex)
 {
+	qDebug() << "DockContainerWidgetPrivate::dropIntoSection TabIndex: " << TabIndex;
 	// Dropping into center means all dock widgets in the dropped floating
 	// widget will become tabs of the drop area
 	if (CenterDockWidgetArea == area)
 	{
-		dropIntoCenterOfSection(FloatingWidget, TargetArea);
+		dropIntoCenterOfSection(FloatingWidget, TargetArea, TabIndex);
 		return;
 	}
 
@@ -666,11 +669,15 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 
 
 //============================================================================
-void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea)
+void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea,
+	int TabIndex)
 {
+	qDebug() << "DockContainerWidgetPrivate::moveIntoCenterOfSection TabIndex: "
+		<< TabIndex;
 	auto DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
 	auto DroppedArea = qobject_cast<CDockAreaWidget*>(Widget);
 
+	TabIndex = (TabIndex < 0) ? 0 : TabIndex;
 	if (DroppedDockWidget)
 	{
 		CDockAreaWidget* OldDockArea = DroppedDockWidget->dockAreaWidget();
@@ -683,7 +690,7 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 		{
 			OldDockArea->removeDockWidget(DroppedDockWidget);
 		}
-		TargetArea->insertDockWidget(0, DroppedDockWidget, true);
+		TargetArea->insertDockWidget(TabIndex, DroppedDockWidget, true);
 	}
 	else
 	{
@@ -692,9 +699,9 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 		for (int i = 0; i < NewDockWidgets.count(); ++i)
 		{
 			CDockWidget* DockWidget = NewDockWidgets[i];
-			TargetArea->insertDockWidget(i, DockWidget, false);
+			TargetArea->insertDockWidget(TabIndex + i, DockWidget, false);
 		}
-		TargetArea->setCurrentIndex(NewCurrentIndex);
+		TargetArea->setCurrentIndex(TabIndex + NewCurrentIndex);
 		DroppedArea->dockContainer()->removeDockArea(DroppedArea);
 		DroppedArea->deleteLater();
 	}
@@ -705,13 +712,16 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 
 
 //============================================================================
-void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area)
+void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area,
+	int TabIndex)
 {
+	qDebug() << "DockContainerWidgetPrivate::moveToNewSection TabIndex: "
+		<< TabIndex;
 	// Dropping into center means all dock widgets in the dropped floating
 	// widget will become tabs of the drop area
 	if (CenterDockWidgetArea == area)
 	{
-		moveIntoCenterOfSection(Widget, TargetArea);
+		moveIntoCenterOfSection(Widget, TargetArea, TabIndex);
 		return;
 	}
 
@@ -1705,7 +1715,6 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	bool Dropped = false;
 
 	CDockAreaWidget* DockArea = dockAreaAt(TargetPos);
-	std::cout << "DockArea: " << DockArea << " dropArea: " << dropArea << std::endl;
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
@@ -1720,7 +1729,8 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 		if (dropArea != InvalidDockWidgetArea)
 		{
             ADS_PRINT("Dock Area Drop Content: " << dropArea);
-			d->dropIntoSection(FloatingWidget, DockArea, dropArea);
+            int TabIndex = d->DockManager->dockAreaOverlay()->tabIndexUnderCursor();
+			d->dropIntoSection(FloatingWidget, DockArea, dropArea, TabIndex);
 			Dropped = true;
 		}
 	}
@@ -1773,12 +1783,14 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 
 
 //============================================================================
-void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget)
+void CDockContainerWidget::dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget,
+	int TabIndex)
 {
+	qDebug() << "CDockContainerWidget::dropWidget TabIndex: " << TabIndex;
     CDockWidget* SingleDockWidget = topLevelDockWidget();
 	if (TargetAreaWidget)
 	{
-		d->moveToNewSection(Widget, TargetAreaWidget, DropArea);
+		d->moveToNewSection(Widget, TargetAreaWidget, DropArea, TabIndex);
 	}
 	else if (internal::isSideBarArea(DropArea))
 	{

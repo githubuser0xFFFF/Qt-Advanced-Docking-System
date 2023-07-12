@@ -132,7 +132,8 @@ protected:
 	 * a nullptr, then the DropArea indicates the drop area in the given
 	 * TargetAreaWidget
 	 */
-	void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget);
+	void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget,
+		int TabIndex = -2);
 
 	/**
 	 * Adds the given dock area to this container widget

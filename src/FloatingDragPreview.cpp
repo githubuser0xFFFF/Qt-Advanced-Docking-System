@@ -396,7 +396,8 @@ void CFloatingDragPreview::finishDragging()
 	}
 	else if (DockDropArea != InvalidDockWidgetArea)
 	{
-		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(QCursor::pos()));
+		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(QCursor::pos()),
+			d->DockManager->dockAreaOverlay()->tabIndexUnderCursor());
 	}
 	else if (ContainerDropArea != InvalidDockWidgetArea)
 	{

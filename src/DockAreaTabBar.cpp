@@ -504,6 +504,31 @@ QSize CDockAreaTabBar::sizeHint() const
 	return d->TabsContainerWidget->sizeHint();
 }
 
+
+//===========================================================================
+int CDockAreaTabBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return -2;
+	}
+
+	if (Pos.x() < tab(0)->geometry().x())
+	{
+		return -1;
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
 } // namespace ads
 
 
