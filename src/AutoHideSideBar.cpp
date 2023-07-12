@@ -234,12 +234,24 @@ void CAutoHideSideBar::removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidg
 
 //============================================================================
 void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget,
-	int Index)
+	int TabIndex)
 {
 	auto SideBar = AutoHideWidget->autoHideTab()->sideBar();
 	if (SideBar == this)
 	{
-		return;
+		// If we move to the same tab index or if we insert before the next
+		// tab index, then we will end at the same tab position and can leave
+		if (AutoHideWidget->tabIndex() == TabIndex || (AutoHideWidget->tabIndex() + 1) == TabIndex)
+		{
+			return;
+		}
+
+		// We remove this auto hide widget from the sidebar in the code below
+		// and therefore need to correct the TabIndex here
+		if (AutoHideWidget->tabIndex() < TabIndex)
+		{
+			--TabIndex;
+		}
 	}
 
 	if (SideBar)
@@ -249,7 +261,7 @@ void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget,
 	AutoHideWidget->setParent(d->ContainerWidget);
 	AutoHideWidget->setSideBarLocation(d->SideTabArea);
 	d->ContainerWidget->registerAutoHideWidget(AutoHideWidget);
-	insertTab(Index, AutoHideWidget->autoHideTab());
+	insertTab(TabIndex, AutoHideWidget->autoHideTab());
 }
 
 
@@ -350,6 +362,21 @@ bool CAutoHideSideBar::hasVisibleTabs() const
 
 
 //============================================================================
+int CAutoHideSideBar::indexOfTab(const CAutoHideTab& Tab) const
+{
+	for (auto i = 0; i < count(); i++)
+	{
+		if (tab(i) == &Tab)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+
+//============================================================================
 SideBarLocation CAutoHideSideBar::sideBarLocation() const
 {
 	return d->SideTabArea;
@@ -424,13 +451,24 @@ int CAutoHideSideBar::tabAt(const QPoint& Pos) const
 {
 	if (!isVisible())
 	{
-		return -2;
+		return InvalidTabIndex;
 	}
 
-	if (Pos.x() < tab(0)->geometry().x())
+	if (orientation() == Qt::Horizontal)
 	{
-		return -1;
+		if (Pos.x() < tab(0)->geometry().x())
+		{
+			return -1;
+		}
 	}
+	else
+	{
+		if (Pos.y() < tab(0)->geometry().y())
+		{
+			return -1;
+		}
+	}
+
 
 	for (int i = 0; i < count(); ++i)
 	{
@@ -448,7 +486,14 @@ int CAutoHideSideBar::tabAt(const QPoint& Pos) const
 int CAutoHideSideBar::tabInsertIndexAt(const QPoint& Pos) const
 {
 	int Index = tabAt(Pos);
-	return (Index < 0) ? -1 : Index;
+	if (Index == InvalidTabIndex)
+	{
+		return Append;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
 }
 
 } // namespace ads

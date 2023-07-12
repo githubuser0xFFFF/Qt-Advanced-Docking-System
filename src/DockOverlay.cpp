@@ -506,7 +506,6 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 			if (SideBar->isVisible())
 			{
 				d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
-				qDebug() << "TabIndex " << d->TabIndex;
 			}
 		}
 		return Result;
@@ -522,7 +521,6 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 	{
 		auto TabBar = DockArea->titleBar()->tabBar();
 		d->TabIndex = TabBar->tabAt(TabBar->mapFromGlobal(CursorPos));
-		qDebug() << "TabIndex " << d->TabIndex;
 		return CenterDockWidgetArea;
 	}
 

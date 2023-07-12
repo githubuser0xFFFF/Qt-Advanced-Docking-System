@@ -232,7 +232,6 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 //============================================================================
 void CAutoHideDockContainer::updateSize()
 {
-	qDebug() << "CAutoHideDockContainer::updateSize()";
 	auto dockContainerParent = dockContainer();
 	if (!dockContainerParent)
 	{
@@ -692,7 +691,9 @@ void CAutoHideDockContainer::resetToInitialDockWidgetSize()
 void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation,
 	int TabIndex)
 {
-	if (NewSideBarLocation == sideBarLocation())
+	qDebug() << "CAutoHideDockContainer::moveToNewSideBarLocation TabIndex " <<
+		TabIndex << " this->tabIndex: " << this->tabIndex();
+	if (NewSideBarLocation == sideBarLocation() && TabIndex == this->tabIndex())
 	{
 		return;
 	}
@@ -707,6 +708,13 @@ void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBar
 	{
 		resetToInitialDockWidgetSize();
 	}
+}
+
+
+//============================================================================
+int CAutoHideDockContainer::tabIndex() const
+{
+	return d->SideTab->tabIndex();
 }
 
 }

@@ -546,4 +546,16 @@ void CAutoHideTab::requestCloseDockWidget()
 }
 
 
+//============================================================================
+int CAutoHideTab::tabIndex() const
+{
+	if (!d->SideBar)
+	{
+		return -1;
+	}
+
+	return d->SideBar->indexOfTab(*this);
+}
+
+
 }

@@ -84,6 +84,8 @@ protected:
 
 public:
     using Super = QScrollArea;
+    static constexpr int Append = -1;
+    static constexpr int InvalidTabIndex = -2;
 
 	/**
 	 * Default Constructor
@@ -117,7 +119,7 @@ public:
 	 * If the AutoHideWidget is in another sidebar, then it will be removed
 	 * from this sidebar.
 	 */
-	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = -1);
+	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = Append);
 
 	/**
 	 * Returns orientation of side tab.
@@ -125,15 +127,15 @@ public:
 	Qt::Orientation orientation() const;
 
 	/*
-	 * get the side tab widget at position, returns nullptr if it's out of bounds
+	 * Get the side tab widget at position, returns nullptr if it's out of bounds
 	 */
 	CAutoHideTab* tab(int index) const;
 
 	/**
 	 * Returns the tab at the given position.
 	 * Returns -1 if the position is left of the first tab and count() if the
-	 * position is right of the last tab. Returns -2 to indicate an invalid
-	 * value.
+	 * position is right of the last tab. Returns InvalidTabIndex (-2) to
+	 * indicate an invalid value.
 	 */
 	int tabAt(const QPoint& Pos) const;
 
@@ -141,6 +143,11 @@ public:
 	 * Returns the tab insertion index for the given mouse cursor position
 	 */
 	int tabInsertIndexAt(const QPoint& Pos) const;
+
+	/**
+	 * Returns the index of the given tab
+	 */
+	int indexOfTab(const CAutoHideTab& Tab) const;
 
 	/*
 	 * Gets the count of the tab widgets

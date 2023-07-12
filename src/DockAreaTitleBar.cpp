@@ -260,7 +260,6 @@ void DockAreaTitleBarPrivate::createTabBar()
 //============================================================================
 IFloatingWidget* DockAreaTitleBarPrivate::makeAreaFloating(const QPoint& Offset, eDragState DragState)
 {
-	qDebug() << "DockAreaTitleBarPrivate::makeAreaFloating " <<  DockArea->size();
 	QSize Size = DockArea->size();
 	this->DragState = DragState;
 	bool CreateFloatingDockContainer = (DraggingFloatingWidget != DragState);

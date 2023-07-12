@@ -523,12 +523,13 @@ void DockContainerWidgetPrivate::dropIntoAutoHideSideBar(CFloatingDockContainer*
 	auto SideBarLocation = internal::toSideBarLocation(area);
 	auto NewDockAreas = FloatingWidget->findChildren<CDockAreaWidget*>(
 		QString(), Qt::FindChildrenRecursively);
+	int TabIndex = DockManager->containerOverlay()->tabIndexUnderCursor();
 	for (auto DockArea : NewDockAreas)
 	{
 		auto DockWidgets = DockArea->dockWidgets();
 		for (auto DockWidget : DockWidgets)
 		{
-			_this->createAndSetupAutoHideContainer(SideBarLocation, DockWidget);
+			_this->createAndSetupAutoHideContainer(SideBarLocation, DockWidget, TabIndex++);
 		}
 	}
 }
@@ -574,7 +575,6 @@ void DockContainerWidgetPrivate::dropIntoCenterOfSection(
 void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* FloatingWidget,
 		CDockAreaWidget* TargetArea, DockWidgetArea area, int TabIndex)
 {
-	qDebug() << "DockContainerWidgetPrivate::dropIntoSection TabIndex: " << TabIndex;
 	// Dropping into center means all dock widgets in the dropped floating
 	// widget will become tabs of the drop area
 	if (CenterDockWidgetArea == area)
@@ -672,8 +672,6 @@ void DockContainerWidgetPrivate::dropIntoSection(CFloatingDockContainer* Floatin
 void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockAreaWidget* TargetArea,
 	int TabIndex)
 {
-	qDebug() << "DockContainerWidgetPrivate::moveIntoCenterOfSection TabIndex: "
-		<< TabIndex;
 	auto DroppedDockWidget = qobject_cast<CDockWidget*>(Widget);
 	auto DroppedArea = qobject_cast<CDockAreaWidget*>(Widget);
 
@@ -715,8 +713,6 @@ void DockContainerWidgetPrivate::moveIntoCenterOfSection(QWidget* Widget, CDockA
 void DockContainerWidgetPrivate::moveToNewSection(QWidget* Widget, CDockAreaWidget* TargetArea, DockWidgetArea area,
 	int TabIndex)
 {
-	qDebug() << "DockContainerWidgetPrivate::moveToNewSection TabIndex: "
-		<< TabIndex;
 	// Dropping into center means all dock widgets in the dropped floating
 	// widget will become tabs of the drop area
 	if (CenterDockWidgetArea == area)
@@ -1707,7 +1703,6 @@ int CDockContainerWidget::visibleDockAreaCount() const
 void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWidget,
 	const QPoint& TargetPos)
 {
-	//dockContainer()->createAndSetupAutoHideContainer(area, this);
     ADS_PRINT("CDockContainerWidget::dropFloatingWidget");
 	CDockWidget* SingleDroppedDockWidget = FloatingWidget->topLevelDockWidget();
 	CDockWidget* SingleDockWidget = topLevelDockWidget();
@@ -1716,6 +1711,7 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 	bool Dropped = false;
 
 	CDockAreaWidget* DockArea = dockAreaAt(TargetPos);
+	// mouse is over dock area
 	if (DockArea)
 	{
 		auto dropOverlay = d->DockManager->dockAreaOverlay();
@@ -1736,7 +1732,7 @@ void CDockContainerWidget::dropFloatingWidget(CFloatingDockContainer* FloatingWi
 		}
 	}
 
-	// mouse is over container
+	// mouse is over container or auto hide side bar
 	if (InvalidDockWidgetArea == dropArea && InvalidDockWidgetArea != ContainerDropArea)
 	{
         if (internal::isSideBarArea(ContainerDropArea))

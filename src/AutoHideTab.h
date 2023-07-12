@@ -140,6 +140,11 @@ public:
 	 */
 	CAutoHideSideBar* sideBar() const;
 
+	/**
+	 * Returns the index of this tab in the sideBar
+	 */
+	int tabIndex() const;
+
 public Q_SLOTS:
 	/**
 	 * Set the dock widget floating, if it is floatable

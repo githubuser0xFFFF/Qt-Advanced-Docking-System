@@ -106,6 +106,11 @@ public:
 	CDockWidget* dockWidget() const;
 
 	/**
+	 * Returns the index of this container in the sidebar
+	 */
+	int tabIndex() const;
+
+	/**
 	 * Adds a dock widget and removes the previous dock widget
 	 */
 	void addDockWidget(CDockWidget* DockWidget);
