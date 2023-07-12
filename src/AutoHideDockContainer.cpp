@@ -117,7 +117,7 @@ struct AutoHideDockContainerPrivate
 	CResizeHandle* ResizeHandle = nullptr;
 	QSize Size; // creates invalid size
 	QPointer<CAutoHideTab> SideTab;
-	QSize InitialDockWidgetSize;
+	QSize SizeCache;
 
 	/**
 	 * Private data constructor
@@ -216,7 +216,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	bool OpaqueResize = CDockManager::testConfigFlag(CDockManager::OpaqueSplitterResize);
 	d->ResizeHandle->setOpaqueResize(OpaqueResize);
 	d->Size = d->DockArea->size();
-	d->InitialDockWidgetSize = DockWidget->size();
+	d->SizeCache = DockWidget->size();
 
 	addDockWidget(DockWidget);
 	parent->registerAutoHideWidget(this);
@@ -239,12 +239,6 @@ void CAutoHideDockContainer::updateSize()
 	}
 
 	auto rect = dockContainerParent->contentRect();
-	qDebug() << "dockContainerParent->contentRect() " << rect;
-	qDebug() << "dockWidget()->rect()" << dockWidget()->rect();
-	qDebug() << "dockAreaWidget()->rect(): " << dockAreaWidget()->rect();
-	qDebug() << "CAutoHideDockContainer::isVisible " << this->isVisible();
-	qDebug() << "CAutoHideDockContainer::rect " << this->rect();
-
 	switch (sideBarLocation())
 	{
 	case SideBarLocation::SideBarTop:
@@ -279,8 +273,14 @@ void CAutoHideDockContainer::updateSize()
 		break;
 	}
 
-	qDebug() << "CAutoHideDockContainer::rect (after): " << this->rect();
-	qDebug() << "dockAreaWidget()->rect(): " << dockAreaWidget()->rect();
+	if (orientation() == Qt::Horizontal)
+	{
+		d->SizeCache.setHeight(this->height());
+	}
+	else
+	{
+		d->SizeCache.setWidth(this->width());
+	}
 }
 
 //============================================================================
@@ -659,30 +659,23 @@ bool CAutoHideDockContainer::event(QEvent* event)
 
 
 //============================================================================
-QSize CAutoHideDockContainer::initialDockWidgetSize() const
-{
-	return d->InitialDockWidgetSize;
-}
-
-
-//============================================================================
 Qt::Orientation CAutoHideDockContainer::orientation() const
 {
-	return autoHideSideBar()->orientation();
+	return ads::internal::isHorizontalSideBarLocation(d->SideTabBarArea)
+		? Qt::Horizontal : Qt::Vertical;
 }
 
 
 //============================================================================
 void CAutoHideDockContainer::resetToInitialDockWidgetSize()
 {
-	auto OriginalSize = initialDockWidgetSize();
 	if (orientation() == Qt::Horizontal)
 	{
-		setSize(OriginalSize.height());
+		setSize(d->SizeCache.height());
 	}
 	else
 	{
-		setSize(OriginalSize.width());
+		setSize(d->SizeCache.width());
 	}
 }
 
@@ -691,8 +684,6 @@ void CAutoHideDockContainer::resetToInitialDockWidgetSize()
 void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation,
 	int TabIndex)
 {
-	qDebug() << "CAutoHideDockContainer::moveToNewSideBarLocation TabIndex " <<
-		TabIndex << " this->tabIndex: " << this->tabIndex();
 	if (NewSideBarLocation == sideBarLocation() && TabIndex == this->tabIndex())
 	{
 		return;

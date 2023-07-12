@@ -173,12 +173,6 @@ public:
 	void setSize(int Size);
 
 	/**
-	 * Returns the original size of the dock widget at the time it has been
-	 * added to this auto hide widget
-	 */
-	QSize initialDockWidgetSize() const;
-
-	/**
 	 * Resets the with or hight to the initial dock widget size dependinng on
 	 * the orientation.
 	 * If the orientation is Qt::Horizontal, then the height is reset to
