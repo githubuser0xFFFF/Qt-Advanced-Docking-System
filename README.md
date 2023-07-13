@@ -22,6 +22,70 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
+Release [4.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) significantly improves the Auto-Hide functionality and also brings improvements 
+for Drag and Drop of dock widgets into dock area tabs. These are the highlights of the new version:
+
+#### Drag & Drop to Auto-Hide
+
+Now you can easily drag any dock widget or any floating widget to the
+borders of a window to pin it as a auto-hide tab in one of the 4 sidebars.
+If you drag a dock widget close the one of the four window borders, special
+drop overlays will be shown to indicate the drop area for auto-hide widgets:
+
+![Auo-Hide drag to Sidebar](doc/AutoHide_Drag_to_Sidebar.gif)
+
+Of course, this also works with dock areas:
+
+![Auo-Hide drag Dock Area](doc/AutoHide_Drag_DockArea.gif)
+
+If you drag a dock widget or dock area into a sidebar, then you even have
+control over where tabs are inserted. Simply drag your mouse over a specific
+auto-hide tab, and your dragged dock widget will be inserted before this tab.
+Drag to the sidebar area behind the last tab, and the dragged widget will be
+appended as last tab. In the following screen capture, the **Image Viewer 1** will
+be inserted before the **Table 0** Auto-Hide tab and the **Image Viewer 2**
+is appende behind the last tab:
+
+![Auo-Hide tab insert order](doc/AutoHide_Tab_Insert_Order.gif)
+
+#### Auto-Hide Tab Insertion Order
+
+It is also possible to drag Auto-Hide tabs to a new auto-hide position.
+That means, you can drag them to a different border or sidebar:
+
+![Auto-Hide change sidebar](doc/AutoHide_Change_Sidebar.gif)
+
+#### Auto-Hide Tab Sorting
+
+You can drag Auto-Hide tabs to a new position in the current sidebar 
+to sort them:
+
+![Auo-Hide sort tabs](doc/AutoHide_Sort_Tabs.gif)
+
+#### Auto-Hide Drag to Float / Dock
+
+But that is not all. You can also simply move Auto-Hide tabs to another
+floating widget or dock them via drag and drop:
+
+![Auo-Hide drag to float or dock](doc/AutoHide_Drag_to_Float_or_Dock.gif)
+
+#### Auto-Hide Context Menu
+
+All Auto-Hide tabs now have a context menu, that provides all the functionality
+that you know from Dock widget tabs. With the **Pin To...** item from the
+context menu it is very easy to move an Auto-Hide tab to a different Auto-Hide
+sidebar:
+
+![Auo-Hide context menu](doc/AutoHide_Context_Menu.png)
+
+#### Dock Area Tab Insert Order
+
+And last but not least the new version also improves the docking of widgets
+into the tabs of a Dock area. Just as with Auto-Hide tabs, you can now determine the position at which a tab is inserted by moving the mouse over an already existing tab (insertion before the tab) or behind the last tab 
+(appending):
+
+![Dock area tab insert order](doc/DockArea_Tab_Insertion_Order.gif)
+
 The [release 4.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 adds the following features:
 
@@ -77,6 +141,12 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+    - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
+    - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
+    - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
+    - [Auto-Hide Drag to Float / Dock](#auto-hide-drag-to-float--dock)
+    - [Auto-Hide Context Menu](#auto-hide-context-menu)
+    - [Dock Area Tab Insert Order](#dock-area-tab-insert-order)
 - [Features](#features)
   - [Overview](#overview)
   - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
