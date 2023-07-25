@@ -1272,6 +1272,16 @@ bool CFloatingDockContainer::event(QEvent *e)
 			ADS_PRINT("FloatingWidget::event QEvent::NonClientAreaMouseButtonRelease");
 			d->titleMouseReleaseEvent();
 		}
+      else if( QGuiApplication::mouseButtons().testFlag(Qt::NoButton) )
+      {
+         qDebug() << "DraggingFloatingWidget NoButton";
+         d->titleMouseReleaseEvent();
+      }
+      else if( e->type() == QEvent::Leave )
+      {
+         qDebug() << "DraggingFloatingWidget Leave";
+         d->titleMouseReleaseEvent();
+      }
 		break;
 
 	default:
