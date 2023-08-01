@@ -55,6 +55,8 @@ class CIconProvider;
 class CDockComponentsFactory;
 class CDockFocusController;
 class CAutoHideSideBar;
+class CAutoHideTab;
+struct AutoHideTabPrivate;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -87,6 +89,8 @@ private:
 	friend class CDockAreaTitleBar;
 	friend class CAutoHideDockContainer;
 	friend CAutoHideSideBar;
+	friend CAutoHideTab;
+	friend AutoHideTabPrivate;
 
 public Q_SLOTS:
 	/**
@@ -248,7 +252,9 @@ public:
 		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
-			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+			                  | DockAreaHasAutoHideButton
+			                  | AutoHideCloseButtonCollapsesDock
+
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 

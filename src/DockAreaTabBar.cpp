@@ -36,6 +36,7 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QtGlobal>
+#include <QTimer>
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
@@ -107,7 +108,12 @@ void DockAreaTabBarPrivate::updateTabs()
 		{
 			TabWidget->show();
 			TabWidget->setActiveTab(true);
-			_this->ensureWidgetVisible(TabWidget);
+			// Sometimes the synchronous calculation of the rectangular area fails
+			// Therefore we use QTimer::singleShot here to execute the call
+			// within the event loop - see #520
+			QTimer::singleShot(0, [&, TabWidget]{
+			    _this->ensureWidgetVisible(TabWidget);
+			});
 		}
 		else
 		{
@@ -496,6 +502,46 @@ QSize CDockAreaTabBar::minimumSizeHint() const
 QSize CDockAreaTabBar::sizeHint() const
 {
 	return d->TabsContainerWidget->sizeHint();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return TabInvalidIndex;
+	}
+
+	if (Pos.x() < tab(0)->geometry().x())
+	{
+		return -1;
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
+
+//===========================================================================
+int CDockAreaTabBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	if (Index == TabInvalidIndex)
+	{
+		return TabDefaultInsertIndex;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
 }
 
 } // namespace ads

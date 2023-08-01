@@ -28,6 +28,8 @@ public:
 	Qt::Orientation orientation() const;
 	ads::CAutoHideTab* tabAt(int index) const;
 	int tabCount() const;
+    int visibleTabCount() const;
+    bool hasVisibleTabs() const;
 	ads::SideBarLocation sideBarLocation() const;
 	virtual QSize minimumSizeHint() const;
 	virtual QSize sizeHint() const;

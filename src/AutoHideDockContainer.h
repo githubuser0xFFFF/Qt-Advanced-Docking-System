@@ -93,7 +93,7 @@ public:
 	/**
 	 * Get's the side tab bar
 	 */
-	CAutoHideSideBar* sideBar() const;
+	CAutoHideSideBar* autoHideSideBar() const;
 
 	/**
 	 * Returns the side tab
@@ -104,6 +104,11 @@ public:
 	 * Get's the dock widget in this dock container
 	 */
 	CDockWidget* dockWidget() const;
+
+	/**
+	 * Returns the index of this container in the sidebar
+	 */
+	int tabIndex() const;
 
 	/**
 	 * Adds a dock widget and removes the previous dock widget
@@ -166,6 +171,30 @@ public:
 	 * of this auto hide container.
 	 */
 	void setSize(int Size);
+
+	/**
+	 * Resets the with or hight to the initial dock widget size dependinng on
+	 * the orientation.
+	 * If the orientation is Qt::Horizontal, then the height is reset to
+	 * the initial size and if orientation is Qt::Vertical, then the width is
+	 * reset to the initial size
+	 */
+	void resetToInitialDockWidgetSize();
+
+	/**
+	 * Returns orientation of this container.
+	 * Left and right containers have a Qt::Vertical orientation and top / bottom
+	 * containers have a Qt::Horizontal orientation.
+	 * The function returns the orientation of the corresponding auto hide
+	 * side bar.
+	 */
+	Qt::Orientation orientation() const;
+
+	/**
+	 * Removes the AutoHide container from the current side bar and adds
+	 * it to the new side bar given in SideBarLocation
+	 */
+	void moveToNewSideBarLocation(SideBarLocation SideBarLocation, int TabIndex = -1);
 };
 } // namespace ads
 

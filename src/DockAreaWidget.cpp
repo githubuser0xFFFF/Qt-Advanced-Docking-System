@@ -140,6 +140,7 @@ public:
 			{
 				LayoutItem->widget()->setParent(nullptr);
 			}
+			delete LayoutItem;
 			m_CurrentWidget = nullptr;
 			m_CurrentIndex = -1;
 		}
@@ -466,6 +467,7 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 	d->AutoHideDockContainer = AutoHideDockContainer;
 	updateAutoHideButtonCheckState();
 	updateTitleBarButtonsToolTips();
+	d->TitleBar->button(TitleBarButtonAutoHide)->setShowInTitleBar(true);
 }
 
 
@@ -625,15 +627,7 @@ void CDockAreaWidget::hideAreaWithNoVisibleContent()
 void CDockAreaWidget::onTabCloseRequested(int Index)
 {
     ADS_PRINT("CDockAreaWidget::onTabCloseRequested " << Index);
-    auto* DockWidget = dockWidget(Index);
-    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
-    {
-    	DockWidget->closeDockWidgetInternal();
-    }
-    else
-    {
-    	DockWidget->toggleView(false);
-    }
+    dockWidget(Index)->requestCloseDockWidget();
 }
 
 
@@ -1311,7 +1305,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 
 
 //============================================================================
-void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
+void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location, int TabIndex)
 {
 	if (!isAutoHideFeatureEnabled())
 	{
@@ -1322,8 +1316,15 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	{
 		if (isAutoHide())
 		{
-			autoHideDockContainer()->moveContentsToParent();
+			d->AutoHideDockContainer->moveContentsToParent();
 		}
+		return;
+	}
+
+	// If this is already an auto hide container, then move it to new location
+	if (isAutoHide())
+	{
+		d->AutoHideDockContainer->moveToNewSideBarLocation(Location, TabIndex);
 		return;
 	}
 
@@ -1340,7 +1341,7 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 			continue;
 		}
 
-		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget);
+		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget, TabIndex++);
 	}
 }
 
@@ -1438,6 +1439,13 @@ bool CDockAreaWidget::isTopLevelArea() const
 	}
 
 	return (Container->topLevelDockArea() == this);
+}
+
+
+//============================================================================
+void CDockAreaWidget::setFloating()
+{
+	d->TitleBar->setAreaFloating();
 }
 
 

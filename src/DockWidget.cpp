@@ -556,6 +556,13 @@ bool CDockWidget::isAutoHide() const
 
 
 //============================================================================
+SideBarLocation CDockWidget::autoHideLocation() const
+{
+	return isAutoHide() ? autoHideDockContainer()->sideBarLocation() : SideBarNone;
+}
+
+
+//============================================================================
 bool CDockWidget::isFloating() const
 {
 	if (!isInFloatingContainer())
@@ -619,6 +626,13 @@ void CDockWidget::setToggleViewActionMode(eToggleViewActionMode Mode)
 void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
 {
 	d->MinimumSizeHintMode = Mode;
+}
+
+
+//============================================================================
+CDockWidget::eMinimumSizeHintMode CDockWidget::minimumSizeHintMode() const
+{
+	return d->MinimumSizeHintMode;
 }
 
 
@@ -990,14 +1004,20 @@ void CDockWidget::setClosedState(bool Closed)
 //============================================================================
 QSize CDockWidget::minimumSizeHint() const
 {
-	if (d->MinimumSizeHintMode == CDockWidget::MinimumSizeHintFromDockWidget || !d->Widget)
+	if (!d->Widget)
 	{
 		return QSize(60, 40);
 	}
-	else
+
+	switch (d->MinimumSizeHintMode)
 	{
-		return d->Widget->minimumSizeHint();
+		case MinimumSizeHintFromDockWidget: return QSize(60, 40);
+    	case MinimumSizeHintFromContent: return d->Widget->minimumSizeHint();
+    	case MinimumSizeHintFromDockWidgetMinimumSize: return minimumSize();
+    	case MinimumSizeHintFromContentMinimumSize: return d->Widget->minimumSize();
 	}
+
+	return d->Widget->minimumSizeHint();
 }
 
 
@@ -1008,7 +1028,15 @@ void CDockWidget::setFloating()
 	{
 		return;
 	}
-	d->TabWidget->detachDockWidget();
+
+	if (this->isAutoHide())
+	{
+		dockAreaWidget()->setFloating();
+	}
+	else
+	{
+		d->TabWidget->detachDockWidget();
+	}
 }
 
 
@@ -1028,6 +1056,22 @@ void CDockWidget::deleteDockWidget()
 void CDockWidget::closeDockWidget()
 {
 	closeDockWidgetInternal(true);
+}
+
+
+
+//============================================================================
+void CDockWidget::requestCloseDockWidget()
+{
+    if (features().testFlag(CDockWidget::DockWidgetDeleteOnClose)
+     || features().testFlag(CDockWidget::CustomCloseHandling))
+    {
+    	closeDockWidgetInternal(false);
+    }
+    else
+    {
+    	toggleView(false);
+    }
 }
 
 
@@ -1177,7 +1221,7 @@ void CDockWidget::raise()
 
 
 //============================================================================
-void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
+void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location, int TabIndex)
 {
 	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 	{
@@ -1185,20 +1229,25 @@ void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	}
 
 	// Do nothing if nothing changes
-	if (Enable == isAutoHide())
+	if (Enable == isAutoHide() && Location == autoHideLocation())
 	{
 		return;
 	}
 
 	auto DockArea = dockAreaWidget();
+
 	if (!Enable)
 	{
 		DockArea->setAutoHide(false);
 	}
+	else if (isAutoHide())
+	{
+		autoHideDockContainer()->moveToNewSideBarLocation(Location);
+	}
 	else
 	{
 		auto area = (SideBarNone == Location) ? DockArea->calculateSideTabBarArea() : Location;
-		dockContainer()->createAndSetupAutoHideContainer(area, this);
+		dockContainer()->createAndSetupAutoHideContainer(area, this, TabIndex);
 	}
 }
 

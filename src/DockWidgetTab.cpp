@@ -376,6 +376,7 @@ void CDockWidgetTab::mousePressEvent(QMouseEvent* ev)
         d->DragState = DraggingMousePressed;
         if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
         {
+        	d->focusController()->setDockWidgetTabPressed(true);
         	d->focusController()->setDockWidgetTabFocused(this);
         }
         Q_EMIT clicked();
@@ -412,7 +413,12 @@ void CDockWidgetTab::mouseReleaseEvent(QMouseEvent* ev)
 			 d->FloatingWidget->finishDragging();
 			 break;
 
-		default:; // do nothing
+		default:
+			if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+			{
+				d->focusController()->setDockWidgetTabPressed(false);
+			}
+			break; // do nothing
 		}
 	} 
 	else if (ev->button() == Qt::MiddleButton)
@@ -802,6 +808,7 @@ void CDockWidgetTab::setIconSize(const QSize& Size)
 	d->IconSize = Size;
 	d->updateIcon();
 }
+
 } // namespace ads
 //---------------------------------------------------------------------------
 // EOF DockWidgetTab.cpp

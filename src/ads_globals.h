@@ -82,12 +82,24 @@ enum DockWidgetArea
 	TopDockWidgetArea = 0x04,
 	BottomDockWidgetArea = 0x08,
 	CenterDockWidgetArea = 0x10,
+	LeftAutoHideArea = 0x20,
+	RightAutoHideArea = 0x40,
+	TopAutoHideArea = 0x80,
+	BottomAutoHideArea = 0x100,
 
 	InvalidDockWidgetArea = NoDockWidgetArea,
 	OuterDockAreas = TopDockWidgetArea | LeftDockWidgetArea | RightDockWidgetArea | BottomDockWidgetArea,
+	AutoHideDockAreas = LeftAutoHideArea | RightAutoHideArea | TopAutoHideArea | BottomAutoHideArea,
 	AllDockAreas = OuterDockAreas | CenterDockWidgetArea
 };
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
+
+
+enum eTabIndex
+{
+	TabDefaultInsertIndex = -1,
+	TabInvalidIndex = -2
+};
 
 
 enum TitleBarButton
@@ -194,6 +206,7 @@ void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To);
  */
 void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
 
+
 /**
  * Convenience class for QPair to provide better naming than first and
  * second
@@ -211,6 +224,25 @@ public:
  * Returns the insertion parameters for the given dock area
  */
 CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
+
+
+/**
+ * Returns the SieBarLocation for the AutoHide dock widget areas
+ */
+SideBarLocation toSideBarLocation(DockWidgetArea Area);
+
+
+/**
+ * Returns true for the top or bottom side bar ansd false for the
+ * left and right side bar
+ */
+bool isHorizontalSideBarLocation(SideBarLocation Location);
+
+
+/**
+ * Returns true, if the given dock area is a SideBar area
+ */
+bool isSideBarArea(DockWidgetArea Area);
 
 /**
  * Searches for the parent widget of the given type.

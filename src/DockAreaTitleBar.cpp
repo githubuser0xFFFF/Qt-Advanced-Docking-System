@@ -68,10 +68,10 @@ static const char* const LocationProperty = "Location";
 struct DockAreaTitleBarPrivate
 {
 	CDockAreaTitleBar* _this;
-	QPointer<tTitleBarButton> TabsMenuButton;
-	QPointer<tTitleBarButton> AutoHideButton;
-	QPointer<tTitleBarButton> UndockButton;
-	QPointer<tTitleBarButton> CloseButton;
+	QPointer<CTitleBarButton> TabsMenuButton;
+	QPointer<CTitleBarButton> AutoHideButton;
+	QPointer<CTitleBarButton> UndockButton;
+	QPointer<CTitleBarButton> CloseButton;
 	QBoxLayout* Layout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
@@ -539,7 +539,7 @@ void CDockAreaTitleBar::onAutoHideToActionClicked()
 
 
 //============================================================================
-QAbstractButton* CDockAreaTitleBar::button(TitleBarButton which) const
+CTitleBarButton* CDockAreaTitleBar::button(TitleBarButton which) const
 {
 	switch (which)
 	{
@@ -678,6 +678,28 @@ void CDockAreaTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 
 
 //============================================================================
+void CDockAreaTitleBar::setAreaFloating()
+{
+	// If this is the last dock area in a dock container it does not make
+	// sense to move it to a new floating widget and leave this one
+	// empty.
+	auto DockContainer = d->DockArea->dockContainer();
+	if (DockContainer->isFloating() && DockContainer->dockAreaCount() == 1
+	 && !d->DockArea->isAutoHide())
+	{
+		return;
+	}
+
+	if (!d->DockArea->features().testFlag(CDockWidget::DockWidgetFloatable))
+	{
+		return;
+	}
+
+	d->makeAreaFloating(mapFromGlobal(QCursor::pos()), DraggingInactive);
+}
+
+
+//============================================================================
 void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 {
 	ev->accept();
@@ -781,9 +803,9 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 }
 
 //============================================================================
-CTitleBarButton::CTitleBarButton(bool visible, QWidget* parent)
+CTitleBarButton::CTitleBarButton(bool showInTitleBar, QWidget* parent)
 	: tTitleBarButton(parent),
-	  Visible(visible),
+	  ShowInTitleBar(showInTitleBar),
 	  HideWhenDisabled(CDockManager::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
 {
     setFocusPolicy(Qt::NoFocus);
@@ -793,7 +815,7 @@ CTitleBarButton::CTitleBarButton(bool visible, QWidget* parent)
 void CTitleBarButton::setVisible(bool visible)
 {
 	// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
-	visible = visible && this->Visible;
+	visible = visible && this->ShowInTitleBar;
 
 	// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
 	if (visible && HideWhenDisabled)
@@ -803,6 +825,18 @@ void CTitleBarButton::setVisible(bool visible)
 
 	Super::setVisible(visible);
 }
+
+
+//============================================================================
+void CTitleBarButton::setShowInTitleBar(bool Show)
+{
+	this->ShowInTitleBar = Show;
+	if (!Show)
+	{
+		setVisible(false);
+	}
+}
+
 
 //============================================================================
 bool CTitleBarButton::event(QEvent *ev)

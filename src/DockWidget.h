@@ -208,12 +208,17 @@ public:
      * reimplements minimumSizeHint() function to return a very small minimum
      * size hint. If you would like to adhere the minimumSizeHint() from the
      * content widget, then set the minimumSizeHintMode() to
-     * MinimumSizeHintFromContent.
+     * MinimumSizeHintFromContent. If you would like to use the minimumSize()
+     * value of the content widget or the dock widget, then you can use the
+     * MinimumSizeHintFromDockWidgetMinimumSize or
+     * MinimumSizeHintFromContentMinimumSize modes.
      */
     enum eMinimumSizeHintMode
     {
     	MinimumSizeHintFromDockWidget,
-    	MinimumSizeHintFromContent
+    	MinimumSizeHintFromContent,
+    	MinimumSizeHintFromDockWidgetMinimumSize,
+    	MinimumSizeHintFromContentMinimumSize,
     };
 
 
@@ -373,6 +378,12 @@ public:
     CAutoHideDockContainer* autoHideDockContainer() const;
 
     /**
+     * Returns the auto hide side bar location or SideBarNone if, this is not
+     * an autohide dock widget
+     */
+    SideBarLocation autoHideLocation() const;
+
+    /**
      * This property holds whether the dock widget is floating.
      * A dock widget is only floating, if it is the one and only widget inside
      * of a floating container. If there are more than one dock widget in a
@@ -410,6 +421,11 @@ public:
      * \see eMinimumSizeHintMode for a detailed description
      */
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
+
+    /**
+     * Get the minimum size hint mode configured by setMinimumSizeHintMode
+     */
+    eMinimumSizeHintMode minimumSizeHintMode() const;
 
     /**
      * Returns true if the dock widget is set as central widget of it's dock manager
@@ -568,9 +584,18 @@ public Q_SLOTS:
     void deleteDockWidget();
 
     /**
-     * Closes the dock widget
+     * Closes the dock widget.
+     * The function forces closing of the dock widget even for CustomCloseHandling.
      */
     void closeDockWidget();
+
+    /**
+     * Request closing of the dock widget.
+     * For DockWidget with default close handling, the function does the same
+     * like clodeDockWidget() but if the flas CustomCloseHandling is set,
+     * the function only emits the closeRequested() signal.
+     */
+    void requestCloseDockWidget();
 
     /**
      * Shows the widget in full-screen mode.
@@ -596,7 +621,7 @@ public Q_SLOTS:
 	 * Sets the dock widget into auto hide mode if this feature is enabled
 	 * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
 	 */
-	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone);
+	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone, int TabIndex = -1);
 
 	/**
 	 * Switches the dock widget to auto hide mode or vice versa depending on its

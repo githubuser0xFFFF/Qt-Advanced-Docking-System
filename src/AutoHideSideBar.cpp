@@ -127,27 +127,6 @@ void AutoHideSideBarPrivate::handleViewportEvent(QEvent* e)
 		}
 		break;
 
-	case QEvent::Resize:
-		if (_this->tabCount())
-		{
-			auto ev = static_cast<QResizeEvent*>(e);
-			auto Tab = _this->tabAt(0);
-			int Size = isHorizontal() ? ev->size().height() : ev->size().width();
-			int TabSize = isHorizontal() ? Tab->size().height() : Tab->size().width();
-			// If the size of the side bar is less than the size of the first tab
-			// then there are no visible tabs in this side bar. This check will
-			// fail if someone will force a very big border via CSS!!
-			if (Size < TabSize)
-			{
-				_this->hide();
-			}
-		}
-		else
-		{
-			_this->hide();
-		}
-		break;
-
 	default:
 		break;
 	}
@@ -217,6 +196,7 @@ void CAutoHideSideBar::insertTab(int Index, CAutoHideTab* SideTab)
 {
     SideTab->setSideBar(this);
 	SideTab->installEventFilter(this);
+	// Default insertion is append
     if (Index < 0)
     {
     	d->TabsLayout->insertWidget(d->TabsLayout->count() - 1, SideTab);
@@ -254,12 +234,25 @@ void CAutoHideSideBar::removeAutoHideWidget(CAutoHideDockContainer* AutoHideWidg
 }
 
 //============================================================================
-void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget)
+void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget,
+	int TabIndex)
 {
 	auto SideBar = AutoHideWidget->autoHideTab()->sideBar();
 	if (SideBar == this)
 	{
-		return;
+		// If we move to the same tab index or if we insert before the next
+		// tab index, then we will end at the same tab position and can leave
+		if (AutoHideWidget->tabIndex() == TabIndex || (AutoHideWidget->tabIndex() + 1) == TabIndex)
+		{
+			return;
+		}
+
+		// We remove this auto hide widget from the sidebar in the code below
+		// and therefore need to correct the TabIndex here
+		if (AutoHideWidget->tabIndex() < TabIndex)
+		{
+			--TabIndex;
+		}
 	}
 
 	if (SideBar)
@@ -269,7 +262,7 @@ void CAutoHideSideBar::addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget)
 	AutoHideWidget->setParent(d->ContainerWidget);
 	AutoHideWidget->setSideBarLocation(d->SideTabArea);
 	d->ContainerWidget->registerAutoHideWidget(AutoHideWidget);
-	insertTab(-1, AutoHideWidget->autoHideTab());
+	insertTab(TabIndex, AutoHideWidget->autoHideTab());
 }
 
 
@@ -288,19 +281,32 @@ void CAutoHideSideBar::removeTab(CAutoHideTab* SideTab)
 //============================================================================
 bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 {
-	if (event->type() != QEvent::ShowToParent)
+	auto Tab = qobject_cast<CAutoHideTab*>(watched);
+	if (!Tab)
 	{
 		return false;
 	}
 
-	// As soon as on tab is shown, we need to show the side tab bar
-	auto Tab = qobject_cast<CAutoHideTab*>(watched);
-	if (Tab)
+	switch (event->type())
 	{
-		show();
+	case QEvent::ShowToParent:
+		 show();
+	     break;
+
+	case QEvent::HideToParent:
+		 if (!hasVisibleTabs())
+		 {
+			 hide();
+		 }
+		 break;
+
+	default:
+		break;
 	}
+
 	return false;
 }
+
 
 //============================================================================
 Qt::Orientation CAutoHideSideBar::orientation() const
@@ -310,16 +316,64 @@ Qt::Orientation CAutoHideSideBar::orientation() const
 
 
 //============================================================================
-CAutoHideTab* CAutoHideSideBar::tabAt(int index) const
+CAutoHideTab* CAutoHideSideBar::tab(int index) const
 {
     return qobject_cast<CAutoHideTab*>(d->TabsLayout->itemAt(index)->widget());
 }
 
 
 //============================================================================
-int CAutoHideSideBar::tabCount() const
+int CAutoHideSideBar::count() const
 {
     return d->TabsLayout->count() - 1;
+}
+
+
+//============================================================================
+int CAutoHideSideBar::visibleTabCount() const
+{
+	int VisibleTabCount = 0;
+	auto ParentWidget = parentWidget();
+	for (auto i = 0; i < count(); i++)
+	{
+		if (tab(i)->isVisibleTo(ParentWidget))
+		{
+			VisibleTabCount++;
+		}
+	}
+
+	return VisibleTabCount;
+}
+
+
+//============================================================================
+bool CAutoHideSideBar::hasVisibleTabs() const
+{
+	auto ParentWidget = parentWidget();
+	for (auto i = 0; i < count(); i++)
+	{
+		if (tab(i)->isVisibleTo(ParentWidget))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+//============================================================================
+int CAutoHideSideBar::indexOfTab(const CAutoHideTab& Tab) const
+{
+	for (auto i = 0; i < count(); i++)
+	{
+		if (tab(i) == &Tab)
+		{
+			return i;
+		}
+	}
+
+	return -1;
 }
 
 
@@ -333,18 +387,18 @@ SideBarLocation CAutoHideSideBar::sideBarLocation() const
 //============================================================================
 void CAutoHideSideBar::saveState(QXmlStreamWriter& s) const
 {
-	if (!tabCount())
+	if (!count())
 	{
 		return;
 	}
 
 	s.writeStartElement("SideBar");
 	s.writeAttribute("Area", QString::number(sideBarLocation()));
-	s.writeAttribute("Tabs", QString::number(tabCount()));
+	s.writeAttribute("Tabs", QString::number(count()));
 
-	for (auto i = 0; i < tabCount(); ++i)
+	for (auto i = 0; i < count(); ++i)
 	{
-		auto Tab = tabAt(i);
+		auto Tab = tab(i);
 		if (!Tab)
 		{
 			continue;
@@ -390,6 +444,57 @@ void CAutoHideSideBar::setSpacing(int Spacing)
 CDockContainerWidget* CAutoHideSideBar::dockContainer() const
 {
 	return d->ContainerWidget;
+}
+
+
+//===========================================================================
+int CAutoHideSideBar::tabAt(const QPoint& Pos) const
+{
+	if (!isVisible())
+	{
+		return TabInvalidIndex;
+	}
+
+	if (orientation() == Qt::Horizontal)
+	{
+		if (Pos.x() < tab(0)->geometry().x())
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		if (Pos.y() < tab(0)->geometry().y())
+		{
+			return -1;
+		}
+	}
+
+
+	for (int i = 0; i < count(); ++i)
+	{
+		if (tab(i)->geometry().contains(Pos))
+		{
+			return i;
+		}
+	}
+
+	return count();
+}
+
+
+//===========================================================================
+int CAutoHideSideBar::tabInsertIndexAt(const QPoint& Pos) const
+{
+	int Index = tabAt(Pos);
+	if (Index == TabInvalidIndex)
+	{
+		return TabDefaultInsertIndex;
+	}
+	else
+	{
+		return (Index < 0) ? 0 : Index;
+	}
 }
 
 } // namespace ads
