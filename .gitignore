@@ -8,6 +8,7 @@ moc_*
 ui_*
 Makefile
 /out
+CMakePresets.json
 
 # IDEs
 .idea
