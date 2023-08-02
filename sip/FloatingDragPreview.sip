@@ -29,7 +29,7 @@ public: // implements IFloatingWidget
         ads::eDragState DragState, QWidget* MouseEventHandler);
     virtual void moveFloating();
     virtual void finishDragging();
-    void cleanupAutoHideContainerWidget();
+    void cleanupAutoHideContainerWidget(ads::DockWidgetArea ContainerDropArea);
 
 signals:
     void draggingCanceled();

@@ -21,10 +21,10 @@ class CDockContainerWidget : QFrame
 protected:
 	virtual bool event(QEvent *e);
 	QSplitter* rootSplitter() const;
-    ads::CAutoHideDockContainer* createAndSetupAutoHideContainer(ads::SideBarLocation area, ads::CDockWidget* DockWidget /Transfer/);
+    ads::CAutoHideDockContainer* createAndSetupAutoHideContainer(ads::SideBarLocation area, ads::CDockWidget* DockWidget /Transfer/, int TabIndex = -1);
 	void createRootSplitter();
 	void dropFloatingWidget(ads::CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
-    void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget);
+    void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget, int TabIndex = -1);
 	void addDockArea(ads::CDockAreaWidget* DockAreaWidget /Transfer/, ads::DockWidgetArea area = ads::CenterDockWidgetArea);
 	void removeDockArea(ads::CDockAreaWidget* area /TransferBack/);
 	void saveState(QXmlStreamWriter& Stream) const;
@@ -59,7 +59,7 @@ public:
 	ads::CDockWidget::DockWidgetFeatures features() const;
 	ads::CFloatingDockContainer* floatingWidget() const;
 	void closeOtherAreas(ads::CDockAreaWidget* KeepOpenArea);
-    ads::CAutoHideSideBar* sideTabBar(SideBarLocation area) const;
+    ads::CAutoHideSideBar* autoHideSideBar(SideBarLocation area) const;
 	QList<ads::CAutoHideDockContainer*> autoHideWidgets() const;
 	QRect contentRect() const;
 	QRect contentRectGlobal() const;

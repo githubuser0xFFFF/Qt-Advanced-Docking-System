@@ -24,9 +24,10 @@ public:
 	CAutoHideDockContainer(ads::CDockWidget* DockWidget /Transfer/, ads::SideBarLocation area,
 		ads::CDockContainerWidget* parent /TransferThis/);
 	virtual ~CAutoHideDockContainer();
-	ads::CAutoHideSideBar* sideBar() const;
+	ads::CAutoHideSideBar* autoHideSideBar() const;
 	ads::CAutoHideTab* autoHideTab() const;
 	ads::CDockWidget* dockWidget() const;
+    int tabIndex() const;
 	void addDockWidget(ads::CDockWidget* DockWidget /Transfer/);
 	ads::SideBarLocation sideBarLocation() const;
 	void setSideBarLocation(ads::SideBarLocation SideBarLocation);
@@ -38,7 +39,9 @@ public:
 	void collapseView(bool Enable);
 	void toggleCollapseState();
 	void setSize(int Size);
-    
+    void resetToInitialDockWidgetSize();
+    Qt::Orientation orientation() const;
+    void moveToNewSideBarLocation(ads::SideBarLocation);
 };
 
 };

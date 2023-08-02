@@ -187,8 +187,8 @@ public:
 		AutoHideButtonCheckable,
 		AutoHideSideBarsIconOnly,
 		AutoHideShowOnMouseOver,
-		DefaultAutoHideConfig,
         AutoHideCloseButtonCollapsesDock,
+		DefaultAutoHideConfig,
 	};
     typedef QFlags<ads::CDockManager::eAutoHideFlag> AutoHideFlags;
 

@@ -24,10 +24,13 @@ public:
 	void removeTab(ads::CAutoHideTab* SideTab) /TransferBack/;
 	ads::CAutoHideDockContainer* insertDockWidget(int Index, ads::CDockWidget* DockWidget /Transfer/);
 	void removeAutoHideWidget(ads::CAutoHideDockContainer* AutoHideWidget) /TransferBack/;
-	void addAutoHideWidget(ads::CAutoHideDockContainer* AutoHideWidget);
+	void addAutoHideWidget(ads::CAutoHideDockContainer* AutoHideWidget, int Index);
 	Qt::Orientation orientation() const;
-	ads::CAutoHideTab* tabAt(int index) const;
-	int tabCount() const;
+	ads::CAutoHideTab* tab(int index) const;
+    int tabAt(const QPoint& Pos) const;
+    int tabInsertIndexAt(const QPoint& Pos) const;
+    int indexOfTab(const CAutoHideTab& Tab) const;
+	int count() const;
     int visibleTabCount() const;
     bool hasVisibleTabs() const;
 	ads::SideBarLocation sideBarLocation() const;

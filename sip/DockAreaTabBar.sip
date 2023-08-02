@@ -23,6 +23,8 @@ public:
 	int currentIndex() const;
 	ads::CDockWidgetTab* currentTab() const;
 	ads::CDockWidgetTab* tab(int Index) const;
+    int tabAt(const QPoint& Pos) const;
+    int tabInsertIndexAt(const QPoint& Pos) const;
 	virtual bool eventFilter(QObject *watched, QEvent *event);
 	bool isTabOpen(int Index) const;
 	virtual QSize minimumSizeHint() const;

@@ -16,6 +16,10 @@ protected:
 	void setSideBar(ads::CAutoHideSideBar *SideTabBar);
 	void removeFromSideBar();
     virtual bool event(QEvent* event);
+    virtual void contextMenuEvent(QContextMenuEvent* ev);
+	virtual void mousePressEvent(QMouseEvent* ev);
+	virtual void mouseReleaseEvent(QMouseEvent* ev);
+	virtual void mouseMoveEvent(QMouseEvent* ev);
 
 public:
 	CAutoHideTab(QWidget* parent /TransferThis/ = 0);
@@ -29,6 +33,10 @@ public:
 	void setDockWidget(ads::CDockWidget* DockWidget);
 	bool iconOnly() const;
 	ads::CAutoHideSideBar* sideBar() const;
+    int tabIndex() const;
+    void setDockWidgetFloating();
+    void unpinDockWidget();
+    void requestCloseDockWidget();
 };
 
 };
