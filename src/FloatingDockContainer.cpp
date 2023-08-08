@@ -62,7 +62,7 @@ namespace ads
 #ifdef Q_OS_WIN
 #if 0 // set to 1 if you need this function for debugging
 /**
- * Just for debuging to convert windows message identifiers to strings
+ * Just for debugging to convert windows message identifiers to strings
  */
 static const char* windowsMessageString(int MessageId)
 {

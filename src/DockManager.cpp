@@ -1285,7 +1285,7 @@ void CDockManager::hideManagerAndFloatingWidgets()
 			d->HiddenFloatingWidgets.push_back( FloatingWidget );
 			FloatingWidget->hide();
 
-			// hidding floating widget automatically marked contained CDockWidgets as hidden
+			// hiding floating widget automatically marked contained CDockWidgets as hidden
 			// but they must remain marked as visible as we want them to be restored visible
 			// when CDockManager will be shown back
 			for ( auto dockWidget : VisibleWidgets )

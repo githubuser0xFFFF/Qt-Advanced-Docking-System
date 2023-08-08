@@ -814,7 +814,7 @@ CTitleBarButton::CTitleBarButton(bool showInTitleBar, QWidget* parent)
 //============================================================================
 void CTitleBarButton::setVisible(bool visible)
 {
-	// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
+	// 'visible' can stay 'true' if and only if this button is configured to generally visible:
 	visible = visible && this->ShowInTitleBar;
 
 	// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:

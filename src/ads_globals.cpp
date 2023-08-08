@@ -290,7 +290,7 @@ QString detectWindowManagerX11()
 	QString ret = xcb_get_prop_string(support_win, "_NET_WM_NAME");
 	if(ret.length() == 0)
 	{
-		ADS_PRINT("Empty WM name occured.");
+		ADS_PRINT("Empty WM name occurred.");
 		return "UNKNOWN";
 	}
 	return ret;

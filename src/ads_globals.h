@@ -189,7 +189,7 @@ void xcb_update_prop(bool set, WId window, const char *type, const char *prop, c
 bool xcb_dump_props(WId window, const char *type);
 /**
  * Gets the active window manager from the X11 Server.
- * Requires a EWMH conform window manager (Allmost all common used ones are).
+ * Requires a EWMH conform window manager (Almost all common used ones are).
  * Returns "UNKNOWN" otherwise.
  */
 QString windowManager();

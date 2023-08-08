@@ -499,7 +499,7 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     else if (d->DockArea->openDockWidgetsCount() > 1
      && (internal::globalPositionOf(ev) - d->GlobalDragStartMousePosition).manhattanLength() >= QApplication::startDragDistance()) // Wait a few pixels before start moving
 	{
-    	// If we start dragging the tab, we save its inital position to
+    	// If we start dragging the tab, we save its initial position to
     	// restore it later
     	if (DraggingTab != d->DragState)
     	{

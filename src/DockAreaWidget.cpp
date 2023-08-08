@@ -317,12 +317,12 @@ struct DockAreaWidgetPrivate
 	}
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonStates();
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonVisibility(bool isTopLevel);
 
@@ -1283,17 +1283,17 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderHorizontalLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderHorizontalRight: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 3. Its touching horizontal or vertical borders
+	// 3. It's touching horizontal or vertical borders
 	case BorderVertical : SideTab = SideBarLocation::SideBarBottom; break;
 	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 4. Its in a corner
+	// 4. It's in a corner
 	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
 	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
 	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
 	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 
-	// 5 Ists touching only one border
+	// 5. It's touching only one border
 	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderRight: SideTab = SideBarLocation::SideBarRight; break;
 	case BorderTop: SideTab = SideBarLocation::SideBarTop; break;

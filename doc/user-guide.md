@@ -481,7 +481,7 @@ Enabling this feature adds a button with a pin icon to each dock area.
 ![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
 
 By clicking this button, the current dock widget (or the complete area - depending on the
-configuration flags) will be pinned to a certain border. The border is choosen
+configuration flags) will be pinned to a certain border. The border is chosen
 depending on the location of the dock area. If you click the pin button while
 holding down the **Ctrl** key, the whole dock area will be pinned to a certain
 border.

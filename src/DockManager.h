@@ -154,7 +154,7 @@ protected:
 	virtual void showEvent(QShowEvent *event) override;
 
 	/**
-	 * Acces for the internal dock focus controller.
+	 * Access for the internal dock focus controller.
 	 * This function only returns a valid object, if the FocusHighlighting
 	 * flag is set.
 	 */
@@ -541,7 +541,7 @@ public:
 	 * The order defines how the actions are added to the view menu.
 	 * The default insertion order is MenuAlphabeticallySorted to make it
 	 * easier for users to find the menu entry for a certain dock widget.
-	 * You need to call this function befor you insert the first menu item
+	 * You need to call this function before you insert the first menu item
 	 * into the view menu.
 	 */
 	void setViewMenuInsertionOrder(eViewMenuInsertionOrder Order);

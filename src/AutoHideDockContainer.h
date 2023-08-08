@@ -91,7 +91,7 @@ public:
 	virtual ~CAutoHideDockContainer();
 
 	/**
-	 * Get's the side tab bar
+	 * Gets the side tab bar
 	 */
 	CAutoHideSideBar* autoHideSideBar() const;
 
@@ -101,7 +101,7 @@ public:
 	CAutoHideTab* autoHideTab() const;
 
 	/**
-	 * Get's the dock widget in this dock container
+	 * Gets the dock widget in this dock container
 	 */
 	CDockWidget* dockWidget() const;
 
@@ -167,13 +167,13 @@ public:
 
 	/**
 	 * Use this instead of resize.
-	 * Depending on the sidebar location this will set the width or heigth
+	 * Depending on the sidebar location this will set the width or height
 	 * of this auto hide container.
 	 */
 	void setSize(int Size);
 
 	/**
-	 * Resets the with or hight to the initial dock widget size dependinng on
+	 * Resets the width or height to the initial dock widget size dependinng on
 	 * the orientation.
 	 * If the orientation is Qt::Horizontal, then the height is reset to
 	 * the initial size and if orientation is Qt::Vertical, then the width is

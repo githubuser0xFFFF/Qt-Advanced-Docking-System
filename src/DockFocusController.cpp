@@ -269,7 +269,7 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
     Q_UNUSED(focusedOld);
 
     // Ignore focus changes if we are restoring state, or if user clicked
-    // a tab wich in turn caused the focus change
+    // a tab which in turn caused the focus change
 	if (d->DockManager->isRestoringState() || d->TabPressed)
 	{
 		return;

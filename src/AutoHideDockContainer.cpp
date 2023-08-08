@@ -355,7 +355,7 @@ void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
 	d->DockArea->addDockWidget(DockWidget);
 	updateSize();
 	// The dock area is not visible and will not update the size when updateSize()
-	// is called for this auto hide container. Therefore we explicitely resize
+	// is called for this auto hide container. Therefore we explicitly resize
 	// it here. As soon as it will become visible, it will get the right size
     d->DockArea->resize(size());
 }
@@ -693,8 +693,8 @@ void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBar
 	auto SideBar = dockContainer()->autoHideSideBar(NewSideBarLocation);
 	SideBar->addAutoHideWidget(this, TabIndex);
 	// If we move a horizontal auto hide container to a vertical position
-	// then we resize it to the orginal dock widget size, to avoid
-	// an extremely streched dock widget after insertion
+	// then we resize it to the original dock widget size, to avoid
+	// an extremely stretched dock widget after insertion
 	if (SideBar->orientation() != OldOrientation)
 	{
 		resetToInitialDockWidgetSize();
