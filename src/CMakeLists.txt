@@ -85,7 +85,12 @@ target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
 if (UNIX AND NOT APPLE)
-  target_link_libraries(${library_name} PUBLIC xcb)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+      find_package(X11 REQUIRED)
+      target_link_libraries(${library_name} PUBLIC X11::xcb)
+  else()
+    target_link_libraries(${library_name} PUBLIC xcb)
+  endif()
 endif()
 set_target_properties(${library_name} PROPERTIES
     AUTOMOC ON
