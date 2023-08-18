@@ -213,6 +213,12 @@ void DockWidgetPrivate::hideDockWidget()
 
 	if (Features.testFlag(CDockWidget::DeleteContentOnClose))
 	{
+		if (ScrollArea)
+		{
+			ScrollArea->takeWidget();
+			delete ScrollArea;
+			ScrollArea = nullptr;
+		}
 		Widget->deleteLater();
 		Widget = nullptr;
 	}
