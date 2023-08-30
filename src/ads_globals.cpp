@@ -290,7 +290,7 @@ QString detectWindowManagerX11()
 	QString ret = xcb_get_prop_string(support_win, "_NET_WM_NAME");
 	if(ret.length() == 0)
 	{
-		ADS_PRINT("Empty WM name occured.");
+		ADS_PRINT("Empty WM name occurred.");
 		return "UNKNOWN";
 	}
 	return ret;
@@ -330,6 +330,47 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area)
     } // switch (Area)
 
 	return CDockInsertParam(Qt::Vertical, false);
+}
+
+
+//============================================================================
+SideBarLocation toSideBarLocation(DockWidgetArea Area)
+{
+	switch (Area)
+	{
+	case LeftAutoHideArea: return SideBarLeft;
+	case RightAutoHideArea: return SideBarRight;
+	case TopAutoHideArea: return SideBarTop;
+	case BottomAutoHideArea: return SideBarBottom;
+	default:
+		return SideBarNone;
+	}
+
+	return SideBarNone;
+}
+
+
+//============================================================================
+bool isHorizontalSideBarLocation(SideBarLocation Location)
+{
+	switch (Location)
+	{
+	case SideBarTop:
+	case SideBarBottom: return true;
+	case SideBarLeft:
+	case SideBarRight: return false;
+	default:
+		return false;
+	}
+
+	return false;
+}
+
+
+//============================================================================
+bool isSideBarArea(DockWidgetArea Area)
+{
+	return toSideBarLocation(Area) != SideBarNone;
 }
 
 

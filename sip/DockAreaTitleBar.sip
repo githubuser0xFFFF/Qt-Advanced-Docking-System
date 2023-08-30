@@ -5,6 +5,22 @@
 namespace ads
 {
 
+class CTitleBarButton : QToolButton
+{
+    %TypeHeaderCode
+    #include <DockAreaTitleBar.h>
+    %End
+    
+public:
+	CTitleBarButton(bool visible = true, QWidget* parent /TransferThis/ = Q_NULLPTR );
+	virtual void setVisible(bool);
+	void setShowInTitleBar(bool);
+
+
+protected:
+	bool event(QEvent *ev);
+};
+
 class CDockAreaTitleBar : QFrame
 {
     %TypeHeaderCode
@@ -26,14 +42,15 @@ public:
 	CDockAreaTitleBar(ads::CDockAreaWidget* parent /TransferThis/);
 	virtual ~CDockAreaTitleBar();
 	ads::CDockAreaTabBar* tabBar() const;
-	QAbstractButton* button(ads::TitleBarButton which) const;
+	ads::CTitleBarButton* button(ads::TitleBarButton which) const;
     ads::CElidingLabel* autoHideTitleLabel() const;
  	void updateDockWidgetActionsButtons();
 	virtual void setVisible(bool Visible);
 	void insertWidget(int index, QWidget *widget /Transfer/ );
 	int indexOf(QWidget *widget) const;
     QString titleBarButtonToolTip(ads::TitleBarButton Button) const;
-
+    void setAreaFloating();
+    
 
 signals:
 	void tabBarClicked(int index);

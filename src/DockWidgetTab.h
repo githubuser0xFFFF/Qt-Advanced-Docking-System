@@ -173,7 +173,7 @@ public:
 
 	/**
 	 * Set an explicit icon size.
-	 * If no icon size has been set explicitely, than the tab sets the icon size
+	 * If no icon size has been set explicitly, than the tab sets the icon size
 	 * depending on the style
 	 */
 	void setIconSize(const QSize& Size);

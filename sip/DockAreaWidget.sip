@@ -40,6 +40,9 @@ public:
 	virtual ~CDockAreaWidget();
 	ads::CDockManager* dockManager() const;
 	ads::CDockContainerWidget* dockContainer() const;
+    ads::CAutoHideDockContainer* autoHideDockContainer() const;
+    bool isAutoHide() const;
+    void setAutoHideDockContainer(CAutoHideDockContainer*);
 	virtual QSize minimumSizeHint() const;
 	QRect titleBarGeometry() const;
 	QRect contentAreaGeometry() const;
@@ -74,7 +77,10 @@ public:
 public slots:
 	void setCurrentIndex(int index);
 	void closeArea();
+    void setAutoHide(bool Enable, SideBarLocation Location = ads::SideBarNone, int TabIndex = -1);
+    void toggleAutoHide(SideBarLocation Location = ads::SideBarNone);
 	void closeOtherAreas();
+    void setFloating();
 
 signals:
 	void tabBarClicked(int index);

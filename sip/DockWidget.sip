@@ -60,7 +60,9 @@ public:
     enum eMinimumSizeHintMode
     {
     	MinimumSizeHintFromDockWidget,
-    	MinimumSizeHintFromContent
+    	MinimumSizeHintFromContent,
+        MinimumSizeHintFromDockWidgetMinimumSize,
+    	MinimumSizeHintFromContentMinimumSize,
     };
 
 	enum eToggleViewActionMode
@@ -88,12 +90,14 @@ public:
     void setSideTabWidget(ads::CAutoHideTab* SideTab /Transfer/) const;
     bool isAutoHide() const;
     ads::CAutoHideDockContainer* autoHideDockContainer() const;
+    ads::SideBarLocation autoHideLocation() const;
 	bool isFloating() const;
 	bool isInFloatingContainer() const;
 	bool isClosed() const;
 	QAction* toggleViewAction() const;
 	void setToggleViewActionMode(ads::CDockWidget::eToggleViewActionMode Mode);
 	void setMinimumSizeHintMode(ads::CDockWidget::eMinimumSizeHintMode Mode);
+    ads::CDockWidget::eMinimumSizeHintMode minimumSizeHintMode() const;
     bool isCentralWidget() const;
 	void setIcon(const QIcon& Icon);
 	QIcon icon() const;
@@ -122,9 +126,10 @@ public slots:
     void setFloating();
     void deleteDockWidget();
     void closeDockWidget();
+    void requestCloseDockWidget();
     void showFullScreen();
     void showNormal();
-    void setAutoHide(bool Enable, ads::SideBarLocation Location = ads::SideBarNone);
+    void setAutoHide(bool Enable, ads::SideBarLocation Location = ads::SideBarNone, int TabIndex = -1);
 	void toggleAutoHide(ads::SideBarLocation Location = ads::SideBarNone);
 
 signals:

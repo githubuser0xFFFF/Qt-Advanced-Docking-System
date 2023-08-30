@@ -55,6 +55,8 @@ class CIconProvider;
 class CDockComponentsFactory;
 class CDockFocusController;
 class CAutoHideSideBar;
+class CAutoHideTab;
+struct AutoHideTabPrivate;
 
 /**
  * The central dock manager that maintains the complete docking system.
@@ -87,6 +89,8 @@ private:
 	friend class CDockAreaTitleBar;
 	friend class CAutoHideDockContainer;
 	friend CAutoHideSideBar;
+	friend CAutoHideTab;
+	friend AutoHideTabPrivate;
 
 public Q_SLOTS:
 	/**
@@ -150,7 +154,7 @@ protected:
 	virtual void showEvent(QShowEvent *event) override;
 
 	/**
-	 * Acces for the internal dock focus controller.
+	 * Access for the internal dock focus controller.
 	 * This function only returns a valid object, if the FocusHighlighting
 	 * flag is set.
 	 */
@@ -248,7 +252,9 @@ public:
 		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
-			                  | DockAreaHasAutoHideButton ///< the default configuration for left and right side bars
+			                  | DockAreaHasAutoHideButton
+			                  | AutoHideCloseButtonCollapsesDock
+
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 
@@ -535,7 +541,7 @@ public:
 	 * The order defines how the actions are added to the view menu.
 	 * The default insertion order is MenuAlphabeticallySorted to make it
 	 * easier for users to find the menu entry for a certain dock widget.
-	 * You need to call this function befor you insert the first menu item
+	 * You need to call this function before you insert the first menu item
 	 * into the view menu.
 	 */
 	void setViewMenuInsertionOrder(eViewMenuInsertionOrder Order);

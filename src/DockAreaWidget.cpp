@@ -317,12 +317,12 @@ struct DockAreaWidgetPrivate
 	}
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonStates();
 
 	/**
-	 * Udpates the enable state of the close and detach button
+	 * Updates the enable state of the close and detach button
 	 */
 	void updateTitleBarButtonVisibility(bool isTopLevel);
 
@@ -467,6 +467,7 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 	d->AutoHideDockContainer = AutoHideDockContainer;
 	updateAutoHideButtonCheckState();
 	updateTitleBarButtonsToolTips();
+	d->TitleBar->button(TitleBarButtonAutoHide)->setShowInTitleBar(true);
 }
 
 
@@ -626,15 +627,7 @@ void CDockAreaWidget::hideAreaWithNoVisibleContent()
 void CDockAreaWidget::onTabCloseRequested(int Index)
 {
     ADS_PRINT("CDockAreaWidget::onTabCloseRequested " << Index);
-    auto* DockWidget = dockWidget(Index);
-    if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
-    {
-    	DockWidget->closeDockWidgetInternal();
-    }
-    else
-    {
-    	DockWidget->toggleView(false);
-    }
+    dockWidget(Index)->requestCloseDockWidget();
 }
 
 
@@ -1290,17 +1283,17 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 	case BorderHorizontalLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderHorizontalRight: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 3. Its touching horizontal or vertical borders
+	// 3. It's touching horizontal or vertical borders
 	case BorderVertical : SideTab = SideBarLocation::SideBarBottom; break;
 	case BorderHorizontal: SideTab = SideBarLocation::SideBarRight; break;
 
-	// 4. Its in a corner
+	// 4. It's in a corner
 	case BorderTopLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarLeft; break;
 	case BorderTopRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarTop : SideBarLocation::SideBarRight; break;
 	case BorderBottomLeft : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarLeft; break;
 	case BorderBottomRight : SideTab = HorizontalOrientation ? SideBarLocation::SideBarBottom : SideBarLocation::SideBarRight; break;
 
-	// 5 Ists touching only one border
+	// 5. It's touching only one border
 	case BorderLeft: SideTab = SideBarLocation::SideBarLeft; break;
 	case BorderRight: SideTab = SideBarLocation::SideBarRight; break;
 	case BorderTop: SideTab = SideBarLocation::SideBarTop; break;
@@ -1312,7 +1305,7 @@ SideBarLocation CDockAreaWidget::calculateSideTabBarArea() const
 
 
 //============================================================================
-void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
+void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location, int TabIndex)
 {
 	if (!isAutoHideFeatureEnabled())
 	{
@@ -1323,8 +1316,15 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 	{
 		if (isAutoHide())
 		{
-			autoHideDockContainer()->moveContentsToParent();
+			d->AutoHideDockContainer->moveContentsToParent();
 		}
+		return;
+	}
+
+	// If this is already an auto hide container, then move it to new location
+	if (isAutoHide())
+	{
+		d->AutoHideDockContainer->moveToNewSideBarLocation(Location, TabIndex);
 		return;
 	}
 
@@ -1341,7 +1341,7 @@ void CDockAreaWidget::setAutoHide(bool Enable, SideBarLocation Location)
 			continue;
 		}
 
-		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget);
+		dockContainer()->createAndSetupAutoHideContainer(area, DockWidget, TabIndex++);
 	}
 }
 
@@ -1439,6 +1439,13 @@ bool CDockAreaWidget::isTopLevelArea() const
 	}
 
 	return (Container->topLevelDockArea() == this);
+}
+
+
+//============================================================================
+void CDockAreaWidget::setFloating()
+{
+	d->TitleBar->setAreaFloating();
 }
 
 

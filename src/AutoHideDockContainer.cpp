@@ -117,6 +117,7 @@ struct AutoHideDockContainerPrivate
 	CResizeHandle* ResizeHandle = nullptr;
 	QSize Size; // creates invalid size
 	QPointer<CAutoHideTab> SideTab;
+	QSize SizeCache;
 
 	/**
 	 * Private data constructor
@@ -215,6 +216,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 	bool OpaqueResize = CDockManager::testConfigFlag(CDockManager::OpaqueSplitterResize);
 	d->ResizeHandle->setOpaqueResize(OpaqueResize);
 	d->Size = d->DockArea->size();
+	d->SizeCache = DockWidget->size();
 
 	addDockWidget(DockWidget);
 	parent->registerAutoHideWidget(this);
@@ -237,7 +239,6 @@ void CAutoHideDockContainer::updateSize()
 	}
 
 	auto rect = dockContainerParent->contentRect();
-
 	switch (sideBarLocation())
 	{
 	case SideBarLocation::SideBarTop:
@@ -271,6 +272,15 @@ void CAutoHideDockContainer::updateSize()
 	default:
 		break;
 	}
+
+	if (orientation() == Qt::Horizontal)
+	{
+		d->SizeCache.setHeight(this->height());
+	}
+	else
+	{
+		d->SizeCache.setWidth(this->width());
+	}
 }
 
 //============================================================================
@@ -294,7 +304,7 @@ CAutoHideDockContainer::~CAutoHideDockContainer()
 }
 
 //============================================================================
-CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
+CAutoHideSideBar* CAutoHideDockContainer::autoHideSideBar() const
 {
 	if (d->SideTab)
 	{
@@ -303,7 +313,7 @@ CAutoHideSideBar* CAutoHideDockContainer::sideBar() const
 	else
 	{
 		auto DockContainer = dockContainer();
-		return DockContainer ? DockContainer->sideTabBar(d->SideTabBarArea) : nullptr;
+		return DockContainer ? DockContainer->autoHideSideBar(d->SideTabBarArea) : nullptr;
 	}
 }
 
@@ -344,6 +354,10 @@ void CAutoHideDockContainer::addDockWidget(CDockWidget* DockWidget)
     }
 	d->DockArea->addDockWidget(DockWidget);
 	updateSize();
+	// The dock area is not visible and will not update the size when updateSize()
+	// is called for this auto hide container. Therefore we explicitly resize
+	// it here. As soon as it will become visible, it will get the right size
+    d->DockArea->resize(size());
 }
 
 
@@ -641,6 +655,57 @@ bool CAutoHideDockContainer::event(QEvent* event)
 	}
 
 	return Super::event(event);
+}
+
+
+//============================================================================
+Qt::Orientation CAutoHideDockContainer::orientation() const
+{
+	return ads::internal::isHorizontalSideBarLocation(d->SideTabBarArea)
+		? Qt::Horizontal : Qt::Vertical;
+}
+
+
+//============================================================================
+void CAutoHideDockContainer::resetToInitialDockWidgetSize()
+{
+	if (orientation() == Qt::Horizontal)
+	{
+		setSize(d->SizeCache.height());
+	}
+	else
+	{
+		setSize(d->SizeCache.width());
+	}
+}
+
+
+//============================================================================
+void CAutoHideDockContainer::moveToNewSideBarLocation(SideBarLocation NewSideBarLocation,
+	int TabIndex)
+{
+	if (NewSideBarLocation == sideBarLocation() && TabIndex == this->tabIndex())
+	{
+		return;
+	}
+
+	auto OldOrientation = orientation();
+	auto SideBar = dockContainer()->autoHideSideBar(NewSideBarLocation);
+	SideBar->addAutoHideWidget(this, TabIndex);
+	// If we move a horizontal auto hide container to a vertical position
+	// then we resize it to the original dock widget size, to avoid
+	// an extremely stretched dock widget after insertion
+	if (SideBar->orientation() != OldOrientation)
+	{
+		resetToInitialDockWidgetSize();
+	}
+}
+
+
+//============================================================================
+int CAutoHideDockContainer::tabIndex() const
+{
+	return d->SideTab->tabIndex();
 }
 
 }

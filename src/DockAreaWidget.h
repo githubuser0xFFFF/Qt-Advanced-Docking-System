@@ -221,7 +221,6 @@ public:
 	 */
 	bool isAutoHide() const;
 
-
 	/**
 	 * Sets the current auto hide dock container
 	 */
@@ -401,7 +400,7 @@ public Q_SLOTS:
 	 * If the dock area is switched to auto hide mode, then all dock widgets
 	 * that are pinable will be added to the sidebar
 	 */
-	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone);
+	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone, int TabIndex = -1);
 
 	/**
 	 * Switches the dock area to auto hide mode or vice versa depending on its
@@ -413,6 +412,12 @@ public Q_SLOTS:
 	 * This function closes all other areas except of this area
 	 */
 	void closeOtherAreas();
+
+	/**
+	 * Moves the dock area into its own floating widget if the area
+	 * DockWidgetFloatable flag is true
+	 */
+	void setFloating();
 
 Q_SIGNALS:
 	/**

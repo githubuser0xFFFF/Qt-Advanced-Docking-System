@@ -30,6 +30,7 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
+#include <QToolButton>
 #include <QFrame>
 
 #include "ads_globals.h"
@@ -42,6 +43,44 @@ class CDockAreaTabBar;
 class CDockAreaWidget;
 struct DockAreaTitleBarPrivate;
 class CElidingLabel;
+
+using tTitleBarButton = QToolButton;
+
+/**
+* Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
+* according to various config flags such as:
+* CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
+* CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
+*/
+class CTitleBarButton : public tTitleBarButton
+{
+	Q_OBJECT
+
+private:
+	bool ShowInTitleBar = true;
+	bool HideWhenDisabled = false;
+
+public:
+	using Super = tTitleBarButton;
+	CTitleBarButton(bool ShowInTitleBar = true, QWidget* parent = nullptr);
+
+	/**
+	* Adjust this visibility change request with our internal settings:
+	*/
+	virtual void setVisible(bool visible) override;
+
+	/**
+	 * Configures, if the title bar button should be shown in title bar
+	 */
+	void setShowInTitleBar(bool Show);
+
+protected:
+	/**
+	* Handle EnabledChanged signal to set button invisible if the configured
+	*/
+	bool event(QEvent *ev) override;
+};
+
 
 /**
  * Title bar of a dock area.
@@ -121,7 +160,7 @@ public:
 	/**
 	 * Returns the button corresponding to the given title bar button identifier
 	 */
-	QAbstractButton* button(TitleBarButton which) const;
+	CTitleBarButton* button(TitleBarButton which) const;
 
 	/**
 	 * Returns the auto hide title label, used when the dock area is expanded and auto hidden
@@ -162,6 +201,12 @@ public:
 	 * Auto hide widgets can only have one dock widget so it does not make sense for the tooltip to show close group
 	 */
 	QString titleBarButtonToolTip(TitleBarButton Button) const;
+
+	/**
+	 * Moves the dock area into its own floating widget if the area
+	 * DockWidgetFloatable flag is true
+	 */
+	void setAreaFloating();
 
 Q_SIGNALS:
 	/**
