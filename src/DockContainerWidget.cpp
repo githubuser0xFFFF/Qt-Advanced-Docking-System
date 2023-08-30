@@ -1495,7 +1495,7 @@ CAutoHideDockContainer* CDockContainerWidget::createAndSetupAutoHideContainer(
 
 	if (DockWidget->autoHideTabOrder() > 0)
 	{
-        return sideTabBar(area)->insertDockWidgetByOrder(DockWidget);
+        return autoHideSideBar(area)->insertDockWidgetByOrder(DockWidget);
 	}
 
 	return autoHideSideBar(area)->insertDockWidget(TabIndex, DockWidget);
