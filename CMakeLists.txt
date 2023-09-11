@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
+if (POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
+endif (POLICY CMP0091)
+
 # By default, the version information is extracted from the git index. However,
 # we can override this behavior by explicitly setting ADS_VERSION and
 # skipping the git checks. This is useful for cases where this project is being
