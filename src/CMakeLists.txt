@@ -137,6 +137,8 @@ install(TARGETS ${library_name}
     INCLUDES DESTINATION include/${library_name}
 )
 
+install(FILES $<TARGET_PDB_FILE:${library_name}> DESTINATION bin OPTIONAL)
+
 install(EXPORT adsTargets
     FILE adsTargets.cmake
     NAMESPACE ads::
