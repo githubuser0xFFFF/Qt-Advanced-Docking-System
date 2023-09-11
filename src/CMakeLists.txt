@@ -98,6 +98,7 @@ set_target_properties(${library_name} PROPERTIES
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
     EXPORT_NAME ${library_name}
+    DEBUG_POSTFIX "d"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
