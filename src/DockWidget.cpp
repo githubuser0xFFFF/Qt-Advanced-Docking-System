@@ -364,6 +364,20 @@ CDockWidget::~CDockWidget()
 	delete d;
 }
 
+//============================================================================
+void CDockWidget::setToggleViewAction(QAction* action)
+{
+	if (!action)
+	{
+		return;
+	}
+
+	d->ToggleViewAction->setParent(nullptr);
+	delete d->ToggleViewAction;
+	d->ToggleViewAction = action;
+	d->ToggleViewAction->setParent(this);
+	connect(d->ToggleViewAction, &QAction::triggered, this, &CDockWidget::toggleView);
+}
 
 //============================================================================
 void CDockWidget::setToggleViewActionChecked(bool Checked)

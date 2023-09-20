@@ -410,6 +410,12 @@ public:
     QAction* toggleViewAction() const;
 
     /**
+     * Use provided action to be the default toggle view action for this dock widget.
+     * This dock widget now owns the action.
+     */
+    void setToggleViewAction(QAction* action);
+
+    /**
      * Configures the behavior of the toggle view action.
      * \see eToggleViewActionMode for a detailed description
      */
