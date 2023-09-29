@@ -1,12 +1,12 @@
 # Specify the build system.
 [build-system]
-requires = ["sip >=6.0.2, <6.3", "PyQt-builder >=1.6, <2", "PyQt5==5.15.4", "PyQt5-sip<13,>=12.8"]
+requires = ["sip >=6.0.2", "PyQt-builder >=1.6", "PyQt5>=5.15", "PyQt5-sip>=12.8"]
 build-backend = "sipbuild.api"
 
 # Specify the PEP 566 metadata for the project.
 [tool.sip.metadata]
 name = "PyQtAds"
-version = "4.0.2"
+version = "4.4.1"
 summary = "Python bindings for Qt Advanced Docking System"
 home-page = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/"
 license = "LGPL v2.1"
@@ -16,8 +16,10 @@ description-content-type = "text/markdown"
 
 [tool.sip.project]
 tag-prefix = "QtAds"
+dunder-init = true
 
 [tool.sip.bindings.ads]
+pep484-pyi = true
 define-macros = ["ADS_SHARED_EXPORT"]
 sip-file = "ads.sip"
 include-dirs = ["src"]
