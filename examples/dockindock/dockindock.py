@@ -3,7 +3,7 @@ import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QMessageBox,
                              QInputDialog, QMenu, QLineEdit)
 from PyQt5.QtGui import QIcon
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
 from dockindockmanager import DockInDockManager
 from perspectiveactions import LoadPerspectiveAction, RemovePerspectiveAction

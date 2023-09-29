@@ -5,7 +5,7 @@
 namespace ads
 {
 
-class CAutoHideTab : CPushButton
+class CAutoHideTab : ads::CPushButton
 {
     
     %TypeHeaderCode

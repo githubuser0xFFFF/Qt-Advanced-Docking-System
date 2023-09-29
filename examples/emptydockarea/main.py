@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QSignalBlocker
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QComboBox, QTableWidget,
                              QAction, QWidgetAction, QSizePolicy, QInputDialog)
 from PyQt5.QtGui import QCloseEvent
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
     
 UI_FILE = os.path.join(os.path.dirname(__file__), 'mainwindow.ui')

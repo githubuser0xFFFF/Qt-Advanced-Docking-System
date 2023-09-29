@@ -4,7 +4,7 @@ import shutil
 import atexit
 
 from PyQt5.QtCore import pyqtSignal, QSettings, QObject
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
 from dockindockmanager import DockInDockManager
 from dockindock import DockInDockWidget

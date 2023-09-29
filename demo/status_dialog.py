@@ -2,7 +2,7 @@ import os
 import sys
 
 from PyQt5 import uic
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
 UI_FILE = os.path.join(os.path.dirname(__file__), 'StatusDialog.ui')
 StatusDialogUI, StatusDialogBase = uic.loadUiType(UI_FILE)
