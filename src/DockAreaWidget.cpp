@@ -371,7 +371,8 @@ void DockAreaWidgetPrivate::updateTitleBarButtonStates()
 	}
 
 	TitleBar->button(TitleBarButtonClose)->setEnabled(
-		_this->features().testFlag(CDockWidget::DockWidgetClosable));
+		(_this->isAutoHide() ? CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideDockAreaCloseable) : true)
+		&& _this->features().testFlag(CDockWidget::DockWidgetClosable));
 	TitleBar->button(TitleBarButtonUndock)->setEnabled(
 		_this->features().testFlag(CDockWidget::DockWidgetFloatable));
 	TitleBar->button(TitleBarButtonAutoHide)->setEnabled(

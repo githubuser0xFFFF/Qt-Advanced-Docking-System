@@ -420,6 +420,11 @@ void CDockAreaTitleBar::onCloseButtonClicked()
 	{
 		d->DockArea->autoHideDockContainer()->collapseView(true);
 	}
+	//else if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideDockAreaCloseable) &&
+	//	d->DockArea->autoHideDockContainer()) 
+	//{
+	//	return;
+	//}
 	else if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
 		d->TabBar->closeTab(d->TabBar->currentIndex());
