@@ -911,6 +911,7 @@ void DockContainerWidgetPrivate::addDockAreasToList(const QList<CDockAreaWidget*
 	for (auto DockArea : NewDockAreas)
 	{
 		DockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
+		DockArea->titleBarButton(TitleBarButtonMinimize)->setVisible(true);
 		DockArea->titleBarButton(TitleBarButtonAutoHide)->setVisible(true);
 	}
 

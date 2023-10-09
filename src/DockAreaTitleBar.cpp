@@ -71,6 +71,7 @@ struct DockAreaTitleBarPrivate
 	QPointer<CTitleBarButton> TabsMenuButton;
 	QPointer<CTitleBarButton> AutoHideButton;
 	QPointer<CTitleBarButton> UndockButton;
+	QPointer<CTitleBarButton> MinimizeButton;
 	QPointer<CTitleBarButton> CloseButton;
 	QBoxLayout* Layout;
 	CDockAreaWidget* DockArea;
@@ -218,6 +219,17 @@ void DockAreaTitleBarPrivate::createButtons()
 	Layout->addWidget(AutoHideButton, 0);
 	_this->connect(AutoHideButton, SIGNAL(clicked()),  SLOT(onAutoHideButtonClicked()));
 
+	// Minimize button
+	MinimizeButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::AutoHideDockHasMinimizeButton));
+	MinimizeButton->setObjectName("autoHideDockAreaMinimizeButton");
+	MinimizeButton->setAutoRaise(true);
+	internal::setButtonIcon(MinimizeButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaMinimizeIcon);
+    internal::setToolTip(MinimizeButton, _this->titleBarButtonToolTip(TitleBarButtonMinimize));
+	MinimizeButton->setSizePolicy(ButtonSizePolicy);
+	MinimizeButton->setIconSize(QSize(16, 16));
+	Layout->addWidget(MinimizeButton, 0);
+	_this->connect(MinimizeButton, SIGNAL(clicked()), SLOT(onMinimizeButtonClicked()));
+
 	// Close button
 	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
 	CloseButton->setObjectName("dockAreaCloseButton");
@@ -228,6 +240,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton->setIconSize(QSize(16, 16));
 	Layout->addWidget(CloseButton, 0);
 	_this->connect(CloseButton, SIGNAL(clicked()), SLOT(onCloseButtonClicked()));
+
 }
 
 
@@ -527,6 +540,14 @@ void CDockAreaTitleBar::onAutoHideButtonClicked()
 	}
 }
 
+//============================================================================
+void CDockAreaTitleBar::onMinimizeButtonClicked()
+{
+	if (d->DockArea->autoHideDockContainer())
+	{
+		d->DockArea->autoHideDockContainer()->collapseView(true);
+	}    
+}
 
 //============================================================================
 void CDockAreaTitleBar::onAutoHideDockAreaActionClicked()
@@ -551,6 +572,7 @@ CTitleBarButton* CDockAreaTitleBar::button(TitleBarButton which) const
 	case TitleBarButtonTabsMenu: return d->TabsMenuButton;
 	case TitleBarButtonUndock: return d->UndockButton;
 	case TitleBarButtonClose: return d->CloseButton;
+	case TitleBarButtonMinimize: return d->MinimizeButton;
 	case TitleBarButtonAutoHide: return d->AutoHideButton;
 	default:
 		return nullptr;
@@ -740,6 +762,12 @@ void CDockAreaTitleBar::contextMenuEvent(QContextMenuEvent* ev)
 		}
 		Menu.addSeparator();
 	}
+	if (isAutoHide && CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideDockHasMinimizeButton))
+	{
+		Action = Menu.addAction(tr("Minimize"), this, SLOT(onMinimizeButtonClicked()));
+		Action->setEnabled(true);
+	}
+
 	Action = Menu.addAction(isAutoHide ? tr("Close") : tr("Close Group"), this, SLOT(onCloseButtonClicked()));
 	Action->setEnabled(d->DockArea->features().testFlag(CDockWidget::DockWidgetClosable));
 	if (!isAutoHide && !isTopLevelArea)
@@ -799,6 +827,10 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 			return tr("Close Group");
 		}
 	    break;
+
+	case TitleBarButtonMinimize:
+	    return tr("Minimize");
+		break;
 
 	default:
 		break;

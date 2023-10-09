@@ -394,6 +394,7 @@ void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool IsTopLevel)
 	if (IsTopLevel)
 	{
 		TitleBar->button(TitleBarButtonClose)->setVisible(!container->isFloating());
+		TitleBar->button(TitleBarButtonMinimize)->setVisible(!container->isFloating());
 		TitleBar->button(TitleBarButtonAutoHide)->setVisible(!container->isFloating());
         // Undock and tabs should never show when auto hidden
 		TitleBar->button(TitleBarButtonUndock)->setVisible(!container->isFloating() && !_this->isAutoHide());
@@ -402,6 +403,7 @@ void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool IsTopLevel)
 	else
 	{
 		TitleBar->button(TitleBarButtonClose)->setVisible(true);
+		TitleBar->button(TitleBarButtonMinimize)->setVisible(_this->isAutoHide() && CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideDockHasMinimizeButton));
 		TitleBar->button(TitleBarButtonAutoHide)->setVisible(true);
 		TitleBar->button(TitleBarButtonUndock)->setVisible(!_this->isAutoHide());
         TitleBar->button(TitleBarButtonTabsMenu)->setVisible(!_this->isAutoHide());
@@ -888,6 +890,8 @@ void CDockAreaWidget::updateTitleBarButtonsToolTips()
 {
 	internal::setToolTip(titleBarButton(TitleBarButtonClose),
 		titleBar()->titleBarButtonToolTip(TitleBarButtonClose));
+	internal::setToolTip(titleBarButton(TitleBarButtonMinimize),
+		titleBar()->titleBarButtonToolTip(TitleBarButtonMinimize));
 	internal::setToolTip(titleBarButton(TitleBarButtonAutoHide),
 		titleBar()->titleBarButtonToolTip(TitleBarButtonAutoHide));
 }
