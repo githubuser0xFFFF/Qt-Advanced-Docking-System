@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QLabel, QCalendarWidget, QFrame, QTre
                              QTableWidget, QFileSystemModel, QPlainTextEdit, QToolBar,
                              QWidgetAction, QComboBox, QAction, QSizePolicy, QInputDialog)
 
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
 UI_FILE = os.path.join(os.path.dirname(__file__), 'mainwindow.ui')
 MainWindowUI, MainWindowBase = uic.loadUiType(UI_FILE)

@@ -27,6 +27,7 @@
   - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
   - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
   - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+  - [`DisableTabTextEliding`](#disabletabtexteliding)
 - [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
   - [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
   - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
@@ -466,6 +467,10 @@ close tab. Just click with the middle mouse button on a tab like this is
 possible in various web browsers.
 
 ![MiddleMouseButtonClosesTab true](cfg_flag_MiddleMouseButtonClosesTab.gif)
+
+### `DisableTabTextEliding`
+
+Set this flag to disable eliding of tab texts in dock area tabs.
 
 ## Auto-Hide Configuration Flags
 
