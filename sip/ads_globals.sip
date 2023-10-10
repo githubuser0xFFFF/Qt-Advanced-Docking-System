@@ -91,6 +91,7 @@ namespace ads
         DockAreaMenuIcon,
         DockAreaUndockIcon,
         DockAreaCloseIcon,
+	    DockAreaMinimizeIcon,
         IconCount,
     };
 

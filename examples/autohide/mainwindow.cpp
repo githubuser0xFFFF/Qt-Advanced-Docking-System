@@ -14,8 +14,6 @@
 
 #include "AutoHideDockContainer.h"
 #include "DockAreaWidget.h"
-#include "DockAreaTitleBar.h"
-#include "IconProvider.h"
 
 using namespace ads;
 
@@ -25,13 +23,11 @@ CMainWindow::CMainWindow(QWidget *parent)
     , ui(new Ui::CMainWindow)
 {
     ui->setupUi(this);
-    CDockManager::iconProvider().registerCustomIcon(DockAreaMinimizeIcon, QIcon()); // TODO: CP: Icon.
-
     CDockManager::setConfigFlag(CDockManager::OpaqueSplitterResize, true);
     CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
     CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
     CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
-    CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideDockAreaCloseable, false);
+    CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideCloseButtonCollapsesDock, false);
     CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideDockHasMinimizeButton, true);
 
     DockManager = new CDockManager(this);
@@ -49,6 +45,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table->setColumnCount(3);
     table->setRowCount(10);
     CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+    TableDockWidget->setFeature(CDockWidget::AutoHideDockWidgetClosable, false);
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->setMinimumSize(200,150);
@@ -60,6 +57,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table->setColumnCount(5);
     table->setRowCount(1020);
     TableDockWidget = new CDockWidget("Table 2");
+    TableDockWidget->setFeature(CDockWidget::AutoHideDockWidgetClosable, false);
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->resize(250, 150);
@@ -71,6 +69,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     propertiesTable->setColumnCount(3);
     propertiesTable->setRowCount(10);
     CDockWidget* PropertiesDockWidget = new CDockWidget("Properties");
+    PropertiesDockWidget->setFeature(CDockWidget::AutoHideDockWidgetClosable, true);
     PropertiesDockWidget->setWidget(propertiesTable);
     PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     PropertiesDockWidget->resize(250, 150);

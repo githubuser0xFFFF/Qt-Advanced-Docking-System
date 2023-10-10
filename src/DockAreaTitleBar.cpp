@@ -223,7 +223,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	MinimizeButton = new CTitleBarButton(testAutoHideConfigFlag(CDockManager::AutoHideDockHasMinimizeButton));
 	MinimizeButton->setObjectName("autoHideDockAreaMinimizeButton");
 	MinimizeButton->setAutoRaise(true);
-	internal::setButtonIcon(MinimizeButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaMinimizeIcon);
+	internal::setButtonIcon(MinimizeButton, QStyle::SP_TitleBarMinButton, ads::DockAreaMinimizeIcon);
     internal::setToolTip(MinimizeButton, _this->titleBarButtonToolTip(TitleBarButtonMinimize));
 	MinimizeButton->setSizePolicy(ButtonSizePolicy);
 	MinimizeButton->setIconSize(QSize(16, 16));
@@ -433,11 +433,6 @@ void CDockAreaTitleBar::onCloseButtonClicked()
 	{
 		d->DockArea->autoHideDockContainer()->collapseView(true);
 	}
-	//else if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideDockAreaCloseable) &&
-	//	d->DockArea->autoHideDockContainer()) 
-	//{
-	//	return;
-	//}
 	else if (d->testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
 		d->TabBar->closeTab(d->TabBar->currentIndex());

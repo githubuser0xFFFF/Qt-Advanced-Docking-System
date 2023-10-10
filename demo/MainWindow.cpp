@@ -724,9 +724,6 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	// uncomment the following line if you don't want close button on DockArea's title bar
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasCloseButton, false);
 
-	// uncomment the following line if you don't want Auto Hide docks to be closeable
-	//CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideDockAreaCloseable, false);
-
 	// uncomment the following line if you don't want undock button on DockArea's title bar
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasUndockButton, false);
 
