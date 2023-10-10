@@ -614,8 +614,8 @@ closing it.
 
 ### `AutoHideDockHasMinimizeButton`
 
-Similar to the reason for `AutoHideCloseButtonCollapsesDock`, if this flag is set, 
-the auto hide widget will have a minimize button that collapses the auto hide widget.
+For similar reasons as `AutoHideCloseButtonCollapsesDock`, this flag can be set so that
+the auto hide widget will have a minimize button that collapses the dock.
 
 ## DockWidget Feature Flags
 
