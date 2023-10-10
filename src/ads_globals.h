@@ -127,14 +127,14 @@ enum eDragState
  */
 enum eIcon
 {
-	TabCloseIcon,		  //!< TabCloseIcon
-	AutoHideIcon,		  //!< AutoHideIcon
-	DockAreaMenuIcon,	  //!< DockAreaMenuIcon
-	DockAreaUndockIcon,	  //!< DockAreaUndockIcon
-	DockAreaCloseIcon,	  //!< DockAreaCloseIcon
-	DockAreaMinimizeIcon, //!< DockAreaMinimizeIcon
+	TabCloseIcon,			//!< TabCloseIcon
+	AutoHideIcon,			//!< AutoHideIcon
+	DockAreaMenuIcon,		//!< DockAreaMenuIcon
+	DockAreaUndockIcon,		//!< DockAreaUndockIcon
+	DockAreaCloseIcon,		//!< DockAreaCloseIcon
+	DockAreaMinimizeIcon,	//!< DockAreaMinimizeIcon
 
-	IconCount,			  //!< just a delimiter for range checks
+	IconCount,				//!< just a delimiter for range checks
 };
 
 /**

@@ -224,7 +224,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	MinimizeButton->setObjectName("autoHideDockAreaMinimizeButton");
 	MinimizeButton->setAutoRaise(true);
 	internal::setButtonIcon(MinimizeButton, QStyle::SP_TitleBarMinButton, ads::DockAreaMinimizeIcon);
-    internal::setToolTip(MinimizeButton, _this->titleBarButtonToolTip(TitleBarButtonMinimize));
+	internal::setToolTip(MinimizeButton, _this->titleBarButtonToolTip(TitleBarButtonMinimize));
 	MinimizeButton->setSizePolicy(ButtonSizePolicy);
 	MinimizeButton->setIconSize(QSize(16, 16));
 	Layout->addWidget(MinimizeButton, 0);
