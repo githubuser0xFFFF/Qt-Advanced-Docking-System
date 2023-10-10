@@ -68,6 +68,11 @@ QScrollArea#dockWidgetScrollArea {
 	qproperty-iconSize: 16px;
 }
 
+#autoHideDockAreaMinimizeButton {
+	qproperty-icon: url(:/ads/images/minimize-button.svg);
+	qproperty-iconSize: 16px;
+}
+
 #detachGroupButton {
 	qproperty-icon: url(:/ads/images/detach-button.svg),
 		url(:/ads/images/detach-button-disabled.svg) disabled;
@@ -338,6 +343,10 @@ ads--CAutoHideDockContainer #dockAreaAutoHideButton {
 
 ads--CAutoHideDockContainer #dockAreaCloseButton{
 	qproperty-icon: url(:/ads/images/close-button-focused.svg)
+}
+
+ads--CAutoHideDockContainer #autoHideDockAreaMinimizeButton {
+	qproperty-icon: url(:/ads/images/minimize-button-focused.svg)
 }
 
 

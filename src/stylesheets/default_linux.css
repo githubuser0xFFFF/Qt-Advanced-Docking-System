@@ -47,10 +47,14 @@ ads--CTitleBarButton {
 
 #dockAreaCloseButton {
         qproperty-icon: url(:/ads/images/close-button.svg),
-                url(:/ads/images/close-button-disabled.svg) disabled;
+        url(:/ads/images/close-button-disabled.svg) disabled;
         qproperty-iconSize: 16px;
 }
 
+#autoHideDockAreaMinimizeButton {
+    qproperty-icon: url(:/ads/images/minimize-button.svg);
+    qproperty-iconSize: 16px;
+}
 
 #detachGroupButton {
         qproperty-icon: url(:/ads/images/detach-button.svg),
@@ -324,8 +328,8 @@ ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaT
  * CAutoHideDockContainer titlebar buttons
  *****************************************************************************/
 #dockAreaAutoHideButton {
-        qproperty-icon: url(:/ads/images/vs-pin-button.svg);
-        qproperty-iconSize: 16px;
+    qproperty-icon: url(:/ads/images/vs-pin-button.svg);
+    qproperty-iconSize: 16px;
 }
 
 ads--CAutoHideDockContainer #dockAreaAutoHideButton {
@@ -333,11 +337,13 @@ ads--CAutoHideDockContainer #dockAreaAutoHideButton {
         qproperty-iconSize: 16px;
 }
 
-
 ads--CAutoHideDockContainer #dockAreaCloseButton{
         qproperty-icon: url(:/ads/images/close-button-focused.svg)
 }
 
+ads--CAutoHideDockContainer #autoHideDockAreaMinimizeButton{
+        qproperty-icon: url(:/ads/images/minimize-button-focused.svg)
+}
 
 ads--CAutoHideDockContainer ads--CTitleBarButton:hover {
         background: rgba(255, 255, 255, 48);
