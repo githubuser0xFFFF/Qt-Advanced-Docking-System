@@ -41,6 +41,7 @@
   - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
   - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
   - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
+  - [`AutoHideDockHasMinimizeButton`](#autohidedockhasminimizebutton)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -51,6 +52,7 @@
   - [`DockWidgetForceCloseWithArea`](#dockwidgetforceclosewitharea)
   - [`NoTab`](#notab)
   - [`DeleteContentOnClose`](#deletecontentonclose)
+  - [`AutoHideDockWidgetClosable`](#autohidedockwidgetclosable)
 - [Central Widget](#central-widget)
 - [Empty Dock Area](#empty-dock-area)
 - [Custom Close Handling](#custom-close-handling)
@@ -610,6 +612,11 @@ closing it.
 
 ![AutoHideCloseButtonCollapsesDock true](cfg_flag_AutoHideCloseButtonCollapsesDock_true.gif)
 
+### `AutoHideDockHasMinimizeButton`
+
+Similar to the reason for `AutoHideCloseButtonCollapsesDock`, if this flag is set, 
+the auto hide widget will have a minimize button that collapses the auto hide widget.
+
 ## DockWidget Feature Flags
 
 ### `DockWidgetClosable`
@@ -660,6 +667,10 @@ A dock widget tab will never be shown if this flag is set.
 Deletes only the contained widget on close, keeping the dock widget intact and
 in place. Attempts to rebuild the contents widget on show if there is a widget
 factory set. See [issue #365](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/365) for more details.
+
+### `AutoHideDockWidgetClosable`
+
+If set, the close button in the auto hide widget will be enabled.
 
 ## Central Widget
 
