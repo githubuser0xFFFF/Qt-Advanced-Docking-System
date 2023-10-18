@@ -52,7 +52,7 @@
   - [`DockWidgetForceCloseWithArea`](#dockwidgetforceclosewitharea)
   - [`NoTab`](#notab)
   - [`DeleteContentOnClose`](#deletecontentonclose)
-  - [`AutoHideDockWidgetClosable`](#autohidedockwidgetclosable)
+  - [`DisableCloseButtonWhenAutoHide`](#disableclosebuttonwhenautohide)
 - [Central Widget](#central-widget)
 - [Empty Dock Area](#empty-dock-area)
 - [Custom Close Handling](#custom-close-handling)
@@ -668,9 +668,9 @@ Deletes only the contained widget on close, keeping the dock widget intact and
 in place. Attempts to rebuild the contents widget on show if there is a widget
 factory set. See [issue #365](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/365) for more details.
 
-### `AutoHideDockWidgetClosable`
+### `DisableCloseButtonWhenAutoHide`
 
-If set, the close button in the auto hide widget will be enabled.
+If set, close button of the auto hide widget (pinned) will be disabled.
 
 ## Central Widget
 
