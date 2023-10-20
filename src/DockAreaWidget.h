@@ -89,6 +89,11 @@ private Q_SLOTS:
 	 */
 	void updateTitleBarButtonsToolTips();
 
+	/*
+	 * Update the title bar button icons
+	 */
+	void updateTitleBarButtonsIcons();
+
 	/**
 	 * Calculate the auto hide side bar location depending on the dock area
 	 * widget position in the container

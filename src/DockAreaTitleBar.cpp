@@ -182,7 +182,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
-	internal::setButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
+	internal::setButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, _this->titleBarButtonCustomIcon(TitleBarButtonTabsMenu));
 	QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
 	TabsMenu->setToolTipsVisible(true);
@@ -200,7 +200,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	UndockButton->setObjectName("detachGroupButton");
 	UndockButton->setAutoRaise(true);
 	internal::setToolTip(UndockButton, QObject::tr("Detach Group"));
-	internal::setButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
+	internal::setButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, _this->titleBarButtonCustomIcon(TitleBarButtonUndock));
 	UndockButton->setSizePolicy(ButtonSizePolicy);
 	Layout->addWidget(UndockButton, 0);
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
@@ -211,7 +211,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	AutoHideButton->setObjectName("dockAreaAutoHideButton");
 	AutoHideButton->setAutoRaise(true);
 	internal::setToolTip(AutoHideButton, _this->titleBarButtonToolTip(TitleBarButtonAutoHide));
-	internal::setButtonIcon(AutoHideButton, QStyle::SP_DialogOkButton, ads::AutoHideIcon);
+	internal::setButtonIcon(AutoHideButton, QStyle::SP_DialogOkButton, _this->titleBarButtonCustomIcon(TitleBarButtonAutoHide));
 	AutoHideButton->setSizePolicy(ButtonSizePolicy);
 	AutoHideButton->setCheckable(testAutoHideConfigFlag(CDockManager::AutoHideButtonCheckable));
 	AutoHideButton->setChecked(false);
@@ -222,7 +222,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
 	CloseButton->setObjectName("dockAreaCloseButton");
 	CloseButton->setAutoRaise(true);
-	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
+	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, _this->titleBarButtonCustomIcon(TitleBarButtonClose));
     internal::setToolTip(CloseButton, _this->titleBarButtonToolTip(TitleBarButtonClose));
 	CloseButton->setSizePolicy(ButtonSizePolicy);
 	CloseButton->setIconSize(QSize(16, 16));
@@ -829,6 +829,74 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 	}
 
 	return QString();
+}
+
+
+//============================================================================
+QIcon getAutoHideCustomIcon(TitleBarButton Button)
+{
+	switch (Button)
+	{
+	case TitleBarButtonTabsMenu:
+	{
+		return CDockManager::iconProvider().customIcon(AutoHideDockAreaMenuIcon);
+	}
+	case TitleBarButtonUndock:
+	{
+		return CDockManager::iconProvider().customIcon(AutoHideDockAreaUndockIcon);
+	}
+	case TitleBarButtonClose:
+	{
+		return CDockManager::iconProvider().customIcon(AutoHideDockAreaCloseIcon);
+	}
+	case TitleBarButtonAutoHide:
+	{
+		return CDockManager::iconProvider().customIcon(AutoHideAutoHideIcon);
+	}
+	}
+	return {};
+}
+
+
+//============================================================================
+QIcon getCustomIcon(TitleBarButton Button)
+{
+	switch (Button)
+	{
+	case TitleBarButtonTabsMenu:
+	{
+		return CDockManager::iconProvider().customIcon(DockAreaMenuIcon);
+	}
+	case TitleBarButtonUndock:
+	{
+		return CDockManager::iconProvider().customIcon(DockAreaUndockIcon);
+	}
+	case TitleBarButtonClose:
+	{
+		return CDockManager::iconProvider().customIcon(DockAreaCloseIcon);
+	}
+	case TitleBarButtonAutoHide:
+	{
+		return CDockManager::iconProvider().customIcon(AutoHideIcon);
+	}
+	}
+	return {};
+}
+
+
+//============================================================================
+QIcon CDockAreaTitleBar::titleBarButtonCustomIcon(TitleBarButton Button) const
+{
+	QIcon icon;
+	if (d->DockArea != nullptr && d->DockArea->isAutoHide())
+	{
+		icon = getAutoHideCustomIcon(Button);
+	}
+	if (icon.isNull())
+	{
+		icon = getCustomIcon(Button);
+	}
+	return icon;
 }
 
 //============================================================================

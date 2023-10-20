@@ -467,6 +467,7 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 	d->AutoHideDockContainer = AutoHideDockContainer;
 	updateAutoHideButtonCheckState();
 	updateTitleBarButtonsToolTips();
+	updateTitleBarButtonsIcons();
 	d->TitleBar->button(TitleBarButtonAutoHide)->setShowInTitleBar(true);
 }
 
@@ -891,6 +892,21 @@ void CDockAreaWidget::updateTitleBarButtonsToolTips()
 		titleBar()->titleBarButtonToolTip(TitleBarButtonAutoHide));
 }
 
+void CDockAreaWidget::updateTitleBarButtonsIcons()
+{
+	internal::setButtonIcon(titleBarButton(TitleBarButtonTabsMenu), 
+		QStyle::SP_TitleBarUnshadeButton, 
+		titleBar()->titleBarButtonCustomIcon(TitleBarButtonTabsMenu));
+	internal::setButtonIcon(titleBarButton(TitleBarButtonUndock), 
+		QStyle::SP_TitleBarNormalButton, 
+		titleBar()->titleBarButtonCustomIcon(TitleBarButtonUndock));
+	internal::setButtonIcon(titleBarButton(TitleBarButtonClose), 
+		QStyle::SP_TitleBarCloseButton, 
+		titleBar()->titleBarButtonCustomIcon(TitleBarButtonClose));
+	internal::setButtonIcon(titleBarButton(TitleBarButtonAutoHide), 
+		QStyle::SP_DialogOkButton, 
+		titleBar()->titleBarButtonCustomIcon(TitleBarButtonAutoHide));
+}
 
 //============================================================================
 void CDockAreaWidget::saveState(QXmlStreamWriter& s) const

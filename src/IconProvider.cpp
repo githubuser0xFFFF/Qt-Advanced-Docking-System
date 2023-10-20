@@ -20,6 +20,7 @@ struct IconProviderPrivate
 {
 	CIconProvider *_this;
 	QVector<QIcon> UserIcons{IconCount, QIcon()};
+	QVector<QIcon> UserAutoHideIcons{AutoHideIconCount, QIcon()};
 
 	/**
 	 * Private data constructor
@@ -58,10 +59,26 @@ QIcon CIconProvider::customIcon(eIcon IconId) const
 
 
 //============================================================================
+QIcon CIconProvider::customIcon(eAutoHideIcon IconId) const
+{
+	Q_ASSERT(IconId < d->UserAutoHideIcons.size());
+	return d->UserAutoHideIcons[IconId];
+}
+
+
+//============================================================================
 void CIconProvider::registerCustomIcon(eIcon IconId, const QIcon &icon)
 {
 	Q_ASSERT(IconId < d->UserIcons.size());
 	d->UserIcons[IconId] = icon;
+}
+
+
+//============================================================================
+void CIconProvider::registerCustomIcon(eAutoHideIcon IconId, const QIcon &icon)
+{
+	Q_ASSERT(IconId < d->UserAutoHideIcons.size());
+	d->UserAutoHideIcons[IconId] = icon;
 }
 
 } // namespace ads

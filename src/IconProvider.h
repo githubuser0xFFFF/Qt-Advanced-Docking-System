@@ -47,11 +47,13 @@ public:
 	 * if no custom icon is registered
 	 */
 	QIcon customIcon(eIcon IconId) const;
+    QIcon customIcon(eAutoHideIcon IconId) const;
 
-	/**
+    /**
 	 * Registers a custom icon for the given IconId
 	 */
 	void registerCustomIcon(eIcon IconId, const QIcon &icon);
+	void registerCustomIcon(eAutoHideIcon IconId, const QIcon& icon);
 }; // class IconProvider
 
 } // namespace ads

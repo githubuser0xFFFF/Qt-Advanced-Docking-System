@@ -136,6 +136,19 @@ enum eIcon
 };
 
 /**
+ * The different icons used in the UI for Auto Hide
+ */
+enum eAutoHideIcon
+{
+    AutoHideAutoHideIcon,      //!< AutoHideIcon
+	AutoHideDockAreaMenuIcon,  //!< DockAreaMenuIcon
+	AutoHideDockAreaUndockIcon,//!< DockAreaUndockIcon
+	AutoHideDockAreaCloseIcon, //!< DockAreaCloseIcon
+
+	AutoHideIconCount,         //!< just a delimiter for range checks
+};
+
+/**
  * For bitwise combination of dock wdget features
  */
 enum eBitwiseOperator
@@ -343,6 +356,14 @@ inline QPoint globalPositionOf(QMouseEvent* ev)
 void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap,
 	ads::eIcon CustomIconId);
 
+
+void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandardPixmap, QIcon Icon);
+
+
+/**
+ * Return the icon of standard pixmap for button.
+ */
+QIcon getStandardPixmapIcon(QAbstractButton* Button, QStyle::StandardPixmap Pixmap);
 
 enum eRepolishChildOptions
 {

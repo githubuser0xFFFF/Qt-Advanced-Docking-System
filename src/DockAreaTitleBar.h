@@ -205,6 +205,11 @@ public:
 	QString titleBarButtonToolTip(TitleBarButton Button) const;
 
 	/**
+	 * Custom icon based on the current state
+	 */
+	QIcon titleBarButtonCustomIcon(TitleBarButton Button) const;
+
+	/**
 	 * Moves the dock area into its own floating widget if the area
 	 * DockWidgetFloatable flag is true
 	 */
