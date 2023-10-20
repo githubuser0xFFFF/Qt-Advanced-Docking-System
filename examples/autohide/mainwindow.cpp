@@ -14,7 +14,7 @@
 
 #include "AutoHideDockContainer.h"
 #include "DockAreaWidget.h"
-#include "DockAreaTitleBar.h"
+#include "IconProvider.h"
 
 using namespace ads;
 
@@ -28,6 +28,10 @@ CMainWindow::CMainWindow(QWidget *parent)
     CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
     CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
     CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+    CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideCloseButtonCollapsesDock, true);
+    CDockManager::iconProvider().registerCustomIcon(AutoHideDockAreaCloseIcon, 
+        QIcon(":/adsautohide/images/minimize-button.svg"));
+
     DockManager = new CDockManager(this);
 
     // Set central widget

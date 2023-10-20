@@ -7,6 +7,7 @@ add_executable(AutoHideExample WIN32
     main.cpp
     mainwindow.cpp
     mainwindow.ui
+    autohide.qrc
 )
 target_include_directories(AutoHideExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 target_link_libraries(AutoHideExample PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)

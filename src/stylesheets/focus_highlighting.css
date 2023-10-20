@@ -56,8 +56,6 @@ ads--CTitleBarButton {
 
 
 #dockAreaCloseButton {
-	qproperty-icon: url(:/ads/images/close-button.svg),
-		url(:/ads/images/close-button-disabled.svg) disabled;
 	qproperty-iconSize: 16px;
 }
 
@@ -337,7 +335,6 @@ ads--CAutoHideDockContainer #dockAreaAutoHideButton {
 
 
 ads--CAutoHideDockContainer #dockAreaCloseButton{
-	qproperty-icon: url(:/ads/images/close-button-focused.svg)
 }
 
 

@@ -27,6 +27,9 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
+RESOURCES += \
+    autohide.qrc
+
 LIBS += -L$${ADS_OUT_ROOT}/lib
 include(../../ads.pri)
 INCLUDEPATH += ../../src
