@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="adsautohide">
         <file>images/minimize-button.svg</file>
+        <file>res/autohide.css</file>
     </qresource>
 </RCC>

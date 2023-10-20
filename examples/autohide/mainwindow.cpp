@@ -34,6 +34,13 @@ CMainWindow::CMainWindow(QWidget *parent)
 
     DockManager = new CDockManager(this);
 
+    QFile StyleSheetFile(":/adsautohide/res/autohide.css");
+    StyleSheetFile.open(QIODevice::ReadOnly);
+    QTextStream StyleSheetStream(&StyleSheetFile);
+    auto Stylesheet = StyleSheetStream.readAll();
+    StyleSheetFile.close();
+    DockManager->setStyleSheet(Stylesheet);
+
     // Set central widget
     QPlainTextEdit* w = new QPlainTextEdit();
 	w->setPlaceholderText("This is the central editor. Enter your text here.");
