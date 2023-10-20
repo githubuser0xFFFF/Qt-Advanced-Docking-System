@@ -140,10 +140,10 @@ enum eIcon
  */
 enum eAutoHideIcon
 {
-    AutoHideAutoHideIcon,      //!< AutoHideIcon
-	AutoHideDockAreaMenuIcon,  //!< DockAreaMenuIcon
-	AutoHideDockAreaUndockIcon,//!< DockAreaUndockIcon
-	AutoHideDockAreaCloseIcon, //!< DockAreaCloseIcon
+	AutoHideAutoHideIcon,      //!< AutoHideAutoHideIcon
+	AutoHideDockAreaMenuIcon,  //!< AutoHideDockAreaMenuIcon
+	AutoHideDockAreaUndockIcon,//!< AutoHideDockAreaUndockIcon
+	AutoHideDockAreaCloseIcon, //!< AutoHideDockAreaCloseIcon
 
 	AutoHideIconCount,         //!< just a delimiter for range checks
 };
@@ -357,13 +357,23 @@ void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap
 	ads::eIcon CustomIconId);
 
 
+/**
+ * Helper function to set the icon of a certain button.
+ * Use this function to set the icons for the dock area and dock widget buttons.
+ * If icon given is not a valid icon (icon is null), the function fetches the 
+ * given standard pixmap from the QStyle.
+ * param[in] Button The button whose icons are to be set
+ * param[in] StandardPixmap The standard pixmap to be used for the button
+ * param[in] Icon The custom icon
+ */
 void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandardPixmap, QIcon Icon);
 
 
 /**
- * Return the icon of standard pixmap for button.
+ * Returns the standard pixmap icon for button from QStyle.
  */
 QIcon getStandardPixmapIcon(QAbstractButton* Button, QStyle::StandardPixmap Pixmap);
+
 
 enum eRepolishChildOptions
 {

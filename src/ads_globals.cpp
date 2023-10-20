@@ -415,8 +415,10 @@ void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap
 	Button->setIcon(getStandardPixmapIcon(Button, StandarPixmap));
 }
 
+
+//============================================================================
 void setButtonIcon(QAbstractButton *Button, QStyle::StandardPixmap StandardPixmap, QIcon Icon)
- {
+{
 	// First we try to use custom icons if available
 	if (!Icon.isNull())
 	{
@@ -424,23 +426,24 @@ void setButtonIcon(QAbstractButton *Button, QStyle::StandardPixmap StandardPixma
 		return;
 	}
 	Button->setIcon(getStandardPixmapIcon(Button, StandardPixmap));
- }
+}
+
 
 //============================================================================
-QIcon getStandardPixmapIcon(QAbstractButton* Button, QStyle::StandardPixmap Pixmap)
- {
+QIcon getStandardPixmapIcon(QAbstractButton* Button, QStyle::StandardPixmap StandardPixmap)
+{
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	return Button->style()->standardIcon(Pixmap);
+	return Button->style()->standardIcon(StandardPixmap);
 #else
 	// The standard icons does not look good on high DPI screens so we create
 	// our own "standard" icon here.
-    const QPixmap normalPixmap = Button->style()->standardPixmap(Pixmap, 0, Button);
+	const QPixmap normalPixmap = Button->style()->standardPixmap(StandardPixmap, 0, Button);
 	QIcon icon;
 	icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
 	icon.addPixmap(normalPixmap, QIcon::Normal);
 	return icon;
 #endif
- }
+}
 
 
 //============================================================================
