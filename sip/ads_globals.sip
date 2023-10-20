@@ -94,6 +94,15 @@ namespace ads
         IconCount,
     };
 
+    enum eAutoHideIcon
+    {
+        AutoHideAutoHideIcon,
+        AutoHideDockAreaMenuIcon,
+        AutoHideDockAreaUndockIcon,
+        AutoHideDockAreaCloseIcon,
+        AutoHideIconCount,
+    };
+
     enum eBitwiseOperator
     {
         BitwiseAnd,
