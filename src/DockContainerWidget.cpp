@@ -1932,10 +1932,11 @@ bool CDockContainerWidget::restoreState(CDockingStateReader& s, bool Testing)
 		NewRootSplitter = d->newSplitter(Qt::Horizontal);
 	}
 
-	d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
+	QLayoutItem* li = d->Layout->replaceWidget(d->RootSplitter, NewRootSplitter);
 	auto OldRoot = d->RootSplitter;
 	d->RootSplitter = qobject_cast<CDockSplitter*>(NewRootSplitter);
 	OldRoot->deleteLater();
+	delete li;
 
 	return true;
 }
