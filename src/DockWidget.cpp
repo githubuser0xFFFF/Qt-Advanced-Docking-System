@@ -749,11 +749,10 @@ void CDockWidget::toggleViewInternal(bool Open)
 	if (d->DockArea)
 	{
 		d->DockArea->toggleDockWidgetView(this, Open);
-	}
-
-	if (d->DockArea->isAutoHide())
-	{
-		d->DockArea->autoHideDockContainer()->toggleView(Open);
+		if (d->DockArea->isAutoHide())
+		{
+			d->DockArea->autoHideDockContainer()->toggleView(Open);
+		}
 	}
 
 	if (Open && TopLevelDockWidgetBefore)
