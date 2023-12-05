@@ -539,7 +539,14 @@ CDockManager::~CDockManager()
     std::vector<ads::CDockAreaWidget*> areas;
     for ( int i = 0; i != dockAreaCount(); ++i )
     {
-        areas.push_back( dockArea(i) );
+        auto area = dockArea(i);
+        if ( area->dockManager() == this )
+            areas.push_back( area );
+        // else, this is surprising, looks like this CDockAreaWidget is child of two different CDockManager
+        // this is reproductible by https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/585 testcase
+        // then, when a CDockManager deletes itself, it deletes the CDockAreaWidget, then, the other
+        // CDockManager will try to delete the CDockAreaWidget again and this will crash
+        // So let's just delete CDockAreaWidget we are the parent of!
     }
     for ( auto area : areas )
     {
