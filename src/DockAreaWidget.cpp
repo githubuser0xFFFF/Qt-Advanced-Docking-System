@@ -81,7 +81,7 @@ class CDockAreaLayout
 {
 private:
 	QBoxLayout* m_ParentLayout;
-	QList<QWidget*> m_Widgets;
+	QList<QPointer<QWidget>> m_Widgets;
 	int m_CurrentIndex = -1;
 	QWidget* m_CurrentWidget = nullptr;
 
