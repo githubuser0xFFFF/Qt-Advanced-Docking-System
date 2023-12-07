@@ -12,10 +12,10 @@ styles as much as possible.
 
 ## Features
 
-### Docking everywhere - no central widget
+### Docking everywhere - with or without a central widget
 
-There is no central widget like in the Qt docking system. You can dock on every
-border of the main window or you can dock into each dock area - so you are
+The Advanced Docking System works with or without a central widget.
+You can dock on every border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
 
 ![Dropping widgets](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/preview-dragndrop.png)
