@@ -81,7 +81,7 @@ struct DockWidgetPrivate
 	CDockWidgetTab* TabWidget = nullptr;
 	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
 	CDockManager* DockManager = nullptr;
-	CDockAreaWidget* DockArea = nullptr;
+	QPointer<CDockAreaWidget> DockArea;
 	QAction* ToggleViewAction = nullptr;
 	bool Closed = false;
 	QScrollArea* ScrollArea = nullptr;

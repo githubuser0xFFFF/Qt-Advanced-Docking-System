@@ -103,8 +103,8 @@ static QString FloatingContainersTitle;
 struct DockManagerPrivate
 {
 	CDockManager* _this;
-	QList<CFloatingDockContainer*> FloatingWidgets;
-	QList<CFloatingDockContainer*> HiddenFloatingWidgets;
+	QList<QPointer<CFloatingDockContainer>> FloatingWidgets;
+	QList<QPointer<CFloatingDockContainer>> HiddenFloatingWidgets;
 	QList<CDockContainerWidget*> Containers;
 	CDockOverlay* ContainerOverlay;
 	CDockOverlay* DockAreaOverlay;
@@ -153,7 +153,10 @@ struct DockManagerPrivate
 		// Hide updates of floating widgets from user
 		for (auto FloatingWidget : FloatingWidgets)
 		{
-			FloatingWidget->hide();
+			if (FloatingWidget)
+			{
+			  FloatingWidget->hide();
+			}
 		}
 	}
 
@@ -333,7 +336,8 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
 		int FloatingWidgetIndex = DockContainerCount - 1;
 		for (int i = FloatingWidgetIndex; i < FloatingWidgets.count(); ++i)
 		{
-			auto* floatingWidget = FloatingWidgets[i];
+			CFloatingDockContainer* floatingWidget = FloatingWidgets[i];
+			if (!floatingWidget) continue;
 			_this->removeDockContainer(floatingWidget->dockContainer());
 			floatingWidget->deleteLater();
 		}
@@ -536,30 +540,38 @@ CDockManager::CDockManager(QWidget *parent) :
 CDockManager::~CDockManager()
 {
     // fix memory leaks, see https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/307
-    std::vector<ads::CDockAreaWidget*> areas;
-    for ( int i = 0; i != dockAreaCount(); ++i )
-    {
-        auto area = dockArea(i);
-        if ( area->dockManager() == this )
-            areas.push_back( area );
-        // else, this is surprising, looks like this CDockAreaWidget is child of two different CDockManager
-        // this is reproductible by https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/585 testcase
-        // then, when a CDockManager deletes itself, it deletes the CDockAreaWidget, then, the other
-        // CDockManager will try to delete the CDockAreaWidget again and this will crash
-        // So let's just delete CDockAreaWidget we are the parent of!
-    }
-    for ( auto area : areas )
-    {
-        for ( auto widget : area->dockWidgets() )
-            delete widget;
+	std::vector<QPointer<ads::CDockAreaWidget>> areas;
+	for (int i = 0; i != dockAreaCount(); ++i)
+	{
+		areas.push_back( dockArea(i) );
+	}
+	for ( auto area : areas )
+	{
+		if (!area || area->dockManager() != this) continue;
 
-        delete area;
-    }
+		// QPointer delete safety - just in case some dock wigdet in destruction
+		// deletes another related/twin or child dock widget.
+		std::vector<QPointer<QWidget>> deleteWidgets;
+		for ( auto widget : area->dockWidgets() )
+		{
+			deleteWidgets.push_back(widget);
+		}
+		for ( auto ptrWdg : deleteWidgets)
+		{
+			delete ptrWdg;
+		}
+	}
 
 	auto FloatingWidgets = d->FloatingWidgets;
 	for (auto FloatingWidget : FloatingWidgets)
 	{
 		delete FloatingWidget;
+	}
+
+	// Delete Dock Widgets before Areas so widgets can access them late (like dtor)
+	for ( auto area : areas )
+	{
+		delete area;
 	}
 
 	delete d;
@@ -732,7 +744,12 @@ const QList<CDockContainerWidget*> CDockManager::dockContainers() const
 //============================================================================
 const QList<CFloatingDockContainer*> CDockManager::floatingWidgets() const
 {
-	return d->FloatingWidgets;
+	QList<CFloatingDockContainer*> res;
+	for (auto &fl : d->FloatingWidgets)
+	{
+		if (fl) res.append(fl);
+	}
+	return res;
 }
 
 

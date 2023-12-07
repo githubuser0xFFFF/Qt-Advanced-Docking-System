@@ -115,6 +115,7 @@ DockFocusControllerPrivate::DockFocusControllerPrivate(
 //============================================================================
 void DockFocusControllerPrivate::updateDockWidgetFocus(CDockWidget* DockWidget)
 {
+	if (!DockWidget) return;
 	if (!DockWidget->features().testFlag(CDockWidget::DockWidgetFocusable))
 	{
 		return;

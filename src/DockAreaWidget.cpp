@@ -756,7 +756,7 @@ int CDockAreaWidget::openDockWidgetsCount() const
 	int Count = 0;
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
-		if (!dockWidget(i)->isClosed())
+		if (dockWidget(i) && !dockWidget(i)->isClosed())
 		{
 			++Count;
 		}
@@ -772,7 +772,7 @@ QList<CDockWidget*> CDockAreaWidget::openedDockWidgets() const
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
 		CDockWidget* DockWidget = dockWidget(i);
-		if (!DockWidget->isClosed())
+		if (DockWidget && !DockWidget->isClosed())
 		{
 			DockWidgetList.append(dockWidget(i));
 		}
@@ -786,7 +786,7 @@ int CDockAreaWidget::indexOfFirstOpenDockWidget() const
 {
 	for (int i = 0; i < d->ContentsLayout->count(); ++i)
 	{
-		if (!dockWidget(i)->isClosed())
+		if (dockWidget(i) && !dockWidget(i)->isClosed())
 		{
 			return i;
 		}
@@ -808,7 +808,6 @@ CDockWidget* CDockAreaWidget::dockWidget(int Index) const
 {
 	return qobject_cast<CDockWidget*>(d->ContentsLayout->widget(Index));
 }
-
 
 //============================================================================
 void CDockAreaWidget::reorderDockWidget(int fromIndex, int toIndex)
