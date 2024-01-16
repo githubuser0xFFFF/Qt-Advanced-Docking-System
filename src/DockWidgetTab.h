@@ -84,7 +84,7 @@ public:
 	 * param[in] DockWidget The dock widget this title bar belongs to
 	 * param[in] parent The parent widget of this title bar
 	 */
-	CDockWidgetTab(CDockWidget* DockWidget, QWidget* parent = 0);
+	CDockWidgetTab(CDockWidget* DockWidget, QWidget* parent = nullptr);
 
 	/**
 	 * Virtual Destructor

@@ -92,7 +92,7 @@ xcb_atom_t xcb_get_atom(const char *name)
 	}
 	xcb_connection_t *connection = x11_connection();
 	xcb_intern_atom_cookie_t request = xcb_intern_atom(connection, 1, strlen(name), name);
-	xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, request, NULL);
+	xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, request, nullptr);
 	if (!reply)
 	{
 		return XCB_ATOM_NONE;

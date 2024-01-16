@@ -52,7 +52,7 @@ class CSpacerWidget : public QWidget
 	Q_OBJECT
 public:
 	using Super = QWidget;
-	CSpacerWidget(QWidget* Parent = 0);
+	CSpacerWidget(QWidget* Parent = nullptr);
 	virtual QSize sizeHint() const override {return QSize(0, 0);}
 	virtual QSize minimumSizeHint() const override {return QSize(0, 0);}
 };

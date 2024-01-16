@@ -566,7 +566,7 @@ CDockContainerWidget* CDockWidget::dockContainer() const
 	}
 	else
 	{
-		return 0;
+		return nullptr;
 	}
 }
 

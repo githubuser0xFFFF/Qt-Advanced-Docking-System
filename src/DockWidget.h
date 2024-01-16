@@ -256,7 +256,7 @@ public:
      * by calling setObjectName() after construction.
      * Use the layoutFlags to configure the layout of the dock widget.
      */
-    CDockWidget(const QString &title, QWidget* parent = 0);
+    CDockWidget(const QString &title, QWidget* parent = nullptr);
 
     /**
      * Virtual Destructor

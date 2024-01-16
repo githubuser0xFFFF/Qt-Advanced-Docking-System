@@ -58,8 +58,8 @@ protected:
 public:
     using Super = QLabel;
 
-    CElidingLabel(QWidget* parent = 0, Qt::WindowFlags f = Qt::WindowFlags ());
-    CElidingLabel(const QString& text, QWidget* parent = 0, Qt::WindowFlags f = Qt::WindowFlags ());
+    CElidingLabel(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags ());
+    CElidingLabel(const QString& text, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags ());
 	virtual ~CElidingLabel();
 
 	/**

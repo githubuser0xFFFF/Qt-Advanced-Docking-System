@@ -1149,7 +1149,7 @@ QAction* CDockManager::addToggleViewActionToMenu(QAction* ToggleViewAction,
 	bool AlphabeticallySorted = (MenuAlphabeticallySorted == d->MenuInsertionOrder);
 	if (!Group.isEmpty())
 	{
-		QMenu* GroupMenu = d->ViewMenuGroups.value(Group, 0);
+		QMenu* GroupMenu = d->ViewMenuGroups.value(Group, nullptr);
 		if (!GroupMenu)
 		{
 			GroupMenu = new QMenu(Group, this);
