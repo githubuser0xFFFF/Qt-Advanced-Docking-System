@@ -34,7 +34,7 @@
 #include <QSplitter>
 #include "AutoHideTab.h"
 
-class QXmlStreamWriter;
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace ads
 {
