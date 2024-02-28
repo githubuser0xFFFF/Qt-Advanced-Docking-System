@@ -60,7 +60,6 @@
 
 namespace ads
 {
-static const char* const LocationProperty = "Location";
 
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
@@ -159,7 +158,7 @@ struct DockAreaTitleBarPrivate
 		QMenu* Menu)
 	{
 		auto Action = Menu->addAction(Title);
-		Action->setProperty("Location", Location);
+		Action->setProperty(internal::LocationProperty, Location);
 		QObject::connect(Action, &QAction::triggered, _this, &CDockAreaTitleBar::onAutoHideToActionClicked);
 		return Action;
 	}
@@ -569,7 +568,7 @@ void CDockAreaTitleBar::onAutoHideDockAreaActionClicked()
 //============================================================================
 void CDockAreaTitleBar::onAutoHideToActionClicked()
 {
-	int Location = sender()->property(LocationProperty).toInt();
+	int Location = sender()->property(internal::LocationProperty).toInt();
 	d->DockArea->toggleAutoHide((SideBarLocation)Location);
 }
 

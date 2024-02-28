@@ -357,7 +357,7 @@ static const char* windowsMessageString(int MessageId)
 #endif
 
 
-static unsigned int zOrderCounter = 0;
+static unsigned int zOrderCounterFloating = 0;
 /**
  * Private data class of CFloatingDockContainer class (pimpl)
  */
@@ -365,7 +365,7 @@ struct FloatingDockContainerPrivate
 {
 	CFloatingDockContainer *_this;
 	CDockContainerWidget *DockContainer;
-	unsigned int zOrderIndex = ++zOrderCounter;
+	unsigned int zOrderIndex = ++zOrderCounterFloating;
 	QPointer<CDockManager> DockManager;
 	eDragState DraggingState = DraggingInactive;
 	QPoint DragStartMousePosition;
@@ -818,7 +818,7 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 		if (isActiveWindow())
 		{
 			ADS_PRINT("FloatingWidget::changeEvent QEvent::ActivationChange ");
-			d->zOrderIndex = ++zOrderCounter;
+			d->zOrderIndex = ++zOrderCounterFloating;
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 			if (d->DraggingState == DraggingFloatingWidget)

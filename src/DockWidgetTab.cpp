@@ -56,7 +56,6 @@
 
 namespace ads
 {
-static const char* const LocationProperty = "Location";
 using tTabLabel = CElidingLabel;
 
 /**
@@ -225,7 +224,7 @@ struct DockWidgetTabPrivate
 		QMenu* Menu)
 	{
 		auto Action = Menu->addAction(Title);
-		Action->setProperty("Location", Location);
+		Action->setProperty(internal::LocationProperty, Location);
 		QObject::connect(Action, &QAction::triggered, _this, &CDockWidgetTab::onAutoHideToActionClicked);
 		return Action;
 	}
@@ -764,7 +763,7 @@ void CDockWidgetTab::autoHideDockWidget()
 //===========================================================================
 void CDockWidgetTab::onAutoHideToActionClicked()
 {
-	int Location = sender()->property(LocationProperty).toInt();
+	int Location = sender()->property(internal::LocationProperty).toInt();
 	d->DockWidget->toggleAutoHide((SideBarLocation)Location);
 }
 
