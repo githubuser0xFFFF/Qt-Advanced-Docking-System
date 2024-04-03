@@ -17,8 +17,8 @@ protected:
     virtual void mouseDoubleClickEvent( QMouseEvent *ev );
     
 public:
-	CElidingLabel(QWidget* parent /TransferThis/ = 0, Qt::WindowFlags f = 0);
-	CElidingLabel(const QString& text, QWidget* parent /TransferThis/ = 0, Qt::WindowFlags f = 0);
+	CElidingLabel(QWidget* parent /TransferThis/ = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags ());
+	CElidingLabel(const QString& text, QWidget* parent /TransferThis/ = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags ());
 	virtual ~CElidingLabel();
 	Qt::TextElideMode elideMode() const;
 	void setElideMode(Qt::TextElideMode mode);

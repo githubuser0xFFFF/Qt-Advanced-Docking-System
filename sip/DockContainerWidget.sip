@@ -20,13 +20,14 @@ class CDockContainerWidget : QFrame
 
 protected:
 	virtual bool event(QEvent *e);
-	QSplitter* rootSplitter() const;
+	ads::CDockSplitter* rootSplitter() const;
     ads::CAutoHideDockContainer* createAndSetupAutoHideContainer(ads::SideBarLocation area, ads::CDockWidget* DockWidget /Transfer/, int TabIndex = -1);
 	void createRootSplitter();
 	void dropFloatingWidget(ads::CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
     void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget, int TabIndex = -1);
 	void addDockArea(ads::CDockAreaWidget* DockAreaWidget /Transfer/, ads::DockWidgetArea area = ads::CenterDockWidgetArea);
 	void removeDockArea(ads::CDockAreaWidget* area /TransferBack/);
+    /*QList<QPointer<ads::CDockAreaWidget>> removeAllDockAreas();*/
 	void saveState(QXmlStreamWriter& Stream) const;
 	bool restoreState(CDockingStateReader& Stream, bool Testing);
 	ads::CDockAreaWidget* lastAddedDockAreaWidget(ads::DockWidgetArea area) const;

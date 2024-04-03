@@ -172,6 +172,8 @@ public:
         FloatingContainerForceNativeTitleBar,
         FloatingContainerForceQWidgetTitleBar,
         MiddleMouseButtonClosesTab,
+        DisableTabTextEliding,
+        ShowTabTextOnlyForActiveTab,
         DefaultDockAreaButtons,
 		DefaultBaseConfig,
         DefaultOpaqueConfig,
@@ -188,6 +190,8 @@ public:
 		AutoHideSideBarsIconOnly,
 		AutoHideShowOnMouseOver,
         AutoHideCloseButtonCollapsesDock,
+        AutoHideHasCloseButton,
+        AutoHideHasMinimizeButton,
 		DefaultAutoHideConfig,
 	};
     typedef QFlags<ads::CDockManager::eAutoHideFlag> AutoHideFlags;
@@ -245,6 +249,12 @@ public:
     void setSplitterSizes(ads::CDockAreaWidget *ContainedArea, const QList<int>& sizes);
     static void setFloatingContainersTitle(const QString& Title);
 	static QString floatingContainersTitle();
+    void setDockWidgetToolBarStyle(Qt::ToolButtonStyle Style, ads::CDockWidget::eState State);
+    Qt::ToolButtonStyle dockWidgetToolBarStyle(ads::CDockWidget::eState State) const;
+    void setDockWidgetToolBarIconSize(const QSize& IconSize, ads::CDockWidget::eState State);
+    QSize dockWidgetToolBarIconSize(ads::CDockWidget::eState State) const;
+    ads::CDockWidget::DockWidgetFeatures globallyLockedDockWidgetFeatures() const;
+    void lockDockWidgetFeaturesGlobally(ads::CDockWidget::DockWidgetFeatures Features = ads::CDockWidget::GloballyLockableFeatures);
 
 public slots:
     void endLeavingMinimizedState();

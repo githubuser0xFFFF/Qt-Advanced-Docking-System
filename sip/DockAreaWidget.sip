@@ -41,6 +41,7 @@ public:
 	ads::CDockManager* dockManager() const;
 	ads::CDockContainerWidget* dockContainer() const;
     ads::CAutoHideDockContainer* autoHideDockContainer() const;
+    ads::CDockSplitter* parentSplitter() const;
     bool isAutoHide() const;
     void setAutoHideDockContainer(CAutoHideDockContainer*);
 	virtual QSize minimumSizeHint() const;

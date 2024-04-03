@@ -44,6 +44,7 @@ protected:
     void startDragging(const QPoint& DragStartMousePos, const QSize& Size,
         QWidget* MouseEventHandler);
 	virtual void finishDragging();
+    void deleteContent();
 	void initFloatingGeometry(const QPoint& DragStartMousePos, const QSize& Size);
 	void moveFloating();
 	bool restoreState(ads::CDockingStateReader& Stream, bool Testing);
@@ -82,6 +83,7 @@ public:
     bool hasTopLevelDockWidget() const;
     ads::CDockWidget* topLevelDockWidget() const;
     QList<ads::CDockWidget*> dockWidgets() const;
+    void finishDropOperation();
     
     %If (WS_X11)
     void onMaximizeRequest();

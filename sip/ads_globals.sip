@@ -73,7 +73,8 @@ namespace ads
         TitleBarButtonTabsMenu,
         TitleBarButtonUndock,
         TitleBarButtonClose,
-        TitleBarButtonAutoHide
+        TitleBarButtonAutoHide,
+        TitleBarButtonMinimize
     };
 
     enum eDragState

@@ -12,10 +12,14 @@ class CTitleBarButton : QToolButton
     %End
     
 public:
-	CTitleBarButton(bool visible = true, QWidget* parent /TransferThis/ = Q_NULLPTR );
+	CTitleBarButton(bool ShowInTitleBar, bool HideWhenDisabled, TitleBarButton ButtonId,
+		QWidget* /TransferThis/ = Q_NULLPTR );
 	virtual void setVisible(bool);
 	void setShowInTitleBar(bool);
 
+    TitleBarButton buttonId() const;
+	ads::CDockAreaTitleBar* titleBar() const;
+    bool isInAutoHideArea() const;
 
 protected:
 	bool event(QEvent *ev);
@@ -44,13 +48,15 @@ public:
 	ads::CDockAreaTabBar* tabBar() const;
 	ads::CTitleBarButton* button(ads::TitleBarButton which) const;
     ads::CElidingLabel* autoHideTitleLabel() const;
+    ads::CDockAreaWidget* dockAreaWidget() const;
  	void updateDockWidgetActionsButtons();
 	virtual void setVisible(bool Visible);
 	void insertWidget(int index, QWidget *widget /Transfer/ );
 	int indexOf(QWidget *widget) const;
     QString titleBarButtonToolTip(ads::TitleBarButton Button) const;
     void setAreaFloating();
-    
+    void showAutoHideControls(bool Show);
+    bool isAutoHide() const;
 
 signals:
 	void tabBarClicked(int index);
