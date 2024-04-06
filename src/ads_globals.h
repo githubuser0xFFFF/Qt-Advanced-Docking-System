@@ -158,7 +158,7 @@ enum SideBarLocation
 	SideBarBottom,
 	SideBarNone
 };
-Q_ENUMS(SideBarLocation);
+Q_ENUMS(SideBarLocation)
 
 
 namespace internal
