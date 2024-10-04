@@ -55,7 +55,7 @@ class ADS_EXPORT CAutoHideTab : public CPushButton
 	Q_PROPERTY(bool activeTab READ isActiveTab)
 	Q_PROPERTY(bool iconOnly READ iconOnly)
 
-private:    
+private:
 	AutoHideTabPrivate* d; ///< private data (pimpl)
     friend struct AutoHideTabPrivate;
 	friend class CDockWidget;
@@ -76,6 +76,9 @@ protected:
 	virtual void mousePressEvent(QMouseEvent* ev) override;
 	virtual void mouseReleaseEvent(QMouseEvent* ev) override;
 	virtual void mouseMoveEvent(QMouseEvent* ev) override;
+    virtual void dragEnterEvent(QDragEnterEvent* ev) override;
+    virtual void dragLeaveEvent(QDragLeaveEvent* ev) override;
+    virtual void dragMoveEvent(QDragMoveEvent* ev) override;
 
 public:
     using Super = CPushButton;

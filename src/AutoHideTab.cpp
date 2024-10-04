@@ -33,6 +33,7 @@
 #include <QApplication>
 #include <QElapsedTimer>
 #include <QMenu>
+#include <QEvent>
 
 #include "AutoHideDockContainer.h"
 #include "AutoHideSideBar.h"
@@ -41,6 +42,7 @@
 #include "DockWidget.h"
 #include "FloatingDragPreview.h"
 #include "DockOverlay.h"
+#include "ads_globals.h"
 
 namespace ads
 {
@@ -55,6 +57,7 @@ struct AutoHideTabPrivate
     CAutoHideSideBar* SideBar = nullptr;
 	Qt::Orientation Orientation{Qt::Vertical};
 	QElapsedTimer TimeSinceHoverMousePress;
+	QElapsedTimer TimeSinceDragOver;
 	bool MousePressed = false;
 	eDragState DragState = DraggingInactive;
 	QPoint GlobalDragStartMousePosition;
@@ -252,6 +255,9 @@ CAutoHideTab::CAutoHideTab(QWidget* parent) :
 {
 	setAttribute(Qt::WA_NoMousePropagation);
 	setFocusPolicy(Qt::NoFocus);
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover)) {
+        setAcceptDrops(true);
+    }
 }
 
 
@@ -355,7 +361,6 @@ bool CAutoHideTab::event(QEvent* event)
 	case QEvent::Leave:
 		 d->forwardEventToDockContainer(event);
 		 break;
-
 	default:
 		break;
 	}
@@ -537,6 +542,37 @@ void CAutoHideTab::mouseMoveEvent(QMouseEvent* ev)
     Super::mouseMoveEvent(ev);
 }
 
+//============================================================================
+void CAutoHideTab::dragEnterEvent(QDragEnterEvent* ev) {
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover)) {
+        if (!d->TimeSinceDragOver.isValid()) {
+            d->TimeSinceDragOver.restart();
+            ev->accept();
+        }
+        else if (d->TimeSinceDragOver.hasExpired(500)) {
+            ev->accept();
+        }
+    }
+}
+
+//============================================================================
+void CAutoHideTab::dragLeaveEvent(QDragLeaveEvent* ev) {
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover)) {
+        d->TimeSinceDragOver.invalidate();
+        d->forwardEventToDockContainer(ev);
+    }
+}
+
+//============================================================================
+void CAutoHideTab::dragMoveEvent(QDragMoveEvent* ev) {
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover)
+        && d->TimeSinceDragOver.isValid()
+        && d->TimeSinceDragOver.hasExpired(500)) {
+        d->TimeSinceDragOver.invalidate();
+        d->DockWidget->autoHideDockContainer()->collapseView(false);
+        ev->accept();
+    }
+}
 
 //============================================================================
 void CAutoHideTab::requestCloseDockWidget()

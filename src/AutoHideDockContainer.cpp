@@ -657,6 +657,15 @@ bool CAutoHideDockContainer::event(QEvent* event)
 	return Super::event(event);
 }
 
+//============================================================================
+void CAutoHideDockContainer::dragLeaveEvent(QDragLeaveEvent*)
+{
+    if (CDockManager::testAutoHideConfigFlag(
+            CDockManager::AutoHideOpenOnDragHover))
+    {
+        collapseView(true);
+    }
+}
 
 //============================================================================
 Qt::Orientation CAutoHideDockContainer::orientation() const
@@ -709,4 +718,3 @@ int CAutoHideDockContainer::tabIndex() const
 }
 
 }
-

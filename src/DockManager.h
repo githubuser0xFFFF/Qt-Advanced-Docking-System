@@ -254,6 +254,7 @@ public:
 		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 		AutoHideHasCloseButton = 0x80, //< If the flag is set an auto hide title bar has a close button
 		AutoHideHasMinimizeButton = 0x100, ///< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
+        AutoHideOpenOnDragHover = 0x200,  ///< if this flag is set, dragging hover the tab bar will open the dock
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton

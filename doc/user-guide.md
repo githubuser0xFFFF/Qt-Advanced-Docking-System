@@ -49,6 +49,7 @@
   - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
   - [`AutoHideHasCloseButton`](#autohidehasclosebutton)
   - [`AutoHideHasMinimizeButton`](#autohidehasminimizebutton)
+  - [`AutoHideOpenOnDragHover`](#autohideopenondraghover)
 - [DockWidget Feature Flags](#dockwidget-feature-flags)
   - [`DockWidgetClosable`](#dockwidgetclosable)
   - [`DockWidgetMovable`](#dockwidgetmovable)
@@ -150,7 +151,7 @@ This ie enabled by default to minimize the size of the saved data.
 
 ### `TabCloseButtonIsToolButton`
 
-If enabled the tab close buttons will be `QToolButtons` instead of `QPushButtons` - 
+If enabled the tab close buttons will be `QToolButtons` instead of `QPushButtons` -
 disabled by default. Normally the default configuration should be ok but if your
 application requires `QToolButtons` instead of `QPushButtons` for styling reasons
 or for any other reasons, then you can enable this flag.
@@ -181,7 +182,7 @@ constant, that means, if enabled, the tabs need more space.
 
 ### `DragPreviewIsDynamic`
 
-If non-opaque undocking is enabled, this flag defines the behavior of the drag 
+If non-opaque undocking is enabled, this flag defines the behavior of the drag
 preview window. If this flag is enabled, then it will give the user the
 impression, that the floating drag preview is dynamically adjusted to the drop
 area. In order to give the perfect impression, you should disable the flags
@@ -197,7 +198,7 @@ CDockManager::setConfigFlag(CDockManager::DragPreviewHasWindowFrame, false);
 
 ### `DragPreviewShowsContentPixmap`
 
-If non-opaque undocking is enabled, the created drag preview window shows a 
+If non-opaque undocking is enabled, the created drag preview window shows a
 copy of the content of the dock widget / dock are that is dragged, if this
 flag is enabled (default).
 
@@ -210,7 +211,7 @@ like window without any content.
 
 ### `DragPreviewHasWindowFrame`
 
-If non-opaque undocking is enabled, then this flag configures if the drag 
+If non-opaque undocking is enabled, then this flag configures if the drag
 preview is frameless (default) or looks like a real window. If it is enabled,
 then the drag preview is a transparent window with a system window frame.
 
@@ -378,7 +379,7 @@ ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar
 
 If you have a content widget that does not support focussing for some reason
 (like `QVTKOpenGLStereoWidget` from the [VTK library](https://github.com/Kitware/VTK)),
-then you can manually switch the focus by reacting on mouse events. The 
+then you can manually switch the focus by reacting on mouse events. The
 following code shows, how to install en event filter on the `QVTKOpenGLStereoWidget`
 to properly switch the focus on `QEvent::MouseButtonPress`:
 
@@ -422,7 +423,7 @@ bool CMainWindow::eventFilter(QObject *watched, QEvent *event)
 ### `EqualSplitOnInsertion`
 
 This flag configures how the space is distributed if a new dock widget is
-inserted into an existing dock area. The flag is disabled by default. If 3 
+inserted into an existing dock area. The flag is disabled by default. If 3
 dock widgets are inserted with the following code
 
 ```c++
@@ -433,7 +434,7 @@ then this is the result, if the flag is disabled:
 
 ![EqualSplitOnInsertion false](cfg_flag_EqualSplitOnInsertion_false.png)
 
-If the flag is enabled, then the space is equally distributed to all widgets 
+If the flag is enabled, then the space is equally distributed to all widgets
 in a  splitter:
 
 ![EqualSplitOnInsertion true](cfg_flag_EqualSplitOnInsertion_true.png)
@@ -501,7 +502,7 @@ for active tabs. Inactive tabs only show their icon:
 
 The Advanced Docking System supports "Auto-Hide" functionality for **all**
 dock containers. The "Auto Hide" feature allows to display more information
-using less screen space by hiding or showing windows pinned to one of the 
+using less screen space by hiding or showing windows pinned to one of the
 four dock container borders.
 
 Enabling this feature adds a button with a pin icon to each dock area.
@@ -563,7 +564,7 @@ That means, you can drag them to a different border or sidebar:
 
 ### Auto-Hide Tab Sorting
 
-You can drag Auto-Hide tabs to a new position in the current sidebar 
+You can drag Auto-Hide tabs to a new position in the current sidebar
 to sort them:
 
 ![Auo-Hide sort tabs](AutoHide_Sort_Tabs.gif)
@@ -632,7 +633,7 @@ the other Auto-Hide flags will be evaluated.
 
 ### `DockAreaHasAutoHideButton`
 
-If this flag is set (default), then each dock area has a pin button in the title 
+If this flag is set (default), then each dock area has a pin button in the title
 bar to toggle Auto-Hide state.
 
 ![DockAreaHasAutoHideButton true](cfg_flag_DockAreaHasAutoHideButton.png)
@@ -676,7 +677,7 @@ works if this feature is enabled.
 Some users don't understand the distinction between closing an auto hide dock and
 collapsing an auto hide dock. This may lead to situations where they press the
 close button (losing the side tab widget) instead of simply clicking outside
-the auto hide dock (collapsing the dock). 
+the auto hide dock (collapsing the dock).
 
 ![AutoHideCloseButtonCollapsesDock false](cfg_flag_AutoHideCloseButtonCollapsesDock_false.gif)
 
@@ -703,6 +704,15 @@ The functionality of the close button (close or minimize) is configured by the
 If this flag is set (disabled by default), then each auto hide widget has a minimize button.
 
 ![AutoHideHasMinimizeButton](cfg_flag_AutoHideHasMinimizeButton.png)
+
+
+### `AutoHideOpenOnDragHover`
+
+If this flag is set (disabled by default), then holding a dragging cursor hover an auto-hide collapsed dock's tab will open said dock:
+
+![AutoHideOpenOnDragHover](cfg_flag_AutoHideOpenOnDragHover.gif)
+
+Said dock must be set to accept drops to hide when cursor leaves its scope.
 
 ## DockWidget Feature Flags
 
