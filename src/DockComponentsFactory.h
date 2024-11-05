@@ -65,31 +65,8 @@ public:
 	 */
 	virtual CDockAreaTitleBar* createDockAreaTitleBar(CDockAreaWidget* DockArea) const;
 
-	/**
-	 * Returns the default components factory
-	 */
-	static const CDockComponentsFactory* factory();
-
-	/**
-	 * Sets a new default factory for creation of GUI elements.
-	 * This function takes ownership of the given Factory.
-	 */
-	static void setFactory(CDockComponentsFactory* Factory);
-
-	/**
-	 * Resets the current factory to the
-	 */
-	static void resetDefaultFactory();
+    static QSharedPointer<ads::CDockComponentsFactory> defaultFactory();
 };
-
-
-/**
- * Convenience function to ease factory instance access
- */
-inline const CDockComponentsFactory* componentsFactory()
-{
-	return CDockComponentsFactory::factory();
-}
 
 } // namespace ads
 

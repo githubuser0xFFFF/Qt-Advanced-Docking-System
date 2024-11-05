@@ -264,6 +264,10 @@ struct DockAreaWidgetPrivate
 	QSize MinSizeHint;
 	CDockAreaWidget::DockAreaFlags Flags{CDockAreaWidget::DefaultFlags};
 
+    QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const {
+        return DockManager->componentsFactory();
+    }
+
 	/**
 	 * Private data constructor
 	 */

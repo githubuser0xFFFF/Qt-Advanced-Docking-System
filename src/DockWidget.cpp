@@ -80,7 +80,7 @@ struct DockWidgetPrivate
 	QWidget* Widget = nullptr;
 	CDockWidgetTab* TabWidget = nullptr;
 	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
-	QPointer<CDockManager> DockManager;
+	QPointer<CDockManager> DockManager {nullptr};
 	QPointer<CDockAreaWidget> DockArea;
 	QAction* ToggleViewAction = nullptr;
 	bool Closed = false;
@@ -357,9 +357,9 @@ void DockWidgetPrivate::setToolBarStyleFromDockManager()
 
 
 //============================================================================
-CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
-	QFrame(parent),
-	d(new DockWidgetPrivate(this))
+CDockWidget::CDockWidget(CDockManager* manager, const QString& title,
+                         QWidget* parent)
+: QFrame(parent), d(new DockWidgetPrivate(this))
 {
 	d->Layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	d->Layout->setContentsMargins(0, 0, 0, 0);
@@ -368,7 +368,8 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	setWindowTitle(title);
 	setObjectName(title);
 
-	d->TabWidget = componentsFactory()->createDockWidgetTab(this);
+    auto factory = manager ? manager->componentsFactory() : CDockComponentsFactory::defaultFactory();
+	d->TabWidget = factory->createDockWidgetTab(this);
 
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
@@ -381,6 +382,10 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 		setFocusPolicy(Qt::ClickFocus);
 	}
 }
+
+CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
+      CDockWidget(nullptr, title, parent)
+{}
 
 //============================================================================
 CDockWidget::~CDockWidget()

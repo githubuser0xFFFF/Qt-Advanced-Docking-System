@@ -277,6 +277,12 @@ public:
 	 */
 	virtual ~CDockManager() override;
 
+    QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const;
+
+    void setComponentsFactory(ads::CDockComponentsFactory *);
+
+    void setComponentsFactory(QSharedPointer<ads::CDockComponentsFactory>);
+
 	/**
 	 * This function returns the global configuration flags
 	 */

@@ -471,12 +471,12 @@ void MainWindowPrivate::createContent()
 	appendFeaturStringToWindowTitle(FileSystemWidget);
 
 	// Test custom factory - we inject a help button into the title bar
-	ads::CDockComponentsFactory::setFactory(new CCustomComponentsFactory());
+    DockManager->setComponentsFactory(new CCustomComponentsFactory());
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 	// Uncomment the next line if you would like to test the
 	// HideSingleWidgetTitleBar functionality
 	// TopDockArea->setDockAreaFlag(ads::CDockAreaWidget::HideSingleWidgetTitleBar, true);
-	ads::CDockComponentsFactory::resetDefaultFactory();
+	DockManager->setComponentsFactory(ads::CDockComponentsFactory::defaultFactory());
 
 	// We create a calendar widget and clear all flags to prevent the dock area
 	// from closing
