@@ -35,6 +35,8 @@
 
 #include "ads_globals.h"
 
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
 namespace ads
 {
 class CDockWidget;
