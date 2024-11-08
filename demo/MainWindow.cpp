@@ -75,18 +75,17 @@
 #endif
 #endif
 
-#include "DockManager.h"
-#include "DockWidget.h"
-#include "DockAreaWidget.h"
-#include "DockAreaTitleBar.h"
 #include "DockAreaTabBar.h"
-#include "FloatingDockContainer.h"
+#include "DockAreaTitleBar.h"
+#include "DockAreaWidget.h"
 #include "DockComponentsFactory.h"
-#include "StatusDialog.h"
+#include "DockManager.h"
 #include "DockSplitter.h"
+#include "DockWidget.h"
+#include "FloatingDockContainer.h"
 #include "ImageViewer.h"
-
-
+#include "MyDockAreaTitleBar.h"
+#include "StatusDialog.h"
 
 /**
  * Returns a random number from 0 to highest - 1
@@ -147,7 +146,7 @@ public:
 	using Super = ads::CDockComponentsFactory;
 	ads::CDockAreaTitleBar* createDockAreaTitleBar(ads::CDockAreaWidget* DockArea) const override
 	{
-		auto TitleBar = new ads::CDockAreaTitleBar(DockArea);
+		auto TitleBar = new MyDockAreaTitleBar(DockArea);
 		auto CustomButton = new QToolButton(DockArea);
 		CustomButton->setToolTip(QObject::tr("Help"));
 		CustomButton->setIcon(svgIcon(":/adsdemo/images/help_outline.svg"));
