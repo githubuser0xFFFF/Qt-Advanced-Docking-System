@@ -1280,6 +1280,10 @@ CIconProvider& CDockManager::iconProvider()
 	return Instance;
 }
 
+CDockWidget* CDockManager::createDockWidget(const QString& title, QWidget* parent)
+{
+    return new CDockWidget(this, title, parent);
+}
 
 //===========================================================================
 void CDockManager::notifyWidgetOrAreaRelocation(QWidget* DroppedWidget)

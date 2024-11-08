@@ -336,6 +336,21 @@ public:
 	 */
 	static CIconProvider& iconProvider();
 
+    /**
+     * Creates a new dock widget with the specified title and optional parent
+     * widget.
+     *
+     * The new dock widget will be managed by the dock manager, and its lifetime
+     * will be tied to the dock manager. If a parent widget is provided, the dock
+     * widget will be created as a child of the parent widget. If no parent widget
+     * is provided, the dock widget will be created as a top-level widget.
+     *
+     * @param title The title of the dock widget.
+     * @param parent The parent widget, if any. Defaults to nullptr.
+     * @return Returns a pointer to the created CDockWidget.
+     */
+    CDockWidget *createDockWidget(const QString &title, QWidget* parent = nullptr);
+
 	/**
 	 * Adds dockwidget into the given area.
 	 * If DockAreaWidget is not null, then the area parameter indicates the area
