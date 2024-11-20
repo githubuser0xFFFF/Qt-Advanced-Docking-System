@@ -109,6 +109,7 @@ int resizeHandleLayoutPosition(SideBarLocation Area)
  */
 struct AutoHideDockContainerPrivate
 {
+    CDockManager *DockManager;
     CAutoHideDockContainer* _this;
 	CDockAreaWidget* DockArea{nullptr};
 	CDockWidget* DockWidget{nullptr};
@@ -122,7 +123,11 @@ struct AutoHideDockContainerPrivate
 	/**
 	 * Private data constructor
 	 */
-	AutoHideDockContainerPrivate(CAutoHideDockContainer *_public);
+	AutoHideDockContainerPrivate(CDockManager *manager, CAutoHideDockContainer *_public);
+
+    QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const {
+        return DockManager->componentsFactory();
+    }
 
 	/**
 	 * Convenience function to get a dock widget area
@@ -178,8 +183,9 @@ struct AutoHideDockContainerPrivate
 
 //============================================================================
 AutoHideDockContainerPrivate::AutoHideDockContainerPrivate(
+    CDockManager *manager,
     CAutoHideDockContainer *_public) :
-	_this(_public)
+	DockManager(manager), _this(_public)
 {
 
 }
@@ -195,11 +201,11 @@ CDockContainerWidget* CAutoHideDockContainer::dockContainer() const
 //============================================================================
 CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarLocation area, CDockContainerWidget* parent) :
 	Super(parent),
-    d(new AutoHideDockContainerPrivate(this))
+    d(new AutoHideDockContainerPrivate(DockWidget->dockManager(), this))
 {
 	hide(); // auto hide dock container is initially always hidden
 	d->SideTabBarArea = area;
-	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
+	d->SideTab = d->componentsFactory()->createDockWidgetSideTab(nullptr);
 	connect(d->SideTab, &CAutoHideTab::pressed, this, &CAutoHideDockContainer::toggleCollapseState);
 	d->DockArea = new CDockAreaWidget(DockWidget->dockManager(), parent);
 	d->DockArea->setObjectName("autoHideDockArea");

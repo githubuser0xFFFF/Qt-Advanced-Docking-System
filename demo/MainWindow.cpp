@@ -236,7 +236,7 @@ struct MainWindowPrivate
 		m->setRootPath(QDir::currentPath());
 		w->setModel(m);
 		w->setRootIndex(m->index(QDir::currentPath()));
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Filesystem %1")
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Filesystem %1")
 			.arg(FileSystemCount++));
 		DockWidget->setWidget(w);
 		DockWidget->setIcon(svgIcon(":/adsdemo/images/folder_open.svg"));
@@ -257,7 +257,7 @@ struct MainWindowPrivate
 	{
 		static int CalendarCount = 0;
 		QCalendarWidget* w = new QCalendarWidget();
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Calendar %1").arg(CalendarCount++));
 		// The following lines are for testing the setWidget() and takeWidget()
 		// functionality
 		DockWidget->setWidget(w);
@@ -302,7 +302,7 @@ struct MainWindowPrivate
 			.arg(LabelCount)
 			.arg(QTime::currentTime().toString("hh:mm:ss:zzz")));
 
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Label %1").arg(LabelCount++));
 		DockWidget->setWidget(l);
 		DockWidget->setIcon(svgIcon(":/adsdemo/images/font_download.svg"));
 		ui.menuView->addAction(DockWidget->toggleViewAction());
@@ -320,7 +320,7 @@ struct MainWindowPrivate
 		w->setPlaceholderText("This is an editor. If you close the editor, it will be "
 			"deleted. Enter your text here.");
 		w->setStyleSheet("border: none");
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Editor %1").arg(EditorCount++));
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Editor %1").arg(EditorCount++));
 		DockWidget->setWidget(w);
 		DockWidget->setIcon(svgIcon(":/adsdemo/images/edit.svg"));
 		DockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
@@ -363,7 +363,7 @@ struct MainWindowPrivate
 
 		auto Result = w->loadFile(FileName);
 		qDebug() << "loadFile result: " << Result;
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Image Viewer %1").arg(ImageViewerCount++));
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Image Viewer %1").arg(ImageViewerCount++));
 		DockWidget->setIcon(svgIcon(":/adsdemo/images/photo.svg"));
 		DockWidget->setWidget(w,ads:: CDockWidget::ForceNoScrollArea);
 		auto ToolBar = DockWidget->createDefaultToolBar();
@@ -378,7 +378,7 @@ struct MainWindowPrivate
 	{
 		static int TableCount = 0;
 		auto w = new CMinSizeTableWidget();
-		ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Table %1").arg(TableCount++));
+		ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Table %1").arg(TableCount++));
 		static int colCount = 5;
 		static int rowCount = 30;
 		w->setColumnCount(colCount);
@@ -417,7 +417,7 @@ struct MainWindowPrivate
 	ads::CDockWidget *createQQuickWidget()
 	{
 		QQuickWidget *widget = new QQuickWidget();
-		ads::CDockWidget *dockWidget = new ads::CDockWidget("Quick");
+		ads::CDockWidget *dockWidget = DockManager->createDockWidget("Quick");
 		dockWidget->setWidget(widget);
 		return dockWidget;
 	}
@@ -432,7 +432,7 @@ struct MainWindowPrivate
 	{
 	   static int ActiveXCount = 0;
 	   QAxWidget* w = new QAxWidget("{6bf52a52-394a-11d3-b153-00c04f79faa6}", parent);
-	   ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Active X %1").arg(ActiveXCount++));
+	   ads::CDockWidget* DockWidget = DockManager->createDockWidget(QString("Active X %1").arg(ActiveXCount++));
 	   DockWidget->setWidget(w);
 	   ui.menuView->addAction(DockWidget->toggleViewAction());
 	   return DockWidget;
@@ -470,12 +470,12 @@ void MainWindowPrivate::createContent()
 	appendFeaturStringToWindowTitle(FileSystemWidget);
 
 	// Test custom factory - we inject a help button into the title bar
-	ads::CDockComponentsFactory::setFactory(new CCustomComponentsFactory());
+    DockManager->setComponentsFactory(new CCustomComponentsFactory());
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 	// Uncomment the next line if you would like to test the
 	// HideSingleWidgetTitleBar functionality
 	// TopDockArea->setDockAreaFlag(ads::CDockAreaWidget::HideSingleWidgetTitleBar, true);
-	ads::CDockComponentsFactory::resetDefaultFactory();
+	DockManager->setComponentsFactory(ads::CDockComponentsFactory::defaultFactory());
 
 	// We create a calendar widget and clear all flags to prevent the dock area
 	// from closing

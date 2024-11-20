@@ -31,6 +31,7 @@
 #include <AutoHideDockContainer.h>
 #include "DockWidgetTab.h"
 #include "DockManager.h"
+#include "DockComponentsFactory.h"
 
 #include <algorithm>
 #include <iostream>
@@ -126,6 +127,8 @@ struct DockManagerPrivate
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	CDockWidget::DockWidgetFeatures LockedDockWidgetFeatures;
 
+    QSharedPointer<ads::CDockComponentsFactory> componentFactory {ads::CDockComponentsFactory::defaultFactory()};
+
 	/**
 	 * Private data constructor
 	 */
@@ -192,7 +195,6 @@ struct DockManagerPrivate
 DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 	_this(_public)
 {
-
 }
 
 
@@ -579,6 +581,21 @@ CDockManager::~CDockManager()
 	}
 
 	delete d;
+}
+
+ QSharedPointer<ads::CDockComponentsFactory> CDockManager::componentsFactory() const
+{
+    return d->componentFactory;
+}
+
+void CDockManager::setComponentsFactory(ads::CDockComponentsFactory* factory)
+{
+    d->componentFactory = QSharedPointer<ads::CDockComponentsFactory>(factory);
+}
+
+void CDockManager::setComponentsFactory(QSharedPointer<ads::CDockComponentsFactory> factory)
+{
+    d->componentFactory = factory;
 }
 
 //============================================================================
@@ -1265,6 +1282,10 @@ CIconProvider& CDockManager::iconProvider()
 	return Instance;
 }
 
+CDockWidget* CDockManager::createDockWidget(const QString& title, QWidget* parent)
+{
+    return new CDockWidget(this, title, parent);
+}
 
 //===========================================================================
 void CDockManager::notifyWidgetOrAreaRelocation(QWidget* DroppedWidget)
