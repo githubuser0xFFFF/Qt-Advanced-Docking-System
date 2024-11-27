@@ -64,10 +64,6 @@ private Q_SLOTS:
 	void onCloseOtherTabsRequested();
 	void onTabWidgetMoved(const QPoint& GlobalPos);
 
-protected:
-	virtual void wheelEvent(QWheelEvent* Event) override;
-
-
 public:
 	using Super = QScrollArea;
 
