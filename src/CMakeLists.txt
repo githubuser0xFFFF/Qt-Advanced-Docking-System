@@ -71,7 +71,7 @@ if (UNIX AND NOT APPLE)
     set(ads_HEADERS linux/FloatingWidgetTitleBar.h ${ads_HEADERS})
 endif()
 
-set(library_name "qt${QT_VERSION_MAJOR}advanceddocking")
+set(library_name "qtadvanceddocking")
 if(BUILD_STATIC)
     add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)

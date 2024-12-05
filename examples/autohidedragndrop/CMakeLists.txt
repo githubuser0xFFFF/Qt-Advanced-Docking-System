@@ -10,7 +10,7 @@ add_executable(AutoHideDragNDropExample WIN32
     droppableitem.cpp
 )
 target_include_directories(AutoHideDragNDropExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(AutoHideDragNDropExample PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
+target_link_libraries(AutoHideDragNDropExample PRIVATE qtadvanceddocking)
 target_link_libraries(AutoHideDragNDropExample PUBLIC Qt${QT_VERSION_MAJOR}::Core
                                                   Qt${QT_VERSION_MAJOR}::Gui
                                                   Qt${QT_VERSION_MAJOR}::Widgets)
