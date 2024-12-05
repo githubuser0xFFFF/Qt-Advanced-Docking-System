@@ -158,6 +158,12 @@ CDockAreaTabBar::~CDockAreaTabBar()
 
 
 //============================================================================
+void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
+{
+    QCoreApplication::sendEvent(horizontalScrollBar(), Event);
+}
+
+//============================================================================
 void CDockAreaTabBar::setCurrentIndex(int index)
 {
 	if (index == d->CurrentIndex)
