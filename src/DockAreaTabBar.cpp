@@ -161,15 +161,13 @@ CDockAreaTabBar::~CDockAreaTabBar()
 void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 {
 	Event->accept();
-	const int direction = Event->angleDelta().y();
-	if (direction < 0)
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
-	}
-	else
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
-	}
+    int numPixels = Event->pixelDelta().y();
+    if (!numPixels)
+    {
+    	numPixels = Event->angleDelta().y() / 5;
+    }
+
+	horizontalScrollBar()->setValue(horizontalScrollBar()->value() - numPixels);
 }
 
 
