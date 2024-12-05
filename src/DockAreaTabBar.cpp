@@ -160,18 +160,8 @@ CDockAreaTabBar::~CDockAreaTabBar()
 //============================================================================
 void CDockAreaTabBar::wheelEvent(QWheelEvent* Event)
 {
-	Event->accept();
-	const int direction = Event->angleDelta().y();
-	if (direction < 0)
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 20);
-	}
-	else
-	{
-		horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 20);
-	}
+    QCoreApplication::sendEvent(horizontalScrollBar(), Event);
 }
-
 
 //============================================================================
 void CDockAreaTabBar::setCurrentIndex(int index)
@@ -356,7 +346,7 @@ void CDockAreaTabBar::onCloseOtherTabsRequested()
 				CDockWidget::DockWidgetDeleteOnClose) ? 1 : 0;
 			closeTab(i);
 
-			// If the the dock widget blocks closing, i.e. if the flag
+			// If the dock widget blocks closing, i.e. if the flag
 			// CustomCloseHandling is set, and the dock widget is still open,
 			// then we do not need to correct the index
 			if (Tab->dockWidget()->isClosed())
