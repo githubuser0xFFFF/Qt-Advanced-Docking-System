@@ -66,6 +66,7 @@ namespace ads
  */
 struct DockAreaTitleBarPrivate
 {
+    CDockManager *DockManager;
 	CDockAreaTitleBar* _this;
 	QPointer<CTitleBarButton> TabsMenuButton;
 	QPointer<CTitleBarButton> AutoHideButton;
@@ -88,7 +89,11 @@ struct DockAreaTitleBarPrivate
 	/**
 	 * Private data constructor
 	 */
-	DockAreaTitleBarPrivate(CDockAreaTitleBar* _public);
+	DockAreaTitleBarPrivate(CDockManager *manager, CDockAreaTitleBar* _public);
+
+    QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const {
+        return DockManager->componentsFactory();
+    }
 
 	/**
 	 * Creates the title bar close and menu buttons
@@ -165,8 +170,8 @@ struct DockAreaTitleBarPrivate
 };// struct DockAreaTitleBarPrivate
 
 //============================================================================
-DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
-	_this(_public)
+DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockManager *manager, CDockAreaTitleBar* _public) :
+	DockManager(manager), _this(_public)
 {
 
 }
@@ -331,7 +336,7 @@ void DockAreaTitleBarPrivate::startFloating(const QPoint& Offset)
 //============================================================================
 CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	QFrame(parent),
-	d(new DockAreaTitleBarPrivate(this))
+	d(new DockAreaTitleBarPrivate(parent->dockManager(), this))
 {
 	d->DockArea = parent;
 
