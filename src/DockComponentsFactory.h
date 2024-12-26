@@ -67,7 +67,7 @@ public:
 
 	/**
 	 * This returns the default dock components factory instance.
-	 * If no components factory is assigned to a specifc dock manager, this
+	 * If no components factory is assigned to a specific dock manager, this
 	 * global factory instance will be used.
 	 */
     static QSharedPointer<ads::CDockComponentsFactory> factory();

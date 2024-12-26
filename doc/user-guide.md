@@ -847,7 +847,7 @@ When an entire area is closed, the default behavior is to hide the dock widgets 
 
 It is possible to globally lock features of all dock widgets to "freeze" the
 current workspace layout. That means, you can now lock your workspace
-to avoid accidentally dragging a docked view. When locking was't possible,
+to avoid accidentally dragging a docked view. When locking wasn't possible,
 users had to manually dock it back to the desired place after each accidental
 undock.
 

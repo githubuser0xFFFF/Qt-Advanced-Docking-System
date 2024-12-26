@@ -236,7 +236,7 @@ SideBarLocation toSideBarLocation(DockWidgetArea Area);
 
 
 /**
- * Returns true for the top or bottom side bar ansd false for the
+ * Returns true for the top or bottom side bar and false for the
  * left and right side bar
  */
 bool isHorizontalSideBarLocation(SideBarLocation Location);

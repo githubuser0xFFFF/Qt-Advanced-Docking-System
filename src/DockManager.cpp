@@ -555,7 +555,7 @@ CDockManager::~CDockManager()
 	{
 		if (!area || area->dockManager() != this) continue;
 
-		// QPointer delete safety - just in case some dock wigdet in destruction
+		// QPointer delete safety - just in case some dock widget in destruction
 		// deletes another related/twin or child dock widget.
 		std::vector<QPointer<QWidget>> deleteWidgets;
 		for ( auto widget : area->dockWidgets() )
