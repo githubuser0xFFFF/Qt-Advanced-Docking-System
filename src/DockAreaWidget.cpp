@@ -270,7 +270,7 @@ struct DockAreaWidgetPrivate
 	DockAreaWidgetPrivate(CDockAreaWidget* _public);
 
 	/**
-	 * Convencience function to ease components factory access
+	 * Convenience function to ease components factory access
 	 */
 	QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const
 	{
