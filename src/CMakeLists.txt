@@ -12,7 +12,7 @@ if (UNIX AND NOT APPLE)
     include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
 endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-if(BUILD_STATIC)
+if(ADS_BUILD_STATIC)
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 set(ads_SRCS
@@ -72,7 +72,7 @@ if (UNIX AND NOT APPLE)
 endif()
 
 set(library_name "qt${QT_VERSION_MAJOR}advanceddocking")
-if(BUILD_STATIC)
+if(ADS_BUILD_STATIC)
     add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)
 else()
@@ -114,42 +114,43 @@ elseif(QT_VERSION_MAJOR STREQUAL "6")
         CXX_STANDARD_REQUIRED ON)
 endif()
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    "${library_name}ConfigVersion.cmake"
-    VERSION ${VERSION_SHORT}
-    COMPATIBILITY SameMajorVersion
-)
-install(FILES ${ads_HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name}
-    COMPONENT headers
-)
-install(FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
-    DESTINATION license/ads
-    COMPONENT license
-)
-install(TARGETS ${library_name}
-    EXPORT adsTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name}
-)
+if(ADS_INSTALL)
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+        "${library_name}ConfigVersion.cmake"
+        VERSION ${VERSION_SHORT}
+        COMPATIBILITY SameMajorVersion
+    )
+    install(FILES ${ads_HEADERS}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name}
+        COMPONENT headers
+    )
+    install(FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
+        DESTINATION license/ads
+        COMPONENT license
+    )
+    install(TARGETS ${library_name}
+        EXPORT adsTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name}
+    )
 
-install(EXPORT adsTargets
-    FILE adsTargets.cmake
-    NAMESPACE ads::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
-)
-install(FILES qtadvanceddockingConfig.cmake RENAME ${library_name}Config.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
-)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${library_name}ConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
-)
-
+    install(EXPORT adsTargets
+        FILE adsTargets.cmake
+        NAMESPACE ads::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+    )
+    install(FILES qtadvanceddockingConfig.cmake RENAME ${library_name}Config.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+    )
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${library_name}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+    )
+endif()
 target_include_directories(${library_name} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
