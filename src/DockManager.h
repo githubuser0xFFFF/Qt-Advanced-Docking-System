@@ -215,6 +215,8 @@ public:
 		MiddleMouseButtonClosesTab = 0x2000000, //! If the flag is set, the user can use the mouse middle button to close the tab under the mouse
 		DisableTabTextEliding =      0x4000000, //! Set this flag to disable eliding of tab texts in dock area tabs
 		ShowTabTextOnlyForActiveTab =0x8000000, //! Set this flag to show label texts in dock area tabs only for active tabs
+		DoubleClickUndocksWidget = 0x10000000, //!< If the flag is set, a double click on a tab undocks the widget
+
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
 							   | DockAreaHasUndockButton
@@ -223,7 +225,8 @@ public:
 		DefaultBaseConfig = DefaultDockAreaButtons
 		                  | ActiveTabHasCloseButton
 		                  | XmlCompressionEnabled
-		                  | FloatingContainerHasWidgetTitle, ///< default base configuration settings
+		                  | FloatingContainerHasWidgetTitle
+		                  | DoubleClickUndocksWidget, ///< default base configuration settings
 
         DefaultOpaqueConfig = DefaultBaseConfig
 		                    | OpaqueSplitterResize
@@ -254,13 +257,25 @@ public:
 		AutoHideCloseButtonCollapsesDock = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
 		AutoHideHasCloseButton = 0x80, //< If the flag is set an auto hide title bar has a close button
 		AutoHideHasMinimizeButton = 0x100, ///< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
+        AutoHideOpenOnDragHover = 0x200,  ///< if this flag is set, dragging hover the tab bar will open the dock
+        AutoHideCloseOnOutsideMouseClick = 0x400, ///< if this flag is set, the auto hide dock container will collapse if the user clicks outside of the container, if not set, the auto hide container can be closed only via click on sidebar tab
 
 		DefaultAutoHideConfig = AutoHideFeatureEnabled
 			                  | DockAreaHasAutoHideButton
 			                  | AutoHideHasMinimizeButton
+			                  | AutoHideCloseOnOutsideMouseClick
 
 	};
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
+
+	/**
+	 * Global configuration parameters that you can set via setConfigParam()
+	 */
+	enum eConfigParam
+	{
+    	AutoHideOpenOnDragHoverDelay_ms, ///< Delay in ms before the dock opens on drag hover if AutoHideOpenOnDragHover flag is set
+    	ConfigParamCount // just a delimiter to count number of config params
+	};
 
 
 	/**
@@ -276,6 +291,39 @@ public:
 	 * Virtual Destructor
 	 */
 	virtual ~CDockManager() override;
+
+    /**
+     * Creates a new dock widget with the specified title and optional parent
+     * widget.
+     *
+     * The new dock widget will be managed by the dock manager, and its lifetime
+     * will be tied to the dock manager. If a parent widget is provided, the dock
+     * widget will be created as a child of the parent widget. If no parent widget
+     * is provided, the dock widget will be created as a top-level widget.
+     *
+     * @param title The title of the dock widget.
+     * @param parent The parent widget, if any. Defaults to nullptr.
+     * @return Returns a pointer to the created CDockWidget.
+     */
+    CDockWidget *createDockWidget(const QString &title, QWidget* parent = nullptr);
+
+	/**
+	 * Returns the dock manager specific factory for creating components of
+	 * fock widgets
+	 */
+    QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const;
+
+    /**
+     * Sets a custom factory for creating components of dock widgets.
+     * The pointer is stored internally into a shared pointer so you should not
+     * delete the given factory object as long as it is used by the dock manager.
+     */
+    void setComponentsFactory(ads::CDockComponentsFactory* Factory);
+
+    /**
+     * Sets a custom factory for creating components of dock widgets.
+     */
+    void setComponentsFactory(QSharedPointer<ads::CDockComponentsFactory>);
 
 	/**
 	 * This function returns the global configuration flags
@@ -322,6 +370,17 @@ public:
 	 * Returns true if the given overlay config flag is set
 	 */
 	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
+
+	/**
+	 * Sets the value for the given config parameter
+	 */
+	static void setConfigParam(eConfigParam Param, QVariant Value);
+
+	/**
+	 * Returns the value for the given config parameter or the default value
+	 * if the parameter is not set.
+	 */
+	static QVariant configParam(eConfigParam Param, QVariant Default);
 
 	/**
 	 * Returns the global icon provider.

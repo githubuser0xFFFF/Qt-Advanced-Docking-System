@@ -103,6 +103,14 @@ struct DockWidgetPrivate
 	DockWidgetPrivate(CDockWidget* _public);
 
 	/**
+	 * Convenience function to ease components factory access
+	 */
+	QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const
+	{
+        return DockManager ? DockManager->componentsFactory() : CDockComponentsFactory::factory();
+    }
+
+	/**
 	 * Show dock widget
 	 */
 	void showDockWidget();
@@ -358,9 +366,17 @@ void DockWidgetPrivate::setToolBarStyleFromDockManager()
 
 //============================================================================
 CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
-	QFrame(parent),
-	d(new DockWidgetPrivate(this))
+      CDockWidget(nullptr, title, parent)
 {
+}
+
+
+//============================================================================
+CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* parent)
+	: QFrame(parent),
+	  d(new DockWidgetPrivate(this))
+{
+	d->DockManager = manager;
 	d->Layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	d->Layout->setContentsMargins(0, 0, 0, 0);
 	d->Layout->setSpacing(0);
@@ -368,7 +384,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	setWindowTitle(title);
 	setObjectName(title);
 
-	d->TabWidget = componentsFactory()->createDockWidgetTab(this);
+	d->TabWidget = d->componentsFactory()->createDockWidgetTab(this);
 
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
@@ -381,6 +397,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 		setFocusPolicy(Qt::ClickFocus);
 	}
 }
+
 
 //============================================================================
 CDockWidget::~CDockWidget()

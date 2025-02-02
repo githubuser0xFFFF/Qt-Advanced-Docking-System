@@ -125,6 +125,21 @@ struct AutoHideDockContainerPrivate
 	AutoHideDockContainerPrivate(CAutoHideDockContainer *_public);
 
 	/**
+	 * Convenience function to ease access to dock manager components factory
+	 */
+	QSharedPointer<ads::CDockComponentsFactory> componentsFactory() const
+	{
+		if (!DockWidget || !DockWidget->dockManager())
+		{
+			return CDockComponentsFactory::factory();
+		}
+		else
+		{
+			return DockWidget->dockManager()->componentsFactory();
+		}
+    }
+
+	/**
 	 * Convenience function to get a dock widget area
 	 */
 	DockWidgetArea getDockWidgetArea(SideBarLocation area)
@@ -199,7 +214,7 @@ CAutoHideDockContainer::CAutoHideDockContainer(CDockWidget* DockWidget, SideBarL
 {
 	hide(); // auto hide dock container is initially always hidden
 	d->SideTabBarArea = area;
-	d->SideTab = componentsFactory()->createDockWidgetSideTab(nullptr);
+	d->SideTab = d->componentsFactory()->createDockWidgetSideTab(nullptr);
 	connect(d->SideTab, &CAutoHideTab::pressed, this, &CAutoHideDockContainer::toggleCollapseState);
 	d->DockArea = new CDockAreaWidget(DockWidget->dockManager(), parent);
 	d->DockArea->setObjectName("autoHideDockArea");
@@ -587,8 +602,12 @@ bool CAutoHideDockContainer::eventFilter(QObject* watched, QEvent* event)
 			return Super::eventFilter(watched, event);
 		}
 
-		// user clicked into container - collapse the auto hide widget
-		collapseView(true);
+		// user clicked outside of autohide container - collapse the auto hide widget
+		if (CDockManager::testAutoHideConfigFlag(
+		    CDockManager::AutoHideCloseOnOutsideMouseClick))
+		{
+			collapseView(true);
+		}
 	}
     else if (event->type() == internal::FloatingWidgetDragStartEvent)
     {
@@ -657,6 +676,14 @@ bool CAutoHideDockContainer::event(QEvent* event)
 	return Super::event(event);
 }
 
+//============================================================================
+void CAutoHideDockContainer::dragLeaveEvent(QDragLeaveEvent*)
+{
+    if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover))
+    {
+        collapseView(true);
+    }
+}
 
 //============================================================================
 Qt::Orientation CAutoHideDockContainer::orientation() const
@@ -709,4 +736,3 @@ int CAutoHideDockContainer::tabIndex() const
 }
 
 }
-

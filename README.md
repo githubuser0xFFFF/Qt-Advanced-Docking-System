@@ -462,7 +462,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the dock manager after the ui is setup. Because the
     // parent parameter is a QMainWindow the dock manager registers
     // itself as the central widget as such the ui must be set up first.
-    m_DockManager = new ads::CDockManager(this);
+    DockManager = new ads::CDockManager(this);
 
     // Create example content label - this can be any application specific
     // widget
@@ -473,7 +473,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create a dock widget with the title Label 1 and set the created label
     // as the dock widget content
-    ads::CDockWidget* DockWidget = new ads::CDockWidget("Label 1");
+    ads::CDockWidget* DockWidget = DockManager->createDockWidget("Label 1");
     DockWidget->setWidget(l);
 
     // Add the toggleViewAction of the dock widget to the menu to give
@@ -481,7 +481,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuView->addAction(DockWidget->toggleViewAction());
 
     // Add the dock widget to the top dock widget area
-    m_DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
 }
 
 MainWindow::~MainWindow()
@@ -582,7 +582,7 @@ highlights are:
 - Simple Drag & Drop user interface.
 - Load data from file.
 - Connect to live streaming of data.
-- Save the visualization layout and configurations to re-use them later.
+- Save the visualization layout and configurations to reuse them later.
 - Fast OpenGL visualization.
 - Can handle thousands of timeseries and millions of data points.
 - Transform your data using a simple editor: derivative, moving average, integral, etc…

@@ -21,7 +21,8 @@
 
 namespace ads
 {
-static std::unique_ptr<CDockComponentsFactory> DefaultFactory(new CDockComponentsFactory());
+
+static QSharedPointer<ads::CDockComponentsFactory> DefaultFactory;
 
 
 //============================================================================
@@ -52,9 +53,13 @@ CDockAreaTitleBar* CDockComponentsFactory::createDockAreaTitleBar(CDockAreaWidge
 
 
 //============================================================================
-const CDockComponentsFactory* CDockComponentsFactory::factory()
+QSharedPointer<ads::CDockComponentsFactory> CDockComponentsFactory::factory()
 {
-	return DefaultFactory.get();
+	if (!DefaultFactory)
+	{
+		DefaultFactory.reset(new CDockComponentsFactory());
+	}
+	return DefaultFactory;
 }
 
 
@@ -70,6 +75,7 @@ void CDockComponentsFactory::resetDefaultFactory()
 {
 	DefaultFactory.reset(new CDockComponentsFactory());
 }
+
 } // namespace ads
 
 //---------------------------------------------------------------------------

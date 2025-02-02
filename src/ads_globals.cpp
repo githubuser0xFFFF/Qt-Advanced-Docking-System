@@ -283,7 +283,7 @@ QString detectWindowManagerX11()
 	}
 	if(sup_windows.length() == 0)
 	{
-		ADS_PRINT("Failed to get the supporting window on non EWMH comform WM.");
+		ADS_PRINT("Failed to get the supporting window on non EWMH conform WM.");
 		return "UNKNOWN";
 	}
 	support_win = sup_windows[0];

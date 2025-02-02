@@ -9,7 +9,7 @@ ui_*
 Makefile
 *.dll
 *.a
-build-*
+build*
 
 # IDEs
 .idea

@@ -256,8 +256,35 @@ public:
      * during runtime, you need to set a unique object name explicitly
      * by calling setObjectName() after construction.
      * Use the layoutFlags to configure the layout of the dock widget.
+     * \note If you would like to use custom TabWidget implementations, you need
+     * to use the constructor with the CDockManager argument.
      */
-    CDockWidget(const QString &title, QWidget* parent = nullptr);
+    Q_DECL_DEPRECATED explicit CDockWidget(const QString &title, QWidget* parent = nullptr);
+
+    /**
+     * This constructor creates a dock widget for the given dock manager with the
+     * provided title.
+     *
+     * @param manager Pointer to the dock manager that owns the dock widget.
+     * @param title The title is the text that is shown in the window title when
+     * the dock widget is floating and it is the title that is shown in the
+     * titlebar or the tab of this dock widget if it is tabified.
+     * @param parent Pointer to the parent widget, defaults to nullptr.
+     *
+     * @note The object name of the dock widget is also set to the title. The
+     * object name is required by the dock manager to properly save and restore
+     * the state of the dock widget. That means, the title needs to be unique. If
+     * the title is not unique or if you would like to change the title during
+     * runtime, you need to set a unique object name explicitly by calling
+     * setObjectName() after construction. Use the layoutFlags to configure the
+     * layout of the dock widget.
+     *
+     * @note this constructor is preferred over the two argument version, especially
+     * when custom factories are in use. Indeed, it will use the Dock Manager factory,
+     * and not the default factory. For this reason, the original constructor should
+     * be deprecated in favour of this version.
+     */
+    CDockWidget(CDockManager *manager, const QString &title, QWidget* parent = nullptr);
 
     /**
      * Virtual Destructor

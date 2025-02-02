@@ -529,26 +529,34 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 		return;
 	}
 
+    auto Menu = buildContextMenu(nullptr);
 	d->saveDragStartMousePosition(ev->globalPos());
+	Menu->exec(ev->globalPos());
+}
 
+QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
+{
+    if (Menu == nullptr) {
+        Menu = new QMenu(this);
+    }
+    
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
     const bool isNotOnlyTabInContainer =  !d->DockArea->dockContainer()->hasTopLevelDockWidget();
     const bool isTopLevelArea = d->DockArea->isTopLevelArea();
     const bool isDetachable = isFloatable && isNotOnlyTabInContainer;
 	QAction* Action;
-	QMenu Menu(this);
 
     if (!isTopLevelArea)
     {
-		Action = Menu.addAction(tr("Detach"), this, SLOT(detachDockWidget()));
+		Action = Menu->addAction(tr("Detach"), this, SLOT(detachDockWidget()));
 		Action->setEnabled(isDetachable);
 		if (CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Action = Menu.addAction(tr("Pin"), this, SLOT(autoHideDockWidget()));
+			Action = Menu->addAction(tr("Pin"), this, SLOT(autoHideDockWidget()));
 			auto IsPinnable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetPinnable);
 			Action->setEnabled(IsPinnable);
 
-			auto menu = Menu.addMenu(tr("Pin To..."));
+			auto menu = Menu->addMenu(tr("Pin To..."));
 			menu->setEnabled(IsPinnable);
 			d->createAutoHideToAction(tr("Top"), SideBarTop, menu);
 			d->createAutoHideToAction(tr("Left"), SideBarLeft, menu);
@@ -557,17 +565,16 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 		}
     }
 
-	Menu.addSeparator();
-	Action = Menu.addAction(tr("Close"), this, SIGNAL(closeRequested()));
+	Menu->addSeparator();
+	Action = Menu->addAction(tr("Close"), this, SIGNAL(closeRequested()));
 	Action->setEnabled(isClosable());
 	if (d->DockArea->openDockWidgetsCount() > 1)
 	{
-		Action = Menu.addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
+		Action = Menu->addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
 	}
-	Menu.exec(ev->globalPos());
+
+    return Menu;
 }
-
-
 //============================================================================
 bool CDockWidgetTab::isActiveTab() const
 {
@@ -692,7 +699,7 @@ QString CDockWidgetTab::text() const
 //============================================================================
 void CDockWidgetTab::mouseDoubleClickEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton) 
+	if (event->button() == Qt::LeftButton && CDockManager::testConfigFlag(CDockManager::DoubleClickUndocksWidget))
 	{
 		// If this is the last dock area in a dock container it does not make
 		// sense to move it to a new floating widget and leave this one
@@ -786,6 +793,13 @@ bool CDockWidgetTab::event(QEvent *e)
 		d->updateIcon();
 	}
 	return Super::event(e);
+}
+
+
+//============================================================================
+eDragState CDockWidgetTab::dragState() const
+{
+	return d->DragState;
 }
 
 

@@ -1,77 +1,69 @@
 #include "mainwindow.h"
+#include "droppableitem.h"
 
 #include "ui_mainwindow.h"
 
 #include <QWidgetAction>
-#include <QLabel>
-#include <QCalendarWidget>
-#include <QTreeView>
 #include <QFileSystemModel>
 #include <QTableWidget>
 #include <QHBoxLayout>
-#include <QRadioButton>
-#include <QPushButton>
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QSettings>
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QToolBar>
 
+#include "AutoHideDockContainer.h"
 #include "DockAreaWidget.h"
 #include "DockAreaTitleBar.h"
-#include "DockAreaTabBar.h"
-#include "FloatingDockContainer.h"
-#include "DockComponentsFactory.h"
 
 using namespace ads;
-
 
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::CMainWindow)
 {
     ui->setupUi(this);
-	ads::CDockManager::setConfigFlag( ads::CDockManager::DockAreaHasCloseButton, false );
-	ads::CDockManager::setConfigFlag( ads::CDockManager::AllTabsHaveCloseButton, true );
-	ads::CDockManager::setConfigFlag( ads::CDockManager::DockAreaHasUndockButton, false );
-	ads::CDockManager::setConfigFlag( ads::CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true );
-	ads::CDockManager::setConfigFlag( ads::CDockManager::DisableTabTextEliding, true );
-	ads::CDockManager::setConfigFlag( ads::CDockManager::DoubleClickUndocksWidget, false );
+    CDockManager::setConfigFlag(CDockManager::OpaqueSplitterResize, true);
+    CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
+    CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+    CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
+    CDockManager::setAutoHideConfigFlag(CDockManager::AutoHideOpenOnDragHover, true);
+    CDockManager::setConfigParam(CDockManager::AutoHideOpenOnDragHoverDelay_ms, 500);
     DockManager = new CDockManager(this);
 
     // Set central widget
-    QLabel* label = new QLabel();
-    label->setText("This is a DockArea which is always visible, even if it does not contain any DockWidgets.");
-    label->setAlignment(Qt::AlignCenter);
+    QPlainTextEdit* w = new QPlainTextEdit();
+	w->setPlaceholderText("This is the central editor. Enter your text here.");
     CDockWidget* CentralDockWidget = new CDockWidget("CentralWidget");
-    CentralDockWidget->setWidget(label);
-    CentralDockWidget->setFeature(ads::CDockWidget::NoTab, true);
+    CentralDockWidget->setWidget(w);
     auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
+    CentralDockArea->setAllowedAreas(DockWidgetArea::OuterDockAreas);
 
-    // create other dock widgets
-    QTableWidget* table = new QTableWidget();
-    table->setColumnCount(3);
-    table->setRowCount(10);
-    CDockWidget* TableDockWidget = new CDockWidget("Table 1");
-    TableDockWidget->setWidget(table);
-    TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
-    TableDockWidget->resize(250, 150);
-    TableDockWidget->setMinimumSize(200,150);
-    DockManager->addDockWidgetTabToArea(TableDockWidget, CentralDockArea);
-    auto TableArea = DockManager->addDockWidget(DockWidgetArea::LeftDockWidgetArea, TableDockWidget);
-    ui->menuView->addAction(TableDockWidget->toggleViewAction());
-
-    table = new QTableWidget();
-    table->setColumnCount(5);
-    table->setRowCount(1020);
-    TableDockWidget = new CDockWidget("Table 2");
-    TableDockWidget->setWidget(table);
-    TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
-    TableDockWidget->resize(250, 150);
-    TableDockWidget->setMinimumSize(200,150);
-    DockManager->addDockWidget(DockWidgetArea::BottomDockWidgetArea, TableDockWidget, TableArea);
-    ui->menuView->addAction(TableDockWidget->toggleViewAction());
+    {
+    	DroppableItem* droppableItem = new DroppableItem("Drop text here.");
+		CDockWidget* dropDockWidget = new CDockWidget("Tab 1");
+		dropDockWidget->setWidget(droppableItem);
+		dropDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
+		dropDockWidget->setMinimumSize(200,150);
+		dropDockWidget->setAcceptDrops(true);
+		const auto autoHideContainer = DockManager->addAutoHideDockWidget(SideBarLocation::SideBarLeft, dropDockWidget);
+		autoHideContainer->setSize(480);
+		autoHideContainer->setAcceptDrops(true);
+		ui->menuView->addAction(dropDockWidget->toggleViewAction());
+    }
+    {
+    	DroppableItem* droppableItem = new DroppableItem("Drop text here.");
+		CDockWidget* dropDockWidget = new CDockWidget("Tab 2");
+		dropDockWidget->setWidget(droppableItem);
+		dropDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
+		dropDockWidget->setMinimumSize(200,150);
+		dropDockWidget->setAcceptDrops(true);
+		const auto autoHideContainer = DockManager->addAutoHideDockWidget(SideBarLocation::SideBarRight, dropDockWidget);
+		autoHideContainer->setSize(480);
+		autoHideContainer->setAcceptDrops(true);
+		ui->menuView->addAction(dropDockWidget->toggleViewAction());
+    }
 
     QTableWidget* propertiesTable = new QTableWidget();
     propertiesTable->setColumnCount(3);
@@ -101,13 +93,8 @@ void CMainWindow::createPerspectiveUi()
 	PerspectiveComboBox = new QComboBox(this);
 	PerspectiveComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	PerspectiveComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-	connect(PerspectiveComboBox, &QComboBox::textActivated,
-        DockManager, &CDockManager::openPerspective);
-#else
-	connect(PerspectiveComboBox, SIGNAL(activated(const QString&)),
+	connect(PerspectiveComboBox, SIGNAL(currentTextChanged(const QString&)),
 		DockManager, SLOT(openPerspective(const QString&)));
-#endif
 	PerspectiveListAction->setDefaultWidget(PerspectiveComboBox);
 	ui->toolBar->addSeparator();
 	ui->toolBar->addAction(PerspectiveListAction);
@@ -139,5 +126,6 @@ void CMainWindow::closeEvent(QCloseEvent* event)
     DockManager->deleteLater();
 	QMainWindow::closeEvent(event);
 }
+
 
 
