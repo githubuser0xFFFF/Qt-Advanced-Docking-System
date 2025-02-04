@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(ads_demo VERSION ${VERSION_SHORT}) 
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
