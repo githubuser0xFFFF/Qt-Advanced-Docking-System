@@ -872,10 +872,22 @@ void CDockAreaWidget::updateTitleBarVisibility()
     bool IsAutoHide = isAutoHide();
     if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
     {
-		bool Hidden = Container->hasTopLevelDockWidget() && (Container->isFloating()
-			|| CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar));
-		Hidden |= (d->Flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
-		Hidden &= !IsAutoHide; // Titlebar must always be visible when auto hidden so it can be dragged
+        bool Hidden = false;
+        if (!IsAutoHide)  // Titlebar must always be visible when auto hidden so it can be dragged
+        {
+            if (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))
+            {
+                // Always show title bar if it contains title bar actions
+                if (CDockWidget* TopLevelWidget = Container->topLevelDockWidget())
+                    Hidden |= TopLevelWidget->titleBarActions().empty();
+            }
+            if (!Hidden && d->Flags.testFlag(HideSingleWidgetTitleBar))
+            {
+                // Always show title bar if it contains title bar actions
+                auto DockWidgets = openedDockWidgets();
+                Hidden |= (DockWidgets.size() == 1) && DockWidgets.front()->titleBarActions().empty();
+            }
+        }
 		d->TitleBar->setVisible(!Hidden);
     }
 
