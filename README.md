@@ -161,6 +161,7 @@ know it from Visual Studio.
   - [Auto-Hide Functionality](#auto-hide-functionality)
 - [Python Bindings](#python-bindings)
   - [PySide6](#pyside6)
+  - [PyQt6](#pyqt6)
   - [PyQt5](#pyqt5)
 - [Tested Compatible Environments](#tested-compatible-environments)
   - [Supported Qt Versions](#supported-qt-versions)
@@ -308,7 +309,7 @@ More about the auto hide configuration options in the [online documentation...](
 ![Python Logo](doc/python_logo.png)
 
 Thanks to the contribution of several users, the Advanced Docking System comes
-with a complete Python integration. Python bindings are available for **PyQt5** and
+with a complete Python integration. Python bindings are available for **PyQt5**, **PyQt6**, and
 **PySide6**.
 
 ### PySide6
@@ -327,6 +328,24 @@ The PySide6 bindings were contributed by:
 - [mborgerson](https://github.com/mborgerson)
 
 Please file PySide6-QtAds-specific issues on its [pyside6_qtads](https://github.com/mborgerson/pyside6_qtads) fork for tracking. For more information about the PySide6 bindings read [this](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/298) issue.
+
+### PyQt6
+
+A PyQt6 ADS package is available via PyPi and can be installed on Windows,
+macOS, and Linux with:
+
+```bash
+pip install PyQt6Ads
+```
+
+Sample code is available [here](https://github.com/pyapp-kit/PyQt6Ads/tree/main/examples).
+
+The PyQt6 bindings were contributed by:
+
+- [tlambert03](https://github.com/tlambert03)
+
+Please file PyQt6Ads-specific issues at [pyapp-kit/PyQt6Ads](https://github.com/pyapp-kit/PyQt6Ads).
+
 
 ### PyQt5
 
