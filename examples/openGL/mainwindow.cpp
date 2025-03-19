@@ -8,6 +8,7 @@
 #include <QLineSeries>
 #include <QOpenGLWidget>
 #include <QPushButton>
+#include <QQuickView>
 #include <QQuickWidget>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -58,13 +59,11 @@ public:
     ~ChartWidget() {}
 };
 
-class OpenGLWidgetContainer : public QWidget
+class OpenGLWindowContainer : public QWidget
 {
 public:
-    OpenGLWidgetContainer(QWidget* parent = nullptr) : QWidget(parent)
+    OpenGLWindowContainer(QWidget* parent = nullptr) : QWidget(parent)
     {
-        setAttribute(Qt::WA_NativeWindow, true);
-
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
 
@@ -72,7 +71,40 @@ public:
         layout->addWidget(widget);
     }
 
-    ~OpenGLWidgetContainer() {}
+    ~OpenGLWindowContainer() {}
+};
+
+class QuickViewContainer : public QWidget
+{
+public:
+    QuickViewContainer(QWidget* parent = nullptr) : QWidget(parent)
+    {
+        QVBoxLayout* l = new QVBoxLayout(this);
+        l->setContentsMargins(0, 0, 0, 0);
+
+        _format.setDepthBufferSize(16);
+        _format.setStencilBufferSize(8);
+        _format.setSamples(4);
+
+        QUrl source("qrc:/openGL/test.qml");
+
+        QQuickView* quick_view = new QQuickView();
+        quick_view->setFormat(_format);
+        quick_view->setResizeMode(QQuickView::SizeRootObjectToView);
+        quick_view->setSource(source);
+
+        if (quick_view->status() != QQuickView::Ready)
+        {
+            qWarning() << "QQuickView error:" << quick_view->errors();
+        }
+
+        l->addWidget(QWidget::createWindowContainer(quick_view, parent));
+    }
+
+    ~QuickViewContainer() {}
+
+private:
+    QSurfaceFormat _format;
 };
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
@@ -84,44 +116,54 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     _dock_manager = new ads::CDockManager(this);
 
     OpenGLChartWidget* openGL_chart = new OpenGLChartWidget(this);
-    OpenGLWidgetContainer* openGL_container = new OpenGLWidgetContainer(this);
+    ChartWidget* simple_chart = new ChartWidget(this);
+    OpenGLWindowContainer* openGL_container = new OpenGLWindowContainer(this);
     GLWidget* gl_widget = new GLWidget(this);
     GLWidget* gl_widget_2 = new GLWidget(this);
-
-    // Create a dock widget with the title "Chart with OpenGL" and set the created
-    // chart as the dock widget content
-    ads::CDockWidget* opengl_chart_dock_widget =
-        new ads::CDockWidget("Chart with OpenGL");
-    opengl_chart_dock_widget->setWidget(openGL_chart);
-    auto* area = _dock_manager->addDockWidget(ads::CenterDockWidgetArea,
-                                              opengl_chart_dock_widget);
-
-    ads::CDockWidget* chart_dock_widget = new ads::CDockWidget("Simple Chart");
-    chart_dock_widget->setWidget(new ChartWidget(this));
-    _dock_manager->addDockWidgetTabToArea(chart_dock_widget, area);
-
-    ads::CDockWidget* openGL_window_dock_widget =
-        new ads::CDockWidget("OpenGL window");
-    openGL_window_dock_widget->setWidget(openGL_container);
-    _dock_manager->addDockWidgetTabToArea(openGL_window_dock_widget, area);
-
-    ads::CDockWidget* openGL_widget_dock_widget =
-        new ads::CDockWidget("OpenGL widget");
-    openGL_widget_dock_widget->setWidget(gl_widget);
-    _dock_manager->addDockWidgetTabToArea(openGL_widget_dock_widget, area);
-
-    ads::CDockWidget* openGL_widget_dock_widget_2 =
-        new ads::CDockWidget("OpenGL widget 2");
-    openGL_widget_dock_widget_2->setWidget(gl_widget_2);
-    _dock_manager->addDockWidgetTabToArea(openGL_widget_dock_widget_2, area);
-
-    ads::CDockWidget* label_dock_widget = new ads::CDockWidget("Label");
+    QuickViewContainer* quick_view_container = new QuickViewContainer(this);
 
     QLabel* l = new QLabel();
     l->setWordWrap(true);
     l->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     l->setText("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ");
 
-    label_dock_widget->setWidget(l);
-    _dock_manager->addDockWidgetTabToArea(label_dock_widget, area);
+    QUrl source("qrc:/openGL/test.qml");
+
+    QQuickWidget* quick_widget = new QQuickWidget(this);
+    quick_widget->setSource(source);
+    quick_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    auto* center_dock_area_widget = createDockWidget(
+        openGL_chart, "Chart with OpenGL", ads::CenterDockWidgetArea);
+
+    createDockWidget(simple_chart, "Simple Chart", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+
+    createDockWidget(openGL_container, "OpenGL window", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+
+    createDockWidget(gl_widget, "OpenGL widget", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+
+    createDockWidget(gl_widget_2, "OpenGL widget 2", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+
+    createDockWidget(quick_view_container, "Quick View",
+                     ads::CenterDockWidgetArea, center_dock_area_widget);
+
+    createDockWidget(quick_widget, "Quick Widget", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+
+    createDockWidget(l, "Label", ads::CenterDockWidgetArea,
+                     center_dock_area_widget);
+}
+
+ads::CDockAreaWidget* MainWindow::createDockWidget(
+    QWidget* embedded_widget, QString dock_widget_title, ads::DockWidgetArea area,
+    ads::CDockAreaWidget* center_dock_area_widget)
+{
+    ads::CDockWidget* dock_widget = new ads::CDockWidget(dock_widget_title);
+    dock_widget->setWidget(embedded_widget);
+    return _dock_manager->addDockWidget(area, dock_widget,
+                                        center_dock_area_widget);
 }
