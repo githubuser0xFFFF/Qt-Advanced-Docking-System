@@ -2,6 +2,7 @@
 #include <QString>
 #include <QFile>
 #include <QApplication>
+#include <QQuickWindow>
 #include <QDebug>
 
 #include <memory>
@@ -35,6 +36,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+    // https://doc.qt.io/qt-6/qtdatavisualization-known-issues.html
+    // Use either `qputenv("QSG_RHI_BACKEND", "opengl");` or the following line
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+
+    // Disable warnings when attempts are made to convert non-convertible non-native widgets
+    // to native widgets (such as QQuickWidget)
+    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #if QT_VERSION >= 0x050600
