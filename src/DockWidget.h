@@ -31,6 +31,7 @@
 //                                   INCLUDES
 //============================================================================
 #include <QFrame>
+#include <QMenu>
 
 #include "ads_globals.h"
 
