@@ -569,6 +569,13 @@ public:
      */
     virtual QList<QAction*> titleBarActions() const;
 
+    /**
+     * Hook called after creating the dock widget context menu from a tab or autohide side tab.
+     * Called before being shown to the user. Allow custom extensions of the menu. 
+     * Initially introduced to permit the "Rename" feature
+     */
+    virtual void ExtendContextMenu(QMenu* Menu) const;
+
 
 #ifndef QT_NO_TOOLTIP
     /**

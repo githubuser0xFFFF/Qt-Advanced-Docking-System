@@ -1368,6 +1368,14 @@ CDockWidget::eToolBarStyleSource CDockWidget::toolBarStyleSource() const
 }
 
 
+//============================================================================
+void CDockWidget::ExtendContextMenu(QMenu* Menu) const
+{
+	ADS_PRINT("ExtendContextMenu(): " << this->windowTitle());
+	Q_UNUSED(Menu);
+}
+
+
 } // namespace ads
 
 //---------------------------------------------------------------------------

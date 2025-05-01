@@ -408,6 +408,11 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 	Action = Menu.addAction(tr("Close"), this, SLOT(requestCloseDockWidget()));
 	Action->setEnabled(d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable));
 
+	if (d->DockWidget)
+	{
+		d->DockWidget->ExtendContextMenu(&Menu);
+	}
+
 	Menu.exec(ev->globalPos());
 }
 

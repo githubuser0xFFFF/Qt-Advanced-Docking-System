@@ -573,6 +573,11 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
 		Action = Menu->addAction(tr("Close Others"), this, SIGNAL(closeOtherTabsRequested()));
 	}
 
+	if (d->DockWidget)
+	{
+		d->DockWidget->ExtendContextMenu(Menu);
+	}
+
     return Menu;
 }
 //============================================================================
