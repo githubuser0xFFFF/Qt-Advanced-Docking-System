@@ -575,7 +575,7 @@ public:
      * Called before being shown to the user. Allow custom extensions of the menu. 
      * Initially introduced to permit the "Rename" feature
      */
-    virtual void ExtendContextMenu(QMenu* Menu) const;
+    virtual void extendContextMenu(QMenu* Menu) const;
 
 
 #ifndef QT_NO_TOOLTIP

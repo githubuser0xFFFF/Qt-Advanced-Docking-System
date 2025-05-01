@@ -575,7 +575,7 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
 
 	if (d->DockWidget)
 	{
-		d->DockWidget->ExtendContextMenu(Menu);
+		d->DockWidget->extendContextMenu(Menu);
 	}
 
     return Menu;

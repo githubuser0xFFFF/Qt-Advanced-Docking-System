@@ -410,7 +410,7 @@ void CAutoHideTab::contextMenuEvent(QContextMenuEvent* ev)
 
 	if (d->DockWidget)
 	{
-		d->DockWidget->ExtendContextMenu(&Menu);
+		d->DockWidget->extendContextMenu(&Menu);
 	}
 
 	Menu.exec(ev->globalPos());
