@@ -7,9 +7,9 @@
 #include <QCoreApplication>
 #include <math.h>
 
-bool GLWidget::m_transparent = false;
+bool MyGLWidget::m_transparent = false;
 
-GLWidget::GLWidget(QWidget *parent)
+MyGLWidget::MyGLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
     m_core = QSurfaceFormat::defaultFormat().profile() == QSurfaceFormat::CoreProfile;
@@ -25,17 +25,17 @@ GLWidget::GLWidget(QWidget *parent)
     setAttribute(Qt::WA_AlwaysStackOnTop);
 }
 
-GLWidget::~GLWidget()
+MyGLWidget::~MyGLWidget()
 {
     cleanup();
 }
 
-QSize GLWidget::minimumSizeHint() const
+QSize MyGLWidget::minimumSizeHint() const
 {
     return QSize(50, 50);
 }
 
-QSize GLWidget::sizeHint() const
+QSize MyGLWidget::sizeHint() const
 {
     return QSize(400, 400);
 }
@@ -48,7 +48,7 @@ static void qNormalizeAngle(int &angle)
         angle -= 360 * 16;
 }
 
-void GLWidget::setXRotation(int angle)
+void MyGLWidget::setXRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != m_xRot) {
@@ -58,7 +58,7 @@ void GLWidget::setXRotation(int angle)
     }
 }
 
-void GLWidget::setYRotation(int angle)
+void MyGLWidget::setYRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != m_yRot) {
@@ -68,7 +68,7 @@ void GLWidget::setYRotation(int angle)
     }
 }
 
-void GLWidget::setZRotation(int angle)
+void MyGLWidget::setZRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != m_zRot) {
@@ -78,7 +78,7 @@ void GLWidget::setZRotation(int angle)
     }
 }
 
-void GLWidget::cleanup()
+void MyGLWidget::cleanup()
 {
     if (m_program == nullptr){
         return;
@@ -88,7 +88,7 @@ void GLWidget::cleanup()
     delete m_program;
     m_program = nullptr;
     doneCurrent();
-    QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLWidget::cleanup);
+    QObject::disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &MyGLWidget::cleanup);
 }
 
 static const char *vertexShaderSourceCore =
@@ -146,7 +146,7 @@ static const char *fragmentShaderSource =
     "   gl_FragColor = vec4(col, 1.0);\n"
     "}\n";
 
-void GLWidget::initializeGL()
+void MyGLWidget::initializeGL()
 {
     // In this example the widget's corresponding top-level window can change
     // several times during the widget's lifetime. Whenever this happens, the
@@ -155,7 +155,7 @@ void GLWidget::initializeGL()
     // aboutToBeDestroyed() signal, instead of the destructor. The emission of
     // the signal will be followed by an invocation of initializeGL() where we
     // can recreate all resources.
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &GLWidget::cleanup, Qt::UniqueConnection);
+    connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &MyGLWidget::cleanup, Qt::UniqueConnection);
 
     initializeOpenGLFunctions();
     glClearColor(0, 0, 0, m_transparent ? 0 : 1);
@@ -198,7 +198,7 @@ void GLWidget::initializeGL()
     m_program->release();
 }
 
-void GLWidget::setupVertexAttribs()
+void MyGLWidget::setupVertexAttribs()
 {
     m_logoVbo.bind();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
@@ -211,7 +211,7 @@ void GLWidget::setupVertexAttribs()
     m_logoVbo.release();
 }
 
-void GLWidget::paintGL()
+void MyGLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -234,21 +234,31 @@ void GLWidget::paintGL()
     m_program->release();
 }
 
-void GLWidget::resizeGL(int w, int h)
+void MyGLWidget::resizeGL(int w, int h)
 {
     m_proj.setToIdentity();
     m_proj.perspective(45.0f, GLfloat(w) / h, 0.01f, 100.0f);
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
+void MyGLWidget::mousePressEvent(QMouseEvent *event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_lastPos = event->position().toPoint();
+#else
+    m_lastPos = event->pos();
+#endif
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void MyGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->position().toPoint().x() - m_lastPos.x();
-    int dy = event->position().toPoint().y() - m_lastPos.y();
+    
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QPoint pos = event->position().toPoint();
+#else
+    QPoint pos = event->pos();
+#endif
+    int dx = pos.x() - m_lastPos.x();
+    int dy = pos.y() - m_lastPos.y();
 
     if (event->buttons() & Qt::LeftButton) {
         setXRotation(m_xRot + 8 * dy);
@@ -257,5 +267,5 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         setXRotation(m_xRot + 8 * dy);
         setZRotation(m_zRot + 8 * dx);
     }
-    m_lastPos = event->position().toPoint();
+    m_lastPos = pos;
 }

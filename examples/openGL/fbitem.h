@@ -4,12 +4,20 @@
 #ifndef FBITEM_H
 #define FBITEM_H
 
-#include <QQuickFramebufferObject>
-#include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+#include <QQuickFramebufferObject>
 #include <QVector3D>
+#include <QtGlobal>
+#include <QtQml>
+
 #include "logo.h"
+
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#define QML_ELEMENT
+#endif
 
 struct StateBinder;
 
@@ -17,9 +25,9 @@ class FbItemRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
     FbItemRenderer(bool multisample);
-    void synchronize(QQuickFramebufferObject *item) override;
+    void synchronize(QQuickFramebufferObject* item) override;
     void render() override;
-    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
+    QOpenGLFramebufferObject* createFramebufferObject(const QSize& size) override;
 
 private:
     void ensureInit();
@@ -45,7 +53,8 @@ private:
     int m_lightPosLoc;
     QVector3D m_rotation;
 
-    enum Dirty {
+    enum Dirty
+    {
         DirtyProjection = 0x01,
         DirtyCamera = 0x02,
         DirtyWorld = 0x04,
@@ -67,19 +76,20 @@ class FbItem : public QQuickFramebufferObject
     QML_ELEMENT
 
 public:
-    explicit FbItem(QQuickItem *parent = nullptr);
+    explicit FbItem(QQuickItem* parent = nullptr);
 
-    QQuickFramebufferObject::Renderer *createRenderer() const override;
+    QQuickFramebufferObject::Renderer* createRenderer() const override;
 
     QVector3D eye() const { return m_eye; }
-    void setEye(const QVector3D &v);
+    void setEye(const QVector3D& v);
     QVector3D target() const { return m_target; }
-    void setTarget(const QVector3D &v);
+    void setTarget(const QVector3D& v);
 
     QVector3D rotation() const { return m_rotation; }
-    void setRotation(const QVector3D &v);
+    void setRotation(const QVector3D& v);
 
-    enum SyncState {
+    enum SyncState
+    {
         CameraNeedsSync = 0x01,
         RotationNeedsSync = 0x02,
         AllNeedsSync = 0xFF
@@ -97,4 +107,4 @@ private:
     bool m_multisample;
 };
 
-#endif // FBITEM_H
+#endif  // FBITEM_H

@@ -1,6 +1,6 @@
 ADS_OUT_ROOT = $${OUT_PWD}/../..
 
-QT += core gui widgets charts opengl quick quickwidgets
+QT += core gui widgets charts opengl quick quickwidgets qml
 
 TARGET = OpenGLExample
 DESTDIR = $${ADS_OUT_ROOT}/lib

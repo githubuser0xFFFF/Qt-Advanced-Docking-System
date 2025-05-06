@@ -16,6 +16,10 @@
 #include <glwidget.h>
 #include <glwindow.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+using namespace QtCharts;
+#endif
+
 class OpenGLChartWidget : public QWidget
 {
 public:
@@ -118,8 +122,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     OpenGLChartWidget* openGL_chart = new OpenGLChartWidget(this);
     ChartWidget* simple_chart = new ChartWidget(this);
     OpenGLWindowContainer* openGL_container = new OpenGLWindowContainer(this);
-    GLWidget* gl_widget = new GLWidget(this);
-    GLWidget* gl_widget_2 = new GLWidget(this);
+    MyGLWidget* gl_widget = new MyGLWidget(this);
+    MyGLWidget* gl_widget_2 = new MyGLWidget(this);
     QuickViewContainer* quick_view_container = new QuickViewContainer(this);
 
     QLabel* l = new QLabel();

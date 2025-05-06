@@ -5,14 +5,14 @@
 #define LOGO_H
 
 #include <qopengl.h>
-#include <QList>
+#include <vector>
 #include <QVector3D>
 
 class Logo
 {
 public:
     Logo();
-    const GLfloat *constData() const { return m_data.constData(); }
+    const GLfloat *constData() const { return m_data.data(); }
     int count() const { return m_count; }
     int vertexCount() const { return m_count / 6; }
 
@@ -21,7 +21,7 @@ private:
     void extrude(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
     void add(const QVector3D &v, const QVector3D &n);
 
-    QList<GLfloat> m_data;
+    std::vector<GLfloat> m_data;
     int m_count = 0;
 };
 

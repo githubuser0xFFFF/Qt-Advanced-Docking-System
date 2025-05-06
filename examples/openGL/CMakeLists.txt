@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(
-  QT NAMES Qt6
+  QT NAMES Qt6 Qt5
   COMPONENTS Core
              Gui
              Widgets
@@ -19,7 +19,7 @@ find_package(
   REQUIRED)
 
 find_package(
-  Qt${QT_VERSION_MAJOR}
+  Qt${QT_VERSION_MAJOR} 5.5
   COMPONENTS Core
              Gui
              Widgets
