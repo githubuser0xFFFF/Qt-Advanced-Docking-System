@@ -725,10 +725,11 @@ void CDockAreaWidget::setCurrentIndex(int index)
     Q_EMIT currentChanging(index);
     TabBar->setCurrentIndex(index);
 	d->ContentsLayout->setCurrentIndex(index);
-#ifdef USE_NATIVE_WIDGETS
-	// Force the widget to be native in order to avoid blinks with OpenGL widgets
-	d->ContentsLayout->currentWidget()->winId();
-#endif
+	if(CDockManager::testConfigFlag(CDockManager::UseNativeWidgets))
+	{
+		// Force the widget to be native in order to avoid blinks with OpenGL widgets
+		d->ContentsLayout->currentWidget()->winId();
+	}
 	d->ContentsLayout->currentWidget()->show();
 	// Force the repaint of the current widget because mix of OpenGL widgets
 	// and Raster widgets could have not been entirely rendered

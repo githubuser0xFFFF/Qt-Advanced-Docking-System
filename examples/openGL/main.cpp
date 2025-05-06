@@ -20,6 +20,10 @@ int main(int argc, char* argv[])
     // to native widgets (such as QQuickWidget)
     QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 
+    // Enable Native widget AutoHide
+    ads::CDockManager::setConfigFlags(
+        ads::CDockManager::UseNativeWidgets);
+
     // Enable ADS AutoHide
     ads::CDockManager::setAutoHideConfigFlags(ads::CDockManager::DefaultAutoHideConfig);
 

@@ -376,11 +376,12 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 	: QFrame(parent),
 	  d(new DockWidgetPrivate(this))
 {
-#ifdef USE_NATIVE_WIDGETS
-	// Force the new CDockWidget to be native so OpenGL widgets are well handled
-	// with non OpenGL widgets
-	winId();
-#endif
+	if(CDockManager::testConfigFlag(CDockManager::UseNativeWidgets))
+	{
+		// Force the new CDockWidget to be native so OpenGL widgets are well handled
+		// with non OpenGL widgets
+		winId();
+	}
 	d->DockManager = manager;
 	d->Layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	d->Layout->setContentsMargins(0, 0, 0, 0);

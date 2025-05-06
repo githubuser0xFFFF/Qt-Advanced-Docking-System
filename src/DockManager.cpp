@@ -507,11 +507,12 @@ CDockManager::CDockManager(QWidget *parent) :
 	CDockContainerWidget(this, parent),
 	d(new DockManagerPrivate(this))
 {
-#ifdef USE_NATIVE_WIDGETS
-	// Force the Dock Manager to be native in order to fix wrong position of overlay
-	// the first time a dock container is dragged
-	winId();
-#endif
+	if(CDockManager::testConfigFlag(CDockManager::UseNativeWidgets))
+	{
+		// Force the Dock Manager to be native in order to fix wrong position of overlay
+		// the first time a dock container is dragged
+		winId();
+	}
 	
 	createRootSplitter();
 	createSideTabBarWidgets();
