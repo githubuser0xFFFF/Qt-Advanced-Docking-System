@@ -132,7 +132,7 @@ install(FILES ${ads_HEADERS}
 install(FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
     "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
-    DESTINATION license/ads
+    DESTINATION share/ads/license
     COMPONENT license
 )
 install(TARGETS ${library_name}
