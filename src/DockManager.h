@@ -216,6 +216,7 @@ public:
 		DisableTabTextEliding =      0x4000000, //! Set this flag to disable eliding of tab texts in dock area tabs
 		ShowTabTextOnlyForActiveTab =0x8000000, //! Set this flag to show label texts in dock area tabs only for active tabs
 		DoubleClickUndocksWidget = 0x10000000, //!< If the flag is set, a double click on a tab undocks the widget
+		UseNativeWidgets = 0x20000000, //!< If the flag is set, manager and managed widgets will be forced to be native. Set this flag before instanciating the manager
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
