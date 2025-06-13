@@ -707,6 +707,13 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	{
 		setTitleBarWidget(new QWidget());
 		setWindowFlags(Qt::Window | Qt::WindowMaximizeButtonHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
+
+		if(CDockManager::testConfigFlag(CDockManager::UseNativeWidgets))
+		{
+			// Force the new window to be native so OpenGL widgets are well handled
+			// Unfortunatly setAttribute(Qt::WA_NativeWindow) provokes weird behavior
+			winId();
+		}
 	}
 	else
 	{
