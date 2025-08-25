@@ -169,7 +169,7 @@ struct DockWidgetTabPrivate
 		else
 		{
 			auto w = new CFloatingDragPreview(Widget);
-			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [=]()
+			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [this]()
 			{
 				DragState = DraggingInactive;
 			});

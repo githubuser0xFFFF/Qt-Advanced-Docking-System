@@ -396,7 +396,7 @@ struct MainWindowPrivate
 		DockWidget->setMinimumSizeHintMode(ads::CDockWidget::MinimumSizeHintFromContent);
 		auto ToolBar = DockWidget->createDefaultToolBar();
 		auto Action = ToolBar->addAction(svgIcon(":/adsdemo/images/fullscreen.svg"), "Toggle Fullscreen");
-		QObject::connect(Action, &QAction::triggered, [=]()
+		QObject::connect(Action, &QAction::triggered, [DockWidget]()
 			{
 				if (DockWidget->isFullScreen())
 				{
@@ -510,7 +510,7 @@ void MainWindowPrivate::createContent()
 	auto TitleBar = DockArea->titleBar();
 	int Index = TitleBar->indexOf(TitleBar->tabBar());
 	TitleBar->insertWidget(Index + 1, CustomButton);
-	QObject::connect(CustomButton, &QToolButton::clicked, [=]()
+	QObject::connect(CustomButton, &QToolButton::clicked, [DockArea, this]()
 	{
 		auto DockWidget = createEditorWidget();
 		DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
