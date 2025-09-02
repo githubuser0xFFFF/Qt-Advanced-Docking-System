@@ -33,7 +33,7 @@
 #include "ads_globals.h"
 #include "AutoHideTab.h"
 
-class QXmlStreamWriter;
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace ads
 {
@@ -117,7 +117,7 @@ public:
 	 * If the AutoHideWidget is in another sidebar, then it will be removed
 	 * from this sidebar.
 	 */
-	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget);
+	void addAutoHideWidget(CAutoHideDockContainer* AutoHideWidget, int Index = TabDefaultInsertIndex);
 
 	/**
 	 * Returns orientation of side tab.
@@ -125,14 +125,45 @@ public:
 	Qt::Orientation orientation() const;
 
 	/*
-	 * get the side tab widget at position, returns nullptr if it's out of bounds
+	 * Get the side tab widget at position, returns nullptr if it's out of bounds
 	 */
-	CAutoHideTab* tabAt(int index) const;
+	CAutoHideTab* tab(int index) const;
+
+	/**
+	 * Returns the tab at the given position.
+	 * Returns -1 if the position is left of the first tab and count() if the
+	 * position is right of the last tab. Returns InvalidTabIndex (-2) to
+	 * indicate an invalid value.
+	 */
+	int tabAt(const QPoint& Pos) const;
+
+	/**
+	 * Returns the tab insertion index for the given mouse cursor position
+	 */
+	int tabInsertIndexAt(const QPoint& Pos) const;
+
+	/**
+	 * Returns the index of the given tab
+	 */
+	int indexOfTab(const CAutoHideTab& Tab) const;
 
 	/*
 	 * Gets the count of the tab widgets
 	 */
-	int tabCount() const;
+	int count() const;
+
+	/**
+	 * Returns the number of visible tabs to its parent widget.
+	 */
+	int visibleTabCount() const;
+
+	/**
+	 * Returns true, if the sidebar contains visible tabs to its parent widget.
+	 * The function returns as soon as it finds the first visible tab.
+	 * That means, if you just want to find out if there are visible tabs
+	 * then this function is quicker than visibleTabCount()
+	 */
+	bool hasVisibleTabs() const;
 
 	/**
 	 * Getter for side tab bar area property
@@ -142,7 +173,7 @@ public:
 	/**
 	 * Overrides the minimumSizeHint() function of QScrollArea
 	 * The minimumSizeHint() is bigger than the sizeHint () for the scroll
-	 * area because even if the scrollbars are invisible, the required speace
+	 * area because even if the scrollbars are invisible, the required space
 	 * is reserved in the minimumSizeHint(). This override simply returns
 	 * sizeHint();
 	 */

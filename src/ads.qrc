@@ -18,5 +18,10 @@
         <file>images/vs-pin-button.svg</file>
         <file>images/vs-pin-button-pinned.svg</file>
         <file>images/vs-pin-button-pinned-focused.svg</file>
+        <file>images/vs-pin-button_45.svg</file>
+        <file>images/pin-button-big.svg</file>
+        <file>images/minimize-button.svg</file>
+        <file>images/minimize-button-focused.svg</file>
+        <file>images/vs-pin-button-disabled.svg</file>
     </qresource>
 </RCC>

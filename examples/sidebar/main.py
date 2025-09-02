@@ -5,7 +5,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt, QMargins
 from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QPlainTextEdit
 
-from PyQtAds import QtAds
+import PyQtAds as QtAds
 
 UI_FILE = os.path.join(os.path.dirname(__file__), 'MainWindow.ui')
 MainWindowUI, MainWindowBase = uic.loadUiType(UI_FILE)

@@ -40,7 +40,7 @@
 
 #include <iostream>
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <xcb/xcb.h>
 #endif
 
@@ -82,12 +82,24 @@ enum DockWidgetArea
 	TopDockWidgetArea = 0x04,
 	BottomDockWidgetArea = 0x08,
 	CenterDockWidgetArea = 0x10,
+	LeftAutoHideArea = 0x20,
+	RightAutoHideArea = 0x40,
+	TopAutoHideArea = 0x80,
+	BottomAutoHideArea = 0x100,
 
 	InvalidDockWidgetArea = NoDockWidgetArea,
 	OuterDockAreas = TopDockWidgetArea | LeftDockWidgetArea | RightDockWidgetArea | BottomDockWidgetArea,
+	AutoHideDockAreas = LeftAutoHideArea | RightAutoHideArea | TopAutoHideArea | BottomAutoHideArea,
 	AllDockAreas = OuterDockAreas | CenterDockWidgetArea
 };
 Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
+
+
+enum eTabIndex
+{
+	TabDefaultInsertIndex = -1,
+	TabInvalidIndex = -2
+};
 
 
 enum TitleBarButton
@@ -95,7 +107,8 @@ enum TitleBarButton
 	TitleBarButtonTabsMenu,
 	TitleBarButtonUndock,
 	TitleBarButtonClose,
-	TitleBarButtonAutoHide
+	TitleBarButtonAutoHide,
+	TitleBarButtonMinimize
 };
 
 /**
@@ -119,6 +132,7 @@ enum eIcon
 	DockAreaMenuIcon,  //!< DockAreaMenuIcon
 	DockAreaUndockIcon,//!< DockAreaUndockIcon
 	DockAreaCloseIcon, //!< DockAreaCloseIcon
+	DockAreaMinimizeIcon,
 
 	IconCount,         //!< just a delimiter for range checks
 };
@@ -144,7 +158,7 @@ enum SideBarLocation
 	SideBarBottom,
 	SideBarNone
 };
-Q_ENUMS(SideBarLocation);
+Q_ENUMS(SideBarLocation)
 
 
 namespace internal
@@ -153,10 +167,11 @@ static const bool RestoreTesting = true;
 static const bool Restore = false;
 static const char* const ClosedProperty = "close";
 static const char* const DirtyProperty = "dirty";
+static const char* const LocationProperty = "Location";
 extern const int FloatingWidgetDragStartEvent;
 extern const int DockedWidgetDragStartEvent;
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 // Utils to directly communicate with the X server
 /**
  * Get atom from cache or request it from the XServer.
@@ -177,7 +192,7 @@ void xcb_update_prop(bool set, WId window, const char *type, const char *prop, c
 bool xcb_dump_props(WId window, const char *type);
 /**
  * Gets the active window manager from the X11 Server.
- * Requires a EWMH conform window manager (Allmost all common used ones are).
+ * Requires a EWMH conform window manager (Almost all common used ones are).
  * Returns "UNKNOWN" otherwise.
  */
 QString windowManager();
@@ -193,6 +208,7 @@ void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To);
  * that do not have visible content
  */
 void hideEmptyParentSplitters(CDockSplitter* FirstParentSplitter);
+
 
 /**
  * Convenience class for QPair to provide better naming than first and
@@ -211,6 +227,25 @@ public:
  * Returns the insertion parameters for the given dock area
  */
 CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
+
+
+/**
+ * Returns the SieBarLocation for the AutoHide dock widget areas
+ */
+SideBarLocation toSideBarLocation(DockWidgetArea Area);
+
+
+/**
+ * Returns true for the top or bottom side bar and false for the
+ * left and right side bar
+ */
+bool isHorizontalSideBarLocation(SideBarLocation Location);
+
+
+/**
+ * Returns true, if the given dock area is a SideBar area
+ */
+bool isSideBarArea(DockWidgetArea Area);
 
 /**
  * Searches for the parent widget of the given type.
@@ -234,7 +269,7 @@ T findParent(const QWidget* w)
 		}
 		parentWidget = parentWidget->parentWidget();
 	}
-	return 0;
+	return nullptr;
 }
 
 /**

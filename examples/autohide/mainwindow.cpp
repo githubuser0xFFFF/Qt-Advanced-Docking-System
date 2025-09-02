@@ -33,7 +33,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     // Set central widget
     QPlainTextEdit* w = new QPlainTextEdit();
 	w->setPlaceholderText("This is the central editor. Enter your text here.");
-    CDockWidget* CentralDockWidget = new CDockWidget("CentralWidget");
+    CDockWidget* CentralDockWidget = DockManager->createDockWidget("CentralWidget");
     CentralDockWidget->setWidget(w);
     auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
     CentralDockArea->setAllowedAreas(DockWidgetArea::OuterDockAreas);
@@ -42,7 +42,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QTableWidget* table = new QTableWidget();
     table->setColumnCount(3);
     table->setRowCount(10);
-    CDockWidget* TableDockWidget = new CDockWidget("Table 1");
+    CDockWidget* TableDockWidget = DockManager->createDockWidget("Table 1");
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->setMinimumSize(200,150);
@@ -53,7 +53,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     table = new QTableWidget();
     table->setColumnCount(5);
     table->setRowCount(1020);
-    TableDockWidget = new CDockWidget("Table 2");
+    TableDockWidget = DockManager->createDockWidget("Table 2");
     TableDockWidget->setWidget(table);
     TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     TableDockWidget->resize(250, 150);
@@ -64,7 +64,7 @@ CMainWindow::CMainWindow(QWidget *parent)
     QTableWidget* propertiesTable = new QTableWidget();
     propertiesTable->setColumnCount(3);
     propertiesTable->setRowCount(10);
-    CDockWidget* PropertiesDockWidget = new CDockWidget("Properties");
+    CDockWidget* PropertiesDockWidget = DockManager->createDockWidget("Properties");
     PropertiesDockWidget->setWidget(propertiesTable);
     PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
     PropertiesDockWidget->resize(250, 150);

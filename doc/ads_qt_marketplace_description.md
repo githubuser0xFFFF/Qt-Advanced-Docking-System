@@ -12,10 +12,10 @@ styles as much as possible.
 
 ## Features
 
-### Docking everywhere - no central widget
+### Docking everywhere - with or without a central widget
 
-There is no central widget like in the Qt docking system. You can dock on every
-border of the main window or you can dock into each dock area - so you are
+The Advanced Docking System works with or without a central widget.
+You can dock on every border of the main window or you can dock into each dock area - so you are
 free to dock almost everywhere.
 
 ![Dropping widgets](https://raw.githubusercontent.com/githubuser0xFFFF/Qt-Advanced-Docking-System/master/doc/preview-dragndrop.png)
@@ -65,7 +65,7 @@ If this flag is cleared, the widget resizing is deferred until the mouse button 
 
 ### Opaque and non-opaque undocking
 
-By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediatelly. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediatelly. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
+By default, opaque undocking is active. That means, as soon as you drag a dock widget or a dock area with a number of dock widgets it will be undocked and moved into a floating widget and then the floating widget will be dragged around. That means undocking will take place immediately. You can compare this with opaque splitter resizing. If the flag `OpaqueUndocking` is cleared, then non-opaque undocking is active. In this mode, undocking is more like a standard drag and drop operation. That means, the dragged dock widget or dock area is not undocked immediately. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
 
 The drag preview widget can be configured by a number of global dock manager flags:
 

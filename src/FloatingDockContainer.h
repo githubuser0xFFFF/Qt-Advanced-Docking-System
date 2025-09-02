@@ -33,7 +33,7 @@
 
 #include <QRubberBand>
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <QDockWidget>
 #define tFloatingWidgetBase QDockWidget
 #else
@@ -132,19 +132,17 @@ protected:
         eDragState DragState, QWidget* MouseEventHandler) override;
 
 	/**
-	 * Call this function to start dragging the floating widget
-	 */
-    void startDragging(const QPoint& DragStartMousePos, const QSize& Size,
-        QWidget* MouseEventHandler)
-	{
-        startFloating(DragStartMousePos, Size, DraggingFloatingWidget, MouseEventHandler);
-	}
-
-	/**
 	 * Call this function if you explicitly want to signal that dragging has
 	 * finished
 	 */
 	virtual void finishDragging() override;
+
+	/**
+	 * This function deletes all dock widgets in it.
+	 * This functions should be called only from dock manager in its
+	 * destructor before deleting the floating widget
+     */
+	void deleteContent();
 
 	/**
 	 * Call this function if you just want to initialize the position
@@ -182,10 +180,8 @@ protected: // reimplements QWidget
 
 #ifdef Q_OS_MACOS
 	virtual bool event(QEvent *e) override;
-	virtual void moveEvent(QMoveEvent *event) override;
-#endif
-
-#ifdef Q_OS_LINUX
+    virtual void moveEvent(QMoveEvent *event) override;
+#elif defined(Q_OS_UNIX)
 	virtual void moveEvent(QMoveEvent *event) override;
 	virtual void resizeEvent(QResizeEvent *event) override;
 	virtual bool event(QEvent *e) override;
@@ -232,6 +228,15 @@ public:
 	CDockContainerWidget* dockContainer() const;
 
 	/**
+	 * Call this function to start dragging the floating widget
+	 */
+    void startDragging(const QPoint& DragStartMousePos, const QSize& Size,
+        QWidget* MouseEventHandler)
+	{
+        startFloating(DragStartMousePos, Size, DraggingFloatingWidget, MouseEventHandler);
+	}
+
+	/**
 	 * This function returns true, if it can be closed.
 	 * It can be closed, if all dock widgets in all dock areas can be closed
 	 */
@@ -260,11 +265,11 @@ public:
     QList<CDockWidget*> dockWidgets() const;
 
 	/**
-	 * This function hides the floating bar instantely and delete it later.
+	 * This function hides the floating widget instantly and delete it later.
 	 */
-	void hideAndDeleteLater();
+	void finishDropOperation();
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     /**
 	 * This is a function that responds to FloatingWidgetTitleBar::maximizeRequest()
 	 * Maximize or normalize the container size.
@@ -300,7 +305,6 @@ public:
 	 */
 	bool hasNativeTitleBar();
 #endif
-
 }; // class FloatingDockContainer
 }
  // namespace ads

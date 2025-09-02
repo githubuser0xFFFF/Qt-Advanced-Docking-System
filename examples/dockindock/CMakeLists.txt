@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(ads_example_dockindock VERSION ${VERSION_SHORT}) 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
@@ -12,7 +12,7 @@ add_executable(DockInDockExample WIN32
     mainframe.cpp
 )
 target_include_directories(DockInDockExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-target_link_libraries(DockInDockExample PRIVATE qt${QT_VERSION_MAJOR}advanceddocking)
+target_link_libraries(DockInDockExample PRIVATE qtadvanceddocking-qt${QT_VERSION_MAJOR})
 target_link_libraries(DockInDockExample PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                            Qt${QT_VERSION_MAJOR}::Gui 
                                            Qt${QT_VERSION_MAJOR}::Widgets)

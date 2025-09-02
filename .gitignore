@@ -1,4 +1,4 @@
-*.pro.user
+*.pro.user*
 /build
 *.o
 *.dylib
@@ -7,6 +7,9 @@ qrc_*
 moc_*
 ui_*
 Makefile
+*.dll
+*.a
+build*
 
 # IDEs
 .idea

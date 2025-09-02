@@ -50,19 +50,31 @@ namespace ads
         TopDockWidgetArea,
         BottomDockWidgetArea,
         CenterDockWidgetArea,
+        LeftAutoHideArea,
+        RightAutoHideArea,
+        TopAutoHideArea,
+        BottomAutoHideArea,
         InvalidDockWidgetArea,
         OuterDockAreas,
+        AutoHideDockAreas,
         AllDockAreas
     };
     typedef QFlags<ads::DockWidgetArea> DockWidgetAreas;
 
+
+    enum eTabIndex
+    {
+        TabDefaultInsertIndex,
+        TabInvalidIndex
+    };
 
     enum TitleBarButton
     {
         TitleBarButtonTabsMenu,
         TitleBarButtonUndock,
         TitleBarButtonClose,
-        TitleBarButtonAutoHide
+        TitleBarButtonAutoHide,
+        TitleBarButtonMinimize
     };
 
     enum eDragState
@@ -115,6 +127,9 @@ namespace ads
             int insertOffset() const;
         };
         ads::internal::CDockInsertParam dockAreaInsertParameters(ads::DockWidgetArea Area);
+        ads::SideBarLocation toSideBarLocation(ads::DockWidgetArea Area);
+        bool isHorizontalSideBarLocation(ads::SideBarLocation Location);
+        bool isSideBarArea(ads::DockWidgetArea Area);
         
         SIP_PYOBJECT findParent(SIP_PYTYPE type, const QWidget *w) const /TypeHint="QObject"/;
         %MethodCode

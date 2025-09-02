@@ -1,34 +1,59 @@
-ilds
+name: linux-builds
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
-jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
+jobs:  
+  build_ubuntu_2204_cmake:
+    runs-on: ubuntu-22.04
 
-    runs-on: ${{ matrix.os }}
-    
+    env:
+      QT_VERSION: 6.4.2
+      QT_DIR: ${{ github.workspace }}/Qt
+
     steps:
-    - uses: actions/checkout@v1
-    - name: install qt
+    - name: Checkout source
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history and tags
+
+    - name: Install dependencies
       run: |
-        sudo apt-get update --fix-missing
-        sudo apt-get install qt5-default
-        sudo apt-get install qtbase5-private-dev
-    - name: qmake
-      run: qmake
-    - name: make
-      run: make -j4
-      
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake ninja-build libgl1-mesa-dev libxkbcommon-x11-0 libx11-dev
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ env.QT_VERSION }}
+        target: desktop
+        host: linux
+        arch: gcc_64
+        dir: ${{ env.QT_DIR }}
+        setup-python: false
+
+    - name: Configure with CMake
+      run: |
+          cmake -S . -B build \
+            -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}/Qt/${{ env.QT_VERSION }}/gcc_64" \
+            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install \
+            -DCMAKE_BUILD_TYPE=Release \
+            -G Ninja
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run CMake install (optional)
+      run: cmake --install build
+
   build_ubuntu_2204:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
     - name: Cache Qt
       id: cache-qt-6-4
-      uses: actions/cache@v1  # not v2!
+      uses: actions/cache@v3
       with:
         path: ../Qt/6.4.2
         key: ${{ runner.os }}-QtCache-Qt6-4

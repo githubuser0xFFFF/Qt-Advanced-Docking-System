@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Create a dock widget with the title Label 1 and set the created label
 	// as the dock widget content
-	ads::CDockWidget* DockWidget = new ads::CDockWidget("Label 1");
+    ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
 	DockWidget->setWidget(l);
 
 	// Add the toggleViewAction of the dock widget to the menu to give
@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	// Create an example editor
 	QPlainTextEdit* te = new QPlainTextEdit();
 	te->setPlaceholderText("Please enter your text here into this QPlainTextEdit...");
-	DockWidget = new ads::CDockWidget("Editor 1");
+    DockWidget = m_DockManager->createDockWidget("Editor 1");
 	DockWidget->setWidget(te);
 	ui->menuView->addAction(DockWidget->toggleViewAction());
 	m_DockManager->addDockWidget(ads::BottomDockWidgetArea, DockWidget);

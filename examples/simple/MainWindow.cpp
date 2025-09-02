@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Create a dock widget with the title Label 1 and set the created label
 	// as the dock widget content
-	ads::CDockWidget* DockWidget = new ads::CDockWidget("Label 1");
+    ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
 	DockWidget->setWidget(l);
 
 	// Add the toggleViewAction of the dock widget to the menu to give

@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,1024,1024">
+	<desc>lock icon - Licensed under Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0) - Created with Iconfu.com - Derivative work of Material icons (Copyright Google Inc.)</desc>
+	<g fill="#03b8e5" fill-rule="nonzero" style="mix-blend-mode: normal">
+		<path d="M853.33,426.67v426.66c0,46.93 -38.4,85.34 -85.33,85.34h-512c-46.93,0 -85.33,-38.41 -85.33,-85.34v-426.66c0,-46.93 38.4,-85.34 85.33,-85.34h42.67v-85.33c0,-117.76 95.57,-213.33 213.33,-213.33c117.76,0 213.33,95.57 213.33,213.33v85.33h42.67c46.93,0 85.33,38.41 85.33,85.34zM644.27,256c0,-72.96 -59.31,-132.27 -132.27,-132.27c-72.96,0 -132.27,59.31 -132.27,132.27v85.33h264.54zM597.33,640c0,-46.93 -38.4,-85.33 -85.33,-85.33c-46.93,0 -85.33,38.4 -85.33,85.33c0,46.93 38.4,85.33 85.33,85.33c46.93,0 85.33,-38.4 85.33,-85.33z"/>
+	</g>
+</svg>

@@ -55,7 +55,7 @@ class ADS_EXPORT CAutoHideTab : public CPushButton
 	Q_PROPERTY(bool activeTab READ isActiveTab)
 	Q_PROPERTY(bool iconOnly READ iconOnly)
 
-private:    
+private:
 	AutoHideTabPrivate* d; ///< private data (pimpl)
     friend struct AutoHideTabPrivate;
 	friend class CDockWidget;
@@ -65,11 +65,20 @@ private:
 	friend class CDockContainerWidget;
 	friend DockContainerWidgetPrivate;
 
+private Q_SLOTS:
+	void onAutoHideToActionClicked();
+	void onDragHoverDelayExpired();
 
 protected:
 	void setSideBar(CAutoHideSideBar *SideTabBar);
 	void removeFromSideBar();
 	virtual bool event(QEvent* event) override;
+	virtual void contextMenuEvent(QContextMenuEvent* ev) override;
+	virtual void mousePressEvent(QMouseEvent* ev) override;
+	virtual void mouseReleaseEvent(QMouseEvent* ev) override;
+	virtual void mouseMoveEvent(QMouseEvent* ev) override;
+    virtual void dragEnterEvent(QDragEnterEvent* ev) override;
+    virtual void dragLeaveEvent(QDragLeaveEvent* ev) override;
 
 public:
     using Super = CPushButton;
@@ -133,6 +142,27 @@ public:
 	 * not in a side bar
 	 */
 	CAutoHideSideBar* sideBar() const;
+
+	/**
+	 * Returns the index of this tab in the sideBar
+	 */
+	int tabIndex() const;
+
+public Q_SLOTS:
+	/**
+	 * Set the dock widget floating, if it is floatable
+	 */
+	void setDockWidgetFloating();
+
+	/**
+	 * Unpin and dock the auto hide widget
+	 */
+	void unpinDockWidget();
+
+	/**
+	 * Calls the requestCloseDockWidget() function for the assigned dock widget
+	 */
+	void requestCloseDockWidget();
 }; // class AutoHideTab
 }
  // namespace ads

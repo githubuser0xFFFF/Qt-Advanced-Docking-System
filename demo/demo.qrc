@@ -36,5 +36,8 @@
         <file>images/panorama.svg</file>
         <file>images/ads_icon2.svg</file>
         <file>images/font_download.svg</file>
+        <file>images/lock_outline.svg</file>
+        <file>images/lock.svg</file>
+        <file>images/lock_open.svg</file>
     </qresource>
 </RCC>

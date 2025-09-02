@@ -2,7 +2,7 @@ ADS_OUT_ROOT = $${OUT_PWD}/..
 
 TARGET = AdvancedDockingSystemDemo
 DESTDIR = $${ADS_OUT_ROOT}/lib
-QT += core gui widgets
+QT += core gui widgets quick quickwidgets
 
 include(../ads.pri)
 

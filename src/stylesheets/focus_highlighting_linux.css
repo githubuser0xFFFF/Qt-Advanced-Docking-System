@@ -401,13 +401,20 @@ ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaT
  * CAutoHideDockContainer titlebar buttons
  *****************************************************************************/
 #dockAreaAutoHideButton {
-        qproperty-icon: url(:/ads/images/vs-pin-button.svg);
-        qproperty-iconSize: 16px;
+	qproperty-icon: url(:/ads/images/vs-pin-button.svg),
+		url(:/ads/images/vs-pin-button-disabled.svg) disabled;
+	qproperty-iconSize: 16px;
 }
 
 ads--CAutoHideDockContainer #dockAreaAutoHideButton {
         qproperty-icon: url(:/ads/images/vs-pin-button-pinned-focused.svg);
         qproperty-iconSize: 16px;
+}
+
+
+ads--CAutoHideDockContainer #dockAreaMinimizeButton {
+	qproperty-icon: url(:/ads/images/minimize-button-focused.svg);
+	qproperty-iconSize: 16px;	
 }
 
 

@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     int i = 0;
     QObject::connect(action, &QAction::triggered, [&]() {
-        auto dw = new ads::CDockWidget(QStringLiteral("test %1 [DockWidgetDeleteOnClose]").arg(i++), &w);
+        auto dw = dockManager->createDockWidget(QStringLiteral("test %1 [DockWidgetDeleteOnClose]").arg(i++), &w);
         auto editor = new QTextEdit(QStringLiteral("lorem ipsum..."), dw);
         dw->setWidget(editor);
         dw->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         qDebug() << "doc dock widget created!" << dw << area;
     });
 	
-	auto dw = new ads::CDockWidget(QStringLiteral("test %1 [DeleteContentOnClose]").arg(i++), &w);
+    auto dw = dockManager->createDockWidget(QStringLiteral("test %1 [DeleteContentOnClose]").arg(i++), &w);
 	auto editor = new QTextEdit(QStringLiteral("recreated lorem ipsum......"), dw);
 	dw->setWidget(editor);
 	dw->setFeature(ads::CDockWidget::DeleteContentOnClose, true);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     action = new QAction("New", &w);
     w.menuBar()->addAction(action);
     QObject::connect(action, &QAction::triggered, [&]() {
-        auto dw = new ads::CDockWidget(QStringLiteral("test %1").arg(i++), &w);
+        auto dw = dockManager->createDockWidget(QStringLiteral("test %1").arg(i++), &w);
         auto editor = new QTextEdit(QStringLiteral("lorem ipsum..."), dw);
         dw->setWidget(editor);
         auto area = dockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dw);

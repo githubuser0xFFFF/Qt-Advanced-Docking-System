@@ -34,7 +34,7 @@
 #include <QSplitter>
 #include "AutoHideTab.h"
 
-class QXmlStreamWriter;
+QT_FORWARD_DECLARE_CLASS(QXmlStreamWriter)
 
 namespace ads
 {
@@ -65,6 +65,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent* event) override;
 	virtual void leaveEvent(QEvent *event) override;
 	virtual bool event(QEvent* event) override;
+    virtual void dragLeaveEvent(QDragLeaveEvent* ev) override;
 
 	/**
 	 * Updates the size considering the size limits and the resize margins
@@ -91,9 +92,9 @@ public:
 	virtual ~CAutoHideDockContainer();
 
 	/**
-	 * Get's the side tab bar
+	 * Gets the side tab bar
 	 */
-	CAutoHideSideBar* sideBar() const;
+	CAutoHideSideBar* autoHideSideBar() const;
 
 	/**
 	 * Returns the side tab
@@ -101,9 +102,14 @@ public:
 	CAutoHideTab* autoHideTab() const;
 
 	/**
-	 * Get's the dock widget in this dock container
+	 * Gets the dock widget in this dock container
 	 */
 	CDockWidget* dockWidget() const;
+
+	/**
+	 * Returns the index of this container in the sidebar
+	 */
+	int tabIndex() const;
 
 	/**
 	 * Adds a dock widget and removes the previous dock widget
@@ -134,7 +140,7 @@ public:
 
 	/**
 	 * Moves the contents to the parent container widget
-	 * Used before removing this Auto Hide dock container 
+	 * Used before removing this Auto Hide dock container
 	 */
     void moveContentsToParent();
 
@@ -162,10 +168,34 @@ public:
 
 	/**
 	 * Use this instead of resize.
-	 * Depending on the sidebar location this will set the width or heigth
+	 * Depending on the sidebar location this will set the width or height
 	 * of this auto hide container.
 	 */
 	void setSize(int Size);
+
+	/**
+	 * Resets the width or height to the initial dock widget size dependinng on
+	 * the orientation.
+	 * If the orientation is Qt::Horizontal, then the height is reset to
+	 * the initial size and if orientation is Qt::Vertical, then the width is
+	 * reset to the initial size
+	 */
+	void resetToInitialDockWidgetSize();
+
+	/**
+	 * Returns orientation of this container.
+	 * Left and right containers have a Qt::Vertical orientation and top / bottom
+	 * containers have a Qt::Horizontal orientation.
+	 * The function returns the orientation of the corresponding auto hide
+	 * side bar.
+	 */
+	Qt::Orientation orientation() const;
+
+	/**
+	 * Removes the AutoHide container from the current side bar and adds
+	 * it to the new side bar given in SideBarLocation
+	 */
+	void moveToNewSideBarLocation(SideBarLocation SideBarLocation, int TabIndex = -1);
 };
 } // namespace ads
 

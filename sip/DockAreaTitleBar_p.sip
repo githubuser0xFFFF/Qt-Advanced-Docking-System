@@ -5,21 +5,6 @@
 namespace ads
 {
 
-class CTitleBarButton : QToolButton
-{
-    %TypeHeaderCode
-    #include <DockAreaTitleBar_p.h>
-    %End
-
-protected:
-    bool event(QEvent *ev);
-
-public:
-    CTitleBarButton(bool visible = true, QWidget* parent /TransferThis/ = Q_NULLPTR );
-    virtual void setVisible(bool visible);
-};
-
-
 class CSpacerWidget : QWidget
 {
     %TypeHeaderCode

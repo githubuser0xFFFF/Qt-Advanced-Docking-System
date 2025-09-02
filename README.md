@@ -4,10 +4,11 @@
 
 ------------------
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System?color=%23ff9833)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
+[![windows-builds](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml/badge.svg?branch=master)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml)
 [![GitHub contributors](https://img.shields.io/github/contributors/githubuser0xFFFF/Qt-Advanced-Docking-System?color=ffdf00)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/graphs/contributors)
 
 Qt Advanced Docking System lets you create customizable layouts using a full
@@ -15,12 +16,76 @@ featured window docking system similar to what is found in many popular
 integrated development environments (IDEs) such as Visual Studio.
 
 - [What's new...](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
-- [Documentation](doc/user-guide.md)
-- Original Repository: https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System
+- [Documentation](https://githubuser0xffff.github.io/Qt-Advanced-Docking-System/doc/user-guide.html)
+- Original Repository: [https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System)
 
 [![Video Advanced Docking](doc/advanced-docking_video.png)](https://www.youtube.com/watch?v=7pdNfafg3Qc)
 
 ## New and Noteworthy
+
+Release [4.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest) significantly improves the Auto-Hide functionality and also brings improvements
+for Drag and Drop of dock widgets into dock area tabs. These are the highlights of the new version:
+
+#### Drag & Drop to Auto-Hide
+
+Now you can easily drag any dock widget or any floating widget to the
+borders of a window to pin it as a auto-hide tab in one of the 4 sidebars.
+If you drag a dock widget close the one of the four window borders, special
+drop overlays will be shown to indicate the drop area for auto-hide widgets:
+
+![Auo-Hide drag to Sidebar](doc/AutoHide_Drag_to_Sidebar.gif)
+
+Of course, this also works with dock areas:
+
+![Auo-Hide drag Dock Area](doc/AutoHide_Drag_DockArea.gif)
+
+If you drag a dock widget or dock area into a sidebar, then you even have
+control over where tabs are inserted. Simply drag your mouse over a specific
+auto-hide tab, and your dragged dock widget will be inserted before this tab.
+Drag to the sidebar area behind the last tab, and the dragged widget will be
+appended as last tab. In the following screen capture, the **Image Viewer 1** will
+be inserted before the **Table 0** Auto-Hide tab and the **Image Viewer 2**
+is appende behind the last tab:
+
+![Auo-Hide tab insert order](doc/AutoHide_Tab_Insert_Order.gif)
+
+#### Auto-Hide Tab Insertion Order
+
+It is also possible to drag Auto-Hide tabs to a new auto-hide position.
+That means, you can drag them to a different border or sidebar:
+
+![Auto-Hide change sidebar](doc/AutoHide_Change_Sidebar.gif)
+
+#### Auto-Hide Tab Sorting
+
+You can drag Auto-Hide tabs to a new position in the current sidebar
+to sort them:
+
+![Auo-Hide sort tabs](doc/AutoHide_Sort_Tabs.gif)
+
+#### Auto-Hide Drag to Float / Dock
+
+But that is not all. You can also simply move Auto-Hide tabs to another
+floating widget or dock them via drag and drop:
+
+![Auo-Hide drag to float or dock](doc/AutoHide_Drag_to_Float_or_Dock.gif)
+
+#### Auto-Hide Context Menu
+
+All Auto-Hide tabs now have a context menu, that provides all the functionality
+that you know from Dock widget tabs. With the **Pin To...** item from the
+context menu it is very easy to move an Auto-Hide tab to a different Auto-Hide
+sidebar:
+
+![Auo-Hide context menu](doc/AutoHide_Context_Menu.png)
+
+#### Dock Area Tab Insert Order
+
+And last but not least the new version also improves the docking of widgets
+into the tabs of a Dock area. Just as with Auto-Hide tabs, you can now determine the position at which a tab is inserted by moving the mouse over an already existing tab (insertion before the tab) or behind the last tab
+(appending):
+
+![Dock area tab insert order](doc/DockArea_Tab_Insertion_Order.gif)
 
 The [release 4.0](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 adds the following features:
@@ -77,6 +142,12 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+    - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
+    - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
+    - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
+    - [Auto-Hide Drag to Float / Dock](#auto-hide-drag-to-float--dock)
+    - [Auto-Hide Context Menu](#auto-hide-context-menu)
+    - [Dock Area Tab Insert Order](#dock-area-tab-insert-order)
 - [Features](#features)
   - [Overview](#overview)
   - [Docking everywhere - no central widget](#docking-everywhere---no-central-widget)
@@ -91,6 +162,7 @@ know it from Visual Studio.
   - [Auto-Hide Functionality](#auto-hide-functionality)
 - [Python Bindings](#python-bindings)
   - [PySide6](#pyside6)
+  - [PyQt6](#pyqt6)
   - [PyQt5](#pyqt5)
 - [Tested Compatible Environments](#tested-compatible-environments)
   - [Supported Qt Versions](#supported-qt-versions)
@@ -119,6 +191,9 @@ know it from Visual Studio.
   - [RDE – Robox Development Environment](#rde--robox-development-environment)
   - [ResInsight](#resinsight)
   - [ADTF 3](#adtf-3)
+  - [DREAM3D-NX](#dream3d-nx)
+  - [LabPlot](#labplot)
+  - [Scrutiny Debugger](#scrutiny-debugger)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
@@ -145,7 +220,7 @@ into floating windows is supported.
 
 ### Grouped dragging
 
-When dragging the titlebar of a dock, all the tabs that are tabbed with it are 
+When dragging the titlebar of a dock, all the tabs that are tabbed with it are
 going to be dragged. So you can move complete groups of tabbed widgets into
 a floating widget or from one dock area to another one.
 
@@ -158,7 +233,7 @@ a floating widget or from one dock area to another one.
 A perspective defines the set and layout of dock windows in the main
 window. You can save the current layout of the dockmanager into a named
 perspective to make your own custom perspective. Later you can simply
-select a perspective from the perspective list to quickly switch the complete 
+select a perspective from the perspective list to quickly switch the complete
 main window layout.
 
 ![Perspective](doc/perspectives.gif)
@@ -180,6 +255,7 @@ If this flag is cleared, the widget resizing is deferred until the mouse button 
 In contrast to the standard Qt docking system, docking with the ADS works more like a drag & drop operation. That means, the dragged dock widget or dock area is not undocked immediately. Instead, a drag preview widget is created and dragged around to indicate the future position of the dock widget or dock area. The actual dock operation is only executed when the mouse button is released. That makes it possible, to cancel an active drag operation with the escape key.
 
 The drag preview widget can be configured by a number of global dock manager flags:
+
 - `DragPreviewIsDynamic`: if this flag is enabled, the preview will be adjusted dynamically to the drop area
 - `DragPreviewShowsContentPixmap`: the created drag preview window shows a static copy of the content of the dock widget / dock are that is dragged
 - `DragPreviewHasWindowFrame`: this flag configures if the drag preview is frameless like a QRubberBand or looks like a real window
@@ -236,7 +312,7 @@ More about the auto hide configuration options in the [online documentation...](
 ![Python Logo](doc/python_logo.png)
 
 Thanks to the contribution of several users, the Advanced Docking System comes
-with a complete Python integration. Python bindings are available for **PyQt5** and
+with a complete Python integration. Python bindings are available for **PyQt5**, **PyQt6**, and
 **PySide6**.
 
 ### PySide6
@@ -249,12 +325,29 @@ pip install PySide6-QtAds
 ```
 
 Sample code is available [here](https://github.com/mborgerson/Qt-Advanced-Docking-System/tree/pyside6/examples). To run the samples, you'll also need to install latest qtpy
-from source (pip install https://github.com/spyder-ide/qtpy/archive/refs/heads/master.zip).
+from source (pip install <https://github.com/spyder-ide/qtpy/archive/refs/heads/master.zip>).
 The PySide6 bindings were contributed by:
 
 - [mborgerson](https://github.com/mborgerson)
 
-For more information about the PySide6 bindings read [this](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/298) issue.
+Please file PySide6-QtAds-specific issues on its [pyside6_qtads](https://github.com/mborgerson/pyside6_qtads) fork for tracking. For more information about the PySide6 bindings read [this](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/298) issue.
+
+### PyQt6
+
+A PyQt6 ADS package is available via PyPi and can be installed on Windows,
+macOS, and Linux with:
+
+```bash
+pip install PyQt6Ads
+```
+
+Sample code is available [here](https://github.com/pyapp-kit/PyQt6Ads/tree/main/examples).
+
+The PyQt6 bindings were contributed by:
+
+- [tlambert03](https://github.com/tlambert03)
+
+Please file PyQt6Ads-specific issues at [pyapp-kit/PyQt6Ads](https://github.com/pyapp-kit/PyQt6Ads).
 
 ### PyQt5
 
@@ -279,13 +372,12 @@ The library supports **Qt5** and **Qt6**.
 
 ### Windows
 
-Windows 10 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
+Windows 10 / 11 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
+[![windows-builds](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml/badge.svg?branch=master)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml)
 
 The library was developed on and for Windows. It is used in a commercial Windows application and is therefore constantly tested.
 
 ### macOS
-
-macOS [![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 
 The application can be compiled for macOS. A user reported, that the library works on macOS. If have not tested it.
 
@@ -293,10 +385,9 @@ The application can be compiled for macOS. A user reported, that the library wor
 
 ### Linux
 
-[![Build Status](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System.svg?branch=master)](https://travis-ci.org/githubuser0xFFFF/Qt-Advanced-Docking-System)
 [![Build status](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/workflows/linux-builds/badge.svg)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions?query=workflow%3Alinux-builds)
 
-Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like this is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with the some Linux distributions. Depending on the used window manager or compositor, dock widgets
+Unfortunately, there is no such thing as a Linux operating system. Linux is a heterogeneous environment with a variety of different distributions. So it is not possible to support "Linux" like it is possible for Windows. It is only possible to support and test a small subset of Linux distributions. The library can be compiled for and has been developed and tested with some Linux distributions. Depending on the used window manager or compositor, dock widgets
 with native title bars are supported or not. If native title bars are not supported,
 the library switches to `QWidget` based title bars.
 
@@ -318,7 +409,9 @@ Screenshot Ubuntu:
 ## Build
 
 The Linux build requires private header files. Make sure that they are installed.
-The library uses SVG icons, so ensure that Qt SVG support is installed.
+The library uses SVG icons, so ensure that Qt SVG support is installed. The demo
+application creates a `QQuickWidget` for testing, so ensure that the required
+libraries are installed.
 
 ### Qt5 on Ubuntu 18.04 or 20.04
 
@@ -329,13 +422,13 @@ sudo apt install qt5-default qtbase5-private-dev
 ### Qt5 on Ubuntu 22.04
 
 ```bash
-sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5
+sudo apt install qtbase5-dev qtbase5-private-dev qtbase5-dev-tools libqt5svg5 libqt5qml5 qtdeclarative5-dev
 ```
 
 ### Qt6 on Ubuntu 22.04
 
 ```bash
-sudo apt install qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6
+sudo apt install qt6-default qt6-base-dev qt6-base-private-dev qt6-tools-dev libqt6svg6 qt6-qtdeclarative
 ```
 
 Open the `ads.pro` file with QtCreator and start the build, that's it.
@@ -388,7 +481,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the dock manager after the ui is setup. Because the
     // parent parameter is a QMainWindow the dock manager registers
     // itself as the central widget as such the ui must be set up first.
-    m_DockManager = new ads::CDockManager(this);
+    DockManager = new ads::CDockManager(this);
 
     // Create example content label - this can be any application specific
     // widget
@@ -399,7 +492,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Create a dock widget with the title Label 1 and set the created label
     // as the dock widget content
-    ads::CDockWidget* DockWidget = new ads::CDockWidget("Label 1");
+    ads::CDockWidget* DockWidget = DockManager->createDockWidget("Label 1");
     DockWidget->setWidget(l);
 
     // Add the toggleViewAction of the dock widget to the menu to give
@@ -407,7 +500,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->menuView->addAction(DockWidget->toggleViewAction());
 
     // Add the dock widget to the top dock widget area
-    m_DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
+    DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
 }
 
 MainWindow::~MainWindow()
@@ -508,7 +601,7 @@ highlights are:
 - Simple Drag & Drop user interface.
 - Load data from file.
 - Connect to live streaming of data.
-- Save the visualization layout and configurations to re-use them later.
+- Save the visualization layout and configurations to reuse them later.
 - Fast OpenGL visualization.
 - Can handle thousands of timeseries and millions of data points.
 - Transform your data using a simple editor: derivative, moving average, integral, etc…
@@ -520,7 +613,7 @@ highlights are:
 
 ### [Notepad Next](https://github.com/dail8859/NotepadNext)
 
-Notepad Next is a cross-platform reimplementation of Notepad++ that uses the 
+Notepad Next is a cross-platform reimplementation of Notepad++ that uses the
 Advanced Docking System to arrange the open source files on the screen.
 
 [read more...](https://github.com/dail8859/NotepadNext)
@@ -583,7 +676,7 @@ The Automotive Data and Time-Triggered Framework was designed as a Rapid Prototy
 - Recording of vehicle data for visualisation
 - Simulation of complex scenarios in SIL/HIL test environments
 
-The software features time-based processing of multiple data streams and graphical editing of dynamic filter graphs. It also includes an SDK for custom plug-ins and reusable components, as well as components for data visualization in both 2D and 3D. This is was the 
+The software features time-based processing of multiple data streams and graphical editing of dynamic filter graphs. It also includes an SDK for custom plug-ins and reusable components, as well as components for data visualization in both 2D and 3D. This is was the
 [manual](https://support.digitalwerk.net/adtf/v3/adtf_html/page_adtf_xsystem_plugin.html)
 says about the switch to Qt Advanced Docking:
 
@@ -593,13 +686,56 @@ says about the switch to Qt Advanced Docking:
 
 ![ADTF](doc/showcase_adtf.png)
 
+### [DREAM3D-NX](https://www.dream3d.io)
+
+DREAM3D-NX *(Digital Representation Environment for Analysis of Materials in 3D)* is a cross-platform and modular, software suite that allows users to prepare, reconstruct, quantify, instantiate, and mesh, multidimensional, multimodal microstructural data, as well as many other applications.
+
+[BlueQuartz Software](http://www.bluequartz.net/) has completely rewritten the old DREAM.3D version 6.5 application
+taking advantage of the Advanced Docking System to present a highly customizable user interface
+for DREAM3D-NX Version 7.
+
+![DREAM.3D NX](doc/showcase_dream3d_nx.png)
+
+[read more...](http://www.dream3d.io/)
+
+### [LabPlot](https://labplot.kde.org/)
+
+KDE LabPlot is the ultimate free, open source and cross-platform tool for scientists, engineers, and students who need to analyze and visualize data. With its intuitive interface and powerful features, you can create stunning plots and diagrams with ease. Whether you're working with CSV, FITS, or HDF5 data, KDE LabPlot makes it simple to import and analyze your data.
+
+The LabPlot project recently switched to the Qt Advanced Docking System for their user interface. This switch represents a significant improvement to the LabPlot software, allowing users to create and manage complex data visualization layouts with ease.
+
+![LabPlot](doc/showcase_labplot.png)
+
+[read more...](https://labplot.kde.org/)
+
+### [Scrutiny Debugger](https://scrutinydebugger.com/)
+
+Scrutiny is an [open source](https://github.com/scrutinydebugger/) non-intrusive, real-time debugger for embedded systems, built for fast introspection, memory access, and signal visualization—without stopping your application. It uses the Qt Advanced Docking System (ADS) to provide fully customizable dashboards for monitoring and control.
+
+Some of the highlights are:
+
+- **Debug without interfering** — Inspect C++ memory live without disrupting execution flow.
+- **HIL testing made easy** — Write to variables through the GUI or SDK to simulate conditions.
+- **Configure during production** — Access and tweak variables anytime via GUI or Python.
+- **Catch fast events** — Embedded graphs sample at task-level frequency, even with multithreading.
+- **Build your dashboard** — Use ADS to create and save custom layouts for your debug sessions.
+- **No JTAG needed** — Communicates over serial, CAN, or network interfaces.
+- **Compact C++11 library** — Lightweight and easy to integrate into your firmware.
+- **Live graphs and runtime values** — Visualize variables, RPVs, and aliases in real time.
+
+ADS powers Scrutiny’s flexible interface, letting users organize views and data panels to suit their workflow — ideal for real-time monitoring, testing, and debugging.
+
+[read more...](https://scrutinydebugger.com/)
+
+[![Scrutiny Debugger UI](doc/showcase_scrutiny-dark.png)](https://www.youtube.com/watch?v=Dd3osxW-Clo)
+
 ## Alternative Docking System Implementations
 
 If this Qt Advanced Docking System does not fit to your needs you may consider some of the alternative docking system solutions for Qt.
 
 ### KDDockWidgets
 
-This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future. 
+This is an advanced docking framework for Qt from [KDAB](https://www.kdab.com/). The interesting thing is, that they separated GUI code from logic, so they can easily provide a QtQuick backend in the future.
 
 - [Blog post about KDDockWidgets](https://www.kdab.com/kddockwidgets/)
 - [GitHub project](https://github.com/KDAB/KDDockWidgets)

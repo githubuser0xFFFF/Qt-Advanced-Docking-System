@@ -68,6 +68,7 @@ private slots:
 	void toggleDockWidgetWindowTitle();
 	void applyVsStyle();
 	void createImageViewer();
+	void lockWorkspace(bool Value);
 };
 
 #endif // MAINWINDOW_H

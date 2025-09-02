@@ -172,6 +172,8 @@ public:
         FloatingContainerForceNativeTitleBar,
         FloatingContainerForceQWidgetTitleBar,
         MiddleMouseButtonClosesTab,
+        DisableTabTextEliding,
+        ShowTabTextOnlyForActiveTab,
         DefaultDockAreaButtons,
 		DefaultBaseConfig,
         DefaultOpaqueConfig,
@@ -187,6 +189,9 @@ public:
 		AutoHideButtonCheckable,
 		AutoHideSideBarsIconOnly,
 		AutoHideShowOnMouseOver,
+        AutoHideCloseButtonCollapsesDock,
+        AutoHideHasCloseButton,
+        AutoHideHasMinimizeButton,
 		DefaultAutoHideConfig,
 	};
     typedef QFlags<ads::CDockManager::eAutoHideFlag> AutoHideFlags;
@@ -237,14 +242,22 @@ public:
 	QMenu* viewMenu() const;
 	void setViewMenuInsertionOrder(ads::CDockManager::eViewMenuInsertionOrder Order);
 	bool isRestoringState() const;
+    bool isLeavingMinimizedState() const;
 	static int startDragDistance();
     ads::CDockWidget* focusedDockWidget() const;
     QList<int> splitterSizes(ads::CDockAreaWidget *ContainedArea) const;
     void setSplitterSizes(ads::CDockAreaWidget *ContainedArea, const QList<int>& sizes);
     static void setFloatingContainersTitle(const QString& Title);
 	static QString floatingContainersTitle();
+    void setDockWidgetToolBarStyle(Qt::ToolButtonStyle Style, ads::CDockWidget::eState State);
+    Qt::ToolButtonStyle dockWidgetToolBarStyle(ads::CDockWidget::eState State) const;
+    void setDockWidgetToolBarIconSize(const QSize& IconSize, ads::CDockWidget::eState State);
+    QSize dockWidgetToolBarIconSize(ads::CDockWidget::eState State) const;
+    ads::CDockWidget::DockWidgetFeatures globallyLockedDockWidgetFeatures() const;
+    void lockDockWidgetFeaturesGlobally(ads::CDockWidget::DockWidgetFeatures Features = ads::CDockWidget::GloballyLockableFeatures);
 
 public slots:
+    void endLeavingMinimizedState();
 	void openPerspective(const QString& PerspectiveName);
     void setDockWidgetFocused(ads::CDockWidget* DockWidget);
 

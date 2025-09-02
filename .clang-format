@@ -1,0 +1,146 @@
+﻿---
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: None
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignEscapedNewlines: Right
+AlignOperands: Align
+AlignTrailingComments: true
+
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Inline
+AllowShortLoopsOnASingleLine: false
+
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: Yes
+
+BinPackArguments: true
+BinPackParameters: true
+
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
+
+ColumnLimit: 82
+CommentPragmas: '^(!.*|@c)'
+
+CompactNamespaces: false
+
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
+
+FixNamespaceComments: true
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<windows(\.h)?>'  # windows headers
+    Priority: -1
+  - Regex: '^<labbcan[[:alnum:]._/]+'  # labbcan headers
+    Priority: 1
+  - Regex: '^<diag[[:alnum:]._/]+'  # usl headers
+    Priority: 1
+  - Regex: '^<usl[[:alnum:]._/]+'  # usl headers
+    Priority: 1
+  - Regex: '^<qt5compat[[:alnum:]._/]+'  # qtlabb headers
+    Priority: 2
+  - Regex: '^<qtcoreaddons[[:alnum:]._/]+'  # qtlabb headers
+    Priority: 2
+  - Regex: '^<qtlabb[[:alnum:]._/]+'  # qtlabb headers
+    Priority: 2
+  - Regex: '<Q[[:alnum:].]+>'  # Qt headers
+    Priority: 3
+  - Regex: '^<sila_cpp[[:alnum:]._/]+'  # sila_cpp headers
+    Priority: 4
+  - Regex: '<[[:alnum:]._/]+\.h>'  # other headers
+    Priority: 5
+  - Regex: '<[[:alnum:]._/]+>'  # system headers
+    Priority: 6
+  - Regex: '.*'
+    Priority: 7
+
+IncludeIsMainRegex: '(_p)?$'
+
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+IndentWrappedFunctionNames: false
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+NamespaceIndentation: None
+
+PenaltyBreakAssignment: 20
+PenaltyBreakBeforeFirstCallParameter: 15
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 5
+# PenaltyBreakOpenParenthesis: 30
+PenaltyBreakString: 150
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 100
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 150
+
+PointerAlignment: Left
+ReflowComments: true
+
+SortIncludes: CaseSensitive
+SortUsingDeclarations: true
+
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+
+SpacesBeforeTrailingComments: 2
+SpacesInAngles: Never
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+Standard: c++17
+
+StatementMacros: [ 'Q_UNUSED', 'PIMPL_D', 'PIMPL_Q', 'OD_ENTRY', 'OD_ENTRY_PROCIMG' ]
+
+TabWidth: 4
+UseTab: Never

@@ -1,4 +1,6 @@
 %Module(name=PyQtAds, call_super_init=True, keyword_arguments="Optional", use_limited_api=True)
+%HideNamespace(name=ads)
+
 %Import QtCore/QtCoremod.sip
 %DefaultSupertype sip.simplewrapper
 

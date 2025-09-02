@@ -22,8 +22,10 @@ public:
 	CDockOverlay(QWidget* parent /TransferThis/, eMode Mode = ads::CDockOverlay::ModeDockAreaOverlay);
 	virtual ~CDockOverlay();
 	void setAllowedAreas(ads::DockWidgetAreas areas);
+    void setAllowedArea(ads::DockWidgetArea area, bool Enable);
 	ads::DockWidgetAreas allowedAreas() const;
 	ads::DockWidgetArea dropAreaUnderCursor() const;
+    int tabIndexUnderCursor() const;
     ads::DockWidgetArea visibleDropAreaUnderCursor() const;
 	ads::DockWidgetArea showOverlay(QWidget* target);
 	void hideOverlay();

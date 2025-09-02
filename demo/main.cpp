@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 #endif
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 	std::shared_ptr<int> b;
 	QApplication a(argc, argv);
 	a.setApplicationName("Advanced Docking System Demo");
