@@ -21,7 +21,7 @@ PerspectivesManager::PerspectivesManager( const QString& perspectivesFolder ) :
 PerspectivesManager::~PerspectivesManager()
 {
     // remove temp files:
-    for ( auto perspective : m_perspectives )
+    for (auto& perspective : m_perspectives)
     {
         QString fileName = perspective.settings->fileName();
         perspective.settings.reset();
@@ -82,31 +82,38 @@ void PerspectivesManager::openPerspective( const QString& name, DockInDockWidget
             if ( widget.canCreateNewGroups() )
             {
                 auto curGroups = widget.getManager()->allManagers(true,true);
-                for ( auto group : m_perspectives[name].groups.keys() )
+
+                auto groups = m_perspectives[name].groups;
+                for (auto pgroup = groups.keyBegin(); pgroup != groups.keyEnd();
+                     pgroup++)
                 {
+                    auto group = *pgroup;
                     bool found = false;
-                    for ( auto curgroup : curGroups )
+                    for (auto curgroup : curGroups)
                     {
-                        if ( curgroup->getPersistGroupName() == group )
+                        if (curgroup->getPersistGroupName() == group)
                         {
                             found = true;
                             break;
                         }
                     }
-                    if ( !found )
+                    if (!found)
                     {
-                        group = DockInDockManager::getGroupNameFromPersistGroupName( group );
+                        group =
+                            DockInDockManager::getGroupNameFromPersistGroupName(
+                                group);
 
                         // restore group in file but not in GUI yet
                         ads::CDockAreaWidget* insertPos = NULL;
-                        widget.createGroup( group, insertPos );
+                        widget.createGroup(group, insertPos);
                     }
                 }
 
-                curGroups = widget.getManager()->allManagers(false,true);
+                curGroups = widget.getManager()->allManagers(false, true);
                 for ( auto curgroup : curGroups )
                 {
-                    if ( !m_perspectives[name].groups.keys().contains( curgroup->getPersistGroupName() ) )
+                    if (!m_perspectives[name].groups.contains(
+                            curgroup->getPersistGroupName()))
                     {
                         widget.destroyGroup( &curgroup->parent() );
                     }
@@ -114,27 +121,34 @@ void PerspectivesManager::openPerspective( const QString& name, DockInDockWidget
             }
 
             auto managers = widget.getManager()->allManagers(true,true);
-            for ( auto group : m_perspectives[name].groups.keys() )
+            auto groups = m_perspectives[name].groups;
+            for (auto pgroup = groups.keyBegin(); pgroup != groups.keyEnd();
+                 pgroup++)
             {
-                for ( auto mgr : managers )
+                auto group = *pgroup;
+                for (auto mgr : managers)
                 {
-                    if ( mgr->getPersistGroupName() == group )
+                    if (mgr->getPersistGroupName() == group)
                     {
-                        for ( QString widgetName : m_perspectives[name].groups[group] )
+                        for (auto& widgetName :
+                             m_perspectives[name].groups[group])
                         {
-                            ads::CDockWidget* widget = findWidget( widgetName, { mgr } );
-                            if ( widget )
+                            ads::CDockWidget* widget =
+                                findWidget(widgetName, {mgr});
+                            if (widget)
                             {
                                 // OK, widget is already in the good manager!
                             }
                             else
                             {
-                                widget = findWidget( widgetName, managers );
-                                if ( widget )
+                                widget = findWidget(widgetName, managers);
+                                if (widget)
                                 {
-                                    // move dock widget in the same group as it used to be when perspective was saved
-                                    // this guarantee load/open perspectives will work smartly
-                                    MoveDockWidgetAction::move( widget, mgr );
+                                    // move dock widget in the same group as it
+                                    // used to be when perspective was saved this
+                                    // guarantee load/open perspectives will work
+                                    // smartly
+                                    MoveDockWidgetAction::move(widget, mgr);
                                 }
                             }
                         }
@@ -219,7 +233,7 @@ void PerspectivesManager::loadPerspectives()
 
                 // load group info:
                 mainSettings->beginGroup(GROUP_PREFIX);
-                for (const auto& key : mainSettings->allKeys())
+                for (auto& key : mainSettings->allKeys())
                 {
                     m_perspectives[perspective].groups[key] = mainSettings->value( key ).toStringList();
                 }
@@ -246,23 +260,36 @@ void PerspectivesManager::savePerspectives() const
         // Save list of perspective and group organization
         mainSettings->beginWriteArray("Perspectives", m_perspectives.size());
         int i = 0;
-        for ( auto perspective : m_perspectives.keys() )
+
+        for (auto pperspective = m_perspectives.keyBegin();
+             pperspective != m_perspectives.keyEnd(); pperspective++)
         {
+            auto perspective = *pperspective;
+
             mainSettings->setArrayIndex(i);
             mainSettings->setValue("Name", perspective);
             mainSettings->beginGroup(GROUP_PREFIX);
-            for ( auto group : m_perspectives[perspective].groups.keys() )
+
+            auto groups = m_perspectives[perspective].groups;
+            for (auto pgroup = groups.keyBegin(); pgroup != groups.keyEnd();
+                 pgroup++)
             {
-                mainSettings->setValue( group, m_perspectives[perspective].groups[group] );
+                auto group = *pgroup;
+                mainSettings->setValue(group,
+                                       m_perspectives[perspective].groups[group]);
             }
+
             mainSettings->endGroup();
             ++i;
         }
+
         mainSettings->endArray();
 
         // Save perspectives themselves
-        for ( auto perspectiveName : m_perspectives.keys() )
+        for (auto pname = m_perspectives.keyBegin();
+             pname != m_perspectives.keyEnd(); pname++)
         {
+            auto perspectiveName = *pname;
             auto toSave = getSettingsFileName( perspectiveName, false );
             QSettings& settings = *(m_perspectives[perspectiveName].settings);
             settings.sync();

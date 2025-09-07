@@ -53,9 +53,10 @@ namespace internal
 const int FloatingWidgetDragStartEvent = QEvent::registerEventType();
 const int DockedWidgetDragStartEvent = QEvent::registerEventType();
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-static QString _window_manager;
-static QHash<QString, xcb_atom_t> _xcb_atom_cache;
 
+Q_GLOBAL_STATIC(QString, _window_manager);
+using ATOMIC_CACHE = QHash<QString, xcb_atom_t>;
+Q_GLOBAL_STATIC(ATOMIC_CACHE, _xcb_atom_cache);
 
 //============================================================================
  bool is_platform_x11()
@@ -86,14 +87,16 @@ xcb_atom_t xcb_get_atom(const char *name)
 		return XCB_ATOM_NONE;
 	}
 	auto key = QString(name);
-	if(_xcb_atom_cache.contains(key))
-	{
-		return _xcb_atom_cache[key];
-	}
-	xcb_connection_t *connection = x11_connection();
-	xcb_intern_atom_cookie_t request = xcb_intern_atom(connection, 1, strlen(name), name);
-	xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, request, nullptr);
-	if (!reply)
+    if (_xcb_atom_cache->contains(key))
+    {
+        return _xcb_atom_cache->value(key);
+    }
+    xcb_connection_t* connection = x11_connection();
+    xcb_intern_atom_cookie_t request =
+        xcb_intern_atom(connection, 1, strlen(name), name);
+    xcb_intern_atom_reply_t* reply =
+        xcb_intern_atom_reply(connection, request, nullptr);
+    if (!reply)
 	{
 		return XCB_ATOM_NONE;
 	}
@@ -104,10 +107,10 @@ xcb_atom_t xcb_get_atom(const char *name)
 	}
 	else
 	{
-		_xcb_atom_cache.insert(key, atom);
-	}
-	free(reply);
-	return atom;
+        _xcb_atom_cache->insert(key, atom);
+    }
+    free(reply);
+    return atom;
 }
 
 
@@ -213,14 +216,14 @@ bool xcb_dump_props(WId window, const char *type)
 	xcb_get_prop_list(window, type, atoms, XCB_ATOM_ATOM);
 	qDebug() << "\n\n!!!" << type << "  -  " << atoms.length();
 	xcb_connection_t *connection = x11_connection();
-	for (auto atom : atoms)
-	{
-		auto foo = xcb_get_atom_name(connection, atom);
-		auto bar = xcb_get_atom_name_reply(connection, foo, nullptr);
-		qDebug() << "\t" << xcb_get_atom_name_name(bar);
-		free(bar);
-	}
-	return true;
+    for (auto& atom : atoms)
+    {
+        auto foo = xcb_get_atom_name(connection, atom);
+        auto bar = xcb_get_atom_name_reply(connection, foo, nullptr);
+        qDebug() << "\t" << xcb_get_atom_name_name(bar);
+        free(bar);
+    }
+    return true;
 }
 
 
@@ -299,11 +302,11 @@ QString detectWindowManagerX11()
 //============================================================================
 QString windowManager()
 {
-	if(_window_manager.length() == 0)
-	{
-		_window_manager = detectWindowManagerX11();
-	}
-	return _window_manager;
+    if (_window_manager->length() == 0)
+    {
+        *_window_manager = detectWindowManagerX11();
+    }
+    return *_window_manager;
 }
 #endif
 
@@ -442,11 +445,11 @@ void repolishStyle(QWidget* w, eRepolishChildOptions Options)
 
 	QList<QWidget*> Children = w->findChildren<QWidget*>(QString(),
 		(RepolishDirectChildren == Options) ? Qt::FindDirectChildrenOnly: Qt::FindChildrenRecursively);
-	for (auto Widget : Children)
-	{
-		Widget->style()->unpolish(Widget);
-		Widget->style()->polish(Widget);
-	}
+    for (auto& Widget : Children)
+    {
+        Widget->style()->unpolish(Widget);
+        Widget->style()->polish(Widget);
+    }
 }
 
 

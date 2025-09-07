@@ -677,14 +677,14 @@ public Q_SLOTS:
 	 * Sets the dock widget into auto hide mode if this feature is enabled
 	 * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
 	 */
-	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone, int TabIndex = -1);
+    void setAutoHide(bool Enable, ads::SideBarLocation Location = SideBarNone,
+                     int TabIndex = -1);
 
-	/**
+    /**
 	 * Switches the dock widget to auto hide mode or vice versa depending on its
 	 * current state.
 	 */
-	void toggleAutoHide(SideBarLocation Location = SideBarNone);
-
+    void toggleAutoHide(ads::SideBarLocation Location = SideBarNone);
 
 Q_SIGNALS:
     /**

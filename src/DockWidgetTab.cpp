@@ -169,19 +169,17 @@ struct DockWidgetTabPrivate
 		else
 		{
 			auto w = new CFloatingDragPreview(Widget);
-			_this->connect(w, &CFloatingDragPreview::draggingCanceled, [this]()
-			{
-				DragState = DraggingInactive;
-			});
-			return w;
-		}
-	}
+            QObject::connect(w, &CFloatingDragPreview::draggingCanceled, _this,
+                             [this]() { DragState = DraggingInactive; });
+            return w;
+        }
+    }
 
-	/**
-	 * Saves the drag start position in global and local coordinates
-	 */
-	void saveDragStartMousePosition(const QPoint& GlobalPos)
-	{
+    /**
+     * Saves the drag start position in global and local coordinates
+     */
+    void saveDragStartMousePosition(const QPoint& GlobalPos)
+    {
 		GlobalDragStartMousePosition = GlobalPos;
 		DragStartMousePosition = _this->mapFromGlobal(GlobalPos);
 	}
@@ -254,22 +252,24 @@ void DockWidgetTabPrivate::createLayout()
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
-	_this->connect(TitleLabel, SIGNAL(elidedChanged(bool)), SIGNAL(elidedChanged(bool)));
+    QObject::connect(TitleLabel, &tTabLabel::elidedChanged, _this,
+                     &CDockWidgetTab::elidedChanged);
 
-
-	CloseButton = createCloseButton();
-	CloseButton->setObjectName("tabCloseButton");
-	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, TabCloseIcon);
+    CloseButton = createCloseButton();
+    CloseButton->setObjectName("tabCloseButton");
+    internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton,
+                            TabCloseIcon);
     CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     CloseButton->setFocusPolicy(Qt::NoFocus);
     updateCloseButtonSizePolicy();
 	internal::setToolTip(CloseButton, QObject::tr("Close Tab"));
-	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
+    QObject::connect(CloseButton, &QAbstractButton::clicked, _this,
+                     &CDockWidgetTab::closeRequested);
 
-	QFontMetrics fm(TitleLabel->font());
-	int Spacing = qRound(fm.height() / 4.0);
+    QFontMetrics fm(TitleLabel->font());
+    int Spacing = qRound(fm.height() / 4.0);
 
-	// Fill the layout
+    // Fill the layout
 	QBoxLayout* Layout = new QBoxLayout(QBoxLayout::LeftToRight);
 	Layout->setContentsMargins(2 * Spacing,0,0,0);
 	Layout->setSpacing(0);
@@ -834,8 +834,12 @@ QSize CDockWidgetTab::iconSize() const
 //============================================================================
 void CDockWidgetTab::setIconSize(const QSize& Size)
 {
-	d->IconSize = Size;
-	d->updateIcon();
+    if (d->IconSize != Size)
+    {
+        d->IconSize = Size;
+        d->updateIcon();
+        Q_EMIT iconSizeChanged();
+    }
 }
 
 } // namespace ads

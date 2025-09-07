@@ -311,7 +311,11 @@ void CResizeHandle::setMaxResizeSize(int MaxSize)
 //============================================================================
 void CResizeHandle::setOpaqueResize(bool opaque)
 {
-	d->OpaqueResize = opaque;
+    if (d->OpaqueResize != opaque)
+    {
+        d->OpaqueResize = opaque;
+        Q_EMIT opaqueResizeChanged();
+    }
 }
 
 

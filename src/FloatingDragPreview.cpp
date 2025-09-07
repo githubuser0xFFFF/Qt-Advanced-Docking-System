@@ -10,7 +10,6 @@
 //============================================================================
 #include <AutoHideDockContainer.h>
 #include "FloatingDragPreview.h"
-#include <iostream>
 
 #include <QEvent>
 #include <QApplication>
@@ -310,12 +309,12 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 		Content->render(&d->ContentPreviewPixmap);
 	}
 
-	connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
-		SLOT(onApplicationStateChanged(Qt::ApplicationState)));
+    connect(qApp, &QApplication::applicationStateChanged, this,
+            &CFloatingDragPreview::onApplicationStateChanged);
 
-	// The only safe way to receive escape key presses is to install an event
-	// filter for the application object
-	qApp->installEventFilter(this);
+    // The only safe way to receive escape key presses is to install an event
+    // filter for the application object
+    qApp->installEventFilter(this);
 }
 
 
@@ -489,10 +488,10 @@ void CFloatingDragPreview::onApplicationStateChanged(Qt::ApplicationState state)
 {
 	if (state != Qt::ApplicationActive)
 	{
-		disconnect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)),
-			this, SLOT(onApplicationStateChanged(Qt::ApplicationState)));
-		d->cancelDragging();
-	}
+        disconnect(qApp, &QApplication::applicationStateChanged, this,
+                   &CFloatingDragPreview::onApplicationStateChanged);
+        d->cancelDragging();
+    }
 }
 
 

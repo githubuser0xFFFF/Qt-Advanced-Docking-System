@@ -11,8 +11,6 @@
 #include <AutoHideTab.h>
 #include "DockComponentsFactory.h"
 
-#include <memory>
-
 #include "DockWidgetTab.h"
 #include "DockAreaTabBar.h"
 #include "DockAreaTitleBar.h"
@@ -22,8 +20,8 @@
 namespace ads
 {
 
-static QSharedPointer<ads::CDockComponentsFactory> DefaultFactory;
-
+using FACTORY_SHAREDPOINTER = QSharedPointer<ads::CDockComponentsFactory>;
+Q_GLOBAL_STATIC(FACTORY_SHAREDPOINTER, DefaultFactory);
 
 //============================================================================
 CDockWidgetTab* CDockComponentsFactory::createDockWidgetTab(CDockWidget* DockWidget) const
@@ -55,25 +53,25 @@ CDockAreaTitleBar* CDockComponentsFactory::createDockAreaTitleBar(CDockAreaWidge
 //============================================================================
 QSharedPointer<ads::CDockComponentsFactory> CDockComponentsFactory::factory()
 {
-	if (!DefaultFactory)
-	{
-		DefaultFactory.reset(new CDockComponentsFactory());
-	}
-	return DefaultFactory;
+    if (DefaultFactory->isNull())
+    {
+        DefaultFactory->reset(new CDockComponentsFactory());
+    }
+    return *DefaultFactory;
 }
 
 
 //============================================================================
 void CDockComponentsFactory::setFactory(CDockComponentsFactory* Factory)
 {
-	DefaultFactory.reset(Factory);
+    DefaultFactory->reset(Factory);
 }
 
 
 //============================================================================
 void CDockComponentsFactory::resetDefaultFactory()
 {
-	DefaultFactory.reset(new CDockComponentsFactory());
+    DefaultFactory->reset(new CDockComponentsFactory());
 }
 
 } // namespace ads

@@ -40,13 +40,9 @@
 
 #include "FloatingDockContainer.h"
 #include "DockAreaWidget.h"
-#include "DockOverlay.h"
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockWidgetTab.h"
-
-#include <iostream>
-
 
 namespace ads
 {
@@ -197,12 +193,16 @@ int CDockAreaTabBar::count() const
 void CDockAreaTabBar::insertTab(int Index, CDockWidgetTab* Tab)
 {
 	d->TabsLayout->insertWidget(Index, Tab);
-	connect(Tab, SIGNAL(clicked()), this, SLOT(onTabClicked()));
-	connect(Tab, SIGNAL(closeRequested()), this, SLOT(onTabCloseRequested()));
-	connect(Tab, SIGNAL(closeOtherTabsRequested()), this, SLOT(onCloseOtherTabsRequested()));
-	connect(Tab, SIGNAL(moved(QPoint)), this, SLOT(onTabWidgetMoved(QPoint)));
-	connect(Tab, SIGNAL(elidedChanged(bool)), this, SIGNAL(elidedChanged(bool)));
-	Tab->installEventFilter(this);
+    connect(Tab, &CDockWidgetTab::clicked, this, &CDockAreaTabBar::onTabClicked);
+    connect(Tab, &CDockWidgetTab::closeRequested, this,
+            &CDockAreaTabBar::onTabCloseRequested);
+    connect(Tab, &CDockWidgetTab::closeOtherTabsRequested, this,
+            &CDockAreaTabBar::onCloseOtherTabsRequested);
+    connect(Tab, &CDockWidgetTab::moved, this,
+            &CDockAreaTabBar::onTabWidgetMoved);
+    connect(Tab, &CDockWidgetTab::elidedChanged, this,
+            &CDockAreaTabBar::elidedChanged);
+    Tab->installEventFilter(this);
 	Q_EMIT tabInserted(Index);
     if (Index <= d->CurrentIndex)
 	{

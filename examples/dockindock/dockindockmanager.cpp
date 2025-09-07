@@ -230,7 +230,7 @@ std::vector<ads::CDockWidget*> DockInDockManager::getWidgetsInGUIOrder() const
     result.reserve( dockWidgetsMap().size() );
     for ( int i = 0; i != dockAreaCount(); ++i )
     {
-        for ( auto widget : dockArea(i)->dockWidgets() )
+        for (auto& widget : dockArea(i)->dockWidgets())
             result.push_back( widget );
     }
     return result;

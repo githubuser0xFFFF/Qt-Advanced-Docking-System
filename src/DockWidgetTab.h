@@ -53,7 +53,8 @@ class ADS_EXPORT CDockWidgetTab : public QFrame
 {
 	Q_OBJECT
 	Q_PROPERTY(bool activeTab READ isActiveTab WRITE setActiveTab NOTIFY activeTabChanged)
-	Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(
+        QSize iconSize READ iconSize WRITE setIconSize NOTIFY iconSizeChanged)
 
 private:
 	DockWidgetTabPrivate* d; ///< private data (pimpl)
@@ -205,8 +206,9 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 	void activeTabChanged();
-	void clicked();
-	void closeRequested();
+    void iconSizeChanged();
+    void clicked();
+    void closeRequested();
 	void closeOtherTabsRequested();
 	void moved(const QPoint& GlobalPos);
 	void elidedChanged(bool elided);

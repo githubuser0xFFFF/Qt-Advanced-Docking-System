@@ -139,12 +139,10 @@ struct AutoHideTabPrivate
 	IFloatingWidget* createFloatingWidget(T* Widget)
 	{
 		auto w = new CFloatingDragPreview(Widget);
-		_this->connect(w, &CFloatingDragPreview::draggingCanceled, [this]()
-		{
-			DragState = DraggingInactive;
-		});
-		return w;
-	}
+        QObject::connect(w, &CFloatingDragPreview::draggingCanceled, _this,
+                         [this]() { DragState = DraggingInactive; });
+        return w;
+    }
 }; // struct DockWidgetTabPrivate
 
 

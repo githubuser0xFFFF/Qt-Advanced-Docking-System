@@ -93,11 +93,11 @@ void CMainWindow::createPerspectiveUi()
 	PerspectiveComboBox = new QComboBox(this);
 	PerspectiveComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	PerspectiveComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	connect(PerspectiveComboBox, SIGNAL(currentTextChanged(const QString&)),
-		DockManager, SLOT(openPerspective(const QString&)));
-	PerspectiveListAction->setDefaultWidget(PerspectiveComboBox);
-	ui->toolBar->addSeparator();
-	ui->toolBar->addAction(PerspectiveListAction);
+    connect(PerspectiveComboBox, &QComboBox::currentTextChanged, DockManager,
+            &ads::CDockManager::openPerspective);
+    PerspectiveListAction->setDefaultWidget(PerspectiveComboBox);
+    ui->toolBar->addSeparator();
+    ui->toolBar->addAction(PerspectiveListAction);
 	ui->toolBar->addAction(SavePerspectiveAction);
 }
 

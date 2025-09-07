@@ -28,8 +28,6 @@
 //============================================================================
 #include "FloatingWidgetTitleBar.h"
 
-#include <iostream>
-
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QToolButton>
@@ -104,18 +102,20 @@ void FloatingWidgetTitleBarPrivate::createLayout()
 	CloseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	CloseButton->setVisible(true);
 	CloseButton->setFocusPolicy(Qt::NoFocus);
-	_this->connect(CloseButton, SIGNAL(clicked()), SIGNAL(closeRequested()));
+    QObject::connect(CloseButton, &tCloseButton::clicked, _this,
+                     &CFloatingWidgetTitleBar::closeRequested);
 
-	_this->setMaximizedIcon(false);
-	MaximizeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	MaximizeButton->setVisible(true);
-	MaximizeButton->setFocusPolicy(Qt::NoFocus);
-	_this->connect(MaximizeButton, &QPushButton::clicked, _this, &CFloatingWidgetTitleBar::maximizeRequested);
+    _this->setMaximizedIcon(false);
+    MaximizeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    MaximizeButton->setVisible(true);
+    MaximizeButton->setFocusPolicy(Qt::NoFocus);
+    QObject::connect(MaximizeButton, &QPushButton::clicked, _this,
+                     &CFloatingWidgetTitleBar::maximizeRequested);
 
-	QFontMetrics fm(TitleLabel->font());
-	int Spacing = qRound(fm.height() / 4.0);
+    QFontMetrics fm(TitleLabel->font());
+    int Spacing = qRound(fm.height() / 4.0);
 
-	// Fill the layout
+    // Fill the layout
 	QBoxLayout *Layout = new QBoxLayout(QBoxLayout::LeftToRight);
 	Layout->setContentsMargins(6, 0, 0, 0);
 	Layout->setSpacing(0);
