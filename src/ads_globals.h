@@ -152,14 +152,12 @@ enum eBitwiseOperator
  */
 enum SideBarLocation
 {
-	SideBarTop,
-	SideBarLeft,
-	SideBarRight,
-	SideBarBottom,
-	SideBarNone
+    SideBarTop,
+    SideBarLeft,
+    SideBarRight,
+    SideBarBottom,
+    SideBarNone
 };
-Q_ENUMS(SideBarLocation)
-
 
 namespace internal
 {

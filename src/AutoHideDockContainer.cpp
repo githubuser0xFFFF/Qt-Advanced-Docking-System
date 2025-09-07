@@ -44,9 +44,6 @@
 #include "AutoHideSideBar.h"
 #include "AutoHideTab.h"
 
-
-#include <iostream>
-
 namespace ads
 {
 static const int ResizeMargin = 30;

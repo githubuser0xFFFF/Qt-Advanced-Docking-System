@@ -24,7 +24,8 @@ class ADS_EXPORT CResizeHandle : public QFrame
 {
 	Q_OBJECT
 	Q_DISABLE_COPY(CResizeHandle)
-    Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize)
+    Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize NOTIFY
+                   opaqueResizeChanged)
 private:
 	ResizeHandlePrivate* d; ///< private data (pimpl)
 	friend struct ResizeHandlePrivate;
@@ -96,6 +97,9 @@ public:
 	 * interactively moving the resize handle. Otherwise returns false.
 	 */
 	bool opaqueResize() const;
+
+Q_SIGNALS:
+    void opaqueResizeChanged();
 }; // class name
 } // namespace ads
 //-----------------------------------------------------------------------------

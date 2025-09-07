@@ -34,8 +34,6 @@
 #include "DockWidgetTab.h"
 #include "DockWidget.h"
 
-#include <iostream>
-
 #include <QBoxLayout>
 #include <QAction>
 #include <QSplitter>
@@ -287,16 +285,16 @@ void DockWidgetPrivate::closeAutoHideDockWidgetsIfNeeded()
 		return;
 	}
 
-	for (auto autoHideWidget : DockContainer->autoHideWidgets())
-	{
-		auto DockWidget = autoHideWidget->dockWidget();
-		if (DockWidget == _this)
-		{
-			continue;
-		}
+    for (auto& autoHideWidget : DockContainer->autoHideWidgets())
+    {
+        auto DockWidget = autoHideWidget->dockWidget();
+        if (DockWidget == _this)
+        {
+            continue;
+        }
 
-		DockWidget->toggleView(false);
-	}
+        DockWidget->toggleView(false);
+    }
 }
 
 
@@ -309,7 +307,8 @@ void DockWidgetPrivate::setupToolBar()
 	ToolBar->setIconSize(QSize(16, 16));
 	ToolBar->toggleViewAction()->setEnabled(false);
 	ToolBar->toggleViewAction()->setVisible(false);
-	_this->connect(_this, SIGNAL(topLevelChanged(bool)), SLOT(setToolbarFloatingStyle(bool)));
+    QObject::connect(_this, &CDockWidget::topLevelChanged, _this,
+                     &CDockWidget::setToolbarFloatingStyle);
 }
 
 
@@ -388,12 +387,12 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
-	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
-		SLOT(toggleView(bool)));
-	setToolbarFloatingStyle(false);
+    connect(d->ToggleViewAction, &QAction::triggered, this,
+            &CDockWidget::toggleView);
+    setToolbarFloatingStyle(false);
 
-	if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
-	{
+    if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
+    {
 		setFocusPolicy(Qt::ClickFocus);
 	}
 }
@@ -971,8 +970,9 @@ void CDockWidget::setToolBar(QToolBar* ToolBar)
 
 	d->ToolBar = ToolBar;
 	d->Layout->insertWidget(0, d->ToolBar);
-	this->connect(this, SIGNAL(topLevelChanged(bool)), SLOT(setToolbarFloatingStyle(bool)));
-	setToolbarFloatingStyle(isFloating());
+    connect(this, &CDockWidget::topLevelChanged, this,
+            &CDockWidget::setToolbarFloatingStyle);
+    setToolbarFloatingStyle(isFloating());
 }
 
 

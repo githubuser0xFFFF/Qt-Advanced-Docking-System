@@ -91,11 +91,12 @@ private Q_SLOTS:
 	 */
 	void updateTitleBarButtonsToolTips();
 
-	/**
+private:
+    /**
 	 * Calculate the auto hide side bar location depending on the dock area
 	 * widget position in the container
 	 */
-	SideBarLocation calculateSideTabBarArea() const;
+    ads::SideBarLocation calculateSideTabBarArea() const;
 
 protected:
 
@@ -407,13 +408,14 @@ public Q_SLOTS:
 	 * If the dock area is switched to auto hide mode, then all dock widgets
 	 * that are pinable will be added to the sidebar
 	 */
-	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone, int TabIndex = -1);
+    void setAutoHide(bool Enable, ads::SideBarLocation Location = SideBarNone,
+                     int TabIndex = -1);
 
-	/**
+    /**
 	 * Switches the dock area to auto hide mode or vice versa depending on its
 	 * current state.
 	 */
-	void toggleAutoHide(SideBarLocation Location = SideBarNone);
+    void toggleAutoHide(ads::SideBarLocation Location = SideBarNone);
 
     /**
 	 * This function closes all other areas except of this area

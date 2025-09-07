@@ -28,8 +28,6 @@
 //============================================================================
 #include "FloatingDockContainer.h"
 
-#include <iostream>
-
 #include <QBoxLayout>
 #include <QApplication>
 #include <QMouseEvent>
@@ -655,10 +653,10 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 {
 	d->DockManager = DockManager;
 	d->DockContainer = new CDockContainerWidget(DockManager, this);
-	connect(d->DockContainer, SIGNAL(dockAreasAdded()), this,
-	    SLOT(onDockAreasAddedOrRemoved()));
-	connect(d->DockContainer, SIGNAL(dockAreasRemoved()), this,
-	    SLOT(onDockAreasAddedOrRemoved()));
+    connect(d->DockContainer, &CDockContainerWidget::dockAreasAdded, this,
+            &CFloatingDockContainer::onDockAreasAddedOrRemoved);
+    connect(d->DockContainer, &CDockContainerWidget::dockAreasRemoved, this,
+            &CFloatingDockContainer::onDockAreasAddedOrRemoved);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 	QDockWidget::setWidget(d->DockContainer);
@@ -714,10 +712,11 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 		setTitleBarWidget(d->TitleBar);
 		setWindowFlags(Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::FramelessWindowHint);
 		d->TitleBar->enableCloseButton(isClosable());
-		connect(d->TitleBar, SIGNAL(closeRequested()), SLOT(close()));
-		connect(d->TitleBar, &CFloatingWidgetTitleBar::maximizeRequested,
-				this, &CFloatingDockContainer::onMaximizeRequest);
-	}
+        connect(d->TitleBar, &CFloatingWidgetTitleBar::closeRequested, this,
+                &CFloatingDockContainer::close);
+        connect(d->TitleBar, &CFloatingWidgetTitleBar::maximizeRequested, this,
+                &CFloatingDockContainer::onMaximizeRequest);
+    }
 #else
 	setWindowFlags(
 	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
@@ -781,25 +780,22 @@ void CFloatingDockContainer::deleteContent()
 	{
 		areas.push_back( dockContainer()->dockArea(i) );
 	}
-	for (auto area : areas)
-	{
-		if (!area)
-		{
-			continue;
-		}
+    for (auto& area : areas)
+    {
+        if (!area)
+        {
+            continue;
+        }
 
-		// QPointer delete safety - just in case some dock widget in destruction
-		// deletes another related/twin or child dock widget.
-		std::vector<QPointer<QWidget>> deleteWidgets;
-		for (auto widget : area->dockWidgets())
-		{
-			deleteWidgets.push_back(widget);
-		}
-		for (auto ptrWdg : deleteWidgets)
-		{
-			delete ptrWdg;
-		}
-	}
+        // QPointer delete safety - just in case some dock widget in destruction
+        // deletes another related/twin or child dock widget.
+        std::vector<QPointer<QWidget>> deleteWidgets;
+        for (auto& widget : area->dockWidgets())
+        {
+            deleteWidgets.push_back(widget);
+        }
+        qDeleteAll(deleteWidgets);
+    }
 }
 
 //============================================================================
@@ -927,37 +923,38 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 	}
 
 	bool HasOpenDockWidgets = false;
-	for (auto DockWidget : d->DockContainer->openedDockWidgets())
-	{
-		if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose) || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
-		{
-			bool Closed = DockWidget->closeDockWidgetInternal();
-			if (!Closed)
-			{
-				HasOpenDockWidgets = true;
-			}
-		}
-		else
-		{
-			DockWidget->toggleView(false);
-		}
-	}
+    for (auto& DockWidget : d->DockContainer->openedDockWidgets())
+    {
+        if (DockWidget->features().testFlag(CDockWidget::DockWidgetDeleteOnClose)
+            || DockWidget->features().testFlag(CDockWidget::CustomCloseHandling))
+        {
+            bool Closed = DockWidget->closeDockWidgetInternal();
+            if (!Closed)
+            {
+                HasOpenDockWidgets = true;
+            }
+        }
+        else
+        {
+            DockWidget->toggleView(false);
+        }
+    }
 
-	if (HasOpenDockWidgets)
-	{
-		return;
-	}
+    if (HasOpenDockWidgets)
+    {
+        return;
+    }
 
-	// In Qt version after 5.9.2 there seems to be a bug that causes the
-	// QWidget::event() function to not receive any NonClientArea mouse
-	// events anymore after a close/show cycle. The bug is reported here:
-	// https://bugreports.qt.io/browse/QTBUG-73295
-	// The following code is a workaround for Qt versions > 5.9.2 that seems
-	// to work
-	// Starting from Qt version 5.12.2 this seems to work again. But
-	// now the QEvent::NonClientAreaMouseButtonPress function returns always
-	// Qt::RightButton even if the left button was pressed
-	this->hide();
+    // In Qt version after 5.9.2 there seems to be a bug that causes the
+    // QWidget::event() function to not receive any NonClientArea mouse
+    // events anymore after a close/show cycle. The bug is reported here:
+    // https://bugreports.qt.io/browse/QTBUG-73295
+    // The following code is a workaround for Qt versions > 5.9.2 that seems
+    // to work
+    // Starting from Qt version 5.12.2 this seems to work again. But
+    // now the QEvent::NonClientAreaMouseButtonPress function returns always
+    // Qt::RightButton even if the left button was pressed
+    this->hide();
 }
 
 //============================================================================
@@ -978,15 +975,15 @@ void CFloatingDockContainer::hideEvent(QHideEvent *event)
 	if ( d->AutoHideChildren )
 	{
 		d->Hiding = true;
-		for ( auto DockArea : d->DockContainer->openedDockAreas() )
-		{
-			for ( auto DockWidget : DockArea->openedDockWidgets() )
-			{
-				DockWidget->toggleView( false );
-			}
-		}
-		d->Hiding = false;
-	}
+        for (auto& DockArea : d->DockContainer->openedDockAreas())
+        {
+            for (auto& DockWidget : DockArea->openedDockWidgets())
+            {
+                DockWidget->toggleView(false);
+            }
+        }
+        d->Hiding = false;
+    }
 }
 
 
@@ -1084,16 +1081,16 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 		d->SingleDockArea = TopLevelDockArea;
 		CDockWidget* CurrentWidget = d->SingleDockArea->currentDockWidget();
 		d->reflectCurrentWidget(CurrentWidget);
-		connect(d->SingleDockArea, SIGNAL(currentChanged(int)), this,
-		    SLOT(onDockAreaCurrentChanged(int)));
-	}
-	else
+        connect(d->SingleDockArea, &CDockAreaWidget::currentChanged, this,
+                &CFloatingDockContainer::onDockAreaCurrentChanged);
+    }
+    else
 	{
 		if (d->SingleDockArea)
 		{
-			disconnect(d->SingleDockArea, SIGNAL(currentChanged(int)), this,
-			    SLOT(onDockAreaCurrentChanged(int)));
-			d->SingleDockArea = nullptr;
+            disconnect(d->SingleDockArea, &CDockAreaWidget::currentChanged, this,
+                       &CFloatingDockContainer::onDockAreaCurrentChanged);
+            d->SingleDockArea = nullptr;
 		}
 		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
