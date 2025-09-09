@@ -109,6 +109,7 @@ set_target_properties(${library_name} PROPERTIES
     AUTORCC ON
     CXX_EXTENSIONS OFF
     VERSION ${VERSION_SHORT}
+    SOVERSION ${VERSION_SONAME}
     EXPORT_NAME ${library_name}
     DEBUG_POSTFIX "d"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
