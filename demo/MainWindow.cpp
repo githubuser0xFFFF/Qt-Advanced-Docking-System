@@ -32,8 +32,6 @@
 #include <MainWindow.h>
 #include "ui_mainwindow.h"
 
-#include <iostream>
-
 #include <QTime>
 #include <QLabel>
 #include <QTextEdit>
@@ -109,12 +107,11 @@ int randomNumberBounded(int highest)
 static QString featuresString(ads::CDockWidget* DockWidget)
 {
 	auto f = DockWidget->features();
-	return QString("c%1 m%2 f%3")
-		.arg(f.testFlag(ads::CDockWidget::DockWidgetClosable) ? "+" : "-")
-		.arg(f.testFlag(ads::CDockWidget::DockWidgetMovable) ? "+" : "-")
-		.arg(f.testFlag(ads::CDockWidget::DockWidgetFloatable) ? "+" : "-");
+    return QString("c%1 m%2 f%3")
+        .arg(f.testFlag(ads::CDockWidget::DockWidgetClosable) ? "+" : "-",
+             f.testFlag(ads::CDockWidget::DockWidgetMovable) ? "+" : "-",
+             f.testFlag(ads::CDockWidget::DockWidgetFloatable) ? "+" : "-");
 }
-
 
 /**
  * Appends the string returned by featuresString() to the window title of
@@ -396,32 +393,30 @@ struct MainWindowPrivate
 		DockWidget->setMinimumSizeHintMode(ads::CDockWidget::MinimumSizeHintFromContent);
 		auto ToolBar = DockWidget->createDefaultToolBar();
 		auto Action = ToolBar->addAction(svgIcon(":/adsdemo/images/fullscreen.svg"), "Toggle Fullscreen");
-		QObject::connect(Action, &QAction::triggered, [DockWidget]()
-			{
-				if (DockWidget->isFullScreen())
-				{
-					DockWidget->showNormal();
-				}
-				else
-				{
-					DockWidget->showFullScreen();
-				}
-			});
-		ui.menuView->addAction(DockWidget->toggleViewAction());
-		return DockWidget;
-	}
+        QObject::connect(Action, &QAction::triggered, DockWidget, [DockWidget]() {
+            if (DockWidget->isFullScreen())
+            {
+                DockWidget->showNormal();
+            }
+            else
+            {
+                DockWidget->showFullScreen();
+            }
+        });
+        ui.menuView->addAction(DockWidget->toggleViewAction());
+        return DockWidget;
+    }
 
-	/**
-	 * Create QQuickWidget for test for OpenGL and QQuick
-	 */
-	ads::CDockWidget *createQQuickWidget()
-	{
-		QQuickWidget *widget = new QQuickWidget();
-		ads::CDockWidget *dockWidget = DockManager->createDockWidget("Quick");
+    /**
+     * Create QQuickWidget for test for OpenGL and QQuick
+     */
+    ads::CDockWidget* createQQuickWidget()
+    {
+        QQuickWidget* widget = new QQuickWidget();
+        ads::CDockWidget *dockWidget = DockManager->createDockWidget("Quick");
 		dockWidget->setWidget(widget);
 		return dockWidget;
-	}
-
+    }
 
 #ifdef Q_OS_WIN
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -484,45 +479,47 @@ void MainWindowPrivate::createContent()
 	auto DockArea = DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
     // Now we create a action to test resizing of DockArea widget
 	auto Action = ui.menuTests->addAction(QString("Resize %1").arg(DockWidget->windowTitle()));
-	QObject::connect(Action, &QAction::triggered, [DockArea]()
-	{
-		// Resizing only works, if the Splitter is visible and has a valid
-		// sizes
-		auto Splitter = ads::internal::findParent<ads::CDockSplitter*>(DockArea);
-		if (!Splitter)
-		{
-			return;
-		}
-		// We change the sizes of the splitter that contains the Calendar 1 widget
+    QObject::connect(Action, &QAction::triggered, DockArea, [DockArea]() {
+        // Resizing only works, if the Splitter is visible and has a valid
+        // sizes
+        auto Splitter = ads::internal::findParent<ads::CDockSplitter*>(DockArea);
+        if (!Splitter)
+        {
+            return;
+        }
+        // We change the sizes of the splitter that contains the Calendar 1 widget
 		// to resize the dock widget
 		int Width = Splitter->width();
 		Splitter->setSizes({Width * 2/3, Width * 1/3});
-	});
-	DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
+    });
+    DockWidget->setWindowTitle(QString("My " + DockWidget->windowTitle()));
 
-	// Now we add a custom button to the dock area title bar that will create
-	// new editor widgets when clicked
-	auto CustomButton = new QToolButton(DockArea);
-	CustomButton->setToolTip(QObject::tr("Create Editor"));
-	CustomButton->setIcon(svgIcon(":/adsdemo/images/plus.svg"));
-	CustomButton->setAutoRaise(true);
+    // Now we add a custom button to the dock area title bar that will create
+    // new editor widgets when clicked
+    auto CustomButton = new QToolButton(DockArea);
+    CustomButton->setToolTip(QObject::tr("Create Editor"));
+    CustomButton->setIcon(svgIcon(":/adsdemo/images/plus.svg"));
+    CustomButton->setAutoRaise(true);
 
 	auto TitleBar = DockArea->titleBar();
 	int Index = TitleBar->indexOf(TitleBar->tabBar());
 	TitleBar->insertWidget(Index + 1, CustomButton);
-	QObject::connect(CustomButton, &QToolButton::clicked, [DockArea, this]()
-	{
-		auto DockWidget = createEditorWidget();
-		DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
-		DockManager->addDockWidgetTabToArea(DockWidget, DockArea);
-		_this->connect(DockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
-	});
+    QObject::connect(
+        CustomButton, &QToolButton::clicked, DockArea, [DockArea, this]() {
+            auto DockWidget = createEditorWidget();
+            DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose,
+                                   true);
+            DockManager->addDockWidgetTabToArea(DockWidget, DockArea);
+            _this->connect(DockWidget, SIGNAL(closeRequested()),
+                           SLOT(onEditorCloseRequested()));
+        });
 
-	// Test dock area docking
-	auto RighDockArea = DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(), TopDockArea);
-	DockWidget = createLongTextLabelDockWidget();
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
-	DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget, RighDockArea);
+    // Test dock area docking
+    auto RighDockArea = DockManager->addDockWidget(
+        ads::RightDockWidgetArea, createLongTextLabelDockWidget(), TopDockArea);
+    DockWidget = createLongTextLabelDockWidget();
+    DockWidget->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
+    DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget, RighDockArea);
 	auto BottomDockArea = DockManager->addDockWidget(ads::BottomDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, createLongTextLabelDockWidget(), RighDockArea);
 	auto LabelDockWidget = createLongTextLabelDockWidget();
@@ -531,15 +528,16 @@ void MainWindowPrivate::createContent()
 	// Tests CustomCloseHandling without DeleteOnClose
 	LabelDockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
 	LabelDockWidget->setWindowTitle(LabelDockWidget->windowTitle() + " [Custom Close]");
-	QObject::connect(LabelDockWidget, &ads::CDockWidget::closeRequested, [LabelDockWidget, this]()
-	{
-		int Result = QMessageBox::question(_this, "Custom Close Request",
-			"Do you really want to close this dock widget?");
-		if (QMessageBox::Yes == Result)
-		{
-			LabelDockWidget->closeDockWidget();
-		}
-	});
+    QObject::connect(LabelDockWidget, &ads::CDockWidget::closeRequested,
+                     LabelDockWidget, [LabelDockWidget, this]() {
+                         int Result = QMessageBox::question(
+                             _this, "Custom Close Request",
+                             "Do you really want to close this dock widget?");
+                         if (QMessageBox::Yes == Result)
+                         {
+                             LabelDockWidget->closeDockWidget();
+                         }
+                     });
 
     Action = ui.menuTests->addAction(QString("Set %1 Floating").arg(DockWidget->windowTitle()));
     DockWidget->connect(Action, SIGNAL(triggered()), SLOT(setFloating()));
@@ -565,14 +563,15 @@ void MainWindowPrivate::createContent()
 #endif
 #endif
 
-	for (auto DockWidget : DockManager->dockWidgetsMap())
-	{
-		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
-		_this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
-	}
+    for (auto& DockWidget : DockManager->dockWidgetsMap())
+    {
+        _this->connect(DockWidget, SIGNAL(viewToggled(bool)),
+                       SLOT(onViewToggled(bool)));
+        _this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
+    }
 
-	// Create image viewer
-	DockWidget = createImageViewer();
+    // Create image viewer
+    DockWidget = createImageViewer();
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 
     // Create quick widget

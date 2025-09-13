@@ -206,12 +206,12 @@ void DockInDockWidget::fillPerspectivesMenu( QMenu* menu )
     if ( !perspectiveNames.isEmpty() )
     {
         QMenu* load = menu->addMenu( "Load perspective" );
-        for (const auto& name : perspectiveNames)
+        for (const auto& name : std::as_const(perspectiveNames))
         {
             load->addAction(new LoadPerspectiveAction( load, name, *this));
         }
         QMenu* remove = menu->addMenu( "Remove perspective" );
-        for (const auto& name : perspectiveNames)
+        for (const auto& name : std::as_const(perspectiveNames))
         {
             remove->addAction( new RemovePerspectiveAction( remove, name, *this ));
         }
@@ -290,7 +290,7 @@ void DockInDockWidget::dumpStatus( std::ostream& str, std::string tab )
         ::dumpStatus( str, widget, tab, "" );
     }
 
-    for ( auto closed : getManager()->dockWidgetsMap() )
+    for (auto& closed : getManager()->dockWidgetsMap())
     {
         if ( visibleWidgets.find( closed ) == visibleWidgets.end() )
         {

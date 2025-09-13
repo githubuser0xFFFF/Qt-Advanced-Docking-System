@@ -96,7 +96,7 @@ public Q_SLOTS:
 	/**
 	 * Request a focus change to the given dock widget
 	 */
-	void setDockWidgetFocused(CDockWidget* focusedNow);
+    void setDockWidgetFocused(ads::CDockWidget* focusedNow);
 }; // class DockFocusController
 }
  // namespace ads

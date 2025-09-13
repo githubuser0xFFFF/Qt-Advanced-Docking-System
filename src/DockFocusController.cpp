@@ -11,9 +11,6 @@
 #include <AutoHideTab.h>
 #include "DockFocusController.h"
 
-#include <algorithm>
-#include <iostream>
-
 #include <QPointer>
 #include <QApplication>
 #include <QAbstractButton>
@@ -226,11 +223,12 @@ CDockFocusController::CDockFocusController(CDockManager* DockManager) :
 	d(new DockFocusControllerPrivate(this))
 {
 	d->DockManager = DockManager;
-	connect(QApplication::instance(), SIGNAL(focusChanged(QWidget*, QWidget*)),
-			this, SLOT(onApplicationFocusChanged(QWidget*, QWidget*)));
-	connect(QApplication::instance(), SIGNAL(focusWindowChanged(QWindow*)),
-			this, SLOT(onFocusWindowChanged(QWindow*)));
-	connect(d->DockManager, SIGNAL(stateRestored()), SLOT(onStateRestored()));
+    connect(qApp, &QApplication::focusChanged, this,
+            &CDockFocusController::onApplicationFocusChanged);
+    connect(qApp, &QApplication::focusWindowChanged, this,
+            &CDockFocusController::onFocusWindowChanged);
+    connect(d->DockManager, &CDockManager::stateRestored, this,
+            &CDockFocusController::onStateRestored);
 }
 
 //============================================================================
@@ -260,7 +258,8 @@ void CDockFocusController::onFocusWindowChanged(QWindow *focusWindow)
 		return;
 	}
 
-	d->updateDockWidgetFocus(DockWidget);
+    if(DockWidget->dockManager() == d->DockManager)
+        d->updateDockWidgetFocus(DockWidget);
 }
 
 
@@ -298,10 +297,11 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
     if (!DockWidget || DockWidget->tabWidget()->isHidden())
 	{
     	return;
-	}
+    }
 #endif
 
-	d->updateDockWidgetFocus(DockWidget);
+    if(DockWidget->dockManager() == d->DockManager)
+        d->updateDockWidgetFocus(DockWidget);
 }
 
 
@@ -309,7 +309,7 @@ void CDockFocusController::onApplicationFocusChanged(QWidget* focusedOld, QWidge
 void CDockFocusController::setDockWidgetTabFocused(CDockWidgetTab* Tab)
 {
 	auto DockWidget = Tab->dockWidget();
-	if (DockWidget)
+    if (DockWidget && DockWidget->dockManager() == d->DockManager)
 	{
 		d->updateDockWidgetFocus(DockWidget);
 	}
@@ -327,7 +327,8 @@ void CDockFocusController::clearDockWidgetFocus(CDockWidget* dockWidget)
 //===========================================================================
 void CDockFocusController::setDockWidgetFocused(CDockWidget* focusedNow)
 {
-	d->updateDockWidgetFocus(focusedNow);
+    if(focusedNow->dockManager() == d->DockManager)
+        d->updateDockWidgetFocus(focusedNow);
 }
 
 

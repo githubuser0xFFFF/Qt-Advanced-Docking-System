@@ -144,7 +144,10 @@ void CImageViewer::open()
     QFileDialog dialog(this, tr("Open File"));
     initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
 
-    while (dialog.exec() == QDialog::Accepted && !loadFile(dialog.selectedFiles().first())) {}
+    auto selectedFiles = dialog.selectedFiles();
+    while (dialog.exec() == QDialog::Accepted && !loadFile(selectedFiles.first()))
+    {
+    }
 }
 
 
