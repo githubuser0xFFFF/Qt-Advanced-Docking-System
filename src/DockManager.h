@@ -405,7 +405,7 @@ public:
 	 * \return Returns the dock area widget that contains the new DockWidget
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1);
+		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1, bool activate = true);
 
 	/**
 	 * Adds dockwidget into the given container.
@@ -438,7 +438,7 @@ public:
 	 * dock area widget is created.
 	 */
 	CDockAreaWidget* addDockWidgetTab(DockWidgetArea area,
-		CDockWidget* Dockwidget);
+		CDockWidget* Dockwidget, bool activate = true);
 
 	/**
 	 * This function will add the given Dockwidget to the given DockAreaWidget
@@ -447,7 +447,7 @@ public:
 	 * inserted at the specified position.
 	 */
 	CDockAreaWidget* addDockWidgetTabToArea(CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget, int Index = -1);
+		CDockAreaWidget* DockAreaWidget, int Index = -1, bool activate = true);
 
 	/**
 	 * Adds the given DockWidget floating and returns the created

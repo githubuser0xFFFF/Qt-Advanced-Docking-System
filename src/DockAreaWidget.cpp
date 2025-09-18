@@ -524,9 +524,9 @@ void CDockAreaWidget::setAutoHideDockContainer(CAutoHideDockContainer* AutoHideD
 
 
 //============================================================================
-void CDockAreaWidget::addDockWidget(CDockWidget* DockWidget)
+void CDockAreaWidget::addDockWidget(CDockWidget* DockWidget, bool activate)
 {
-	insertDockWidget(d->ContentsLayout->count(), DockWidget);
+	insertDockWidget(d->ContentsLayout->count(), DockWidget, activate);
 }
 
 

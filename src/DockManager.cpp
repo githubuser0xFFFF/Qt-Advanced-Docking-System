@@ -981,11 +981,11 @@ void CDockManager::restoreHiddenFloatingWidgets()
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidget(DockWidgetArea area,
-	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget, int Index)
+	CDockWidget* Dockwidget, CDockAreaWidget* DockAreaWidget, int Index, bool activate)
 {
 	d->DockWidgetsMap.insert(Dockwidget->objectName(), Dockwidget);
 	auto Container = DockAreaWidget ? DockAreaWidget->dockContainer() : this;
-	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget, Index);
+	auto AreaOfAddedDockWidget = Container->addDockWidget(area, Dockwidget, DockAreaWidget, Index, activate);
 	Q_EMIT dockWidgetAdded(Dockwidget);
 	return AreaOfAddedDockWidget;
 }
@@ -1021,25 +1021,25 @@ CAutoHideDockContainer* CDockManager::addAutoHideDockWidgetToContainer(SideBarLo
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidgetTab(DockWidgetArea area,
-	CDockWidget* Dockwidget)
+	CDockWidget* Dockwidget, bool activate)
 {
 	CDockAreaWidget* AreaWidget = lastAddedDockAreaWidget(area);
 	if (AreaWidget)
 	{
-		return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, AreaWidget);
+		return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, AreaWidget, activate);
 	}
 	else
 	{
-		return addDockWidget(area, Dockwidget, nullptr);
+		return addDockWidget(area, Dockwidget, nullptr, -1, activate);
 	}
 }
 
 
 //============================================================================
 CDockAreaWidget* CDockManager::addDockWidgetTabToArea(CDockWidget* Dockwidget,
-	CDockAreaWidget* DockAreaWidget, int Index)
+	CDockAreaWidget* DockAreaWidget, int Index, bool activate)
 {
-	return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, DockAreaWidget, Index);
+	return addDockWidget(ads::CenterDockWidgetArea, Dockwidget, DockAreaWidget, Index, activate);
 }
 
 
