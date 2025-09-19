@@ -507,6 +507,13 @@ CDockManager::CDockManager(QWidget *parent) :
 	CDockContainerWidget(this, parent),
 	d(new DockManagerPrivate(this))
 {
+	if(CDockManager::testConfigFlag(CDockManager::UseNativeWidgets))
+	{
+		// Force the Dock Manager to be native in order to fix wrong position of overlay
+		// the first time a dock container is dragged
+		winId();
+	}
+	
 	createRootSplitter();
 	createSideTabBarWidgets();
 	QMainWindow* MainWindow = qobject_cast<QMainWindow*>(parent);
