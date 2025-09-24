@@ -903,7 +903,16 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 void CDockAreaTitleBar::showAutoHideControls(bool Show)
 {
 	if (Show)
+	{
 		d->TabBar->setVisible(false); // Auto hide toolbar never has tabs
+	}
+	else
+	{
+		bool showTabs = true;
+		if (CDockManager::testConfigFlag(CDockManager::TabsAtBottom))
+			showTabs = CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs) || (d->DockArea && d->DockArea->openDockWidgetsCount() > 1);
+		d->TabBar->setVisible(showTabs);
+	}
 
 	d->MinimizeButton->setVisible(Show);
 	if (!CDockManager::testConfigFlag(CDockManager::TabsAtBottom))
