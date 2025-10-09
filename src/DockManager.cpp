@@ -530,7 +530,7 @@ CDockManager::CDockManager(QWidget *parent) :
 	window()->installEventFilter(this);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    connect(qApp, &QApplication::focusWindowChanged, [this](QWindow* focusWindow)
+    connect(qApp, &QApplication::focusWindowChanged, this, [this](QWindow* focusWindow)
     {
         if (!focusWindow)
         {
