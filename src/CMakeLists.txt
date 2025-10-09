@@ -92,7 +92,7 @@ target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
 
-if(QT_VERSION_MAJOR STREQUAL "6")
+if(UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6")
     target_link_libraries(${library_name} PRIVATE Qt6::GuiPrivate) #needed for <qpa/qplatformnativeinterface.h>
 endif()
 
