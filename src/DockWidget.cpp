@@ -833,6 +833,11 @@ void CDockWidget::saveState(QXmlStreamWriter& s) const
 	s.writeStartElement("Widget");
 	s.writeAttribute("Name", objectName());
 	s.writeAttribute("Closed", QString::number(d->Closed ? 1 : 0));
+	QString UserCustomProperty = property(internal::UserCustomProperty).toString();
+	if (!UserCustomProperty.isEmpty())
+	{
+		s.writeAttribute(internal::UserCustomProperty, UserCustomProperty);
+	}
 	s.writeEndElement();
 }
 

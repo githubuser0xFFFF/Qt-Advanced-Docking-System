@@ -1046,6 +1046,7 @@ bool CDockAreaWidget::restoreState(CDockingStateReader& s, CDockAreaWidget*& Cre
 		{
 			return false;
 		}
+		const QString UserCustomProperty = s.attributes().value(internal::UserCustomProperty).toString();
 
 		s.skipCurrentElement();
 		CDockWidget* DockWidget = DockManager->findDockWidget(ObjectName.toString());
@@ -1068,6 +1069,14 @@ bool CDockAreaWidget::restoreState(CDockingStateReader& s, CDockAreaWidget*& Cre
 		DockWidget->setClosedState(Closed);
 		DockWidget->setProperty(internal::ClosedProperty, Closed);
 		DockWidget->setProperty(internal::DirtyProperty, false);
+        if (!UserCustomProperty.isEmpty())
+		{
+			DockWidget->setProperty(internal::UserCustomProperty, UserCustomProperty);
+		}
+		else
+		{
+			DockWidget->setProperty(internal::UserCustomProperty, QVariant());
+		}
 	}
 
 	if (Testing)
