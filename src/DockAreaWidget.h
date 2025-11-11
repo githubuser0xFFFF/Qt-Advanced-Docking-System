@@ -199,7 +199,7 @@ public:
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CDockAreaWidget();
+	~CDockAreaWidget() override;
 
 	/**
 	 * Returns the dock manager object this dock area belongs to

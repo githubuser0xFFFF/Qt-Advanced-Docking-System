@@ -219,7 +219,7 @@ public:
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CDockContainerWidget();
+    ~CDockContainerWidget() override;
 
 	/**
 	 * Adds dockwidget into the given area.

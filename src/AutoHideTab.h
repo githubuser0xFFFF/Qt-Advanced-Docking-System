@@ -93,7 +93,7 @@ public:
 	/**
 	 * Virtual Destructor
 	 */
-	virtual ~CAutoHideTab();
+    ~CAutoHideTab() override;
 
 	/**
 	 * Update stylesheet style if a property changes
