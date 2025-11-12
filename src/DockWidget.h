@@ -289,7 +289,7 @@ public:
     /**
      * Virtual Destructor
      */
-    virtual ~CDockWidget();
+    ~CDockWidget() override;
 
     /**
      * We return a fixed minimum size hint or the size hint of the content
