@@ -290,9 +290,13 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 	}
 	else
 	{
-		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-		setAttribute(Qt::WA_NoSystemBackground);
-		setAttribute(Qt::WA_TranslucentBackground);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+        setWindowFlags(Qt::ToolTip);
+#else
+        setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+#endif
+        setAttribute(Qt::WA_NoSystemBackground);
+        setAttribute(Qt::WA_TranslucentBackground);
 	}
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
