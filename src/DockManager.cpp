@@ -41,6 +41,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QFile>
+#include <QDialog>
 #include <QAction>
 #include <QXmlStreamWriter>
 #include <QSettings>
@@ -537,8 +538,23 @@ CDockManager::CDockManager(QWidget *parent) :
             return;
         }
 
-        // bring the main application window that hosts the dock manager and all floating
-        // widgets in front of any other application
+        auto widget = QWidget::find(focusWindow->winId());
+        if (!widget)
+        {
+            return;
+        }
+
+        // If the user clicks the main window or drags a floating widget or works with a
+        // dialog, then raise the main window, all floating widgets and the focus window
+        // itself to bring it into foregreound of any other application
+        bool raise = qobject_cast<QMainWindow*>(widget)
+            || qobject_cast<QDialog*>(widget)
+            || qobject_cast<ads::CFloatingDockContainer*>(widget);
+        if (!raise)
+        {
+            return;
+        }
+
         this->raise();
         for (auto FloatingWidget : d->FloatingWidgets)
         {
