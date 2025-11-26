@@ -39,6 +39,12 @@ ads--CTitleBarButton {
 }
 
 
+#autoHideTitleLabel {
+	padding-left: 4px;
+	color: palette(foreground);
+}
+
+
 #tabsMenuButton {
         qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
         qproperty-iconSize: 16px;
@@ -84,6 +90,12 @@ ads--CDockWidgetTab QLabel {
 
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
+	color: palette(foreground);
+}
+
+
+#autoHideTitleLabel {
+	padding-left: 4px;
 	color: palette(foreground);
 }
 
@@ -314,7 +326,7 @@ ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaT
 }
 
 
-#autoHideTitleLabel {
+ads--CAutoHideDockContainer #autoHideTitleLabel {
         padding-left: 4px;
         color: palette(light);
 }

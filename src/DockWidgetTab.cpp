@@ -539,7 +539,7 @@ QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
         Menu = new QMenu(this);
     }
     
-    qDebug() << "CDockWidgetTab::buildContextMenu";
+    ADS_PRINT("CDockWidgetTab::buildContextMenu");
     const bool isFloatable = d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
     const bool isTopLevelArea = d->DockArea->isTopLevelArea();
     const bool isFloating = d->DockWidget->isFloating();

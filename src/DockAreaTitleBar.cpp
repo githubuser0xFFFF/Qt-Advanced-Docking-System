@@ -260,10 +260,10 @@ void DockAreaTitleBarPrivate::createAutoHideTitleLabel()
 {
 	AutoHideTitleLabel = new CElidingLabel("");
 	AutoHideTitleLabel->setObjectName("autoHideTitleLabel");
-	// At position 0 is the tab bar - insert behind tab bar
-	Layout->insertWidget(1, AutoHideTitleLabel);
-	AutoHideTitleLabel->setVisible(false); // Default hidden
-	Layout->insertWidget(2 ,new CSpacerWidget(_this));
+	// When the tabs are at the top, they will be at position 0, insert the label behind them, and hide it.
+	Layout->addWidget(AutoHideTitleLabel);
+	AutoHideTitleLabel->setVisible(CDockManager::testConfigFlag(CDockManager::TabsAtBottom));
+	Layout->addWidget(new CSpacerWidget(_this));
 }
 
 
@@ -272,7 +272,9 @@ void DockAreaTitleBarPrivate::createTabBar()
 {
 	TabBar = componentsFactory()->createDockAreaTabBar(DockArea);
     TabBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-	Layout->addWidget(TabBar);
+	if (!CDockManager::testConfigFlag(CDockManager::TabsAtBottom))
+		Layout->addWidget(TabBar);
+
 	_this->connect(TabBar, SIGNAL(tabClosed(int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(tabOpened(int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(tabInserted(int)), SLOT(markTabsMenuOutdated()));
@@ -351,8 +353,8 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	d->createTabBar();
-	d->createButtons();
 	d->createAutoHideTitleLabel();
+	d->createButtons();
 
     setFocusPolicy(Qt::NoFocus);
 }
@@ -900,9 +902,12 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 //============================================================================
 void CDockAreaTitleBar::showAutoHideControls(bool Show)
 {
-	d->TabBar->setVisible(!Show); // Auto hide toolbar never has tabs
+	if (Show)
+		d->TabBar->setVisible(false); // Auto hide toolbar never has tabs
+
 	d->MinimizeButton->setVisible(Show);
-	d->AutoHideTitleLabel->setVisible(Show);
+	if (!CDockManager::testConfigFlag(CDockManager::TabsAtBottom))
+		d->AutoHideTitleLabel->setVisible(Show);
 }
 
 

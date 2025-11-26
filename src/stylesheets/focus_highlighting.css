@@ -95,6 +95,10 @@ ads--CDockWidgetTab[activeTab="true"] QLabel {
 	color: palette(foreground);
 }
 
+#autoHideTitleLabel {
+	padding-left: 4px;
+	color: palette(foreground);
+}
 
 #tabCloseButton {
 	margin-top: 2px;
@@ -316,7 +320,7 @@ ads--CAutoHideDockContainer ads--CDockAreaWidget[focused="true"] ads--CDockAreaT
 }
 
 
-#autoHideTitleLabel {
+ads--CAutoHideDockContainer #autoHideTitleLabel {
 	padding-left: 4px;
 	color: palette(light);
 }
