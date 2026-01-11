@@ -516,7 +516,7 @@ If you would like to disable undocking, just clear this flag.
 
 If the flag is set, tabs will be shown at the bottom instead of in the title bar.
 
-![TabsAtBottom true](cfg_flag_TabsAtBottom.png)
+![TabsAtBottom true](cfg_flag_TabsAtBottom_true.png)
 
 ## Auto Hide Dock Widgets
 
