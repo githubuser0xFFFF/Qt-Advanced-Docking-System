@@ -738,13 +738,13 @@ ADS powers Scrutiny’s flexible interface, letting users organize views and dat
 [![Scrutiny Debugger UI](doc/showcase_scrutiny-dark.png)](https://www.youtube.com/watch?v=Dd3osxW-Clo)
 
 
-### [PySoWorks](https://pypi.org/project/pysoworks/)
+### [PiSoWorks](https://pypi.org/project/pisoworks/)
 
-PySoWorks is an application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH.
+PiSoWorks is an application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH.
 
 ![LabPlot](doc/showcase_pysoworks.png)
 
-[read more...](https://piezosystemjena.github.io/PySoWorks/)
+[read more...](https://piezosystemjena.github.io/PiSoWorks/)
 
 ## Alternative Docking System Implementations
 
