@@ -26,7 +26,11 @@ integrated development environments (IDEs) such as Visual Studio.
 
 #### Tabs at Bottom
 
-A new global dock manager flag `TabsAtBottom` has been added to configuration flags.
+A new global dock manager flag `TabsAtBottom` has been added to configuration flags. This flag allows to configure if the tabs of dock areas are shown at the top (default) or at the bottom of the respective container.
+
+If the flag is set, tabs will be shown at the bottom instead of in the title bar.
+
+![TabsAtBottom true](doc/cfg_flag_TabsAtBottom_true.png)
 
 ### Release 4.1
 
@@ -149,6 +153,9 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+  - [Release 4.5](#release-45)
+    - [Tabs at Bottom](#tabs-at-bottom)
+  - [Release 4.1](#release-41)
     - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
     - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
     - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
@@ -201,7 +208,7 @@ know it from Visual Studio.
   - [DREAM3D-NX](#dream3d-nx)
   - [LabPlot](#labplot)
   - [Scrutiny Debugger](#scrutiny-debugger)
-  - [PySoWorks](#pysoworks)
+  - [PiSoWorks](#pisoworks)
 - [Alternative Docking System Implementations](#alternative-docking-system-implementations)
   - [KDDockWidgets](#kddockwidgets)
   - [QtitanDocking](#qtitandocking)
