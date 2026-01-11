@@ -387,7 +387,7 @@ The library supports **Qt5** and **Qt6**.
 
 ### Windows
 
-Windows 10 / 11 [![Build status](https://ci.appveyor.com/api/projects/status/qcfb3cy932jw9mpy/branch/master?svg=true)](https://ci.appveyor.com/project/githubuser0xFFFF/qt-advanced-docking-system/branch/master)
+Windows 10 / 11 
 [![windows-builds](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml/badge.svg?branch=master)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/actions/workflows/windows-cmake.yml)
 
 The library was developed on and for Windows. It is used in a commercial Windows application and is therefore constantly tested.
