@@ -1574,7 +1574,10 @@ void CDockContainerWidget::removeDockArea(CDockAreaWidget* area)
 
 	// Remove are from parent splitter and recursively hide tree of parent
 	// splitters if it has no visible content
-	area->setParent(nullptr);
+	if (area->testAttribute(Qt::WA_NativeWindow))
+		area->setParent(d->DockManager);
+	else
+		area->setParent(nullptr);
 	internal::hideEmptyParentSplitters(Splitter);
 
 	// Remove this area from cached areas
