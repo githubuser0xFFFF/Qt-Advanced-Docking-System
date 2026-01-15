@@ -728,6 +728,11 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	l->addWidget(d->DockContainer);
 #endif
 
+	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
+	{
+		winId();
+	}
+
 	DockManager->registerFloatingWidget(this);
 }
 

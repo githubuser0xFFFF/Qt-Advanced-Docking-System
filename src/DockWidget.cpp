@@ -396,6 +396,11 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 	{
 		setFocusPolicy(Qt::ClickFocus);
 	}
+
+	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
+	{
+		winId();
+	}
 }
 
 
