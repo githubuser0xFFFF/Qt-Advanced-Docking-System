@@ -929,6 +929,19 @@ void CDockAreaWidget::updateTitleBarVisibility()
 
 
 //============================================================================
+void CDockAreaWidget::updateWindowTitle()
+{
+	auto currentWidget = d->ContentsLayout->currentWidget();
+	if (d->TitleBar && currentWidget)
+	{
+		d->TitleBar->autoHideTitleLabel()->setText(currentWidget->windowTitle());
+	}
+
+	markTitleBarMenuOutdated();
+}
+
+
+//============================================================================
 void CDockAreaWidget::markTitleBarMenuOutdated()
 {
 	if (d->TitleBar)
