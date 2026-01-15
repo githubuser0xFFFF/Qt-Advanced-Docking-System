@@ -883,7 +883,7 @@ bool CDockWidget::event(QEvent *e)
 			}
 			if (d->DockArea)
 			{
-				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+				d->DockArea->updateWindowTitle();
 			}
 
 			auto FloatingWidget = floatingDockContainer();
