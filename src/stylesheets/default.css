@@ -75,7 +75,7 @@ ads--CDockWidgetTab[activeTab="true"] {
 }
 
 ads--CDockWidgetTab QLabel {
-	color: palette(dark);
+	color: palette(text);
 }
 
 ads--CDockWidgetTab[activeTab="true"] QLabel {
