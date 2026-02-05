@@ -545,11 +545,14 @@ CDockManager::CDockManager(QWidget *parent) :
         }
 
         // If the user clicks the main window or drags a floating widget or works with a
-        // dialog, then raise the main window, all floating widgets and the focus window
-        // itself to bring it into foregreound of any other application
+        // modal dialog, then raise the main window, all floating widgets and the focus window
+        // itself to bring it into foreground of any other application.
         bool raise = qobject_cast<QMainWindow*>(widget)
-            || qobject_cast<QDialog*>(widget)
             || qobject_cast<ads::CFloatingDockContainer*>(widget);
+        if (auto dialog = qobject_cast<QDialog*>(widget))
+        {
+            raise |= dialog->isModal();
+        }
         if (!raise)
         {
             return;
