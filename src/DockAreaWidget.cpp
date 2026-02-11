@@ -1500,14 +1500,18 @@ QSize CDockAreaWidget::minimumSizeHint() const
 		return Super::minimumSizeHint();
 	}
 
+	int extraHeight = 0;
 	if (d->TitleBar->isVisible())
 	{
-		return d->MinSizeHint + QSize(0, d->TitleBar->minimumSizeHint().height());
+		extraHeight += d->TitleBar->minimumSizeHint().height();
 	}
-	else
+
+	if (CDockManager::testConfigFlag(CDockManager::TabsAtBottom) && d->tabBar()->isVisible())
 	{
-		return d->MinSizeHint;
+		extraHeight += d->tabBar()->minimumSizeHint().height();
 	}
+
+	return d->MinSizeHint + QSize(0, extraHeight);
 }
 
 
