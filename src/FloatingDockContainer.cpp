@@ -459,7 +459,7 @@ struct FloatingDockContainerPrivate
 		}
 		else
 		{
-			_this->setWindowIcon(QApplication::windowIcon());
+			_this->setWindowIcon(CurrentWidget->windowIcon());
 		}
 	}
 
