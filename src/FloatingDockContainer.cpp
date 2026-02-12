@@ -850,6 +850,12 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 				this->showMaximized();
 			}
 		}
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+        if (d->TitleBar)
+        {
+            d->TitleBar->setVisible(!(isFloating() && isFullScreen()));
+        }
+#endif
 		break;
 
 	default:
