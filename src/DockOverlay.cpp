@@ -190,27 +190,32 @@ struct DockOverlayCrossPrivate
         }
 
 		l->setPixmap(createHighDpiDropIndicatorPixmap(size, DockWidgetArea, Mode));
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+        l->setWindowFlags(Qt::ToolTip);
+#else
 		l->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-		l->setAttribute(Qt::WA_TranslucentBackground);
-		l->setProperty("dockWidgetArea", DockWidgetArea);
-		return l;
-	}
+#endif
+        l->setAttribute(Qt::WA_TranslucentBackground);
+        l->setProperty("dockWidgetArea", DockWidgetArea);
+        return l;
+    }
 
-	//============================================================================
-	void updateDropIndicatorIcon(QWidget* DropIndicatorWidget)
-	{
-		QLabel* l = qobject_cast<QLabel*>(DropIndicatorWidget);
+    //============================================================================
+    void updateDropIndicatorIcon(QWidget* DropIndicatorWidget)
+    {
+        QLabel* l = qobject_cast<QLabel*>(DropIndicatorWidget);
         const qreal metric = dropIndicatiorWidth(l);
 		const QSizeF size(metric, metric);
 
 		int Area = l->property("dockWidgetArea").toInt();
 		l->setPixmap(createHighDpiDropIndicatorPixmap(size, (DockWidgetArea)Area, Mode));
-	}
+    }
 
-	//============================================================================
-	QPixmap createHighDpiDropIndicatorPixmap(const QSizeF& size, DockWidgetArea DockWidgetArea,
-		CDockOverlay::eMode Mode)
-	{
+    //============================================================================
+    QPixmap createHighDpiDropIndicatorPixmap(const QSizeF& size,
+                                             DockWidgetArea DockWidgetArea,
+                                             CDockOverlay::eMode Mode)
+    {
 		QColor borderColor = iconColor(CDockOverlayCross::FrameColor);
 		QColor backgroundColor = iconColor(CDockOverlayCross::WindowBackgroundColor);
 		QColor overlayColor = iconColor(CDockOverlayCross::OverlayColor);
@@ -404,7 +409,7 @@ CDockOverlay::CDockOverlay(QWidget* parent, eMode Mode) :
 	d->Mode = Mode;
 	d->Cross = new CDockOverlayCross(this);
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+    setWindowFlags(Qt::ToolTip | Qt::X11BypassWindowManagerHint);
 #else
 	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 #endif
@@ -739,7 +744,8 @@ CDockOverlayCross::CDockOverlayCross(CDockOverlay* overlay) :
 {
 	d->DockOverlay = overlay;
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+    setWindowFlags(Qt::ToolTip | Qt::WindowStaysOnTopHint
+                   | Qt::X11BypassWindowManagerHint);
 #else
 	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 #endif
