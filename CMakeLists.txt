@@ -4,12 +4,14 @@ if (POLICY CMP0091)
   cmake_policy(SET CMP0091 NEW)
 endif (POLICY CMP0091)
 
+# Add cmake modules path (required for Versioning.cmake and git revision description)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
+
 # By default, the version information is extracted from the git index. However,
 # we can override this behavior by explicitly setting ADS_VERSION and
 # skipping the git checks. This is useful for cases where this project is being
 # used independently of its original git repo (e.g. vendored in another project)
 if(NOT ADS_VERSION)
-    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
     include(GetGitRevisionDescription)
     git_describe(GitTagVersion --tags)
     string(REGEX REPLACE "^([0-9]+)\\..*" "\\1" VERSION_MAJOR "${GitTagVersion}")
@@ -23,6 +25,11 @@ else()
     if(VERSION_DOT_COUNT EQUAL 2)
         set(VERSION_SHORT ${ADS_VERSION})
         string(REGEX REPLACE "^([0-9]+)\\..*" "\\1" VERSION_SONAME "${ADS_VERSION}")
+        # Set PROJECT_VERSION_* variables for Versioning.cmake
+        string(REGEX MATCHALL "[0-9]+" VERSION_PARTS "${ADS_VERSION}")
+        list(GET VERSION_PARTS 0 PROJECT_VERSION_MAJOR)
+        list(GET VERSION_PARTS 1 PROJECT_VERSION_MINOR)
+        list(GET VERSION_PARTS 2 PROJECT_VERSION_PATCH)
     else()
         message(FATAL_ERROR "ADS_VERSION must be in major.minor.patch format, e.g. 3.8.1. Got ${ADS_VERSION}")
     endif()
