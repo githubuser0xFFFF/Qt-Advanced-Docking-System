@@ -41,10 +41,15 @@ project(QtADS LANGUAGES CXX VERSION ${VERSION_SHORT})
 option(BUILD_STATIC "Build the static library" OFF)
 option(BUILD_EXAMPLES "Build the examples" ON)
 
-if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
-    set(ads_PlatformDir "x86")
+# Platform directory: auto-detected based on pointer size, or manually set
+if(NOT ADS_PLATFORM_DIR)
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+        set(ads_PlatformDir "x86")
+    else()
+        set(ads_PlatformDir "x64")
+    endif()
 else()
-    set(ads_PlatformDir "x64")
+    set(ads_PlatformDir "${ADS_PLATFORM_DIR}")
 endif()
 
 add_subdirectory(src)
