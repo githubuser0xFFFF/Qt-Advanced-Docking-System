@@ -907,6 +907,7 @@ void DockContainerWidgetPrivate::addDockAreasToList(const QList<CDockAreaWidget*
 	{
 		DockArea->titleBarButton(TitleBarButtonClose)->setVisible(true);
 		DockArea->titleBarButton(TitleBarButtonAutoHide)->setVisible(true);
+		DockArea->titleBarButton(TitleBarButtonUndock)->setVisible(true);
 	}
 
 	// We need to ensure, that the dock area title bar is visible. The title bar
