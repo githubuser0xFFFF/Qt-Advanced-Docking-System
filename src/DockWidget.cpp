@@ -444,6 +444,15 @@ void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 		takeWidget();
 	}
 
+	// Prevent the content widget from inadvertently making the dock hierarchy
+	// native when winId() is called on it or any of its children (e.g. by
+	// OpenGL or VTK widgets that need a native window handle). Without this
+	// flag, Qt propagates native-window creation up the ancestor chain so that
+	// CDockWidget, CDockAreaWidget and CDockContainerWidget all become native
+	// OS windows. Reparenting those native dock widgets during floating or
+	// resizing operations then causes drawing artifacts.
+	widget->setAttribute(Qt::WA_DontCreateNativeAncestors);
+
 	auto ScrollAreaWidget = qobject_cast<QAbstractScrollArea*>(widget);
 	if (ScrollAreaWidget || ForceNoScrollArea == InsertMode)
 	{
