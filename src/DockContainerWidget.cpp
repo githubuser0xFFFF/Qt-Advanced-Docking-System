@@ -2218,6 +2218,17 @@ CDockManager* CDockContainerWidget::dockManager() const
 
 
 //===========================================================================
+void CDockContainerWidget::removeFromDockManager()
+{
+	if (d->DockManager)
+	{
+		d->DockManager->removeDockContainer(this);
+		d->DockManager.clear();
+	}
+}
+
+
+//===========================================================================
 void CDockContainerWidget::handleAutoHideWidgetEvent(QEvent* e, QWidget* w)
 {
 	if (!CDockManager::testAutoHideConfigFlag(CDockManager::AutoHideShowOnMouseOver))
