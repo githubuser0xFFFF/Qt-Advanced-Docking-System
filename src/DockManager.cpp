@@ -768,7 +768,8 @@ void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget
 //============================================================================
 void CDockManager::removeFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
-	d->FloatingWidgets.removeAll(FloatingWidget);
+	int removed = d->FloatingWidgets.removeAll(FloatingWidget);
+	Q_ASSERT(removed == 1);
 }
 
 //============================================================================
@@ -783,7 +784,8 @@ void CDockManager::removeDockContainer(CDockContainerWidget* DockContainer)
 {
 	if (this != DockContainer)
 	{
-		d->Containers.removeAll(DockContainer);
+		int removed = d->Containers.removeAll(DockContainer);
+		Q_ASSERT(removed == 1);
 	}
 }
 
