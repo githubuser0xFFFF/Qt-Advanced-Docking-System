@@ -30,6 +30,9 @@ windows {
 RESOURCES += ads.qrc
 
 HEADERS += \
+    customwidgets/window/styled_window.h \
+    customwidgets/window/utils.h \
+    customwidgets/window/widget_event_helper.h \
     ads_globals.h \
     DockAreaWidget.h \
     DockAreaTabBar.h \
@@ -56,6 +59,8 @@ HEADERS += \
 
 
 SOURCES += \
+    customwidgets/window/styled_window.cpp \
+    customwidgets/window/widget_event_helper.cpp \
     ads_globals.cpp \
     DockAreaWidget.cpp \
     DockAreaTabBar.cpp \
@@ -85,6 +90,14 @@ HEADERS += linux/FloatingWidgetTitleBar.h
 SOURCES += linux/FloatingWidgetTitleBar.cpp
 LIBS += -lxcb
 QT += gui-private
+}
+
+mac {
+    SOURCES += customwidgets/window/macos_helper.mm
+    HEADERS += customwidgets/window/macos_helper.h
+
+    LIBS += -framework Foundation -framework Cocoa
+    INCLUDEPATH += /System/Library/Frameworks/Foundation.framework/Versions/C/Headers
 }
 
 isEmpty(PREFIX){

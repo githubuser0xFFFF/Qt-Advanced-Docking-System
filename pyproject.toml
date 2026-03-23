@@ -48,6 +48,9 @@ headers = [
     "src/PushButton.h",
     "src/ResizeHandle.h",
 	"src/ads_globals.h",
+	"src/customwidgets/window/styled_window.h",
+	"src/customwidgets/window/widget_event_helper.h",
+	"src/customwidgets/window/utils.h",
 	"src/linux/FloatingWidgetTitleBar.h; platform_system == 'Linux'",
 ]
 sources = [
@@ -73,5 +76,7 @@ sources = [
 	"src/PushButton.cpp",
 	"src/ResizeHandle.cpp",
 	"src/ads_globals.cpp",
+	"src/customwidgets/window/styled_window.cpp",
+	"src/customwidgets/window/widget_event_helper.cpp",
 	"src/linux/FloatingWidgetTitleBar.cpp; platform_system == 'Linux'",
 ]

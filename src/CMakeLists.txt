@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
 include(GNUInstallDirs)
+<<<<<<< HEAD
+=======
 include(Versioning)
+>>>>>>> codex/sync-fork-master
 if (${QT_VERSION_MAJOR})
   message(STATUS "Forced to use Qt version ${QT_VERSION_MAJOR}")
   find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
@@ -22,6 +25,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(BUILD_STATIC)
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
+
+option(BUILD_ADS_STYLED_WINDOW "Build ADS Styled Window Frame" OFF)
+
+if (APPLE) 
+    find_library(COCOA_LIBRARY Cocoa)
+endif()
+
 set(ads_SRCS
     ads_globals.cpp
     DockAreaTabBar.cpp
@@ -47,6 +57,7 @@ set(ads_SRCS
     ResizeHandle.cpp
     ads.qrc
 )
+
 set(ads_HEADERS
     ads_globals.h
     DockAreaTabBar.h
@@ -72,7 +83,30 @@ set(ads_HEADERS
     PushButton.h
     ResizeHandle.h
 )
-add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+if (BUILD_ADS_STYLED_WINDOW)
+    set(ads_SRCS 
+        customwidgets/window/styled_window.cpp
+        ${ads_SRCS} )
+    set(ads_HEADERS     
+        customwidgets/window/styled_window.h
+        customwidgets/window/utils.h
+        ${ads_HEADERS})
+    if (WIN32) 
+        set(ads_SRCS customwidgets/window/widget_event_helper.cpp ${ads_SRCS} )
+        set(ads_HEADERS 
+            customwidgets/window/widget_event_helper.h 
+            customwidgets/window/win_utils.h 
+            ${ads_HEADERS})
+        add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    endif()
+    if (APPLE) 
+        set(ads_SRCS customwidgets/window/macos_helper.mm ${ads_SRCS} )
+        set(ads_HEADERS customwidgets/window/macos_helper.h ${ads_HEADERS})
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit")
+    endif()
+endif()
+
 if (UNIX AND NOT APPLE)
     set(ads_SRCS linux/FloatingWidgetTitleBar.cpp ${ads_SRCS})
     set(ads_HEADERS linux/FloatingWidgetTitleBar.h ${ads_HEADERS})
@@ -95,9 +129,14 @@ add_library(ads::${library_name} ALIAS ${library_name})
 target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
+<<<<<<< HEAD
+if (APPLE) 
+    target_link_libraries(${library_name} PUBLIC ${COCOA_LIBRARY})
+=======
 
 if(UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6")
     target_link_libraries(${library_name} PRIVATE Qt6::GuiPrivate) #needed for <qpa/qplatformnativeinterface.h>
+>>>>>>> codex/sync-fork-master
 endif()
 
 if (UNIX AND NOT APPLE)
@@ -170,3 +209,4 @@ target_include_directories(${library_name} PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
+

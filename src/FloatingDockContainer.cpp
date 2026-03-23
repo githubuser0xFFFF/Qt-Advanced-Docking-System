@@ -56,7 +56,9 @@
 #include "linux/FloatingWidgetTitleBar.h"
 #include <xcb/xcb.h>
 #endif
-
+#ifdef Q_OS_MACOS
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 namespace ads
 {
 #ifdef Q_OS_WIN
@@ -720,13 +722,27 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 				this, &CFloatingDockContainer::onMaximizeRequest);
 	}
 #else
-	setWindowFlags(
-	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+
+	auto env = qgetenv("ADS_LUME_UseCustomWindowFrame").toUpper();
+	if (env == "1") {
+		// Using custom window frame
+		setWindowFlags(windowFlags() &~ Qt::WindowMinimizeButtonHint);
+	} else {
+		setWindowFlags(
+		    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+	}
+
 	QBoxLayout *l = new QBoxLayout(QBoxLayout::TopToBottom);
 	l->setContentsMargins(0, 0, 0, 0);
 	l->setSpacing(0);
-	setLayout(l);
 	l->addWidget(d->DockContainer);
+#if defined(ADS_FLOATING_MAINWINDOW)
+	QWidget* CentralWidget = new QWidget();
+	CentralWidget->setLayout(l);
+	setCentralWidget(CentralWidget);
+#else
+	setLayout(l);
+#endif
 #endif
 
 	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
@@ -764,6 +780,12 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
     }
 
     d->DockManager->notifyWidgetOrAreaRelocation(DockWidget);
+
+	const auto Features = DockWidget->features();
+	if (Features.testFlag(CDockWidget::DockWidgetFeature::ParentlessFloating))
+	{
+		setParent(nullptr);
+	}
 }
 
 
@@ -872,7 +894,6 @@ bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *mess
 bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
 #endif
 {
-	QWidget::nativeEvent(eventType, message, result);
 	MSG *msg = static_cast<MSG*>(message);
 	switch (msg->message)
 	{
@@ -889,6 +910,15 @@ bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *mess
 			 if (msg->wParam == HTCAPTION && d->isState(DraggingInactive))
 			 {
 				ADS_PRINT("CFloatingDockContainer::nativeEvent WM_NCLBUTTONDOWN");
+				const auto Config = d->DockManager->configFlags();
+				if (Config.testFlag(CDockManager::eConfigFlag::UseShiftDocking))
+				{
+					const bool ShiftDown = (GetAsyncKeyState(VK_SHIFT) & 0x8000) == 0x8000;
+					if (!ShiftDown)
+					{
+						break;
+					}
+				}
 				d->DragStartPos = pos();
 				d->setState(DraggingMousePressed);
 			 }
@@ -922,6 +952,9 @@ bool CFloatingDockContainer::nativeEvent(const QByteArray &eventType, void *mess
 			 }
 			 break;
 	}
+#if defined(ADS_STYLED_WINDOW)
+    return StyledWindow::nativeEvent(eventType, message, result);
+#endif
 	return false;
 }
 #endif
@@ -1261,6 +1294,15 @@ bool CFloatingDockContainer::event(QEvent *e)
 		if (e->type() == QEvent::NonClientAreaMouseButtonPress && QGuiApplication::mouseButtons().testFlag(Qt::LeftButton))
 #endif
 		{
+            const auto Config = d->DockManager->configFlags();
+            if (Config.testFlag(CDockManager::eConfigFlag::UseShiftDocking))
+            {
+                const bool ShiftDown = (CGEventSourceFlagsState(kCGEventSourceStateCombinedSessionState) & kCGEventFlagMaskShift);
+                if (!ShiftDown)
+                {
+                    break;
+                }
+            }
 			ADS_PRINT("FloatingWidget::event Event::NonClientAreaMouseButtonPress" << e->type());
 			d->DragStartPos = pos();
 			d->setState(DraggingMousePressed);
@@ -1311,7 +1353,12 @@ bool CFloatingDockContainer::event(QEvent *e)
 #if (ADS_DEBUG_LEVEL > 0)
 	qDebug() << QTime::currentTime() << "CFloatingDockContainer::event " << e->type();
 #endif
+
+#if defined(ADS_STYLED_WINDOW)
+    return StyledWindow::event(e);
+#else
 	return QWidget::event(e);
+#endif
 }
 
 

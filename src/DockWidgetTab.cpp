@@ -251,6 +251,16 @@ void DockWidgetTabPrivate::createLayout()
 	{
 		TitleLabel->setElideMode(Qt::ElideRight);
 	}
+	
+	if (CDockManager::testConfigFlag(CDockManager::DisableTabTextWrap))
+	{
+		TitleLabel->setWordWrap(false);
+	}
+	else
+	{
+		TitleLabel->setWordWrap(true);
+	}
+			
 	TitleLabel->setText(DockWidget->windowTitle());
 	TitleLabel->setObjectName("dockWidgetTabLabel");
 	TitleLabel->setAlignment(Qt::AlignCenter);
