@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 project(OpenGLExample VERSION ${VERSION_SHORT})
 
@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(
-  QT NAMES Qt6
+  QT NAMES Qt6 Qt5
   COMPONENTS Core
              Gui
              Widgets
@@ -19,7 +19,7 @@ find_package(
   REQUIRED)
 
 find_package(
-  Qt${QT_VERSION_MAJOR}
+  Qt${QT_VERSION_MAJOR} 5.5
   COMPONENTS Core
              Gui
              Widgets
@@ -54,6 +54,7 @@ target_link_libraries(${PROJECT_NAME}
 
 qt_add_qml_module(
   ${PROJECT_NAME}
+  VERSION ${VERSION_SHORT}
   URI
   fbitem
   QML_FILES
@@ -112,24 +113,3 @@ target_include_directories(
           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/examples/openGL>
           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAME}>)
 
-install(
-  TARGETS ${PROJECT_NAME}
-  BUNDLE DESTINATION .
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-qt_generate_deploy_app_script(TARGET ${PROJECT_NAME} OUTPUT_SCRIPT
-                              deploy_script NO_UNSUPPORTED_PLATFORM_ERROR)
-
-install(SCRIPT ${deploy_script})
-
-qt_generate_deploy_qml_app_script(
-  TARGET
-  ${PROJECT_NAME}
-  OUTPUT_SCRIPT
-  qml_deploy_script
-  MACOS_BUNDLE_POST_BUILD
-  NO_UNSUPPORTED_PLATFORM_ERROR
-  DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM)
-
-install(SCRIPT ${qml_deploy_script})
