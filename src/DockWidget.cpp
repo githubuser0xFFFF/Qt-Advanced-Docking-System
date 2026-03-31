@@ -96,7 +96,8 @@ struct DockWidgetPrivate
 	WidgetFactory* Factory = nullptr;
 	QPointer<CAutoHideTab> SideTabWidget;
 	CDockWidget::eToolBarStyleSource ToolBarStyleSource = CDockWidget::ToolBarStyleFromDockManager;
-	
+	SideBarLocation PreferredAutoHideSideBarLocation = SideBarNone;
+
 	/**
 	 * Private data constructor
 	 */
@@ -651,6 +652,20 @@ bool CDockWidget::isAutoHide() const
 SideBarLocation CDockWidget::autoHideLocation() const
 {
 	return isAutoHide() ? autoHideDockContainer()->sideBarLocation() : SideBarNone;
+}
+
+
+//============================================================================
+void CDockWidget::setPreferredAutoHideSideBarLocation(SideBarLocation Location)
+{
+	d->PreferredAutoHideSideBarLocation = Location;
+}
+
+
+//============================================================================
+SideBarLocation CDockWidget::preferredAutoHideSideBarLocation() const
+{
+	return d->PreferredAutoHideSideBarLocation;
 }
 
 
@@ -1337,7 +1352,15 @@ void CDockWidget::setAutoHide(bool Enable, SideBarLocation Location, int TabInde
 	}
 	else
 	{
-		auto area = (SideBarNone == Location) ? DockArea->calculateSideTabBarArea() : Location;
+		auto area = Location;
+		if (SideBarNone == area && d->PreferredAutoHideSideBarLocation != SideBarNone)
+		{
+			area = d->PreferredAutoHideSideBarLocation;
+		}
+		else if (SideBarNone == area)
+		{
+			area = DockArea->calculateSideTabBarArea();
+		}
 		dockContainer()->createAndSetupAutoHideContainer(area, this, TabIndex);
 	}
 }
