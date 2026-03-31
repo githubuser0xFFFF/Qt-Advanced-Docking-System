@@ -415,7 +415,31 @@ void CAutoHideDockContainer::moveContentsToParent()
 	// to the user and he does not have to search where the widget was inserted.
 	d->DockWidget->setDockArea(nullptr);
 	auto DockContainer = dockContainer();
-	DockContainer->addDockWidget(d->getDockWidgetArea(d->SideTabBarArea), d->DockWidget);
+	auto targetArea = d->getDockWidgetArea(d->SideTabBarArea);
+
+	// Try to merge into an existing opened dock area at the same location
+	// instead of creating a new split. This provides a cleaner layout when
+	// multiple widgets are unpinned from the same sidebar location.
+	CDockAreaWidget* existingArea = nullptr;
+	for (auto area : DockContainer->openedDockAreas())
+	{
+		if (!area || area->isAutoHide()) continue;
+		auto areaLocation = d->getDockWidgetArea(area->calculateSideTabBarArea());
+		if (areaLocation == targetArea)
+		{
+			existingArea = area;
+			break;
+		}
+	}
+
+	if (existingArea)
+	{
+		DockContainer->addDockWidget(CenterDockWidgetArea, d->DockWidget, existingArea);
+	}
+	else
+	{
+		DockContainer->addDockWidget(targetArea, d->DockWidget);
+	}
 }
 
 
