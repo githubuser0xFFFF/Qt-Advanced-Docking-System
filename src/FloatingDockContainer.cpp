@@ -500,6 +500,9 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 		return;
 	}
 
+	// DockManager will be unlinked from this within DropContainer->dropFloatingWidget
+	const auto OriginalDockManager = this->DockManager.data();
+
 	if (DockManager->dockAreaOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea
 	 || DockManager->containerOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea)
 	{
@@ -533,8 +536,8 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 		DropContainer->dropFloatingWidget(_this, QCursor::pos());
 	}
 
-	DockManager->containerOverlay()->hideOverlay();
-	DockManager->dockAreaOverlay()->hideOverlay();
+	OriginalDockManager->containerOverlay()->hideOverlay();
+	OriginalDockManager->dockAreaOverlay()->hideOverlay();
 }
 
 
@@ -1220,8 +1223,9 @@ void CFloatingDockContainer::finishDropOperation()
 	if (d->DockManager)
 	{
 		d->DockManager->removeFloatingWidget(this);
-		d->DockManager->removeDockContainer(this->dockContainer());
+		d->DockManager.clear();
 	}
+	this->dockContainer()->removeFromDockManager();
 }
 
 //============================================================================
