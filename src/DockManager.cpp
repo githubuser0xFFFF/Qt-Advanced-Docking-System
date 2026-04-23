@@ -203,6 +203,10 @@ DockManagerPrivate::DockManagerPrivate(CDockManager* _public) :
 //============================================================================
 void DockManagerPrivate::loadStylesheet()
 {
+	if (CDockManager::testConfigFlag(CDockManager::DisableStylesheet))
+	{
+		return;
+	}
 	initResource();
 	QString Result;
 	QString FileName = ":ads/stylesheets/";
