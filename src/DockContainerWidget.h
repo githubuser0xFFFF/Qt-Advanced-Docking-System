@@ -232,7 +232,7 @@ public:
 	 * \return Returns the dock area widget that contains the new DockWidget
 	 */
 	CDockAreaWidget* addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1);
+		CDockAreaWidget* DockAreaWidget = nullptr, int Index = -1, bool activate = true);
 
 	/**
 	 * Removes dockwidget
