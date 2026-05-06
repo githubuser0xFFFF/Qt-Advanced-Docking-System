@@ -27,6 +27,8 @@
 **   2026-05-06  Read the edge-band width from
 **               CDockManager::halfPanelContainerEdgeMargin() instead of a
 **               translation-unit-local constant so callers can tune it.
+**   2026-05-06  Simplified the redundant ContainerAllowed & OuterDockAreas
+**               intersect in the dock-area defer logic.
 ******************************************************************************/
 
 
@@ -566,12 +568,17 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		bool DeferToContainer = false;
 		if (auto* Container = DockArea->dockContainer())
 		{
+			// Start from OuterDockAreas (no Center, no auto-hide) and narrow to
+			// what the container overlay actually permits. Single &= covers both
+			// the manager-null fallback (mask stays at OuterDockAreas) and the
+			// success path (mask intersects with the live overlay's allowed
+			// areas, dropping any non-edge bits like Center).
 			DockWidgetAreas ContainerAllowed = OuterDockAreas;
 			if (auto* Manager = Container->dockManager())
 			{
 				if (auto* ContainerOverlay = Manager->containerOverlay())
 				{
-					ContainerAllowed = ContainerOverlay->allowedAreas() & OuterDockAreas;
+					ContainerAllowed &= ContainerOverlay->allowedAreas();
 				}
 			}
 			const QPoint ContainerLocal = Container->mapFromGlobal(CursorPos);
