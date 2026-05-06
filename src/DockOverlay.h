@@ -16,6 +16,12 @@
 **
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockOverlay::quadrantAreaForCursor() and
+**               half-panel quadrant fall-through in
+**               CDockOverlay::dropAreaUnderCursor(), gated by the new
+**               CDockManager::HalfPanelDropZones config flag.
 ******************************************************************************/
 
 
@@ -135,6 +141,21 @@ public:
 	 * Handle polish events
 	 */
 	virtual bool event(QEvent *e) override;
+
+	/**
+	 * [Wizard NLE fork] Pure-function helper that returns the nearest-edge dock
+	 * area for a cursor position inside the given bounds. Used by
+	 * dropAreaUnderCursor() when CDockManager::HalfPanelDropZones is enabled and
+	 * the icon-based hit-test missed. Exposed as a static so it can be unit
+	 * tested without a live overlay.
+	 *
+	 * Returns InvalidDockWidgetArea if bounds is invalid, the cursor is outside
+	 * bounds, or no edge area is permitted by allowedAreas. Ties are broken in
+	 * the order Left, Right, Top, Bottom.
+	 */
+	static DockWidgetArea quadrantAreaForCursor(const QRect& bounds,
+		const QPoint& localCursor,
+		DockWidgetAreas allowedAreas);
 
 protected:
 	virtual void paintEvent(QPaintEvent *e) override;

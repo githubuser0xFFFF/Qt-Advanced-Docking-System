@@ -14,6 +14,12 @@
 ** 
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockOverlay::quadrantAreaForCursor() and
+**               half-panel quadrant fall-through in
+**               CDockOverlay::dropAreaUnderCursor(), gated by the new
+**               CDockManager::HalfPanelDropZones config flag.
 ******************************************************************************/
 
 
@@ -524,7 +530,65 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return CenterDockWidgetArea;
 	}
 
+	// [Wizard NLE fork] Half-panel quadrant fall-through. When the icon cross
+	// missed and we have a real DockArea under the cursor, snap to the nearest
+	// edge so the user can drop anywhere in the panel half rather than having
+	// to land on the small drop indicator. Gated by HalfPanelDropZones to keep
+	// the upstream icon-targeted behavior the default.
+	if (Result == InvalidDockWidgetArea
+	 && CDockManager::testConfigFlag(CDockManager::HalfPanelDropZones))
+	{
+		Result = quadrantAreaForCursor(rect(), mapFromGlobal(CursorPos), d->AllowedAreas);
+	}
+
 	return Result;
+}
+
+
+//============================================================================
+// [Wizard NLE fork] Pure-function nearest-edge hit-test. Kept free of any Qt
+// signal/widget dependency so it can be unit tested in isolation.
+DockWidgetArea CDockOverlay::quadrantAreaForCursor(const QRect& bounds,
+	const QPoint& localCursor,
+	DockWidgetAreas allowedAreas)
+{
+	if (!bounds.isValid() || !bounds.contains(localCursor))
+	{
+		return InvalidDockWidgetArea;
+	}
+
+	// Qt's QRect::right() is x+width-1, which makes the math asymmetric
+	// (dRight one pixel smaller than dLeft for a centered cursor). Use
+	// width/height directly so opposite edges are equidistant at the rect's
+	// geometric center — the tie-break order then deterministically picks
+	// Left at dead-center.
+	const int dLeft   = localCursor.x() - bounds.left();
+	const int dRight  = bounds.left() + bounds.width()  - localCursor.x();
+	const int dTop    = localCursor.y() - bounds.top();
+	const int dBottom = bounds.top()  + bounds.height() - localCursor.y();
+
+	const std::pair<int, DockWidgetArea> Candidates[] = {
+		{ dLeft,   LeftDockWidgetArea   },
+		{ dRight,  RightDockWidgetArea  },
+		{ dTop,    TopDockWidgetArea    },
+		{ dBottom, BottomDockWidgetArea },
+	};
+
+	DockWidgetArea Best = InvalidDockWidgetArea;
+	int BestDist = 0;
+	for (const auto& C : Candidates)
+	{
+		if (!allowedAreas.testFlag(C.second))
+		{
+			continue;
+		}
+		if (Best == InvalidDockWidgetArea || C.first < BestDist)
+		{
+			Best = C.second;
+			BestDist = C.first;
+		}
+	}
+	return Best;
 }
 
 

@@ -16,6 +16,9 @@
 **
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockManager::HalfPanelDropZones (0x0200) config flag.
 ******************************************************************************/
 
 
@@ -195,6 +198,7 @@ public:
 		TabCloseButtonIsToolButton = 0x0040,//! If enabled the tab close buttons will be QToolButtons instead of QPushButtons - disabled by default
 		AllTabsHaveCloseButton = 0x0080, //!< if this flag is set, then all tabs that are closable show a close button
 		RetainTabSizeWhenCloseButtonHidden = 0x0100, //!< if this flag is set, the space for the close button is reserved even if the close button is not visible
+		HalfPanelDropZones = 0x0200, //!< [Wizard NLE fork] If set, when the cursor misses the drop indicator icons but is inside a dock area, fall through to a nearest-edge quadrant hit-test so the user can drop anywhere in the panel half. Off by default; preserves upstream icon-targeted behavior.
 		DragPreviewIsDynamic = 0x0400,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
 		DragPreviewShowsContentPixmap = 0x0800,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
 		DragPreviewHasWindowFrame = 0x1000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
