@@ -63,6 +63,16 @@ private slots:
 	// distances are smaller than the horizontal ones, so the cursor snaps to
 	// Top by tie-break — a known consequence of pure nearest-edge math.
 	void wideDockArea_verticallyCenteredCursor_picksTopByTieBreak();
+
+	// containerEdgeAreaForCursor coverage.
+	void containerEdge_cursorWithinMargin_returnsNearestEdge();
+	void containerEdge_cursorBeyondMargin_returnsInvalid();
+	void containerEdge_cursorOutsideBounds_returnsInvalid();
+	void containerEdge_invalidBounds_returnsInvalid();
+	void containerEdge_marginExceedsContainer_clampsToQuarter();
+	void containerEdge_zeroMargin_returnsInvalid();
+	void containerEdge_allowedAreasExcludesNearestEdge_picksNextNearestInBand();
+	void containerEdge_cursorAtCorner_picksLeftByTieBreak();
 };
 
 void QuadrantHitTestTest::cursorNearLeft_returnsLeft()
@@ -200,6 +210,105 @@ void QuadrantHitTestTest::wideDockArea_verticallyCenteredCursor_picksTopByTieBre
 	// an aspect-ratio-aware variant.
 	QCOMPARE(CDockOverlay::quadrantAreaForCursor(bounds, cursor, AllDockAreas),
 		TopDockWidgetArea);
+}
+
+// ---------------------------------------------------------------------------
+// containerEdgeAreaForCursor
+// ---------------------------------------------------------------------------
+
+void QuadrantHitTestTest::containerEdge_cursorWithinMargin_returnsNearestEdge()
+{
+	const QRect bounds(0, 0, 800, 600);
+	const int margin = 24;
+	// Each cursor sits 5px inside one edge — well within the 24px band.
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(5, 300),
+			AllDockAreas, margin),
+		LeftDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(795, 300),
+			AllDockAreas, margin),
+		RightDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(400, 5),
+			AllDockAreas, margin),
+		TopDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(400, 595),
+			AllDockAreas, margin),
+		BottomDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_cursorBeyondMargin_returnsInvalid()
+{
+	const QRect bounds(0, 0, 800, 600);
+	const int margin = 24;
+	// Cursor 100px in on every side — far outside any edge band.
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(100, 300),
+			AllDockAreas, margin),
+		InvalidDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(400, 300),
+			AllDockAreas, margin),
+		InvalidDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_cursorOutsideBounds_returnsInvalid()
+{
+	const QRect bounds(0, 0, 800, 600);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(-1, 300),
+			AllDockAreas, 24),
+		InvalidDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_invalidBounds_returnsInvalid()
+{
+	const QRect bounds; // default: invalid
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(0, 0),
+			AllDockAreas, 24),
+		InvalidDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_marginExceedsContainer_clampsToQuarter()
+{
+	// 80x60 container with a requested margin of 1000 pixels — clamps to
+	// min(80, 60) / 4 = 15. So a cursor 16px from the left edge falls
+	// outside the clamped band.
+	const QRect bounds(0, 0, 80, 60);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(16, 30),
+			AllDockAreas, 1000),
+		InvalidDockWidgetArea);
+	// And a cursor 14px from the left edge is inside the clamped band.
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(14, 30),
+			AllDockAreas, 1000),
+		LeftDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_zeroMargin_returnsInvalid()
+{
+	const QRect bounds(0, 0, 800, 600);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(0, 0),
+			AllDockAreas, 0),
+		InvalidDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(0, 0),
+			AllDockAreas, -5),
+		InvalidDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_allowedAreasExcludesNearestEdge_picksNextNearestInBand()
+{
+	const QRect bounds(0, 0, 800, 600);
+	// Cursor at (5, 5): in both the left band (5px in) and the top band
+	// (5px in). With Left excluded, Top wins.
+	const DockWidgetAreas withoutLeft = OuterDockAreas
+		& ~DockWidgetAreas(LeftDockWidgetArea);
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(5, 5),
+			withoutLeft, 24),
+		TopDockWidgetArea);
+}
+
+void QuadrantHitTestTest::containerEdge_cursorAtCorner_picksLeftByTieBreak()
+{
+	const QRect bounds(0, 0, 800, 600);
+	// Cursor at (0,0): dLeft=0, dTop=0. Tie-break order Left > Top.
+	QCOMPARE(CDockOverlay::containerEdgeAreaForCursor(bounds, QPoint(0, 0),
+			AllDockAreas, 24),
+		LeftDockWidgetArea);
 }
 
 QTEST_MAIN(QuadrantHitTestTest)

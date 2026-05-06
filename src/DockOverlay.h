@@ -22,6 +22,10 @@
 **               half-panel quadrant fall-through in
 **               CDockOverlay::dropAreaUnderCursor(), gated by the new
 **               CDockManager::HalfPanelDropZones config flag.
+**   2026-05-05  Added CDockOverlay::containerEdgeAreaForCursor() so the
+**               container overlay claims an outer edge-band, and made the
+**               dock-area overlay defer to that band so outer-dock gestures
+**               are reachable.
 ******************************************************************************/
 
 
@@ -156,6 +160,24 @@ public:
 	static DockWidgetArea quadrantAreaForCursor(const QRect& bounds,
 		const QPoint& localCursor,
 		DockWidgetAreas allowedAreas);
+
+	/**
+	 * [Wizard NLE fork] Strict edge-band variant of quadrantAreaForCursor used
+	 * by the container overlay so dock-to-container-edge gestures are
+	 * accessible without precisely targeting the small drop indicator icons.
+	 * Returns the nearest edge only when the cursor is within edgeMargin of
+	 * one of the bounds' edges; otherwise InvalidDockWidgetArea so the inner
+	 * dock-area overlay can claim the cursor.
+	 *
+	 * The margin is clamped to at most one quarter of the bounds' smaller
+	 * dimension so it never consumes more than half the available space on
+	 * small floating containers (24px margin on a 50px-wide container would
+	 * otherwise leave no usable middle).
+	 */
+	static DockWidgetArea containerEdgeAreaForCursor(const QRect& bounds,
+		const QPoint& localCursor,
+		DockWidgetAreas allowedAreas,
+		int edgeMargin);
 
 protected:
 	virtual void paintEvent(QPaintEvent *e) override;

@@ -19,6 +19,9 @@
 **
 ** Modifications by Wizard NLE (Story Wizard, Inc.):
 **   2026-05-05  Added CDockManager::HalfPanelDropZones (0x0200) config flag.
+**   2026-05-05  Added CDockOverlay friend declaration so the dock-area overlay
+**               can read the container overlay's AllowedAreas when
+**               HalfPanelDropZones is enabled.
 ******************************************************************************/
 
 
@@ -99,6 +102,11 @@ private:
 	friend CAutoHideSideBar;
 	friend CAutoHideTab;
 	friend AutoHideTabPrivate;
+	// [Wizard NLE fork] Lets CDockOverlay::dropAreaUnderCursor() consult the
+	// container overlay's AllowedAreas when HalfPanelDropZones is enabled, so
+	// the dock-area overlay only defers to the container on edges the
+	// container would actually accept.
+	friend class CDockOverlay;
 
 public Q_SLOTS:
 	/**
