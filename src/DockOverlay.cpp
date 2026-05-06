@@ -479,45 +479,45 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 
 	auto CursorPos = QCursor::pos();
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
-	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
+	if (!DockArea)
 	{
-		auto Rect = rect();
-		const QPoint pos = mapFromGlobal(QCursor::pos());
-		if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
-		  && d->AllowedAreas.testFlag(LeftAutoHideArea))
+		if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Result = LeftAutoHideArea;
-		}
-		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
-			  && d->AllowedAreas.testFlag(RightAutoHideArea))
-		{
-			Result = RightAutoHideArea;
-		}
-		else if (pos.y() < d->sideBarMouseZone(SideBarTop)
-			&& d->AllowedAreas.testFlag(TopAutoHideArea))
-		{
-			Result = TopAutoHideArea;
-		}
-		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
-			&& d->AllowedAreas.testFlag(BottomAutoHideArea))
-		{
-			Result = BottomAutoHideArea;
-		}
-
-		auto SideBarLocation = ads::internal::toSideBarLocation(Result);
-		if (SideBarLocation != SideBarNone)
-		{
-			auto Container = qobject_cast<CDockContainerWidget*>(d->TargetWidget.data());
-			auto SideBar = Container->autoHideSideBar(SideBarLocation);
-			if (SideBar->isVisible())
+			auto Rect = rect();
+			const QPoint pos = mapFromGlobal(QCursor::pos());
+			if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
+			  && d->AllowedAreas.testFlag(LeftAutoHideArea))
 			{
-				d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
+				Result = LeftAutoHideArea;
+			}
+			else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
+				  && d->AllowedAreas.testFlag(RightAutoHideArea))
+			{
+				Result = RightAutoHideArea;
+			}
+			else if (pos.y() < d->sideBarMouseZone(SideBarTop)
+				&& d->AllowedAreas.testFlag(TopAutoHideArea))
+			{
+				Result = TopAutoHideArea;
+			}
+			else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
+				&& d->AllowedAreas.testFlag(BottomAutoHideArea))
+			{
+				Result = BottomAutoHideArea;
+			}
+
+			auto SideBarLocation = ads::internal::toSideBarLocation(Result);
+			if (SideBarLocation != SideBarNone)
+			{
+				auto Container = qobject_cast<CDockContainerWidget*>(d->TargetWidget.data());
+				auto SideBar = Container->autoHideSideBar(SideBarLocation);
+				if (SideBar->isVisible())
+				{
+					d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
+				}
+				return Result;
 			}
 		}
-		return Result;
-	}
-	else if (!DockArea)
-	{
 		return Result;
 	}
 
