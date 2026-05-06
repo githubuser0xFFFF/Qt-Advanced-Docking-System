@@ -22,6 +22,9 @@
 **   2026-05-05  Added CDockOverlay friend declaration so the dock-area overlay
 **               can read the container overlay's AllowedAreas when
 **               HalfPanelDropZones is enabled.
+**   2026-05-06  Added CDockManager::setHalfPanelContainerEdgeMargin() and
+**               halfPanelContainerEdgeMargin() so the container edge-band
+**               width is configurable instead of a hard-coded constant.
 ******************************************************************************/
 
 
@@ -390,6 +393,23 @@ public:
 	 * Returns true if the given overlay config flag is set
 	 */
 	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
+
+	/**
+	 * [Wizard NLE fork] Sets the width, in container-local pixels, of the
+	 * outer band where the container overlay claims drops when the
+	 * HalfPanelDropZones config flag is enabled. Inside this band the
+	 * dock-area overlay defers to the container so the "dock to outer
+	 * container edge" gesture stays reachable. The value is clamped per
+	 * use to never exceed 1/4 of the container's smaller dimension, so
+	 * small floating containers retain a usable interior. Default is 24.
+	 */
+	static void setHalfPanelContainerEdgeMargin(int pixels);
+
+	/**
+	 * [Wizard NLE fork] Returns the current half-panel container edge-band
+	 * width in pixels. See setHalfPanelContainerEdgeMargin().
+	 */
+	static int halfPanelContainerEdgeMargin();
 
 	/**
 	 * Sets the value for the given config parameter

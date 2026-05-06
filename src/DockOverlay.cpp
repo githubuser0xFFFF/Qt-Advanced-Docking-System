@@ -24,6 +24,9 @@
 **               container overlay claims an outer edge-band, and made the
 **               dock-area overlay defer to that band so outer-dock gestures
 **               are reachable when half-panel zones are enabled.
+**   2026-05-06  Read the edge-band width from
+**               CDockManager::halfPanelContainerEdgeMargin() instead of a
+**               translation-unit-local constant so callers can tune it.
 ******************************************************************************/
 
 
@@ -60,12 +63,6 @@
 namespace ads
 {
 static const int AutoHideAreaWidth = 32;
-// [Wizard NLE fork] Width of the outer band, in container-local pixels, in
-// which the container overlay claims drops when HalfPanelDropZones is set.
-// Inside this band the dock-area overlay defers to the container so the
-// "dock to outer edge" gesture stays reachable. Clamped per call to never
-// exceed 1/4 of the container's smaller dimension.
-static const int HalfPanelContainerEdgeMargin = 24;
 static const int AutoHideAreaMouseZone = 8;
 static const int InvalidTabIndex = -2;
 
@@ -540,7 +537,7 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		 && CDockManager::testConfigFlag(CDockManager::HalfPanelDropZones))
 		{
 			Result = containerEdgeAreaForCursor(rect(), mapFromGlobal(CursorPos),
-				d->AllowedAreas, HalfPanelContainerEdgeMargin);
+				d->AllowedAreas, CDockManager::halfPanelContainerEdgeMargin());
 		}
 		return Result;
 	}
@@ -579,7 +576,8 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 			}
 			const QPoint ContainerLocal = Container->mapFromGlobal(CursorPos);
 			DeferToContainer = containerEdgeAreaForCursor(Container->rect(),
-				ContainerLocal, ContainerAllowed, HalfPanelContainerEdgeMargin)
+				ContainerLocal, ContainerAllowed,
+				CDockManager::halfPanelContainerEdgeMargin())
 				!= InvalidDockWidgetArea;
 		}
 		if (!DeferToContainer)

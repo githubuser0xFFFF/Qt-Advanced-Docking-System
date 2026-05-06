@@ -8,8 +8,10 @@
 
 #include <QtTest/QtTest>
 
+#include "DockManager.h"
 #include "DockOverlay.h"
 
+using ads::CDockManager;
 using ads::CDockOverlay;
 using ads::DockWidgetArea;
 using ads::DockWidgetAreas;
@@ -63,6 +65,12 @@ private slots:
 	// distances are smaller than the horizontal ones, so the cursor snaps to
 	// Top by tie-break — a known consequence of pure nearest-edge math.
 	void wideDockArea_verticallyCenteredCursor_picksTopByTieBreak();
+
+	// CDockManager half-panel margin setter/getter.
+	void halfPanelMargin_defaultIs24();
+	void halfPanelMargin_setterRoundtrips();
+	void halfPanelMargin_acceptsZero();
+	void halfPanelMargin_acceptsNegative();
 
 	// containerEdgeAreaForCursor coverage.
 	void containerEdge_cursorWithinMargin_returnsNearestEdge();
@@ -211,6 +219,49 @@ void QuadrantHitTestTest::wideDockArea_verticallyCenteredCursor_picksTopByTieBre
 	QCOMPARE(CDockOverlay::quadrantAreaForCursor(bounds, cursor, AllDockAreas),
 		TopDockWidgetArea);
 }
+
+// ---------------------------------------------------------------------------
+// CDockManager half-panel margin setter/getter
+// ---------------------------------------------------------------------------
+
+void QuadrantHitTestTest::halfPanelMargin_defaultIs24()
+{
+	// Documents the upstream-fork-default. Wizard's main_window expects this
+	// value implicitly; if we change it here we should update the wizard
+	// integration test in lockstep.
+	const int original = CDockManager::halfPanelContainerEdgeMargin();
+	QCOMPARE(original, 24);
+}
+
+void QuadrantHitTestTest::halfPanelMargin_setterRoundtrips()
+{
+	const int original = CDockManager::halfPanelContainerEdgeMargin();
+	CDockManager::setHalfPanelContainerEdgeMargin(42);
+	QCOMPARE(CDockManager::halfPanelContainerEdgeMargin(), 42);
+	CDockManager::setHalfPanelContainerEdgeMargin(original);
+	QCOMPARE(CDockManager::halfPanelContainerEdgeMargin(), original);
+}
+
+void QuadrantHitTestTest::halfPanelMargin_acceptsZero()
+{
+	// 0 effectively disables the container edge-band. The setter shouldn't
+	// reject it — containerEdgeAreaForCursor handles the boundary.
+	const int original = CDockManager::halfPanelContainerEdgeMargin();
+	CDockManager::setHalfPanelContainerEdgeMargin(0);
+	QCOMPARE(CDockManager::halfPanelContainerEdgeMargin(), 0);
+	CDockManager::setHalfPanelContainerEdgeMargin(original);
+}
+
+void QuadrantHitTestTest::halfPanelMargin_acceptsNegative()
+{
+	// Negative values should round-trip without coercion. The hit-test
+	// helper guards against them at use time (see containerEdge_zeroMargin).
+	const int original = CDockManager::halfPanelContainerEdgeMargin();
+	CDockManager::setHalfPanelContainerEdgeMargin(-7);
+	QCOMPARE(CDockManager::halfPanelContainerEdgeMargin(), -7);
+	CDockManager::setHalfPanelContainerEdgeMargin(original);
+}
+
 
 // ---------------------------------------------------------------------------
 // containerEdgeAreaForCursor
