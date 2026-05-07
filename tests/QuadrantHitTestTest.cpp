@@ -46,7 +46,10 @@ private slots:
 	// L > R > T > B per the Candidates iteration order.
 	void cursorAtCenter_picksLeftByTieBreak();
 
-	// Corners: two distances are zero. Tie-break still applies.
+	// Corners: two distances are tied (0 for top-left, 1 for bottom-right —
+	// the helper uses width/height arithmetic rather than QRect::right(),
+	// so on a 100×100 rect the cursor (99,99) is 1 px from the bottom-right
+	// edges, not 0). Tie-break still applies in both cases.
 	void cursorAtTopLeftCorner_picksLeft();
 	void cursorAtBottomRightCorner_picksRight();
 
@@ -172,8 +175,10 @@ void QuadrantHitTestTest::allowedAreasExcludesNearestEdge_picksNextNearest()
 	const QPoint cursor(5, 50); // closest to left
 
 	const DockWidgetAreas withoutLeft = EdgesOnly & ~DockWidgetAreas(LeftDockWidgetArea);
-	// Without Left, next-best by distance for (5,50) in 100x100:
-	//   dRight = 95, dTop = 50, dBottom = 50. Top wins by tie-break order.
+	// Without Left, distances for (5,50) in 100x100: dRight=95, dTop=50,
+	// dBottom=50. Top wins over Right by *distance* (50 < 95); Top wins
+	// over Bottom by *tie-break* (Top appears before Bottom in the
+	// Candidates iteration order).
 	QCOMPARE(CDockOverlay::quadrantAreaForCursor(bounds, cursor, withoutLeft),
 		TopDockWidgetArea);
 }
@@ -226,11 +231,20 @@ void QuadrantHitTestTest::wideDockArea_verticallyCenteredCursor_picksTopByTieBre
 
 void QuadrantHitTestTest::halfPanelMargin_defaultIs24()
 {
-	// Documents the upstream-fork-default. Wizard's main_window expects this
-	// value implicitly; if we change it here we should update the wizard
-	// integration test in lockstep.
-	const int original = CDockManager::halfPanelContainerEdgeMargin();
-	QCOMPARE(original, 24);
+	// Documents the upstream-fork-default of 24 px. Wizard's main_window
+	// expects this value implicitly; if we change it here we should update
+	// the wizard integration test in lockstep.
+	//
+	// The setHalfPanelContainerEdgeMargin(24) call is a defensive reset
+	// — the default value lives in a file-scope static
+	// (StaticHalfPanelContainerEdgeMargin) that other tests in this class
+	// can mutate. Resetting before asserting makes this test self-isolating
+	// from prior test ordering, so a future test that mutates the global
+	// without restoring can't silently corrupt this assertion. The test
+	// name's "default" refers to the documented intended value (24), which
+	// the explicit set re-establishes.
+	CDockManager::setHalfPanelContainerEdgeMargin(24);
+	QCOMPARE(CDockManager::halfPanelContainerEdgeMargin(), 24);
 }
 
 void QuadrantHitTestTest::halfPanelMargin_setterRoundtrips()

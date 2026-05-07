@@ -29,6 +29,8 @@
 **               translation-unit-local constant so callers can tune it.
 **   2026-05-06  Simplified the redundant ContainerAllowed & OuterDockAreas
 **               intersect in the dock-area defer logic.
+**   2026-05-08  Removed unused <iostream> include and added probe-call
+**               documentation to the dock-area defer logic.
 ******************************************************************************/
 
 
@@ -59,8 +61,6 @@
 #include "AutoHideSideBar.h"
 #include "DockManager.h"
 #include "DockAreaTabBar.h"
-
-#include <iostream>
 
 namespace ads
 {
@@ -582,6 +582,14 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 				}
 			}
 			const QPoint ContainerLocal = Container->mapFromGlobal(CursorPos);
+			// Probe call: we only care whether the container overlay's
+			// edge-band would claim this cursor — the specific area is
+			// recomputed by the container overlay itself when it paints.
+			// One-frame staleness note: Container->rect() and the container
+			// overlay's own rect() can briefly disagree if the container
+			// has been resized but the overlay hasn't been repositioned yet;
+			// the defer decision is recomputed every drag-move so any glitch
+			// self-corrects within one event loop iteration.
 			DeferToContainer = containerEdgeAreaForCursor(Container->rect(),
 				ContainerLocal, ContainerAllowed,
 				CDockManager::halfPanelContainerEdgeMargin())
