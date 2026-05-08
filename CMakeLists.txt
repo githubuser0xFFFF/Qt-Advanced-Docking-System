@@ -40,6 +40,9 @@ project(QtADS LANGUAGES CXX VERSION ${VERSION_SHORT})
 
 option(BUILD_STATIC "Build the static library" OFF)
 option(BUILD_EXAMPLES "Build the examples" ON)
+# [Wizard NLE fork] Test suite for fork-specific changes. Off by default so
+# downstream FetchContent consumers don't pull it in.
+option(BUILD_TESTS "Build the test suite" OFF)
 
 # Platform directory: auto-detected based on pointer size, or manually set
 if(NOT ADS_PLATFORM_DIR)
@@ -59,3 +62,7 @@ if(BUILD_EXAMPLES)
     add_subdirectory(demo)
 endif()
 
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

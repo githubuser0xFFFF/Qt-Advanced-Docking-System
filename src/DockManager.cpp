@@ -1,19 +1,25 @@
 /*******************************************************************************
 ** Qt Advanced Docking System
 ** Copyright (C) 2017 Uwe Kindler
-** 
+**
 ** This library is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU Lesser General Public
 ** License as published by the Free Software Foundation; either
 ** version 2.1 of the License, or (at your option) any later version.
-** 
+**
 ** This library is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** Lesser General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-06  Added storage and setter/getter for the half-panel container
+**               edge-band margin (CDockManager::setHalfPanelContainerEdgeMargin
+**               / halfPanelContainerEdgeMargin), used by CDockOverlay when
+**               HalfPanelDropZones is enabled.
 ******************************************************************************/
 
 
@@ -99,6 +105,10 @@ enum eStateFileVersion
 static CDockManager::ConfigFlags StaticConfigFlags = CDockManager::DefaultNonOpaqueConfig;
 static CDockManager::AutoHideFlags StaticAutoHideConfigFlags; // auto hide feature is disabled by default
 static QVector<QVariant> StaticConfigParams(CDockManager::ConfigParamCount);
+// [Wizard NLE fork] Default container edge-band width for HalfPanelDropZones.
+// 24px tested as a comfortable target on 1x and 2x displays. Mutable via
+// CDockManager::setHalfPanelContainerEdgeMargin().
+static int StaticHalfPanelContainerEdgeMargin = 24;
 
 static QString FloatingContainersTitle;
 
@@ -1325,6 +1335,21 @@ bool CDockManager::testConfigFlag(eConfigFlag Flag)
 bool CDockManager::testAutoHideConfigFlag(eAutoHideFlag Flag)
 {
 	return autoHideConfigFlags().testFlag(Flag);
+}
+
+
+//===========================================================================
+// [Wizard NLE fork] Half-panel container edge-band setter/getter.
+void CDockManager::setHalfPanelContainerEdgeMargin(int Pixels)
+{
+	StaticHalfPanelContainerEdgeMargin = Pixels;
+}
+
+
+//===========================================================================
+int CDockManager::halfPanelContainerEdgeMargin()
+{
+	return StaticHalfPanelContainerEdgeMargin;
 }
 
 

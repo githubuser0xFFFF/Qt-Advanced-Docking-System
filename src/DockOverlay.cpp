@@ -14,6 +14,23 @@
 ** 
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockOverlay::quadrantAreaForCursor() and
+**               half-panel quadrant fall-through in
+**               CDockOverlay::dropAreaUnderCursor(), gated by the new
+**               CDockManager::HalfPanelDropZones config flag.
+**   2026-05-05  Added CDockOverlay::containerEdgeAreaForCursor() so the
+**               container overlay claims an outer edge-band, and made the
+**               dock-area overlay defer to that band so outer-dock gestures
+**               are reachable when half-panel zones are enabled.
+**   2026-05-06  Read the edge-band width from
+**               CDockManager::halfPanelContainerEdgeMargin() instead of a
+**               translation-unit-local constant so callers can tune it.
+**   2026-05-06  Simplified the redundant ContainerAllowed & OuterDockAreas
+**               intersect in the dock-area defer logic.
+**   2026-05-08  Removed unused <iostream> include and added probe-call
+**               documentation to the dock-area defer logic.
 ******************************************************************************/
 
 
@@ -21,6 +38,8 @@
 //                                   INCLUDES
 //============================================================================
 #include "DockOverlay.h"
+
+#include <algorithm>
 
 #include <QPointer>
 #include <QPaintEvent>
@@ -42,8 +61,6 @@
 #include "AutoHideSideBar.h"
 #include "DockManager.h"
 #include "DockAreaTabBar.h"
-
-#include <iostream>
 
 namespace ads
 {
@@ -473,45 +490,57 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 
 	auto CursorPos = QCursor::pos();
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
-	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
+	if (!DockArea)
 	{
-		auto Rect = rect();
-		const QPoint pos = mapFromGlobal(QCursor::pos());
-		if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
-		  && d->AllowedAreas.testFlag(LeftAutoHideArea))
+		if (CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 		{
-			Result = LeftAutoHideArea;
-		}
-		else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
-			  && d->AllowedAreas.testFlag(RightAutoHideArea))
-		{
-			Result = RightAutoHideArea;
-		}
-		else if (pos.y() < d->sideBarMouseZone(SideBarTop)
-			&& d->AllowedAreas.testFlag(TopAutoHideArea))
-		{
-			Result = TopAutoHideArea;
-		}
-		else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
-			&& d->AllowedAreas.testFlag(BottomAutoHideArea))
-		{
-			Result = BottomAutoHideArea;
-		}
-
-		auto SideBarLocation = ads::internal::toSideBarLocation(Result);
-		if (SideBarLocation != SideBarNone)
-		{
-			auto Container = qobject_cast<CDockContainerWidget*>(d->TargetWidget.data());
-			auto SideBar = Container->autoHideSideBar(SideBarLocation);
-			if (SideBar->isVisible())
+			auto Rect = rect();
+			const QPoint pos = mapFromGlobal(QCursor::pos());
+			if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
+			  && d->AllowedAreas.testFlag(LeftAutoHideArea))
 			{
-				d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
+				Result = LeftAutoHideArea;
+			}
+			else if (pos.x() > (Rect.width() - d->sideBarMouseZone(SideBarRight))
+				  && d->AllowedAreas.testFlag(RightAutoHideArea))
+			{
+				Result = RightAutoHideArea;
+			}
+			else if (pos.y() < d->sideBarMouseZone(SideBarTop)
+				&& d->AllowedAreas.testFlag(TopAutoHideArea))
+			{
+				Result = TopAutoHideArea;
+			}
+			else if (pos.y() > (Rect.height() - d->sideBarMouseZone(SideBarBottom))
+				&& d->AllowedAreas.testFlag(BottomAutoHideArea))
+			{
+				Result = BottomAutoHideArea;
+			}
+
+			auto SideBarLocation = ads::internal::toSideBarLocation(Result);
+			if (SideBarLocation != SideBarNone)
+			{
+				auto Container = qobject_cast<CDockContainerWidget*>(d->TargetWidget.data());
+				auto SideBar = Container->autoHideSideBar(SideBarLocation);
+				if (SideBar->isVisible())
+				{
+					d->TabIndex = SideBar->tabInsertIndexAt(SideBar->mapFromGlobal(CursorPos));
+				}
+				return Result;
 			}
 		}
-		return Result;
-	}
-	else if (!DockArea)
-	{
+
+		// [Wizard NLE fork] Container edge-band fall-through. When the cursor
+		// is within the outer edge-band of a container overlay and no other
+		// hit-test (icon cross, auto-hide sidebar) matched, claim the nearest
+		// edge so "dock to outer container edge" gestures don't require
+		// hitting the small drop indicator icons.
+		if (Result == InvalidDockWidgetArea
+		 && CDockManager::testConfigFlag(CDockManager::HalfPanelDropZones))
+		{
+			Result = containerEdgeAreaForCursor(rect(), mapFromGlobal(CursorPos),
+				d->AllowedAreas, CDockManager::halfPanelContainerEdgeMargin());
+		}
 		return Result;
 	}
 
@@ -524,7 +553,158 @@ DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 		return CenterDockWidgetArea;
 	}
 
+	// [Wizard NLE fork] Half-panel quadrant fall-through. When the icon cross
+	// missed and we have a real DockArea under the cursor, snap to the nearest
+	// edge so the user can drop anywhere in the panel half rather than having
+	// to land on the small drop indicator. Gated by HalfPanelDropZones to keep
+	// the upstream icon-targeted behavior the default. Suppressed when the
+	// cursor is inside the parent container's outer edge-band *and* that edge
+	// is allowed by the container overlay's own AllowedAreas, so the container
+	// overlay can claim "dock to whole-window edge" gestures without leaving
+	// the user with no drop target on containers that restrict outer edges.
+	if (Result == InvalidDockWidgetArea
+	 && CDockManager::testConfigFlag(CDockManager::HalfPanelDropZones))
+	{
+		bool DeferToContainer = false;
+		if (auto* Container = DockArea->dockContainer())
+		{
+			// Start from OuterDockAreas (no Center, no auto-hide) and narrow to
+			// what the container overlay actually permits. Single &= covers both
+			// the manager-null fallback (mask stays at OuterDockAreas) and the
+			// success path (mask intersects with the live overlay's allowed
+			// areas, dropping any non-edge bits like Center).
+			DockWidgetAreas ContainerAllowed = OuterDockAreas;
+			if (auto* Manager = Container->dockManager())
+			{
+				if (auto* ContainerOverlay = Manager->containerOverlay())
+				{
+					ContainerAllowed &= ContainerOverlay->allowedAreas();
+				}
+			}
+			const QPoint ContainerLocal = Container->mapFromGlobal(CursorPos);
+			// Probe call: we only care whether the container overlay's
+			// edge-band would claim this cursor — the specific area is
+			// recomputed by the container overlay itself when it paints.
+			// One-frame staleness note: Container->rect() and the container
+			// overlay's own rect() can briefly disagree if the container
+			// has been resized but the overlay hasn't been repositioned yet;
+			// the defer decision is recomputed every drag-move so any glitch
+			// self-corrects within one event loop iteration.
+			DeferToContainer = containerEdgeAreaForCursor(Container->rect(),
+				ContainerLocal, ContainerAllowed,
+				CDockManager::halfPanelContainerEdgeMargin())
+				!= InvalidDockWidgetArea;
+		}
+		if (!DeferToContainer)
+		{
+			Result = quadrantAreaForCursor(rect(), mapFromGlobal(CursorPos), d->AllowedAreas);
+		}
+	}
+
 	return Result;
+}
+
+
+//============================================================================
+// [Wizard NLE fork] Pure-function nearest-edge hit-test. Kept free of any Qt
+// signal/widget dependency so it can be unit tested in isolation.
+DockWidgetArea CDockOverlay::quadrantAreaForCursor(const QRect& bounds,
+	const QPoint& localCursor,
+	DockWidgetAreas allowedAreas)
+{
+	if (!bounds.isValid() || !bounds.contains(localCursor))
+	{
+		return InvalidDockWidgetArea;
+	}
+
+	// Qt's QRect::right() is x+width-1, which makes the math asymmetric
+	// (dRight one pixel smaller than dLeft for a centered cursor). Use
+	// width/height directly so opposite edges are equidistant at the rect's
+	// geometric center — the tie-break order then deterministically picks
+	// Left at dead-center.
+	const int dLeft   = localCursor.x() - bounds.left();
+	const int dRight  = bounds.left() + bounds.width()  - localCursor.x();
+	const int dTop    = localCursor.y() - bounds.top();
+	const int dBottom = bounds.top()  + bounds.height() - localCursor.y();
+
+	const std::pair<int, DockWidgetArea> Candidates[] = {
+		{ dLeft,   LeftDockWidgetArea   },
+		{ dRight,  RightDockWidgetArea  },
+		{ dTop,    TopDockWidgetArea    },
+		{ dBottom, BottomDockWidgetArea },
+	};
+
+	DockWidgetArea Best = InvalidDockWidgetArea;
+	int BestDist = 0;
+	for (const auto& C : Candidates)
+	{
+		if (!allowedAreas.testFlag(C.second))
+		{
+			continue;
+		}
+		if (Best == InvalidDockWidgetArea || C.first < BestDist)
+		{
+			Best = C.second;
+			BestDist = C.first;
+		}
+	}
+	return Best;
+}
+
+
+//============================================================================
+// [Wizard NLE fork] Edge-band variant: only returns a result when the cursor
+// is within edgeMargin of one of the rect's edges. The margin is clamped per
+// call to at most 1/4 of the bounds' smaller dimension so small floating
+// containers still have a usable interior.
+DockWidgetArea CDockOverlay::containerEdgeAreaForCursor(const QRect& bounds,
+	const QPoint& localCursor,
+	DockWidgetAreas allowedAreas,
+	int edgeMargin)
+{
+	if (!bounds.isValid() || !bounds.contains(localCursor))
+	{
+		return InvalidDockWidgetArea;
+	}
+
+	const int MaxMargin = std::min(bounds.width(), bounds.height()) / 4;
+	const int Margin = std::min(edgeMargin, MaxMargin);
+	if (Margin <= 0)
+	{
+		return InvalidDockWidgetArea;
+	}
+
+	const int dLeft   = localCursor.x() - bounds.left();
+	const int dRight  = bounds.left() + bounds.width()  - localCursor.x();
+	const int dTop    = localCursor.y() - bounds.top();
+	const int dBottom = bounds.top()  + bounds.height() - localCursor.y();
+
+	const std::pair<int, DockWidgetArea> Candidates[] = {
+		{ dLeft,   LeftDockWidgetArea   },
+		{ dRight,  RightDockWidgetArea  },
+		{ dTop,    TopDockWidgetArea    },
+		{ dBottom, BottomDockWidgetArea },
+	};
+
+	DockWidgetArea Best = InvalidDockWidgetArea;
+	int BestDist = 0;
+	for (const auto& C : Candidates)
+	{
+		if (C.first > Margin)
+		{
+			continue;
+		}
+		if (!allowedAreas.testFlag(C.second))
+		{
+			continue;
+		}
+		if (Best == InvalidDockWidgetArea || C.first < BestDist)
+		{
+			Best = C.second;
+			BestDist = C.first;
+		}
+	}
+	return Best;
 }
 
 

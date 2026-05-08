@@ -16,6 +16,18 @@
 **
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockManager::HalfPanelDropZones (0x0200) config flag.
+**   2026-05-05  Added CDockOverlay friend declaration so the dock-area overlay
+**               can read the container overlay's AllowedAreas when
+**               HalfPanelDropZones is enabled.
+**   2026-05-06  Added CDockManager::setHalfPanelContainerEdgeMargin() and
+**               halfPanelContainerEdgeMargin() so the container edge-band
+**               width is configurable instead of a hard-coded constant.
+**   2026-05-06  Added bit-collision static_assert for HalfPanelDropZones,
+**               extended margin-setter docstring with <=0 semantics, and
+**               extended the friend-CDockOverlay justification comment.
 ******************************************************************************/
 
 
@@ -96,6 +108,23 @@ private:
 	friend CAutoHideSideBar;
 	friend CAutoHideTab;
 	friend AutoHideTabPrivate;
+	// [Wizard NLE fork] Lets CDockOverlay::dropAreaUnderCursor() consult the
+	// container overlay's AllowedAreas when HalfPanelDropZones is enabled, so
+	// the dock-area overlay only defers to the container on edges the
+	// container would actually accept.
+	//
+	// We use friend rather than promoting containerOverlay() to public on
+	// purpose: the alternative would broaden the public API surface of
+	// CDockManager (a class consumers depend on across version bumps),
+	// whereas friend localizes the access to a fork-internal class pair
+	// that already share an implementation contract. CDockOverlay is the
+	// only consumer of CDockManager's protected accessor here, and it's
+	// part of the same coordination boundary as CDockManager — exactly the
+	// scenario friend is intended for. Yes, friend grants more than the
+	// single getter strictly needs, but a thin public accessor would also
+	// be a fork divergence and would invite unrelated callers to depend on
+	// the shape of internal state.
+	friend class CDockOverlay;
 
 public Q_SLOTS:
 	/**
@@ -195,6 +224,7 @@ public:
 		TabCloseButtonIsToolButton = 0x0040,//! If enabled the tab close buttons will be QToolButtons instead of QPushButtons - disabled by default
 		AllTabsHaveCloseButton = 0x0080, //!< if this flag is set, then all tabs that are closable show a close button
 		RetainTabSizeWhenCloseButtonHidden = 0x0100, //!< if this flag is set, the space for the close button is reserved even if the close button is not visible
+		HalfPanelDropZones = 0x0200, //!< [Wizard NLE fork] If set, when the cursor misses the drop indicator icons but is inside a dock area, fall through to a nearest-edge quadrant hit-test so the user can drop anywhere in the panel half. Off by default; preserves upstream icon-targeted behavior.
 		DragPreviewIsDynamic = 0x0400,///< If opaque undocking is disabled, this flag defines the behavior of the drag preview window, if this flag is enabled, the preview will be adjusted dynamically to the drop area
 		DragPreviewShowsContentPixmap = 0x0800,///< If opaque undocking is disabled, the created drag preview window shows a copy of the content of the dock widget / dock are that is dragged
 		DragPreviewHasWindowFrame = 0x1000,///< If opaque undocking is disabled, then this flag configures if the drag preview is frameless or looks like a real window
@@ -247,6 +277,52 @@ public:
 		              | DragPreviewHasWindowFrame ///< the default configuration for non opaque operations that show a real window with frame
 	};
 	Q_DECLARE_FLAGS(ConfigFlags, eConfigFlag)
+
+	// [Wizard NLE fork] Bit-collision tripwire for HalfPanelDropZones.
+	// Upstream adding a new enum value at 0x0200 already produces a
+	// duplicate-enumerator compile error (the natural defense). This
+	// catches the harder case: a rebase that silently renumbers an
+	// existing upstream flag to 0x0200 — the static_assert fires before
+	// the binary ships and saved user state silently flips meaning.
+	// Maintainer note: when this fires, pick a new free bit for
+	// HalfPanelDropZones in DockManager.h, update LGPL change notice,
+	// rerun fork tests, then bump wizard's GIT_TAG.
+	static_assert((HalfPanelDropZones & (
+		ActiveTabHasCloseButton |
+		DockAreaHasCloseButton |
+		DockAreaCloseButtonClosesTab |
+		OpaqueSplitterResize |
+		XmlAutoFormattingEnabled |
+		XmlCompressionEnabled |
+		TabCloseButtonIsToolButton |
+		AllTabsHaveCloseButton |
+		RetainTabSizeWhenCloseButtonHidden |
+		DragPreviewIsDynamic |
+		DragPreviewShowsContentPixmap |
+		DragPreviewHasWindowFrame |
+		AlwaysShowTabs |
+		DockAreaHasUndockButton |
+		DockAreaHasTabsMenuButton |
+		DockAreaHideDisabledButtons |
+		DockAreaDynamicTabsMenuButtonVisibility |
+		FloatingContainerHasWidgetTitle |
+		FloatingContainerHasWidgetIcon |
+		HideSingleCentralWidgetTitleBar |
+		FocusHighlighting |
+		EqualSplitOnInsertion |
+		FloatingContainerForceNativeTitleBar |
+		FloatingContainerForceQWidgetTitleBar |
+		MiddleMouseButtonClosesTab |
+		DisableTabTextEliding |
+		ShowTabTextOnlyForActiveTab |
+		DoubleClickUndocksWidget |
+		TabsAtBottom |
+		UseNativeWindows |
+		DisableStylesheet
+	)) == 0,
+		"HalfPanelDropZones bit (0x0200) collides with another eConfigFlag "
+		"value. An upstream rebase has likely renumbered a flag onto our "
+		"reserved bit. Pick a different bit for HalfPanelDropZones.");
 
 
 	/**
@@ -378,6 +454,29 @@ public:
 	 * Returns true if the given overlay config flag is set
 	 */
 	static bool testAutoHideConfigFlag(eAutoHideFlag Flag);
+
+	/**
+	 * [Wizard NLE fork] Sets the width, in container-local pixels, of the
+	 * outer band where the container overlay claims drops when the
+	 * HalfPanelDropZones config flag is enabled. Inside this band the
+	 * dock-area overlay defers to the container so the "dock to outer
+	 * container edge" gesture stays reachable. The value is clamped per
+	 * use to never exceed 1/4 of the container's smaller dimension, so
+	 * small floating containers retain a usable interior. Default is 24.
+	 *
+	 * Pass <= 0 to disable the container edge-band entirely — the
+	 * dock-area overlay will then claim the cursor everywhere inside a
+	 * dock area when HalfPanelDropZones is set, and outer-edge container
+	 * drops fall back to icon-only targeting. Useful for callers who only
+	 * want the in-area half-panel behavior.
+	 */
+	static void setHalfPanelContainerEdgeMargin(int pixels);
+
+	/**
+	 * [Wizard NLE fork] Returns the current half-panel container edge-band
+	 * width in pixels. See setHalfPanelContainerEdgeMargin().
+	 */
+	static int halfPanelContainerEdgeMargin();
 
 	/**
 	 * Sets the value for the given config parameter

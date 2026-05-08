@@ -16,6 +16,16 @@
 **
 ** You should have received a copy of the GNU Lesser General Public
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+**
+** Modifications by Wizard NLE (Story Wizard, Inc.):
+**   2026-05-05  Added CDockOverlay::quadrantAreaForCursor() and
+**               half-panel quadrant fall-through in
+**               CDockOverlay::dropAreaUnderCursor(), gated by the new
+**               CDockManager::HalfPanelDropZones config flag.
+**   2026-05-05  Added CDockOverlay::containerEdgeAreaForCursor() so the
+**               container overlay claims an outer edge-band, and made the
+**               dock-area overlay defer to that band so outer-dock gestures
+**               are reachable.
 ******************************************************************************/
 
 
@@ -135,6 +145,39 @@ public:
 	 * Handle polish events
 	 */
 	virtual bool event(QEvent *e) override;
+
+	/**
+	 * [Wizard NLE fork] Pure-function helper that returns the nearest-edge dock
+	 * area for a cursor position inside the given bounds. Used by
+	 * dropAreaUnderCursor() when CDockManager::HalfPanelDropZones is enabled and
+	 * the icon-based hit-test missed. Exposed as a static so it can be unit
+	 * tested without a live overlay.
+	 *
+	 * Returns InvalidDockWidgetArea if bounds is invalid, the cursor is outside
+	 * bounds, or no edge area is permitted by allowedAreas. Ties are broken in
+	 * the order Left, Right, Top, Bottom.
+	 */
+	static DockWidgetArea quadrantAreaForCursor(const QRect& bounds,
+		const QPoint& localCursor,
+		DockWidgetAreas allowedAreas);
+
+	/**
+	 * [Wizard NLE fork] Strict edge-band variant of quadrantAreaForCursor used
+	 * by the container overlay so dock-to-container-edge gestures are
+	 * accessible without precisely targeting the small drop indicator icons.
+	 * Returns the nearest edge only when the cursor is within edgeMargin of
+	 * one of the bounds' edges; otherwise InvalidDockWidgetArea so the inner
+	 * dock-area overlay can claim the cursor.
+	 *
+	 * The margin is clamped to at most one quarter of the bounds' smaller
+	 * dimension so it never consumes more than half the available space on
+	 * small floating containers (24px margin on a 50px-wide container would
+	 * otherwise leave no usable middle).
+	 */
+	static DockWidgetArea containerEdgeAreaForCursor(const QRect& bounds,
+		const QPoint& localCursor,
+		DockWidgetAreas allowedAreas,
+		int edgeMargin);
 
 protected:
 	virtual void paintEvent(QPaintEvent *e) override;
