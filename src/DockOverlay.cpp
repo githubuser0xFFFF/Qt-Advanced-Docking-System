@@ -406,7 +406,6 @@ CDockOverlay::CDockOverlay(QWidget* parent, eMode Mode) :
 {
 	d->Mode = Mode;
 	d->Cross = new CDockOverlayCross(this);
-	setWindowOpacity(1);
 	setWindowTitle("DockOverlay");
 	setAttribute(Qt::WA_NoSystemBackground);
 	setAttribute(Qt::WA_TranslucentBackground);
