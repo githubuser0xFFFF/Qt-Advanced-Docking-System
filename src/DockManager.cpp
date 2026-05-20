@@ -349,7 +349,12 @@ bool DockManagerPrivate::restoreStateFromXml(const QByteArray &state,  int versi
 		{
 			CFloatingDockContainer* floatingWidget = FloatingWidgets[i];
 			if (!floatingWidget) continue;
-			_this->removeDockContainer(floatingWidget->dockContainer());
+			// Use removeFromDockManager() (introduced in upstream commit 544c624) instead
+			// of removeDockContainer() so the container's back-pointer to the manager is
+			// cleared. Otherwise ~CDockContainerWidget() (called when deleteLater() fires)
+			// would try to remove this container a second time, tripping the
+			// Q_ASSERT(removed == 1) check in CDockManager::removeDockContainer().
+			floatingWidget->dockContainer()->removeFromDockManager();
 			floatingWidget->deleteLater();
 		}
     }
