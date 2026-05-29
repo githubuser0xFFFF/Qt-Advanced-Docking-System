@@ -50,6 +50,7 @@
 #include <QWindow>
 #include <QWindowStateChangeEvent>
 #include <QVector>
+#include <QStyleHints>
 
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
@@ -129,6 +130,9 @@ struct DockManagerPrivate
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	CDockWidget::DockWidgetFeatures LockedDockWidgetFeatures;
 	QSharedPointer<ads::CDockComponentsFactory> ComponentFactory {ads::CDockComponentsFactory::factory()};
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+	Qt::ColorScheme CurrentTheme;
+#endif
 
 	/**
 	 * Private data constructor
@@ -214,6 +218,11 @@ void DockManagerPrivate::loadStylesheet()
 		? "focus_highlighting" : "default";
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     FileName += "_linux";
+#endif
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+	CurrentTheme = QGuiApplication::styleHints()->colorScheme();
+    if (CurrentTheme == Qt::ColorScheme::Dark)
+		FileName += "_dark";
 #endif
     FileName += ".css";
 	QFile StyleSheetFile(FileName);
@@ -650,9 +659,9 @@ void CDockManager::setComponentsFactory(QSharedPointer<ads::CDockComponentsFacto
 
 
 //============================================================================
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 	// Emulate Qt:Tool behaviour.
 	// Required because on some WMs Tool windows can't be maximized.
 
@@ -725,12 +734,7 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 			QApplication::setActiveWindow(window());
 		}
 	}
-	return Super::eventFilter(obj, e);
-}
 #else
-//============================================================================
-bool CDockManager::eventFilter(QObject *obj, QEvent *e)
-{
 	if (e->type() == QEvent::WindowStateChange)
 	{
 		QWindowStateChangeEvent* ev = static_cast<QWindowStateChangeEvent*>(e);
@@ -740,9 +744,19 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 			QMetaObject::invokeMethod(this, "endLeavingMinimizedState", Qt::QueuedConnection);
 		}
 	}
-	return Super::eventFilter(obj, e);
+#endif
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+	if (e->type() == QEvent::ApplicationPaletteChange)
+	{
+		Qt::ColorScheme theme = QGuiApplication::styleHints()->colorScheme();
+
+		if (d->CurrentTheme != theme) {
+			d->loadStylesheet();
+		}
 }
 #endif
+	return Super::eventFilter(obj, e);
+}
 
 
 //============================================================================
