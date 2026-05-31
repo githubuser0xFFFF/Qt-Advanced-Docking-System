@@ -129,7 +129,14 @@ struct DockOverlayCrossPrivate
 			 break;
 
 		case CDockOverlayCross::ArrowColor: return pal.color(QPalette::Active, QPalette::Base);
-		case CDockOverlayCross::ShadowColor: return QColor(0, 0, 0, 64);
+		case CDockOverlayCross::ShadowColor:
+			 {
+				 QColor Color = pal.color(QPalette::Active, QPalette::Text);
+				 Color.setAlpha(64);
+				 return Color;
+			 }
+			 break;
+
 		default:
 			return QColor();
 		}
@@ -146,7 +153,6 @@ struct DockOverlayCrossPrivate
 		if (!Color.isValid())
 		{
 			Color = defaultIconColor(ColorIndex);
-			IconColors[ColorIndex] = Color;
 		}
 		return Color;
 	}
@@ -904,6 +910,22 @@ void CDockOverlayCross::showEvent(QShowEvent*)
 		setupOverlayCross(d->Mode);
 	}
 	this->updatePosition();
+}
+
+
+//============================================================================
+bool CDockOverlayCross::event(QEvent *e)
+{
+	bool Result = QWidget::event(e);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+	if (e->type() == QEvent::ApplicationPaletteChange)
+	{
+		d->UpdateRequired = true;
+	}
+#endif
+
+	return Result;
 }
 
 

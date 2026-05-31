@@ -273,6 +273,7 @@ public:
 
 protected:
 	virtual void showEvent(QShowEvent* e) override;
+	virtual bool event(QEvent* e) override;
 	void setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& widgets);
 }; // CDockOverlayCross
 
