@@ -918,12 +918,10 @@ bool CDockOverlayCross::event(QEvent *e)
 {
 	bool Result = QWidget::event(e);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
 	if (e->type() == QEvent::ApplicationPaletteChange)
 	{
 		d->UpdateRequired = true;
 	}
-#endif
 
 	return Result;
 }

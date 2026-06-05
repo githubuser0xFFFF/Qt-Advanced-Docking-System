@@ -119,6 +119,7 @@ struct DockManagerPrivate
 	QMap<QString, QMenu*> ViewMenuGroups;
 	QMenu* ViewMenu;
 	CDockManager::eViewMenuInsertionOrder MenuInsertionOrder = CDockManager::MenuAlphabeticallySorted;
+	CDockManager::eStylesheetColorSchemeBehavior StylesheetColorSchemeBehavior = CDockManager::FollowApplicationPalette;
 	bool RestoringState = false;
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
@@ -130,9 +131,7 @@ struct DockManagerPrivate
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	CDockWidget::DockWidgetFeatures LockedDockWidgetFeatures;
 	QSharedPointer<ads::CDockComponentsFactory> ComponentFactory {ads::CDockComponentsFactory::factory()};
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	Qt::ColorScheme CurrentTheme;
-#endif
+	bool CurrentStylesheetDark;
 
 	/**
 	 * Private data constructor
@@ -219,11 +218,12 @@ void DockManagerPrivate::loadStylesheet()
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     FileName += "_linux";
 #endif
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	CurrentTheme = QGuiApplication::styleHints()->colorScheme();
-    if (CurrentTheme == Qt::ColorScheme::Dark)
-		FileName += "_dark";
-#endif
+    if (_this->isDesiredStylesheetDark()) {
+        CurrentStylesheetDark = true;
+        FileName += "_dark";
+    }
+    else
+        CurrentStylesheetDark = false;
     FileName += ".css";
 	QFile StyleSheetFile(FileName);
 	StyleSheetFile.open(QIODevice::ReadOnly);
@@ -745,16 +745,12 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 		}
 	}
 #endif
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-	if (e->type() == QEvent::ApplicationPaletteChange)
+	if (e->type() == QEvent::ApplicationPaletteChange && d->StylesheetColorSchemeBehavior == CDockManager::FollowApplicationPalette)
 	{
-		Qt::ColorScheme theme = QGuiApplication::styleHints()->colorScheme();
-
-		if (d->CurrentTheme != theme) {
+		if (d->CurrentStylesheetDark != isDesiredStylesheetDark()) {
 			d->loadStylesheet();
 		}
-}
-#endif
+	}
 	return Super::eventFilter(obj, e);
 }
 
@@ -1275,6 +1271,18 @@ void CDockManager::setViewMenuInsertionOrder(eViewMenuInsertionOrder Order)
 }
 
 
+//============================================================================
+void CDockManager::setStylesheetColorSchemeBehavior(eStylesheetColorSchemeBehavior Behavior)
+{
+	d->StylesheetColorSchemeBehavior = Behavior;
+
+	if (d->CurrentStylesheetDark != isDesiredStylesheetDark()) {
+		d->loadStylesheet();
+		ensurePolished();
+	}
+}
+
+
 //===========================================================================
 bool CDockManager::isRestoringState() const
 {
@@ -1582,6 +1590,28 @@ void CDockManager::raise()
     {
         parentWidget()->raise();
     }
+}
+
+
+//============================================================================
+bool CDockManager::isApplicationPaletteDark()
+{
+    QPalette appPalette = QGuiApplication::palette();
+    
+    // Extract the background and foreground colors
+    QColor windowColor = appPalette.color(QPalette::Window);
+    QColor textColor = appPalette.color(QPalette::WindowText);
+    
+    // Check lightness values (0.0 = black, 1.0 = white)
+    // If text is lighter than the background, the app palette is dark
+    return textColor.lightnessF() > windowColor.lightnessF();
+}
+
+
+//============================================================================
+bool CDockManager::isDesiredStylesheetDark()
+{
+    return ((isApplicationPaletteDark() && d->StylesheetColorSchemeBehavior == FollowApplicationPalette) || d->StylesheetColorSchemeBehavior == ForceDark);
 }
 
 
