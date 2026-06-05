@@ -548,16 +548,16 @@ CDockManager::CDockManager(QWidget *parent) :
             return;
         }
 
-        // If the user clicks the main window or drags a floating widget or works with a
-        // modal dialog, then raise the main window, all floating widgets and the focus window
-        // itself to bring it into foreground of any other application.
-        bool raise = qobject_cast<QMainWindow*>(widget)
-            || qobject_cast<ads::CFloatingDockContainer*>(widget);
-        if (auto dialog = qobject_cast<QDialog*>(widget))
-        {
-            raise |= dialog->isModal();
-        }
-        if (!raise)
+        // Only restack windows while a floating dock widget is actively being dragged.
+        // Reacting to ordinary focus changes makes this handler raise() multiple
+        // top-level windows, which can transfer focus and re-emit focusWindowChanged,
+        // re-entering this handler in a self-sustaining loop that never settles -
+        // visible as constant flicker on Linux/X11. Gating on an
+        // active drag breaks that loop: outside a drag we do nothing.
+        const bool draggingActive = std::any_of(
+            d->FloatingWidgets.begin(), d->FloatingWidgets.end(),
+            [](CFloatingDockContainer* fw){ return fw && fw->isDraggingActive(); });
+        if (!draggingActive)
         {
             return;
         }

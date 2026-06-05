@@ -269,6 +269,11 @@ public:
 	 */
 	void finishDropOperation();
 
+	/**
+	 * Returns true while this floating widget is actively being dragged.
+	 */
+	bool isDraggingActive() const;
+
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     /**
 	 * This is a function that responds to FloatingWidgetTitleBar::maximizeRequest()
