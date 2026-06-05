@@ -148,7 +148,7 @@ ads--CDockWidgetTab[focused="true"] > #tabCloseButton:pressed {
 }
 
 ads--CDockWidgetTab[focused="true"] QLabel {
-        color: palette(dark);
+        color: palette(highlighted-text);
 }
 
 
