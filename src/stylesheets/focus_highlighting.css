@@ -54,6 +54,10 @@ ads--CTitleBarButton {
 	image: none;
 }
 
+#tabsMenuButton {
+        qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
+        qproperty-iconSize: 16px;
+}
 
 #dockAreaCloseButton {
 	qproperty-icon: url(:/ads/images/close-button.svg),
