@@ -818,6 +818,12 @@ CDockContainerWidget* CFloatingDockContainer::dockContainer() const
 }
 
 //============================================================================
+bool CFloatingDockContainer::isDraggingActive() const
+{
+	return d->isState(DraggingFloatingWidget);
+}
+
+//============================================================================
 void CFloatingDockContainer::changeEvent(QEvent *event)
 {
 	Super::changeEvent(event);
