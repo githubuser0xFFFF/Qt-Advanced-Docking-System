@@ -29,6 +29,7 @@ jobs:
         target: desktop
         host: windows
         arch: win64_msvc2019_64
+        modules: 'qtcharts qtshadertools'
         dir: ${{ env.QT_DIR }}
         setup-python: false
 
@@ -75,6 +76,7 @@ jobs:
         target: desktop
         host: windows
         arch: win64_mingw
+        modules: 'qtcharts qtshadertools'
         dir: ${{ env.QT_DIR }}
         tools: 'tools_mingw1310'
         setup-python: false

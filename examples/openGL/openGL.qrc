@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="/openGL">
+    <file>test.qml</file>
+    <file>wobble.frag</file>
+    <file>wobble.frag.qsb</file>
+  </qresource>
+  <qresource>
+    <file>qtlogo.png</file>
+  </qresource>
+</RCC>
