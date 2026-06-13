@@ -179,6 +179,13 @@ public:
 		MenuAlphabeticallySorted
 	};
 
+	enum eStylesheetColorSchemeBehavior
+	{
+		ForceLight,
+		ForceDark,
+		FollowApplicationPalette
+	};
+
 	/**
 	 * These global configuration flags configure some global dock manager
 	 * settings.
@@ -396,6 +403,16 @@ public:
 	 * styleheets for icons is not an option.
 	 */
 	static CIconProvider& iconProvider();
+
+	/**
+	 * Returns if current application palette is dark
+	 */
+	static bool isApplicationPaletteDark();
+
+	/**
+	 * Returns if currently applied stylesheet is supposed to be dark
+	 */
+	bool isDesiredStylesheetDark();
 
 	/**
 	 * Adds dockwidget into the given area.
@@ -616,6 +633,17 @@ public:
 	 * into the view menu.
 	 */
 	void setViewMenuInsertionOrder(eViewMenuInsertionOrder Order);
+
+	/**
+	 * Define the behavior of stylesheet color scheme selection.
+	 * The stylesheet can be fixed to either light or dark scheme,
+	 * or it can follow the current application palette (default).
+	 * Note: The fixed settings implement legacy behavior (before
+	 * dark scheme was implemented) including problems like missing
+	 * palette change propagation. They are implemented solely
+	 * for compatibility reasons and manual stylesheet switching.
+	 */
+	void setStylesheetColorSchemeBehavior(eStylesheetColorSchemeBehavior Behavior);
 
 	/**
 	 * This function returns true between the restoringState() and

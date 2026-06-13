@@ -23,5 +23,28 @@
         <file>images/minimize-button.svg</file>
         <file>images/minimize-button-focused.svg</file>
         <file>images/vs-pin-button-disabled.svg</file>
+        <file>stylesheets/default_dark.css</file>
+        <file>images/close-button_dark.svg</file>
+        <file>images/pin-button_dark.svg</file>
+        <file>images/close-button-disabled_dark.svg</file>
+        <file>stylesheets/default_linux_dark.css</file>
+        <file>images/close-button-focused_dark.svg</file>
+        <file>stylesheets/focus_highlighting_dark.css</file>
+        <file>stylesheets/focus_highlighting_linux_dark.css</file>
+        <file>images/tabs-menu-button_dark.svg</file>
+        <file>images/detach-button_dark.svg</file>
+        <file>images/detach-button-disabled_dark.svg</file>
+        <file>images/maximize-button_dark.svg</file>
+        <file>images/maximize-button-focused_dark.svg</file>
+        <file>images/restore-button_dark.svg</file>
+        <file>images/restore-button-focused_dark.svg</file>
+        <file>images/vs-pin-button_dark.svg</file>
+        <file>images/vs-pin-button-pinned_dark.svg</file>
+        <file>images/vs-pin-button-pinned-focused_dark.svg</file>
+        <file>images/vs-pin-button_45_dark.svg</file>
+        <file>images/pin-button-big_dark.svg</file>
+        <file>images/minimize-button_dark.svg</file>
+        <file>images/minimize-button-focused_dark.svg</file>
+        <file>images/vs-pin-button-disabled_dark.svg</file>
     </qresource>
 </RCC>
