@@ -1239,7 +1239,6 @@ void CFloatingDockContainer::finishDragging()
 {
 	ADS_PRINT("CFloatingDockContainer::finishDragging");
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowOpacity(1);
 	activateWindow();
 	if (d->MouseEventHandler)
 	{
