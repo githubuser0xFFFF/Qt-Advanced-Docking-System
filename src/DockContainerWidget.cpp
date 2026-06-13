@@ -163,13 +163,13 @@ public:
 	 * Adds dock widget to container and returns the dock area that contains
 	 * the inserted dock widget
 	 */
-	CDockAreaWidget* addDockWidgetToContainer(DockWidgetArea area, CDockWidget* Dockwidget);
+	CDockAreaWidget* addDockWidgetToContainer(DockWidgetArea area, CDockWidget* Dockwidget, bool activate = true);
 
 	/**
 	 * Adds dock widget to a existing DockWidgetArea
 	 */
 	CDockAreaWidget* addDockWidgetToDockArea(DockWidgetArea area, CDockWidget* Dockwidget,
-		CDockAreaWidget* TargetDockArea, int Index = -1);
+		CDockAreaWidget* TargetDockArea, int Index = -1, bool activate = true);
 
 	/**
 	 * Add dock area to this container
@@ -1234,10 +1234,10 @@ bool DockContainerWidgetPrivate::restoreChildNodes(CDockingStateReader& s,
 
 //============================================================================
 CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToContainer(DockWidgetArea area,
-	CDockWidget* Dockwidget)
+	CDockWidget* Dockwidget, bool activate)
 {
 	CDockAreaWidget* NewDockArea = new CDockAreaWidget(DockManager, _this);
-	NewDockArea->addDockWidget(Dockwidget);
+	NewDockArea->addDockWidget(Dockwidget, activate);
 	addDockArea(NewDockArea, area);
 	NewDockArea->updateTitleBarVisibility();
 	LastAddedAreaCache[areaIdToIndex(area)] = NewDockArea;
@@ -1350,17 +1350,17 @@ void DockContainerWidgetPrivate::dumpRecursive(int level, QWidget* widget)
 
 //============================================================================
 CDockAreaWidget* DockContainerWidgetPrivate::addDockWidgetToDockArea(DockWidgetArea area,
-	CDockWidget* Dockwidget, CDockAreaWidget* TargetDockArea, int Index)
+	CDockWidget* Dockwidget, CDockAreaWidget* TargetDockArea, int Index, bool activate)
 {
 	if (CenterDockWidgetArea == area)
 	{
-		TargetDockArea->insertDockWidget(Index, Dockwidget);
+		TargetDockArea->insertDockWidget(Index, Dockwidget, activate);
 		TargetDockArea->updateTitleBarVisibility();
 		return TargetDockArea;
 	}
 
 	CDockAreaWidget* NewDockArea = new CDockAreaWidget(DockManager, _this);
-	NewDockArea->addDockWidget(Dockwidget);
+	NewDockArea->addDockWidget(Dockwidget, activate);
 	auto InsertParam = internal::dockAreaInsertParameters(area);
 
 	auto TargetAreaSplitter = TargetDockArea->parentSplitter();
@@ -1442,7 +1442,7 @@ CDockContainerWidget::~CDockContainerWidget()
 
 //============================================================================
 CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockWidget* Dockwidget,
-	CDockAreaWidget* DockAreaWidget, int Index)
+	CDockAreaWidget* DockAreaWidget, int Index, bool activate)
 {
 	auto TopLevelDockWidget = topLevelDockWidget();
 	CDockAreaWidget* OldDockArea = Dockwidget->dockAreaWidget();
@@ -1455,11 +1455,11 @@ CDockAreaWidget* CDockContainerWidget::addDockWidget(DockWidgetArea area, CDockW
 	CDockAreaWidget* DockArea;
 	if (DockAreaWidget)
 	{
-		DockArea = d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget, Index);
+		DockArea = d->addDockWidgetToDockArea(area, Dockwidget, DockAreaWidget, Index, activate);
 	}
 	else
 	{
-		DockArea = d->addDockWidgetToContainer(area, Dockwidget);
+		DockArea = d->addDockWidgetToContainer(area, Dockwidget, activate);
 	}
 
 	if (TopLevelDockWidget)
