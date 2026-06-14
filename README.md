@@ -183,6 +183,7 @@ know it from Visual Studio.
   - [Windows](#windows)
   - [macOS](#macos)
   - [Linux](#linux)
+    - [Wayland](#wayland)
 - [Build](#build)
   - [Qt5 on Ubuntu 18.04 or 20.04](#qt5-on-ubuntu-1804-or-2004)
   - [Qt5 on Ubuntu 22.04](#qt5-on-ubuntu-2204)
@@ -408,18 +409,38 @@ the library switches to `QWidget` based title bars.
 
 - **Kubuntu 18.04 and 19.10** - uses KWin - no native title bars
 - **Ubuntu 18.04, 19.10 and 20.04** - native title bars are supported
-- **Ubuntu 22.04** - uses Wayland -> no native title bars
+- **Ubuntu 22.04 and later** - uses Wayland -> native title bars (see [Wayland](#wayland) below)
 
 There are some requirements for the Linux distribution that have to be met:
 
-- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95).
-- Wayland is not properly supported by Qt yet. If you use Wayland, then you should set the session type to x11: `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details about this in issue [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288).
+- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95). On Wayland the dock overlays are rendered as child widgets and this requirement does not apply.
 
 Screenshot Kubuntu:
 ![Advanced Docking on Kubuntu Linux](doc/linux_kubuntu_1804.png)
 
 Screenshot Ubuntu:
 ![Advanced Docking on Ubuntu Linux](doc/linux_ubuntu_1910.png)
+
+#### Wayland
+
+Since Qt 6.6.3 docking is supported on Wayland. Earlier Qt versions do not implement the `xdg_toplevel_drag_v1` protocol that is required to drag a floating window with the cursor, so on those versions you should still set the session type to X11 (XWayland): `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details in issues [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288) and [#714](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/714).
+
+Wayland does not allow a client to move its own top level windows in screen coordinates or to query the global cursor position, so docking is implemented differently than on the other platforms. This results in a few behavioral differences on Wayland:
+
+- Floating dock containers always use native window decorations (the custom
+  `QWidget` title bar is not available), because the custom title bar cannot
+  move the window.
+- Undocking and re-docking use a compositor driven drag (the floating window
+  itself follows the cursor) instead of the translucent drag preview.
+- The compositor controls the window stacking, so floating windows are not
+  forced to stay on top of the main window.
+- Saved layouts restore the docked arrangement, the floating-window sizes and
+  their maximized/normal state, but **not** the on-screen position of floating
+  windows (the same applies to the application's own main window). Wayland does
+  not let a client position its top-level windows, so the compositor decides
+  where restored windows appear. Restoring positions requires compositor side
+  session management (the staging `xx-session-management-v1` protocol), which is
+  not yet available through Qt.
 
 ## Build
 

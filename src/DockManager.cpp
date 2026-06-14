@@ -661,8 +661,14 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 	// Emulate Qt:Tool behaviour.
 	// Required because on some WMs Tool windows can't be maximized.
 
+	// Wayland: skip the stays-on-top emulation. The compositor owns the
+	// window stacking, and changing the window flags of a shown window
+	// recreates its surface, which would detach a running platform drag.
+	// The minimize synchronization below does not change window flags and
+	// is kept.
+
 	// Window always on top of the MainWindow.
-	if (e->type() == QEvent::WindowActivate)
+	if (!internal::isWayland() && e->type() == QEvent::WindowActivate)
 	{
         for (auto _window : d->FloatingWidgets)
 		{
@@ -684,7 +690,7 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 			}
         }
 	}
-	else if (e->type() == QEvent::WindowDeactivate)
+	else if (!internal::isWayland() && e->type() == QEvent::WindowDeactivate)
 	{
         for (auto _window : d->FloatingWidgets)
 		{
@@ -952,6 +958,35 @@ void CDockManager::showEvent(QShowEvent *event)
 		}
 	}
 	d->UninitializedFloatingWidgets.clear();
+}
+
+
+//============================================================================
+void CDockManager::changeEvent(QEvent *event)
+{
+	Super::changeEvent(event);
+
+	// Wayland: floating widgets have no parent widget, so a style sheet set on
+	// this dock manager or one of its ancestors does not reach them through the
+	// widget hierarchy (an application wide qApp style sheet is still applied
+	// automatically by Qt). A QEvent::StyleChange on the dock manager fires both
+	// for its own style sheet and - because the change propagates down to
+	// descendants - for an ancestor's, so re-apply the inherited style sheet to
+	// every floating widget here to keep them matching the docked content.
+	// Re-applying cannot recurse: the floating widgets are not children of this
+	// dock manager, so it does not receive their StyleChange events.
+	if (event->type() == QEvent::StyleChange && internal::isWayland())
+	{
+		const QString StyleSheet =
+			CFloatingDockContainer::waylandInheritedStyleSheet(this);
+		for (auto FloatingWidget : d->FloatingWidgets)
+		{
+			if (FloatingWidget)
+			{
+				FloatingWidget->setStyleSheet(StyleSheet);
+			}
+		}
+	}
 }
 
 
