@@ -230,6 +230,15 @@ CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area);
 
 
 /**
+ * Returns true, if the application runs on the Wayland display server
+ * protocol. Wayland does not allow clients to move top level windows in
+ * screen coordinates or to query the global cursor position, so docking
+ * requires a different implementation on Wayland.
+ */
+bool isWayland();
+
+
+/**
  * Returns the SieBarLocation for the AutoHide dock widget areas
  */
 SideBarLocation toSideBarLocation(DockWidgetArea Area);

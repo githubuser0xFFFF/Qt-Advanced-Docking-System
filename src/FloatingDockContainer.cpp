@@ -39,12 +39,17 @@
 #include <QAbstractButton>
 #include <QElapsedTimer>
 #include <QTime>
+#include <QDrag>
+#include <QMimeData>
+#include <QDataStream>
+#include <QWindow>
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
 #include "DockWidget.h"
 #include "DockOverlay.h"
+#include "FloatingDragPreview.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -583,62 +588,15 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	}
 
 	DropContainer = TopContainer;
-	auto ContainerOverlay = DockManager->containerOverlay();
-	auto DockAreaOverlay = DockManager->dockAreaOverlay();
-
 	if (!TopContainer)
 	{
-		ContainerOverlay->hideOverlay();
-		DockAreaOverlay->hideOverlay();
+		DockManager->containerOverlay()->hideOverlay();
+		DockManager->dockAreaOverlay()->hideOverlay();
 		return;
 	}
 
-	int VisibleDockAreas = TopContainer->visibleDockAreaCount();
-	DockWidgetAreas AllowedContainerAreas = (VisibleDockAreas > 1) ? OuterDockAreas : AllDockAreas;
-	auto DockArea = TopContainer->dockAreaAt(GlobalPos);
-	// If the dock container contains only one single DockArea, then we need
-	// to respect the allowed areas - only the center area is relevant here because
-	// all other allowed areas are from the container
-	if (VisibleDockAreas == 1 && DockArea)
-	{
-		AllowedContainerAreas.setFlag(CenterDockWidgetArea, DockArea->allowedAreas().testFlag(CenterDockWidgetArea));
-	}
-
-	if (DockContainer->features().testFlag(CDockWidget::DockWidgetPinnable))
-	{
-		AllowedContainerAreas |= AutoHideDockAreas;
-	}
-
-	ContainerOverlay->setAllowedAreas(AllowedContainerAreas);
-
-	DockWidgetArea ContainerArea = ContainerOverlay->showOverlay(TopContainer);
-	ContainerOverlay->enableDropPreview(ContainerArea != InvalidDockWidgetArea);
-	if (DockArea && DockArea->isVisible() && VisibleDockAreas > 0)
-	{
-		DockAreaOverlay->enableDropPreview(true);
-		DockAreaOverlay->setAllowedAreas(
-		    (VisibleDockAreas == 1) ? NoDockWidgetArea : DockArea->allowedAreas());
-		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea);
-
-		// A CenterDockWidgetArea for the dockAreaOverlay() indicates that
-		// the mouse is in the title bar. If the ContainerArea is valid
-		// then we ignore the dock area of the dockAreaOverlay() and disable
-		// the drop preview
-		if ((Area == CenterDockWidgetArea)
-		    && (ContainerArea != InvalidDockWidgetArea))
-		{
-			DockAreaOverlay->enableDropPreview(false);
-			ContainerOverlay->enableDropPreview(true);
-		}
-		else
-		{
-			ContainerOverlay->enableDropPreview(InvalidDockWidgetArea == Area);
-		}
-	}
-	else
-	{
-		DockAreaOverlay->hideOverlay();
-	}
+	CDockContainerWidget::showDropOverlays(DockManager, TopContainer, GlobalPos,
+		DockContainer->features().testFlag(CDockWidget::DockWidgetPinnable));
 }
 
 
@@ -653,8 +611,16 @@ void FloatingDockContainerPrivate::handleEscapeKey()
 
 
 //============================================================================
+// Wayland: a floating widget that is a child of the dock manager makes Qt
+// turn the dock manager and all of its child widgets into native windows
+// when the floating widget is shown. Native child widgets are
+// wl_subsurfaces that take part in the compositors drag and drop target
+// picking and steal the drop focus from the dock container during a
+// platform drag. The dock manager deletes the registered floating widgets
+// in its destructor, so the floating widget does not need a parent for
+// memory management.
 CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
-	tFloatingWidgetBase(DockManager),
+	tFloatingWidgetBase(internal::isWayland() ? nullptr : static_cast<QWidget*>(DockManager)),
 	d(new FloatingDockContainerPrivate(this))
 {
 	d->DockManager = DockManager;
@@ -696,16 +662,14 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
                 native_window = window_manager != "KWIN";
 	}
 
-    if (native_window)
-    {
-        // Native windows do not work if wayland is used. Ubuntu 22.04 uses wayland by default. To use
-        // native windows, switch to Xorg
-        QString XdgSessionType = qgetenv("XDG_SESSION_TYPE").toLower();
-        if ("wayland" == XdgSessionType)
-        {
-            native_window = false;
-        }
-    }
+	// Wayland does not allow clients to move windows, so the custom title
+	// bar cannot work there - dragging it would not move the window. Always
+	// use a native window so that the user can move the floating widget
+	// via the window decoration provided by the compositor or by Qt.
+	if (internal::isWayland())
+	{
+		native_window = true;
+	}
 
 	if (native_window)
 	{
@@ -735,6 +699,21 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
 	{
 		winId();
+	}
+
+	// Wayland: the floating widget has no parent widget (see above), so it
+	// does not inherit the dock manager's effective style sheet through the
+	// widget hierarchy. Apply the style sheets along the dock manager parent
+	// chain explicitly, so the floating widget looks like the docked content.
+	// CDockManager::changeEvent() keeps this up to date when the style sheet
+	// changes while the widget is already floating.
+	if (internal::isWayland())
+	{
+		const QString StyleSheet = waylandInheritedStyleSheet(DockManager);
+		if (!StyleSheet.isEmpty())
+		{
+			setStyleSheet(StyleSheet);
+		}
 	}
 
 	DockManager->registerFloatingWidget(this);
@@ -1250,6 +1229,250 @@ void CFloatingDockContainer::finishDragging()
 	d->titleMouseReleaseEvent();
 }
 
+
+//============================================================================
+// MIME type that transports the CFloatingDockContainer pointer between the
+// drag source and the CDockContainerWidget drop targets within this
+// application
+static const char* const FloatingWidgetMimeType = "application/x-ads-floating-dock-container";
+
+// MIME types that QWaylandDataDevice translates into an
+// xdg_toplevel_drag_v1 request so that the compositor attaches the floating
+// widget window to the drag cursor. The format matches
+// QMainWindowLayout::performPlatformWidgetDrag() in qtbase
+static const char* const PlatformDragWindowMimeType = "application/x-qt-mainwindowdrag-window";
+static const char* const PlatformDragPositionMimeType = "application/x-qt-mainwindowdrag-position";
+
+// Maximum age of the recorded drop candidate that startPlatformDrag() still
+// accepts as a drop. It must be longer than the interval between drag move
+// events (so a drop right after the last move counts) but short enough to
+// reject a release far away from the last drop area
+static const int PlatformDragDropCandidateTimeoutMs = 400;
+
+
+// Records the last drop candidate during a Wayland platform drag. Some
+// compositors do not deliver a drop event when the dragged window overlaps
+// the drop target (they send a leave event instead), so startPlatformDrag()
+// falls back to this candidate when no drop event was delivered.
+struct PlatformDragDropCandidate
+{
+	QPointer<CDockContainerWidget> Container;
+	QPoint GlobalPos;
+	bool ValidDropArea = false;
+	bool DropHandled = false;
+	QElapsedTimer SinceLastUpdate;
+};
+static PlatformDragDropCandidate s_PlatformDragDropCandidate;
+
+
+//============================================================================
+void CFloatingDockContainer::platformDragUpdateDropCandidate(
+	CDockContainerWidget* Container, const QPoint& GlobalPos, bool ValidDropArea)
+{
+	s_PlatformDragDropCandidate.Container = Container;
+	s_PlatformDragDropCandidate.GlobalPos = GlobalPos;
+	s_PlatformDragDropCandidate.ValidDropArea = ValidDropArea;
+	s_PlatformDragDropCandidate.SinceLastUpdate.start();
+}
+
+
+//============================================================================
+void CFloatingDockContainer::platformDragNotifyDropHandled()
+{
+	s_PlatformDragDropCandidate.DropHandled = true;
+}
+
+
+//============================================================================
+QString CFloatingDockContainer::waylandInheritedStyleSheet(QWidget* DockManager)
+{
+	QString StyleSheet;
+	for (QWidget* Widget = DockManager; Widget; Widget = Widget->parentWidget())
+	{
+		const QString WidgetStyleSheet = Widget->styleSheet();
+		if (!WidgetStyleSheet.isEmpty())
+		{
+			StyleSheet = WidgetStyleSheet + QLatin1Char('\n') + StyleSheet;
+		}
+	}
+	return StyleSheet;
+}
+
+
+//============================================================================
+Qt::DropAction CFloatingDockContainer::startPlatformDrag(
+	CFloatingDockContainer* FloatingWidget, const QPoint& GlobalPressPos,
+	QWidget* DragSource, const QPoint* DragOffset)
+{
+	auto serialize = [](const auto &object)
+	{
+		QByteArray Data;
+		QDataStream DataStream(&Data, QIODevice::WriteOnly);
+		DataStream << object;
+		return Data;
+	};
+
+	// xdg_toplevel_drag_v1: the attach offset that places the new window under
+	// the cursor is only honoured by the compositor while the toplevel is still
+	// UNMAPPED. The protocol says the client "issues a xdg_toplevel_drag_v1.attach
+	// request before mapping it", and the offset "might only be used when an
+	// unmapped window is attached". Qt's QWaylandDataDevice::startDrag() performs
+	// the attach when the data drag starts, reading the xdg_toplevel surface role
+	// off the window handle.
+	//
+	// The caller already show()'d the floating widget, which creates the
+	// xdg_toplevel role, but the surface is only mapped (a buffer committed)
+	// once the event loop is pumped. We therefore deliberately do NOT wait for
+	// exposure here: pumping events would map the window before exec() runs the
+	// attach, after which the compositor ignores the offset and leaves the
+	// window at its default position (typically screen center). Proceeding
+	// straight to exec() keeps the toplevel created-but-unmapped so the attach
+	// offset positions it under the cursor.
+
+	// The offset is the press position relative to the floating widget top
+	// left corner, so the compositor keeps the cursor at the same spot on
+	// the window during the drag. For a freshly created floating window the
+	// caller supplies it explicitly (DragOffset): on Wayland the new window has
+	// no meaningful geometry yet, so mapFromGlobal() would give a wrong/random
+	// offset and the compositor would place the window randomly.
+	QPoint DragStartOffset;
+	if (DragOffset)
+	{
+		DragStartOffset = *DragOffset;
+		// The new floating window is a native window on Wayland (forced in the
+		// constructor), so it has a title bar / decoration around the content -
+		// drawn either by the compositor or by Qt's client-side decoration.
+		// The supplied offset is relative to the source tab/area content, so
+		// shift it by the window frame's top and left margins to keep the
+		// grabbed content point - not the decoration - under the cursor. With
+		// server-side decorations the margins are 0 and no shift is applied.
+		if (FloatingWidget->windowHandle())
+		{
+			const QMargins Frame = FloatingWidget->windowHandle()->frameMargins();
+			DragStartOffset.rx() += Frame.left();
+			DragStartOffset.ry() += Frame.top();
+		}
+	}
+	else
+	{
+		DragStartOffset = FloatingWidget->mapFromGlobal(GlobalPressPos);
+	}
+
+	auto Drag = new QDrag(DragSource);
+	auto MimeData = new QMimeData();
+	MimeData->setData(QLatin1String(PlatformDragWindowMimeType),
+		serialize(reinterpret_cast<qintptr>(FloatingWidget->windowHandle())));
+	MimeData->setData(QLatin1String(PlatformDragPositionMimeType),
+		serialize(DragStartOffset));
+	MimeData->setData(QLatin1String(FloatingWidgetMimeType),
+		serialize(reinterpret_cast<qintptr>(FloatingWidget)));
+	Drag->setMimeData(MimeData);
+
+	// The drop targets dock the floating widget in their dropEvent() handler,
+	// which deletes the floating widget before exec() returns
+	QPointer<CFloatingDockContainer> GuardedFloatingWidget(FloatingWidget);
+	auto DockManager = FloatingWidget->dockContainer()->dockManager();
+	s_PlatformDragDropCandidate = PlatformDragDropCandidate();
+	// The QDrag::exec() return value does not reliably encode whether the
+	// floating widget was docked on Wayland (e.g. compositors that send a
+	// leave event instead of a drop event report Qt::IgnoreAction even though
+	// the drag ended over a drop area). Track the docking outcome explicitly
+	// instead and translate it into the documented return value below.
+	Drag->exec();
+
+	// Some compositors (e.g. Mutter) do not deliver a drop event to the
+	// target container when the dragged window overlaps it - they send a
+	// leave event on release instead. If no drop event was delivered, but
+	// the drag ended over a valid drop area, dock the floating widget into
+	// the recorded candidate. A short timeout distinguishes a drop on a
+	// drop area from a release outside of any drop area to keep the widget
+	// floating
+	auto& Candidate = s_PlatformDragDropCandidate;
+	bool Docked = Candidate.DropHandled;
+	if (!Candidate.DropHandled && !GuardedFloatingWidget.isNull()
+	 && Candidate.Container && Candidate.ValidDropArea
+	 && Candidate.SinceLastUpdate.isValid()
+	 && Candidate.SinceLastUpdate.elapsed() < PlatformDragDropCandidateTimeoutMs)
+	{
+		Candidate.Container->dropFloatingWidget(GuardedFloatingWidget,
+			Candidate.GlobalPos);
+		Docked = true;
+	}
+	s_PlatformDragDropCandidate = PlatformDragDropCandidate();
+	DockManager->containerOverlay()->hideOverlay();
+	DockManager->dockAreaOverlay()->hideOverlay();
+	Drag->deleteLater();
+
+	if (GuardedFloatingWidget)
+	{
+		GuardedFloatingWidget->d->setState(DraggingInactive);
+	}
+
+	return Docked ? Qt::MoveAction : Qt::IgnoreAction;
+}
+
+
+//============================================================================
+bool CFloatingDockContainer::waylandMoveOrLeaveInWindowPreview(
+	CFloatingDragPreview* Preview, QWidget* SourceWindow, const QPoint& GlobalPos)
+{
+	const QPoint InWindow = SourceWindow->mapFromGlobal(GlobalPos);
+	if (SourceWindow->rect().contains(InWindow))
+	{
+		if (Preview)
+		{
+			Preview->moveFloating(GlobalPos);
+		}
+		return true;
+	}
+
+	// Boundary cross: tear down the in-window preview without performing a
+	// drop. The caller converts the gesture into a native compositor platform
+	// drag while the implicit pointer grab from the original press is still
+	// active, which is what QDrag::exec() / xdg_toplevel_drag_v1 requires.
+	if (Preview)
+	{
+		Preview->cancelDraggingSilently();
+	}
+	return false;
+}
+
+
+//============================================================================
+Qt::DropAction CFloatingDockContainer::startPlatformDragForFloatingWidget(
+	IFloatingWidget* FloatingWidget, const QPoint& GrabOffset, const QSize& Size,
+	const QPoint& GlobalGrabPos, QWidget* DragSource)
+{
+	FloatingWidget->startFloating(GrabOffset, Size, DraggingInactive, nullptr);
+	// Keep the grab point under the cursor across the conversion. A client
+	// cannot position a Wayland top-level and the new window has no usable
+	// geometry yet, so pass the surface-local grab offset explicitly rather
+	// than letting startPlatformDrag() derive it from the press via
+	// mapFromGlobal() (which would be random on Wayland). We must NOT move()
+	// the window here either: besides being ignored by the compositor, a
+	// geometry change between show() and exec() risks mapping the surface
+	// before the attach, which would discard the offset.
+	QPoint Offset = GrabOffset;
+	return startPlatformDrag(static_cast<CFloatingDockContainer*>(FloatingWidget),
+		GlobalGrabPos, DragSource, &Offset);
+}
+
+
+//============================================================================
+CFloatingDockContainer* CFloatingDockContainer::floatingWidgetFromMimeData(
+	const QMimeData* MimeData)
+{
+	if (!MimeData || !MimeData->hasFormat(QLatin1String(FloatingWidgetMimeType)))
+	{
+		return nullptr;
+	}
+
+	qintptr FloatingWidgetPtr = 0;
+	QDataStream DataStream(MimeData->data(QLatin1String(FloatingWidgetMimeType)));
+	DataStream >> FloatingWidgetPtr;
+	return reinterpret_cast<CFloatingDockContainer*>(FloatingWidgetPtr);
+}
+
 #ifdef Q_OS_MACOS
 //============================================================================
 bool CFloatingDockContainer::event(QEvent *e)
@@ -1428,7 +1651,12 @@ void CFloatingDockContainer::resizeEvent(QResizeEvent *event)
 void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 {
 	Super::moveEvent(event);
-    if (!d->IsResizing && event->spontaneous() && d->MousePressed)
+	// On Wayland, the global cursor position is not available and the
+	// compositor does not report window moves, so the docking via window
+	// moves cannot work. Floating widgets are docked via the platform drag
+	// and drop implemented in CDockContainerWidget instead
+    if (!d->IsResizing && event->spontaneous() && d->MousePressed
+     && !internal::isWayland())
 	{
         d->setState(DraggingFloatingWidget);
 		d->updateDropOverlays(QCursor::pos());

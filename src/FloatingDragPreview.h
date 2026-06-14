@@ -17,6 +17,7 @@ namespace ads
 {
 class CDockWidget;
 class CDockAreaWidget;
+class CDockContainerWidget;
 struct FloatingDragPreviewPrivate;
 
 /**
@@ -84,6 +85,28 @@ public: // implements IFloatingWidget -----------------------------------------
 	 * startFloating() was called
 	 */
 	virtual void moveFloating() override;
+
+	/**
+	 * Wayland hybrid drag: move the preview using an explicit global position
+	 * supplied by the grabbing tab/title-bar mouse event instead of
+	 * QCursor::pos(), which is unreliable on Wayland. Also drives the drop
+	 * overlays from the supplied position.
+	 */
+	void moveFloating(const QPoint& GlobalPos);
+
+	/**
+	 * Wayland hybrid drag: confine drop-target hit-testing and overlays to a
+	 * single source container during the in-window phase, so nothing leaks to
+	 * other top-level windows and no cross-window global coordinate is needed.
+	 */
+	void setSourceContainer(CDockContainerWidget* Container);
+
+	/**
+	 * Wayland hybrid drag: tear the preview down without performing a drop and
+	 * without emitting draggingCanceled. Used when the in-window drag converts
+	 * to a native platform drag on a window-boundary cross.
+	 */
+	void cancelDraggingSilently();
 
 	/**
 	 * Finishes dragging.

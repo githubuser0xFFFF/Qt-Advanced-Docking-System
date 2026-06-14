@@ -45,6 +45,22 @@ struct FloatingDragPreviewPrivate
 	QPixmap ContentPreviewPixmap;
 	bool Canceled = false;
 
+	// Wayland hybrid drag: during the in-window phase, hit-testing and overlays
+	// are confined to this container and driven by an explicit, event-supplied
+	// global position instead of the unreliable QCursor::pos().
+	CDockContainerWidget* SourceContainer = nullptr;
+	QPoint LastGlobalPos;
+	bool HasLastGlobalPos = false;
+
+	/**
+	 * Returns the last event-supplied global position when available (Wayland
+	 * hybrid drag), otherwise the live cursor position.
+	 */
+	QPoint cursorPos() const
+	{
+		return HasLastGlobalPos ? LastGlobalPos : QCursor::pos();
+	}
+
 
 	/**
 	 * Private data constructor
@@ -123,21 +139,38 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		return;
 	}
 
-	auto Containers = DockManager->dockContainers();
 	CDockContainerWidget *TopContainer = nullptr;
-	for (auto ContainerWidget : Containers)
+	if (SourceContainer)
 	{
-		if (!ContainerWidget->isVisible())
+		// Wayland in-window phase: the source container is the only candidate.
+		// This avoids relying on cross-window global coordinates (unreliable on
+		// Wayland) and keeps overlays from leaking onto other top-level windows.
+		if (SourceContainer->isVisible())
 		{
-			continue;
-		}
-
-		QPoint MappedPos = ContainerWidget->mapFromGlobal(GlobalPos);
-		if (ContainerWidget->rect().contains(MappedPos))
-		{
-			if (!TopContainer || ContainerWidget->isInFrontOf(TopContainer))
+			QPoint MappedPos = SourceContainer->mapFromGlobal(GlobalPos);
+			if (SourceContainer->rect().contains(MappedPos))
 			{
-				TopContainer = ContainerWidget;
+				TopContainer = SourceContainer;
+			}
+		}
+	}
+	else
+	{
+		auto Containers = DockManager->dockContainers();
+		for (auto ContainerWidget : Containers)
+		{
+			if (!ContainerWidget->isVisible())
+			{
+				continue;
+			}
+
+			QPoint MappedPos = ContainerWidget->mapFromGlobal(GlobalPos);
+			if (ContainerWidget->rect().contains(MappedPos))
+			{
+				if (!TopContainer || ContainerWidget->isInFrontOf(TopContainer))
+				{
+					TopContainer = ContainerWidget;
+				}
 			}
 		}
 	}
@@ -157,8 +190,8 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		return;
 	}
 
-	auto DockDropArea = DockAreaOverlay->dropAreaUnderCursor();
-	auto ContainerDropArea = ContainerOverlay->dropAreaUnderCursor();
+	auto DockDropArea = DockAreaOverlay->dropAreaUnderCursor(GlobalPos);
+	auto ContainerDropArea = ContainerOverlay->dropAreaUnderCursor(GlobalPos);
 
 	int VisibleDockAreas = TopContainer->visibleDockAreaCount();
 
@@ -190,7 +223,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	{
 		DockAreaOverlay->enableDropPreview(true);
 		DockAreaOverlay->setAllowedAreas( (VisibleDockAreas == 1) ? NoDockWidgetArea : DockArea->allowedAreas());
-		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea);
+		DockWidgetArea Area = DockAreaOverlay->showOverlay(DockArea, GlobalPos);
 
 		// A CenterDockWidgetArea for the dockAreaOverlay() indicates that
 		// the mouse is in the title bar. If the ContainerArea is valid
@@ -205,7 +238,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		{
 			ContainerOverlay->enableDropPreview(InvalidDockWidgetArea == Area);
 		}
-		ContainerOverlay->showOverlay(TopContainer);
+		ContainerOverlay->showOverlay(TopContainer, GlobalPos);
 	}
 	else
 	{
@@ -218,7 +251,7 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		{
 			ContainerOverlay->setAllowedAreas(AutoHideDockAreas);
 		}
-		ContainerOverlay->showOverlay(TopContainer);
+		ContainerOverlay->showOverlay(TopContainer, GlobalPos);
 
 
 		if (DockArea == ContentSourceArea && InvalidDockWidgetArea == ContainerDropArea)
@@ -276,8 +309,19 @@ void FloatingDragPreviewPrivate::createFloatingWidget()
 
 
 //============================================================================
+// Wayland: in the frameless config, parent the preview to the source content's
+// top-level window so it renders as a translucent child instead of a Qt::Tool
+// top-level. Wayland refuses client-driven move() of top-levels in screen
+// coordinates; child widgets composite correctly on every backend. We parent to
+// Content->window() (the window the dragged widget/area currently lives in) and
+// NOT to parent->window(): parent is the dock manager, whose window is always
+// the main window, so a drag started in a floating window would otherwise show
+// the preview on the main window. Non-Wayland behavior is unchanged.
 CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
-	QWidget(parent),
+	QWidget((internal::isWayland() && Content
+	            && !CDockManager::testConfigFlag(CDockManager::DragPreviewHasWindowFrame))
+	            ? Content->window()
+	            : parent),
 	d(new FloatingDragPreviewPrivate(this))
 {
 	d->Content = Content;
@@ -287,19 +331,32 @@ CFloatingDragPreview::CFloatingDragPreview(QWidget* Content, QWidget* parent) :
 	{
 		setWindowFlags(
 			Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+		auto Flags = windowFlags();
+		Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
+		setWindowFlags(Flags);
+#endif
+	}
+	else if (internal::isWayland())
+	{
+		// Translucent child of the source window. Transparent for mouse events
+		// so a release over a drop indicator falls through to it; positioning
+		// is driven by the grabbing tab/title-bar, not by this preview.
+		setAttribute(Qt::WA_NoSystemBackground);
+		setAttribute(Qt::WA_TranslucentBackground);
+		setAttribute(Qt::WA_TransparentForMouseEvents);
 	}
 	else
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 		setAttribute(Qt::WA_NoSystemBackground);
 		setAttribute(Qt::WA_TranslucentBackground);
-	}
-
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    auto Flags = windowFlags();
-    Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
-    setWindowFlags(Flags);
+		auto Flags = windowFlags();
+		Flags |= Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint;
+		setWindowFlags(Flags);
 #endif
+	}
 
 	// Create a static image of the widget that should get undocked
 	// This is like some kind preview image like it is uses in drag and drop
@@ -352,11 +409,53 @@ CFloatingDragPreview::~CFloatingDragPreview()
 //============================================================================
 void CFloatingDragPreview::moveFloating()
 {
-	int BorderSize = (frameSize().width() - size().width()) / 2;
-	const QPoint moveToPos = QCursor::pos() - d->DragStartMousePosition
+	moveFloating(QCursor::pos());
+}
+
+
+//============================================================================
+void CFloatingDragPreview::moveFloating(const QPoint& GlobalPos)
+{
+	// Only stash the event-supplied position on Wayland, where QCursor::pos()
+	// is unreliable and finishDragging() must reuse it. On other platforms
+	// finishDragging() keeps using the live QCursor::pos() (unchanged behavior).
+	if (internal::isWayland())
+	{
+		d->LastGlobalPos = GlobalPos;
+		d->HasLastGlobalPos = true;
+	}
+	const int BorderSize = (frameSize().width() - size().width()) / 2;
+	const QPoint TargetGlobal = GlobalPos - d->DragStartMousePosition
 	    - QPoint(BorderSize, 0);
-	move(moveToPos);
-	d->updateDropOverlays(QCursor::pos());
+	// When parented as a child (Wayland frameless), translate the screen-coord
+	// target into parent-local space so move() places us under the cursor.
+	if (isWindow() || !parentWidget())
+	{
+		move(TargetGlobal);
+	}
+	else
+	{
+		move(parentWidget()->mapFromGlobal(TargetGlobal));
+	}
+	d->updateDropOverlays(GlobalPos);
+}
+
+
+//============================================================================
+void CFloatingDragPreview::setSourceContainer(CDockContainerWidget* Container)
+{
+	d->SourceContainer = Container;
+}
+
+
+//============================================================================
+void CFloatingDragPreview::cancelDraggingSilently()
+{
+	// Tear down without performing a drop and without emitting draggingCanceled.
+	d->Canceled = true;
+	d->DockManager->containerOverlay()->hideOverlay();
+	d->DockManager->dockAreaOverlay()->hideOverlay();
+	close();
 }
 
 
@@ -370,7 +469,14 @@ void CFloatingDragPreview::startFloating(const QPoint &DragStartMousePos,
 	d->DragStartMousePosition = DragStartMousePos;
 	moveFloating();
 	show();
-
+	if (internal::isWayland())
+	{
+		// On Wayland the preview is a child widget of the source window; raise
+		// it above its siblings. On other platforms it is a Qt::Tool window
+		// that is already kept on top, so raising is unnecessary here (keeps
+		// non-Wayland behavior unchanged).
+		raise();
+	}
 }
 
 
@@ -379,8 +485,9 @@ void CFloatingDragPreview::finishDragging()
 {
 	ADS_PRINT("CFloatingDragPreview::finishDragging");
 
-	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor();
-	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor();
+	const QPoint GlobalPos = d->cursorPos();
+	auto DockDropArea = d->DockManager->dockAreaOverlay()->visibleDropAreaUnderCursor(GlobalPos);
+	auto ContainerDropArea = d->DockManager->containerOverlay()->visibleDropAreaUnderCursor(GlobalPos);
 	bool ValidDropArea = (DockDropArea != InvalidDockWidgetArea)  || (ContainerDropArea != InvalidDockWidgetArea);
 
 	// Non floatable auto hide widgets should stay in its current auto hide
@@ -396,7 +503,7 @@ void CFloatingDragPreview::finishDragging()
 	}
 	else if (DockDropArea != InvalidDockWidgetArea)
 	{
-		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(QCursor::pos()),
+		d->DropContainer->dropWidget(d->Content, DockDropArea, d->DropContainer->dockAreaAt(GlobalPos),
 			d->DockManager->dockAreaOverlay()->tabIndexUnderCursor());
 	}
 	else if (ContainerDropArea != InvalidDockWidgetArea)
@@ -406,7 +513,7 @@ void CFloatingDragPreview::finishDragging()
 		// then we tabify the dropped widget into the only visible dock area
 		if (d->DropContainer->visibleDockAreaCount() <= 1 && CenterDockWidgetArea == ContainerDropArea)
 		{
-			DockArea = d->DropContainer->dockAreaAt(QCursor::pos());
+			DockArea = d->DropContainer->dockAreaAt(GlobalPos);
 		}
 
 		d->DropContainer->dropWidget(d->Content, ContainerDropArea, DockArea,
