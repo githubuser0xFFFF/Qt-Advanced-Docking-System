@@ -88,6 +88,14 @@ public:
 	DockWidgetArea dropAreaUnderCursor() const;
 
 	/**
+	 * Returns the drop area under the given global position.
+	 * Use this overload if the position does not come from the mouse cursor
+	 * (e.g. from drag and drop events on Wayland, where the global cursor
+	 * position is not available)
+	 */
+	DockWidgetArea dropAreaUnderCursor(const QPoint& GlobalPos) const;
+
+	/**
 	 * If the drop area is the CenterDockWidgetArea or a sidebar area,
 	 * then this function returns the index of the tab under cursor.
 	 * Call this function after call to dropAreaUnderCursor() because this
@@ -106,9 +114,22 @@ public:
 	DockWidgetArea visibleDropAreaUnderCursor() const;
 
 	/**
+	 * This function returns the same like dropAreaUnderCursor(GlobalPos) if
+	 * this overlay is not hidden and if drop preview is enabled and returns
+	 * InvalidDockWidgetArea if it is hidden or drop preview is disabled.
+	 */
+	DockWidgetArea visibleDropAreaUnderCursor(const QPoint& GlobalPos) const;
+
+	/**
 	 * Show the drop overly for the given target widget
 	 */
 	DockWidgetArea showOverlay(QWidget* target);
+
+	/**
+	 * Show the drop overlay for the given target widget and evaluate the
+	 * drop area for the given global position instead of the cursor position
+	 */
+	DockWidgetArea showOverlay(QWidget* target, const QPoint& GlobalPos);
 
 	/**
 	 * Hides the overlay
@@ -239,6 +260,12 @@ public:
 	DockWidgetArea cursorLocation() const;
 
 	/**
+	 * The function checks, if the given global position is inside of any
+	 * drop indicator widget and returns the corresponding DockWidgetArea.
+	 */
+	DockWidgetArea cursorLocation(const QPoint& GlobalPos) const;
+
+	/**
 	 * Sets up the overlay cross for the given overlay mode
 	 */
 	void setupOverlayCross(CDockOverlay::eMode Mode);
@@ -273,6 +300,7 @@ public:
 
 protected:
 	virtual void showEvent(QShowEvent* e) override;
+	virtual bool event(QEvent* e) override;
 	void setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& widgets);
 }; // CDockOverlayCross
 
