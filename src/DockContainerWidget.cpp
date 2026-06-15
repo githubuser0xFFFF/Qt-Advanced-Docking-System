@@ -151,7 +151,7 @@ public:
 	int VisibleDockAreaCount = -1;
 	CDockAreaWidget* TopLevelDockArea = nullptr;
 	QTimer DelayedAutoHideTimer;
-	CAutoHideTab* DelayedAutoHideTab;
+	QPointer<CAutoHideTab> DelayedAutoHideTab;
 	bool DelayedAutoHideShow = false;
 
 	/**
@@ -396,10 +396,12 @@ DockContainerWidgetPrivate::DockContainerWidgetPrivate(CDockContainerWidget* _pu
 	std::fill(std::begin(LastAddedAreaCache),std::end(LastAddedAreaCache), nullptr);
 	DelayedAutoHideTimer.setSingleShot(true);
 	DelayedAutoHideTimer.setInterval(500);
-	QObject::connect(&DelayedAutoHideTimer, &QTimer::timeout, [this](){
-		auto GlobalPos = DelayedAutoHideTab->mapToGlobal(QPoint(0, 0));
-		qApp->sendEvent(DelayedAutoHideTab, new QMouseEvent(QEvent::MouseButtonPress,
+	QObject::connect(&DelayedAutoHideTimer, &QTimer::timeout, [this](){		
+		if (DelayedAutoHideTab) {
+			auto GlobalPos = DelayedAutoHideTab->mapToGlobal(QPoint(0, 0));
+			qApp->sendEvent(DelayedAutoHideTab, new QMouseEvent(QEvent::MouseButtonPress,
 				QPoint(0, 0), GlobalPos, Qt::LeftButton, {Qt::LeftButton}, Qt::NoModifier));
+		}
 	});
 }
 
