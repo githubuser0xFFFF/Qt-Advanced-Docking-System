@@ -119,7 +119,7 @@ struct DockManagerPrivate
 	QMap<QString, QMenu*> ViewMenuGroups;
 	QMenu* ViewMenu;
 	CDockManager::eViewMenuInsertionOrder MenuInsertionOrder = CDockManager::MenuAlphabeticallySorted;
-	CDockManager::eStylesheetColorSchemeBehavior StylesheetColorSchemeBehavior = CDockManager::FollowApplicationPalette;
+    CDockManager::ColorSchemeMode ColorSchemeMode = CDockManager::ColorSchemeMode::FollowPalette;
 	bool RestoringState = false;
 	QVector<CFloatingDockContainer*> UninitializedFloatingWidgets;
 	CDockFocusController* FocusController = nullptr;
@@ -756,7 +756,7 @@ bool CDockManager::eventFilter(QObject *obj, QEvent *e)
 		}
 	}
 #endif
-	if (e->type() == QEvent::ApplicationPaletteChange && d->StylesheetColorSchemeBehavior == CDockManager::FollowApplicationPalette)
+    if (e->type() == QEvent::ApplicationPaletteChange && d->ColorSchemeMode == CDockManager::ColorSchemeMode::FollowPalette)
 	{
 		if (d->CurrentStylesheetDark != isDesiredStylesheetDark()) {
 			d->loadStylesheet();
@@ -1312,9 +1312,9 @@ void CDockManager::setViewMenuInsertionOrder(eViewMenuInsertionOrder Order)
 
 
 //============================================================================
-void CDockManager::setStylesheetColorSchemeBehavior(eStylesheetColorSchemeBehavior Behavior)
+void CDockManager::setColorSchemeMode(ColorSchemeMode Mode)
 {
-	d->StylesheetColorSchemeBehavior = Behavior;
+    d->ColorSchemeMode = Mode;
 
 	if (d->CurrentStylesheetDark != isDesiredStylesheetDark()) {
 		d->loadStylesheet();
@@ -1651,7 +1651,7 @@ bool CDockManager::isApplicationPaletteDark()
 //============================================================================
 bool CDockManager::isDesiredStylesheetDark()
 {
-    return ((isApplicationPaletteDark() && d->StylesheetColorSchemeBehavior == FollowApplicationPalette) || d->StylesheetColorSchemeBehavior == ForceDark);
+    return ((isApplicationPaletteDark() && d->ColorSchemeMode == ColorSchemeMode::FollowPalette) || d->ColorSchemeMode == ColorSchemeMode::Dark);
 }
 
 

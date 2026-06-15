@@ -187,11 +187,11 @@ public:
 		MenuAlphabeticallySorted
 	};
 
-	enum eStylesheetColorSchemeBehavior
+	enum class ColorSchemeMode
 	{
-		ForceLight,
-		ForceDark,
-		FollowApplicationPalette
+		Light,
+		Dark,
+		FollowPalette
 	};
 
 	/**
@@ -651,7 +651,7 @@ public:
 	 * palette change propagation. They are implemented solely
 	 * for compatibility reasons and manual stylesheet switching.
 	 */
-	void setStylesheetColorSchemeBehavior(eStylesheetColorSchemeBehavior Behavior);
+	void setColorSchemeMode(ColorSchemeMode Mode);
 
 	/**
 	 * This function returns true between the restoringState() and
