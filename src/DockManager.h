@@ -159,6 +159,14 @@ protected:
 	virtual void showEvent(QShowEvent *event) override;
 
 	/**
+	 * Wayland: re-applies the inherited style sheet to all floating widgets
+	 * when this dock manager or one of its ancestors changes its style sheet.
+	 * Floating widgets have no parent widget on Wayland, so they do not
+	 * receive style sheet changes that propagate down the widget hierarchy.
+	 */
+	virtual void changeEvent(QEvent *event) override;
+
+	/**
 	 * Access for the internal dock focus controller.
 	 * This function only returns a valid object, if the FocusHighlighting
 	 * flag is set.

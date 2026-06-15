@@ -65,6 +65,17 @@ struct DockOverlayPrivate
 	CDockOverlay::eMode Mode = CDockOverlay::ModeDockAreaOverlay;
 	QRect DropAreaRect;
 	int TabIndex = InvalidTabIndex;
+	// Wayland: the global cursor position is not available, so the last drop
+	// position from the drag and drop events is cached here to drive the
+	// drop preview rectangle and the highlighted drop indicator
+	QPoint LastGlobalPos;
+	// Wayland: the overlay is temporarily reparented into whatever top level
+	// window it is shown over (see showOverlay), because a child widget cannot
+	// render over a foreign window. This is the stable home window (the dock
+	// manager's window) that the overlay is reparented back to when hidden, so
+	// it is never left as a child of a transient floating window that gets
+	// destroyed - which would delete this dock-manager-owned overlay with it.
+	QPointer<QWidget> HomeWindow;
 
 	/**
 	 * Private data constructor
@@ -404,20 +415,40 @@ int DockOverlayPrivate::sideBarMouseZone(SideBarLocation sideBarLocation)
 
 //============================================================================
 CDockOverlay::CDockOverlay(QWidget* parent, eMode Mode) :
-	QFrame(parent),
+	// Wayland: the overlay must be a child widget of the target window. Top
+	// level windows cannot be positioned in screen coordinates on Wayland,
+	// so a Qt::Tool overlay would not align over the target dock area
+	QFrame(internal::isWayland() && parent ? parent->window() : parent),
 	d(new DockOverlayPrivate(this))
 {
 	d->Mode = Mode;
 	d->Cross = new CDockOverlayCross(this);
+	if (internal::isWayland())
+	{
+		// Remember the stable home window so hideOverlay() can reparent the
+		// overlay back to it (see HomeWindow), keeping it off transient
+		// floating windows that may be destroyed.
+		d->HomeWindow = parentWidget();
+		// A translucent child widget would become a native window
+		// (wl_subsurface) that takes part in the compositors drag and drop
+		// target picking and steals the drop focus from the dock container.
+		// A child widget composites with its parent without the attribute.
+		// WA_TransparentForMouseEvents lets a release on a drop indicator
+		// fall through to it
+		setAttribute(Qt::WA_TransparentForMouseEvents);
+	}
+	else
+	{
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 #else
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 #endif
-	setWindowOpacity(1);
+		setWindowOpacity(1);
+		setAttribute(Qt::WA_TranslucentBackground);
+	}
 	setWindowTitle("DockOverlay");
 	setAttribute(Qt::WA_NoSystemBackground);
-	setAttribute(Qt::WA_TranslucentBackground);
 
 	d->Cross->setVisible(false);
 	setVisible(false);
@@ -465,24 +496,31 @@ DockWidgetAreas CDockOverlay::allowedAreas() const
 //============================================================================
 DockWidgetArea CDockOverlay::dropAreaUnderCursor() const
 {
+	return dropAreaUnderCursor(QCursor::pos());
+}
+
+
+//============================================================================
+DockWidgetArea CDockOverlay::dropAreaUnderCursor(const QPoint& GlobalPos) const
+{
 	d->TabIndex = InvalidTabIndex;
 	if (!d->TargetWidget)
 	{
 		return InvalidDockWidgetArea;
 	}
 
-	DockWidgetArea Result = d->Cross->cursorLocation();
+	DockWidgetArea Result = d->Cross->cursorLocation(GlobalPos);
 	if (Result != InvalidDockWidgetArea)
 	{
 		return Result;
 	}
 
-	auto CursorPos = QCursor::pos();
+	auto CursorPos = GlobalPos;
 	auto DockArea = qobject_cast<CDockAreaWidget*>(d->TargetWidget.data());
 	if (!DockArea && CDockManager::autoHideConfigFlags().testFlag(CDockManager::AutoHideFeatureEnabled))
 	{
 		auto Rect = rect();
-		const QPoint pos = mapFromGlobal(QCursor::pos());
+		const QPoint pos = mapFromGlobal(GlobalPos);
 		if ((pos.x() < d->sideBarMouseZone(SideBarLeft))
 		  && d->AllowedAreas.testFlag(LeftAutoHideArea))
 		{
@@ -544,13 +582,20 @@ int CDockOverlay::tabIndexUnderCursor() const
 //============================================================================
 DockWidgetArea CDockOverlay::visibleDropAreaUnderCursor() const
 {
+	return visibleDropAreaUnderCursor(QCursor::pos());
+}
+
+
+//============================================================================
+DockWidgetArea CDockOverlay::visibleDropAreaUnderCursor(const QPoint& GlobalPos) const
+{
 	if (isHidden() || !d->DropPreviewEnabled)
 	{
 		return InvalidDockWidgetArea;
 	}
 	else
 	{
-		return dropAreaUnderCursor();
+		return dropAreaUnderCursor(GlobalPos);
 	}
 }
 
@@ -558,10 +603,33 @@ DockWidgetArea CDockOverlay::visibleDropAreaUnderCursor() const
 //============================================================================
 DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 {
+	return showOverlay(target, QCursor::pos());
+}
+
+
+//============================================================================
+DockWidgetArea CDockOverlay::showOverlay(QWidget* target, const QPoint& GlobalPos)
+{
+	// Cache the drag position that drives this overlay's drop preview. On
+	// Wayland paintEvent() reads it back because the global cursor position is
+	// not available during a platform drag; it must be current before the
+	// show()/repaint() below triggers a paint
+	d->LastGlobalPos = GlobalPos;
+
+	// Wayland: a cross window drop (e.g. into a floating widget) requires the
+	// overlay to be a child of the target window because a widget cannot be
+	// positioned over a foreign window
+	if (internal::isWayland() && parentWidget() != target->window())
+	{
+		setParent(target->window());
+		d->Cross->setParent(target->window());
+		d->TargetWidget = nullptr;
+	}
+
 	if (d->TargetWidget == target)
 	{
 		// Hint: We could update geometry of overlay here.
-		DockWidgetArea da = dropAreaUnderCursor();
+		DockWidgetArea da = dropAreaUnderCursor(GlobalPos);
 		if (da != d->LastLocation)
 		{
 			repaint();
@@ -577,11 +645,25 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 	hide();
 	resize(target->size());
 	QPoint TopLeft = target->mapToGlobal(target->rect().topLeft());
-	move(TopLeft);
+	// Wayland: the overlay is a child of the target window, so the target top
+	// left has to be mapped into the parent coordinate system
+	if (internal::isWayland() && parentWidget())
+	{
+		move(parentWidget()->mapFromGlobal(TopLeft));
+	}
+	else
+	{
+		move(TopLeft);
+	}
 	show();
+	if (internal::isWayland())
+	{
+		// paint the child overlay above its sibling dock widgets
+		raise();
+	}
 	d->Cross->updatePosition();
 	d->Cross->updateOverlayIcons();
-	return dropAreaUnderCursor();
+	return dropAreaUnderCursor(GlobalPos);
 }
 
 
@@ -589,6 +671,17 @@ DockWidgetArea CDockOverlay::showOverlay(QWidget* target)
 void CDockOverlay::hideOverlay()
 {
 	hide();
+	// Wayland: showOverlay() reparents this overlay (and its cross) into the
+	// top level window it is shown over. Reparent them back to the stable home
+	// window now that the overlay is hidden, so the dock-manager-owned overlay
+	// is never left as a child of a transient floating window - destroying that
+	// window would otherwise delete the overlay and leave the dock manager with
+	// a dangling pointer.
+	if (internal::isWayland() && d->HomeWindow && parentWidget() != d->HomeWindow)
+	{
+		setParent(d->HomeWindow);
+		d->Cross->setParent(d->HomeWindow);
+	}
 	d->TargetWidget.clear();
 	d->LastLocation = InvalidDockWidgetArea;
 	d->DropAreaRect = QRect();
@@ -623,7 +716,10 @@ void CDockOverlay::paintEvent(QPaintEvent* event)
 	}
 
 	QRect r = rect();
-	const DockWidgetArea da = dropAreaUnderCursor();
+	// Wayland: use the cached drag position because the global cursor
+	// position is not available during a platform drag
+	const DockWidgetArea da = internal::isWayland()
+		? dropAreaUnderCursor(d->LastGlobalPos) : dropAreaUnderCursor();
 	double Factor = (CDockOverlay::ModeContainerOverlay == d->Mode) ?
 		3 : 2;
 
@@ -740,17 +836,27 @@ QPoint DockOverlayCrossPrivate::areaGridPosition(const DockWidgetArea area)
 
 //============================================================================
 CDockOverlayCross::CDockOverlayCross(CDockOverlay* overlay) :
-	QWidget(overlay->parentWidget()),
+	// Wayland: see CDockOverlay - the cross must be a child of the target
+	// window for the same reason as the overlay
+	QWidget(internal::isWayland() && overlay->parentWidget()
+		? overlay->parentWidget()->window() : overlay->parentWidget()),
 	d(new DockOverlayCrossPrivate(this))
 {
 	d->DockOverlay = overlay;
+	if (internal::isWayland())
+	{
+		setAttribute(Qt::WA_TransparentForMouseEvents);
+	}
+	else
+	{
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
 #else
-	setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 #endif
+		setAttribute(Qt::WA_TranslucentBackground);
+	}
 	setWindowTitle("DockOverlayCross");
-	setAttribute(Qt::WA_TranslucentBackground);
 
 	d->GridLayout = new QGridLayout();
 	d->GridLayout->setSpacing(0);
@@ -790,7 +896,11 @@ void CDockOverlayCross::setupOverlayCross(CDockOverlay::eMode Mode)
 //============================================================================
 void CDockOverlayCross::updateOverlayIcons()
 {
-	if (windowHandle()->devicePixelRatio() == d->LastDevicePixelRatio)
+	// Wayland: the cross is a child widget and has no window handle, so the
+	// device pixel ratio is taken from the widget instead of the window
+	const qreal DevicePixelRatio = internal::isWayland()
+		? devicePixelRatioF() : windowHandle()->devicePixelRatio();
+	if (DevicePixelRatio == d->LastDevicePixelRatio)
 	{
 		return;
 	}
@@ -885,7 +995,14 @@ void CDockOverlayCross::setAreaWidgets(const QHash<DockWidgetArea, QWidget*>& wi
 //============================================================================
 DockWidgetArea CDockOverlayCross::cursorLocation() const
 {
-	const QPoint pos = mapFromGlobal(QCursor::pos());
+	return cursorLocation(QCursor::pos());
+}
+
+
+//============================================================================
+DockWidgetArea CDockOverlayCross::cursorLocation(const QPoint& GlobalPos) const
+{
+	const QPoint pos = mapFromGlobal(GlobalPos);
 	QHashIterator<DockWidgetArea, QWidget*> i(d->DropIndicatorWidgets);
 	while (i.hasNext())
 	{
@@ -936,6 +1053,11 @@ void CDockOverlayCross::updatePosition()
 		(this->height() - d->DockOverlay->height()) / 2);
 	QPoint CrossTopLeft = TopLeft - Offest;
 	move(CrossTopLeft);
+	if (internal::isWayland())
+	{
+		// paint the child cross above its sibling dock widgets
+		raise();
+	}
 }
 
 

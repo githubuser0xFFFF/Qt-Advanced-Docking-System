@@ -890,7 +890,12 @@ void CDockAreaWidget::updateTitleBarVisibility()
     if (!CDockManager::testConfigFlag(CDockManager::AlwaysShowTabs))
     {
         bool Hidden = false;
-        if (!IsAutoHide)  // Titlebar must always be visible when auto hidden so it can be dragged
+        // Wayland: the title bar of a floating container must always stay
+        // visible because it is the only handle that can drag the dock
+        // widget back into a dock container. The window decoration is owned
+        // by the compositor and only moves the window
+        bool IsWaylandFloating = internal::isWayland() && Container->isFloating();
+        if (!IsAutoHide && !IsWaylandFloating)  // Titlebar must always be visible when auto hidden so it can be dragged
         {
             if (Container->isFloating() || CDockManager::testConfigFlag(CDockManager::HideSingleCentralWidgetTitleBar))
             {

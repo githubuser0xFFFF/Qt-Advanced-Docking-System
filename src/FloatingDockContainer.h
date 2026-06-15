@@ -42,6 +42,7 @@
 #endif
 
 class CDockingStateReader;
+class QMimeData;
 
 namespace ads
 {
@@ -59,6 +60,7 @@ class CDockAreaTitleBar;
 struct DockAreaTitleBarPrivate;
 class CFloatingWidgetTitleBar;
 class CDockingStateReader;
+class CFloatingDragPreview;
 
 /**
  * Pure virtual interface for floating widgets.
@@ -117,6 +119,42 @@ private:
 	friend class CDockWidget;
 	friend class CDockAreaWidget;
     friend class CFloatingWidgetTitleBar;
+	friend class CDockContainerWidget;
+
+	/**
+	 * Returns the floating widget that is transported in the mime data of
+	 * a drag and drop operation started by startPlatformDrag() and nullptr,
+	 * if the mime data does not contain a floating widget
+	 */
+	static CFloatingDockContainer* floatingWidgetFromMimeData(const QMimeData* MimeData);
+
+	/**
+	 * Records the drop candidate while a platform drag is hovering over a
+	 * dock container. Called from CDockContainerWidget::dragMoveEvent().
+	 * Some compositors (e.g. Mutter) do not deliver a drop event when the
+	 * dragged window overlaps the drop target. startPlatformDrag() then docks
+	 * the floating widget into the last recorded candidate, if the drag ended
+	 * over a valid drop area
+	 */
+	static void platformDragUpdateDropCandidate(CDockContainerWidget* Container,
+		const QPoint& GlobalPos, bool ValidDropArea);
+
+	/**
+	 * Marks the platform drag drop as handled by a delivered drop event, so
+	 * that startPlatformDrag() does not dock the floating widget a second time
+	 */
+	static void platformDragNotifyDropHandled();
+
+	/**
+	 * Wayland: returns the concatenated style sheets along the dock manager
+	 * parent chain. A floating widget has no parent widget on Wayland, so it
+	 * does not inherit the dock manager's effective style sheet through the
+	 * widget hierarchy and gets this style sheet applied explicitly instead
+	 * (an application wide qApp style sheet is still applied automatically by
+	 * Qt and is therefore not included here). Used at construction and when
+	 * the dock manager re-applies the style sheet after a style change.
+	 */
+	static QString waylandInheritedStyleSheet(QWidget* DockManager);
 
 private Q_SLOTS:
 	void onDockAreasAddedOrRemoved();
@@ -235,6 +273,57 @@ public:
 	{
         startFloating(DragStartMousePos, Size, DraggingFloatingWidget, MouseEventHandler);
 	}
+
+	/**
+	 * Starts a compositor driven drag of the given floating widget on
+	 * Wayland.
+	 * Wayland neither reports the global cursor position nor allows clients
+	 * to move top level windows, so the mouse tracked dragging that is used
+	 * on the other platforms cannot work. Instead, this function executes a
+	 * QDrag with the MIME types that QWaylandDataDevice translates into an
+	 * xdg_toplevel_drag_v1 request, so the compositor moves the floating
+	 * widget with the cursor. The CDockContainerWidget drag and drop event
+	 * handlers show the drop overlays and dock the widget on drop.
+	 * GlobalPressPos is the mouse press position in global coordinates and
+	 * DragSource is the widget that received the mouse press event.
+	 * DragOffset, when non-null, is the surface-local point of the floating
+	 * widget that should stay under the cursor (the xdg_toplevel_drag attach
+	 * offset). It must be supplied for a freshly created floating window: on
+	 * Wayland such a window has no meaningful geometry yet, so deriving the
+	 * offset from GlobalPressPos via mapFromGlobal() would place it randomly.
+	 * When null (e.g. dragging an already-mapped floating window) the offset is
+	 * derived from GlobalPressPos.
+	 * The function blocks until the user drops or cancels the drag. It
+	 * returns Qt::MoveAction, if the floating widget was docked into a
+	 * drop area and Qt::IgnoreAction, if the floating widget was dropped
+	 * outside of any drop area and remains floating.
+	 */
+	static Qt::DropAction startPlatformDrag(CFloatingDockContainer* FloatingWidget,
+		const QPoint& GlobalPressPos, QWidget* DragSource,
+		const QPoint* DragOffset = nullptr);
+
+	/**
+	 * Wayland hybrid drag helper, shared by the tab and the title bar drag
+	 * paths. While the cursor stays inside SourceWindow the in-window Preview
+	 * is moved to GlobalPos and this returns true. Once the cursor leaves
+	 * SourceWindow the Preview is torn down without performing a drop and this
+	 * returns false - the caller then creates the real floating widget and
+	 * hands it to startPlatformDragForFloatingWidget(). Preview may be null.
+	 */
+	static bool waylandMoveOrLeaveInWindowPreview(CFloatingDragPreview* Preview,
+		QWidget* SourceWindow, const QPoint& GlobalPos);
+
+	/**
+	 * Wayland hybrid drag helper, shared by the tab and the title bar drag
+	 * paths. Floats the freshly created FloatingWidget at the given Size and
+	 * starts the compositor driven platform drag, keeping GrabOffset (the
+	 * surface-local grab point) under the cursor. See startPlatformDrag() for
+	 * why the offset is passed explicitly instead of being derived from the
+	 * press position on Wayland.
+	 */
+	static Qt::DropAction startPlatformDragForFloatingWidget(
+		IFloatingWidget* FloatingWidget, const QPoint& GrabOffset,
+		const QSize& Size, const QPoint& GlobalGrabPos, QWidget* DragSource);
 
 	/**
 	 * This function returns true, if it can be closed.
