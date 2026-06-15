@@ -984,9 +984,7 @@ QString CDockAreaTitleBar::titleBarButtonToolTip(TitleBarButton Button) const
 //============================================================================
 void CDockAreaTitleBar::showAutoHideControls(bool Show)
 {
-	if (Show)
-		d->TabBar->setVisible(false); // Auto hide toolbar never has tabs
-
+    d->TabBar->setVisible(!Show); // Auto hide toolbar never has tabs
 	d->MinimizeButton->setVisible(Show);
 	if (!CDockManager::testConfigFlag(CDockManager::TabsAtBottom))
 		d->AutoHideTitleLabel->setVisible(Show);
