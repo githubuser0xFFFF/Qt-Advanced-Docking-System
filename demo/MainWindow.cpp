@@ -784,6 +784,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
+	d->DockManager->setColorSchemeMode(CDockManager::ColorSchemeMode::FollowPalette);
 	d->DockManager->setDockWidgetToolBarStyle(Qt::ToolButtonIconOnly, ads::CDockWidget::StateFloating);
 
  #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
