@@ -1,81 +1,84 @@
 # User Guide
 
-- [User Guide](#user-guide)
-  - [Configuration Flags](#configuration-flags)
-    - [Setting Configuration Flags](#setting-configuration-flags)
-    - [`ActiveTabHasCloseButton`](#activetabhasclosebutton)
-    - [`DockAreaHasCloseButton`](#dockareahasclosebutton)
-    - [`DockAreaCloseButtonClosesTab`](#dockareaclosebuttonclosestab)
-    - [`OpaqueSplitterResize`](#opaquesplitterresize)
-    - [`XmlAutoFormattingEnabled`](#xmlautoformattingenabled)
-    - [`XmlCompressionEnabled`](#xmlcompressionenabled)
-    - [`TabCloseButtonIsToolButton`](#tabclosebuttonistoolbutton)
-    - [`AllTabsHaveCloseButton`](#alltabshaveclosebutton)
-    - [`RetainTabSizeWhenCloseButtonHidden`](#retaintabsizewhenclosebuttonhidden)
-    - [`DragPreviewIsDynamic`](#dragpreviewisdynamic)
-    - [`DragPreviewShowsContentPixmap`](#dragpreviewshowscontentpixmap)
-    - [`DragPreviewHasWindowFrame`](#dragpreviewhaswindowframe)
-    - [`AlwaysShowTabs`](#alwaysshowtabs)
-    - [`DockAreaHasUndockButton`](#dockareahasundockbutton)
-    - [`DockAreaHasTabsMenuButton`](#dockareahastabsmenubutton)
-    - [`DockAreaHideDisabledButtons`](#dockareahidedisabledbuttons)
-    - [`DockAreaDynamicTabsMenuButtonVisibility`](#dockareadynamictabsmenubuttonvisibility)
-    - [`FloatingContainerHasWidgetTitle`](#floatingcontainerhaswidgettitle)
-    - [`FloatingContainerHasWidgetIcon`](#floatingcontainerhaswidgeticon)
-    - [`HideSingleCentralWidgetTitleBar`](#hidesinglecentralwidgettitlebar)
-    - [`FocusHighlighting`](#focushighlighting)
-    - [`EqualSplitOnInsertion`](#equalsplitoninsertion)
-    - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
-    - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
-    - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
-    - [`DisableTabTextEliding`](#disabletabtexteliding)
-    - [`ShowTabTextOnlyForActiveTab`](#showtabtextonlyforactivetab)
-    - [`DoubleClickUndocksWidget`](#doubleclickundockswidget)
-    - [`TabsAtBottom`](#tabsatbottom)
-  - [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
-    - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
-    - [Show / Hide Auto-Hide Widgets via Mouse Over](#show--hide-auto-hide-widgets-via-mouse-over)
-    - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
-    - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
-    - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
-    - [Auto-Hide Drag to Float / Dock](#auto-hide-drag-to-float--dock)
-    - [Auto-Hide Context Menu](#auto-hide-context-menu)
-    - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
-  - [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
-    - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
-    - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
-    - [`DockAreaHasAutoHideButton`](#dockareahasautohidebutton)
-    - [`AutoHideButtonTogglesArea`](#autohidebuttontogglesarea)
-    - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
-    - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
-    - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
-    - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
-    - [`AutoHideHasCloseButton`](#autohidehasclosebutton)
-    - [`AutoHideHasMinimizeButton`](#autohidehasminimizebutton)
-    - [`AutoHideOpenOnDragHover`](#autohideopenondraghover)
-    - [`AutoHideCloseOnOutsideMouseClick`](#autohidecloseonoutsidemouseclick)
-  - [DockWidget Feature Flags](#dockwidget-feature-flags)
-    - [`DockWidgetClosable`](#dockwidgetclosable)
-    - [`DockWidgetMovable`](#dockwidgetmovable)
-    - [`DockWidgetFloatable`](#dockwidgetfloatable)
-    - [`DockWidgetDeleteOnClose`](#dockwidgetdeleteonclose)
-    - [`CustomCloseHandling`](#customclosehandling)
-    - [`DockWidgetFocusable`](#dockwidgetfocusable)
-    - [`DockWidgetForceCloseWithArea`](#dockwidgetforceclosewitharea)
-    - [`NoTab`](#notab)
-    - [`DeleteContentOnClose`](#deletecontentonclose)
-  - [Central Widget](#central-widget)
-  - [Empty Dock Area](#empty-dock-area)
-  - [Custom Close Handling](#custom-close-handling)
-  - [Globally Lock Docking Features](#globally-lock-docking-features)
-  - [Dock Widget Size / Minimum Size Handling](#dock-widget-size--minimum-size-handling)
-  - [Styling](#styling)
-    - [Disabling the Internal Style Sheet](#disabling-the-internal-style-sheet)
-  - [Using ADS on Linux](#using-ads-on-linux)
-    - [Supported Distributions](#supported-distributions)
-    - [Requirements](#requirements)
-    - [Manjaro xfce 25.0.1 and Xubuntu 24.04.2 issues](#manjaro-xfce-2501-and-xubuntu-24042-issues)
-  - [OpenGl + ADS](#opengl--ads)
+- [Configuration Flags](#configuration-flags)
+  - [Setting Configuration Flags](#setting-configuration-flags)
+  - [`ActiveTabHasCloseButton`](#activetabhasclosebutton)
+  - [`DockAreaHasCloseButton`](#dockareahasclosebutton)
+  - [`DockAreaCloseButtonClosesTab`](#dockareaclosebuttonclosestab)
+  - [`OpaqueSplitterResize`](#opaquesplitterresize)
+  - [`XmlAutoFormattingEnabled`](#xmlautoformattingenabled)
+  - [`XmlCompressionEnabled`](#xmlcompressionenabled)
+  - [`TabCloseButtonIsToolButton`](#tabclosebuttonistoolbutton)
+  - [`AllTabsHaveCloseButton`](#alltabshaveclosebutton)
+  - [`RetainTabSizeWhenCloseButtonHidden`](#retaintabsizewhenclosebuttonhidden)
+  - [`DragPreviewIsDynamic`](#dragpreviewisdynamic)
+  - [`DragPreviewShowsContentPixmap`](#dragpreviewshowscontentpixmap)
+  - [`DragPreviewHasWindowFrame`](#dragpreviewhaswindowframe)
+  - [`AlwaysShowTabs`](#alwaysshowtabs)
+  - [`DockAreaHasUndockButton`](#dockareahasundockbutton)
+  - [`DockAreaHasTabsMenuButton`](#dockareahastabsmenubutton)
+  - [`DockAreaHideDisabledButtons`](#dockareahidedisabledbuttons)
+  - [`DockAreaDynamicTabsMenuButtonVisibility`](#dockareadynamictabsmenubuttonvisibility)
+  - [`FloatingContainerHasWidgetTitle`](#floatingcontainerhaswidgettitle)
+  - [`FloatingContainerHasWidgetIcon`](#floatingcontainerhaswidgeticon)
+  - [`HideSingleCentralWidgetTitleBar`](#hidesinglecentralwidgettitlebar)
+  - [`FocusHighlighting`](#focushighlighting)
+  - [`EqualSplitOnInsertion`](#equalsplitoninsertion)
+  - [`FloatingContainerForceNativeTitleBar` (Linux only)](#floatingcontainerforcenativetitlebar-linux-only)
+  - [`FloatingContainerForceQWidgetTitleBar` (Linux only)](#floatingcontainerforceqwidgettitlebar-linux-only)
+  - [`MiddleMouseButtonClosesTab`](#middlemousebuttonclosestab)
+  - [`DisableTabTextEliding`](#disabletabtexteliding)
+  - [`ShowTabTextOnlyForActiveTab`](#showtabtextonlyforactivetab)
+  - [`DoubleClickUndocksWidget`](#doubleclickundockswidget)
+  - [`TabsAtBottom`](#tabsatbottom)
+  - [`UseNativeWindows`](#usenativewindows)
+  - [`DisableStyleheet`](#disablestyleheet)
+- [Auto Hide Dock Widgets](#auto-hide-dock-widgets)
+  - [Pinning Auto-Hide Widgets to a certain border](#pinning-auto-hide-widgets-to-a-certain-border)
+  - [Show / Hide Auto-Hide Widgets via Mouse Over](#show--hide-auto-hide-widgets-via-mouse-over)
+  - [Drag \& Drop to Auto-Hide](#drag--drop-to-auto-hide)
+  - [Auto-Hide Tab Insertion Order](#auto-hide-tab-insertion-order)
+  - [Auto-Hide Tab Sorting](#auto-hide-tab-sorting)
+  - [Auto-Hide Drag to Float / Dock](#auto-hide-drag-to-float--dock)
+  - [Auto-Hide Context Menu](#auto-hide-context-menu)
+  - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
+  - [Preferred Aut Hide Sidebar Location](#preferred-aut-hide-sidebar-location)
+    - [API](#api)
+- [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
+  - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
+  - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
+  - [`DockAreaHasAutoHideButton`](#dockareahasautohidebutton)
+  - [`AutoHideButtonTogglesArea`](#autohidebuttontogglesarea)
+  - [`AutoHideButtonCheckable`](#autohidebuttoncheckable)
+  - [`AutoHideSideBarsIconOnly`](#autohidesidebarsicononly)
+  - [`AutoHideShowOnMouseOver`](#autohideshowonmouseover)
+  - [`AutoHideCloseButtonCollapsesDock`](#autohideclosebuttoncollapsesdock)
+  - [`AutoHideHasCloseButton`](#autohidehasclosebutton)
+  - [`AutoHideHasMinimizeButton`](#autohidehasminimizebutton)
+  - [`AutoHideOpenOnDragHover`](#autohideopenondraghover)
+  - [`AutoHideCloseOnOutsideMouseClick`](#autohidecloseonoutsidemouseclick)
+- [DockWidget Feature Flags](#dockwidget-feature-flags)
+  - [`DockWidgetClosable`](#dockwidgetclosable)
+  - [`DockWidgetMovable`](#dockwidgetmovable)
+  - [`DockWidgetFloatable`](#dockwidgetfloatable)
+  - [`DockWidgetDeleteOnClose`](#dockwidgetdeleteonclose)
+  - [`CustomCloseHandling`](#customclosehandling)
+  - [`DockWidgetFocusable`](#dockwidgetfocusable)
+  - [`DockWidgetForceCloseWithArea`](#dockwidgetforceclosewitharea)
+  - [`NoTab`](#notab)
+  - [`DeleteContentOnClose`](#deletecontentonclose)
+- [Central Widget](#central-widget)
+- [Empty Dock Area](#empty-dock-area)
+- [Custom Close Handling](#custom-close-handling)
+- [Globally Lock Docking Features](#globally-lock-docking-features)
+- [Dock Widget Size / Minimum Size Handling](#dock-widget-size--minimum-size-handling)
+- [Styling](#styling)
+  - [Disabling the Internal Style Sheet](#disabling-the-internal-style-sheet)
+- [Using ADS on Linux](#using-ads-on-linux)
+  - [Supported Distributions](#supported-distributions)
+  - [Requirements](#requirements)
+  - [Manjaro xfce 25.0.1 and Xubuntu 24.04.2 issues](#manjaro-xfce-2501-and-xubuntu-24042-issues)
+- [OpenGl + ADS](#opengl--ads)
 
 ## Configuration Flags
 
@@ -518,6 +521,16 @@ If the flag is set, tabs will be shown at the bottom instead of in the title bar
 
 ![TabsAtBottom true](cfg_flag_TabsAtBottom_true.png)
 
+### `UseNativeWindows`
+
+If the flag is set, windows for the dock and area widgets will be native on Windows OS.
+It is disabled by default.
+
+### `DisableStyleheet`
+
+If the flag is set, the dock manager will not apply the default stylesheet. You can
+enable this flag, if you want to use your own stylesheet.
+
 ## Auto Hide Dock Widgets
 
 The Advanced Docking System supports "Auto-Hide" functionality for **all**
@@ -615,6 +628,26 @@ CDockManager::setAutoHideConfigFlags(CDockManager::DefaultAutoHideConfig);
 d->DockManager = new CDockManager(this);
 CDockWidget* TableDockWidget = new CDockWidget("Table 1");
 DockManager->addAutoHideDockWidget(SideBarLeft, TableDockWidget);
+```
+
+### Preferred Aut Hide Sidebar Location
+
+By default, docking a widget to auto-hide determines the target sidebar based on the widget's current geometry. While this works well for most layouts, applications with fixed panel arrangements may prefer explicit control over the sidebar placement.
+
+Use `setPreferredAutoHideSideBarLocation()` to specify the preferred auto-hide sidebar for a dock widget:
+
+```c++
+dockWidget->setPreferredAutoHideSideBarLocation(SideBarLeft);
+```
+
+When a preferred location is set, the widget is always pinned to the specified sidebar instead of using geometry-based detection. The default value (`SideBarNone`) preserves the existing behavior.
+
+When restoring (unpinning) a widget, the docking system also attempts to merge it into an existing dock area containing widgets with the same preferred sidebar location, avoiding unnecessary split areas and keeping related widgets grouped as tabs.
+
+**API**
+
+```c++
+void setPreferredAutoHideSideBarLocation(SideBarLocation location); SideBarLocation preferredAutoHideSideBarLocation() const;
 ```
 
 See `autohide` example or the demo application to learn how it works.
@@ -966,6 +999,12 @@ just call the function for settings the stylesheet with an empty string.
 DockManager->setStyleSheet("");
 ```
 
+or you can use the configuration flag `DisableStyleheet` to disable the internal stylesheet.
+
+```c++
+CDockManager::setConfigFlag(CDockManager::DisableStyleheet, true);
+```
+
 ## Using ADS on Linux
 
 ### Supported Distributions
@@ -983,7 +1022,7 @@ the library switches to `QWidget` based title bars.
 There are some requirements for the Linux distribution that have to be met:
 
 - an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95).
-- Wayland is not properly supported by Qt yet. If you use Wayland, then you should set the session type to x11: `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details about this in issue [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288).
+- With ADS version v5.0.0 Wayland is supported. If you have problems with Wayland, then you should set the session type to x11: `XDG_SESSION_TYPE=x11 ./AdvancedDockingSystemDemo`. You will find more details about this in issue [#288](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/288).
 
 Screenshot Kubuntu:
 ![Advanced Docking on Kubuntu Linux](linux_kubuntu_1804.png)
