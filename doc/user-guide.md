@@ -43,7 +43,6 @@
   - [Auto-Hide Context Menu](#auto-hide-context-menu)
   - [Adding Auto Hide Widgets](#adding-auto-hide-widgets)
   - [Preferred Aut Hide Sidebar Location](#preferred-aut-hide-sidebar-location)
-    - [API](#api)
 - [Auto-Hide Configuration Flags](#auto-hide-configuration-flags)
   - [Setting Auto-Hide Flags](#setting-auto-hide-flags)
   - [`AutoHideFeatureEnabled`](#autohidefeatureenabled)
@@ -72,7 +71,8 @@
 - [Custom Close Handling](#custom-close-handling)
 - [Globally Lock Docking Features](#globally-lock-docking-features)
 - [Dock Widget Size / Minimum Size Handling](#dock-widget-size--minimum-size-handling)
-- [Styling](#styling)
+- [Styling / themes](#styling--themes)
+  - [Default Style Sheet](#default-style-sheet)
   - [Disabling the Internal Style Sheet](#disabling-the-internal-style-sheet)
 - [Using ADS on Linux](#using-ads-on-linux)
   - [Supported Distributions](#supported-distributions)
@@ -982,7 +982,7 @@ value of the content widget or the dock widget, then you can use the
 `MinimumSizeHintFromDockWidgetMinimumSize` or
 `MinimumSizeHintFromContentMinimumSize` modes.
 
-## Styling
+## Styling / themes
 
 The Advanced Docking System supports styling via [Qt Style Sheets](https://doc.qt.io/qt-5/stylesheet.html). All components like splitters, tabs, buttons, titlebar and
 icons are styleable this way.

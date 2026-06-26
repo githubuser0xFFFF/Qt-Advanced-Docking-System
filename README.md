@@ -22,6 +22,42 @@ integrated development environments (IDEs) such as Visual Studio.
 
 ## New and Noteworthy
 
+### Release 5.0
+
+#### Full Dark Mode Support
+
+Thanks to the [contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/842) from [Vojtěch Miškovský](https://github.com/miskovoj), Qt ADS now provides full dark mode support with automatic theme switching. This includes:
+
+- New stylesheets and icons
+- Automatic detection of the current theme (light/dark)
+- Automatic palette update propagation to user widgets
+
+![Dark Mode](doc/DarkMode.png)
+
+[read more...](doc/user-guide.md#default-style-sheet)
+
+#### Native Wayland Support
+
+Thanks to the outstanding contributions of [Matt Liberty](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844) 
+and [Davide Faconti](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/837), Qt ADS now provides native
+Wayland support, making Linux desktop environments such as GNOME and KDE first-class platforms for the Advanced Docking System.
+
+![Wayland Support](doc/Wayland_Logo.svg)
+
+Previous versions relied on mechanisms that are not supported by the Wayland protocol, resulting in
+incorrect drag previews and broken docking behavior. The new implementation adopts Wayland-native
+APIs while preserving the familiar Qt ADS user experience.
+
+Highlights include:
+
+- Full support for docking, undocking, and re-docking floating windows on Wayland
+- Accurate drag previews and correctly positioned docking overlays
+- Hybrid drag behavior: smooth in-window docking with seamless transition to native compositor-managed window dragging
+- Platform-specific implementation that affects only Wayland—Windows, macOS, and X11 continue to use the existing, proven code path
+- Improved compatibility with modern Linux desktop environments while maintaining the same intuitive docking workflow across all platforms
+
+With these changes, Qt ADS now offers a reliable and polished docking experience on native Wayland without sacrificing compatibility or behavior on other operating systems.
+
 ### Release 4.5
 
 #### Tabs at Bottom
@@ -153,6 +189,9 @@ know it from Visual Studio.
 ### Overview
 
 - [New and Noteworthy](#new-and-noteworthy)
+  - [Release 5.0](#release-50)
+    - [Full Dark Mode Support](#full-dark-mode-support)
+    - [Native Wayland Support](#native-wayland-support)
   - [Release 4.5](#release-45)
     - [Tabs at Bottom](#tabs-at-bottom)
   - [Release 4.1](#release-41)
@@ -413,7 +452,8 @@ the library switches to `QWidget` based title bars.
 
 There are some requirements for the Linux distribution that have to be met:
 
-- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95). On Wayland the dock overlays are rendered as child widgets and this requirement does not apply.
+- an X server that supports ARGB visuals and a compositing window manager. This is required to display the translucent dock overlays ([https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows](https://doc.qt.io/qt-5/qwidget.html#creating-translucent-windows)). If your Linux distribution does not support this, or if you disable this feature, you will very likely see issue [#95](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/95).
+- On Wayland the dock overlays are rendered as child widgets and this requirement does not apply.
 
 Screenshot Kubuntu:
 ![Advanced Docking on Kubuntu Linux](doc/linux_kubuntu_1804.png)
