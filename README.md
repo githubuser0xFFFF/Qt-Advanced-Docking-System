@@ -808,10 +808,9 @@ ADS powers Scrutiny’s flexible interface, letting users organize views and dat
 
 [![Scrutiny Debugger UI](doc/showcase_scrutiny-dark.png)](https://www.youtube.com/watch?v=Dd3osxW-Clo)
 
-
 ### [PiSoWorks](https://pypi.org/project/pisoworks/)
 
-PiSoWorks is an application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH.
+PiSoWorks is a Python application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH. Built with **PySide6**, it also serves as an excellent real-world example of how to use the [Qt ADS Python bindings](#python-bindings) to create sophisticated, dockable user interfaces for Python applications.
 
 [read more...](https://piezosystemjena.github.io/PiSoWorks/multiple_devices.html)
 
@@ -823,8 +822,6 @@ PiSoWorks is an application for controlling the piezo amplifiers, such as the [N
 **Joulescope** is a professional desktop application for precision current, voltage, power, and energy analysis, widely used by embedded systems engineers to optimize the energy consumption of their hardware and firmware. Its highly customizable, dockable user interface has been powered by Qt Advanced Docking System (Qt ADS) for many years, making it an excellent real-world validation of the library.
 
 Matt Liberty, the creator of Joulescope, made a [major contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844) to Qt ADS by implementing native Wayland support. His work brings a reliable and polished docking experience to modern Linux desktop environments while preserving the existing behavior on Windows, macOS, and X11.
-
-Thanks to this contribution, Qt ADS now delivers a first-class docking experience on Wayland and is ready for the next generation of Linux desktop environments.
 
 [read more...](https://www.joulescope.com/)
 
