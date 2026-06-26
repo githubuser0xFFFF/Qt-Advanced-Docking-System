@@ -38,8 +38,8 @@ Thanks to the [contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Doc
 
 #### Native Wayland Support
 
-Thanks to the outstanding contributions of [Matt Liberty](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844) 
-and [Davide Faconti](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/837), Qt ADS now provides native
+Thanks to the outstanding contributions of [Matt Liberty](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844),
+the creator of [Joulescope](#joulescope), and [Davide Faconti](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/837), the creator of [PlotJuggler](#plot-juggler),  Qt ADS now provides native
 Wayland support, making Linux desktop environments such as GNOME and KDE first-class platforms for the Advanced Docking System.
 
 ![Wayland Support](doc/Wayland_Logo.svg)
@@ -762,6 +762,7 @@ says about the switch to Qt Advanced Docking:
 
 ![ADTF](doc/showcase_adtf.png)
 
+
 ### [DREAM3D-NX](https://www.dream3d.io)
 
 DREAM3D-NX *(Digital Representation Environment for Analysis of Materials in 3D)* is a cross-platform and modular, software suite that allows users to prepare, reconstruct, quantify, instantiate, and mesh, multidimensional, multimodal microstructural data, as well as many other applications.
@@ -770,9 +771,10 @@ DREAM3D-NX *(Digital Representation Environment for Analysis of Materials in 3D)
 taking advantage of the Advanced Docking System to present a highly customizable user interface
 for DREAM3D-NX Version 7.
 
+[read more...](http://www.dream3d.io/)
+
 ![DREAM.3D NX](doc/showcase_dream3d_nx.png)
 
-[read more...](http://www.dream3d.io/)
 
 ### [LabPlot](https://labplot.kde.org/)
 
@@ -780,9 +782,10 @@ KDE LabPlot is the ultimate free, open source and cross-platform tool for scient
 
 The LabPlot project recently switched to the Qt Advanced Docking System for their user interface. This switch represents a significant improvement to the LabPlot software, allowing users to create and manage complex data visualization layouts with ease.
 
+[read more...](https://labplot.kde.org/)
+
 ![LabPlot](doc/showcase_labplot.png)
 
-[read more...](https://labplot.kde.org/)
 
 ### [Scrutiny Debugger](https://scrutinydebugger.com/)
 
@@ -810,9 +813,22 @@ ADS powers Scrutiny’s flexible interface, letting users organize views and dat
 
 PiSoWorks is an application for controlling the piezo amplifiers, such as the [NV200/D](https://www.piezosystem.com/product/nv-200-d-compact-amplifier/), from [piezosystem jena](https://www.piezosystem.com/) GmbH.
 
-![LabPlot](doc/showcase_pysoworks.png)
+[read more...](https://piezosystemjena.github.io/PiSoWorks/multiple_devices.html)
 
-[read more...](https://piezosystemjena.github.io/PiSoWorks/)
+![PiSoWorks](doc/showcase_pysoworks.png)
+
+
+### [Joulescope](https://www.joulescope.com/)
+
+**Joulescope** is a professional desktop application for precision current, voltage, power, and energy analysis, widely used by embedded systems engineers to optimize the energy consumption of their hardware and firmware. Its highly customizable, dockable user interface has been powered by Qt Advanced Docking System (Qt ADS) for many years, making it an excellent real-world validation of the library.
+
+Matt Liberty, the creator of Joulescope, made a [major contribution](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844) to Qt ADS by implementing native Wayland support. His work brings a reliable and polished docking experience to modern Linux desktop environments while preserving the existing behavior on Windows, macOS, and X11.
+
+Thanks to this contribution, Qt ADS now delivers a first-class docking experience on Wayland and is ready for the next generation of Linux desktop environments.
+
+[read more...](https://www.joulescope.com/)
+
+![Joulescope](doc/showcase_joulescope.jpg)
 
 ## Alternative Docking System Implementations
 
