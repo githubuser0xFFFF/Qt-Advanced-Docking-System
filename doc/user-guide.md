@@ -987,19 +987,40 @@ value of the content widget or the dock widget, then you can use the
 The Advanced Docking System supports styling via [Qt Style Sheets](https://doc.qt.io/qt-5/stylesheet.html). All components like splitters, tabs, buttons, titlebar and
 icons are styleable this way.
 
+### Default Style Sheet
+
+The dock manager uses an internal stylesheet to style its components.
+The library ships with a set of default Qt stylesheets located in the `src/stylesheets` directory supporting both light and dark themes.
+
+![Styles](DarkMode.png)
+
+By default, the dock manager automatically selects the appropriate stylesheet according to the application's current color palette. When the application switches between light and dark mode (for example due to an operating system theme change), the corresponding stylesheet and icon set are applied automatically.
+
+In addition, palette changes are propagated to all docking widgets, ensuring that palette-based colors are updated consistently.
+
+The stylesheet selection behavior can be configured through `CDockManager::setColorSchemeMode`. Three modes are available:
+
+| Mode                        | Description                                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| **FollowPalette** (default) | Automatically selects the light or dark stylesheet based on the application's current palette. |
+| **Light**                   | Always uses the light stylesheet, regardless of the application palette.                       |
+| **Dark**                    | Always uses the dark stylesheet, regardless of the application palette.   
+
+Simply set the mode after creating the dock manager instance:
+
+```c++
+DockManager->setColorSchemeMode(CDockManager::ColorSchemeMode::FollowPalette);
+```
+
 ### Disabling the Internal Style Sheet
 
-The dock manager uses an internal stylesheet to style its components. That
-means, the style that you see in the demo application comes from the
-internal stylesheets that you will find in `src/stylesheets` folder. If you want
-to disable this internal stylesheet because your application uses its own,
-just call the function for settings the stylesheet with an empty string.
+If you want to disable this internal stylesheet because your application uses its own, just call the function for settings the stylesheet with an empty string.
 
 ```c++
 DockManager->setStyleSheet("");
 ```
 
-or you can use the configuration flag `DisableStyleheet` to disable the internal stylesheet.
+or you can use the configuration flag `DisableStylesheet` to disable the internal stylesheet completely. This is useful if you want to use your own stylesheet and don't want the internal stylesheet to be applied at all.
 
 ```c++
 CDockManager::setConfigFlag(CDockManager::DisableStyleheet, true);
