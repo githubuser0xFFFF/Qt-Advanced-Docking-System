@@ -34,8 +34,6 @@
 #include "DockWidgetTab.h"
 #include "DockWidget.h"
 
-#include <iostream>
-
 #include <QBoxLayout>
 #include <QAction>
 #include <QSplitter>
@@ -387,7 +385,6 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 	setWindowTitle(title);
 	setObjectName(title);
 
-	//d->TabWidget = d->componentsFactory()->createDockWidgetTab(this);
 
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
