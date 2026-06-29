@@ -509,11 +509,11 @@ QWidget* CDockWidget::widget() const
 
 
 //============================================================================
-CDockWidgetTab* CDockWidget::tabWidget()
+CDockWidgetTab* CDockWidget::tabWidget() const
 {
 	if (!d->TabWidget)
 	{
-		d->TabWidget = d->componentsFactory()->createDockWidgetTab(this);
+		d->TabWidget = d->componentsFactory()->createDockWidgetTab(const_cast<CDockWidget*>(this));
 	}
 	return d->TabWidget;
 }
@@ -958,7 +958,7 @@ void CDockWidget::setIcon(const QIcon& Icon)
 
 
 //============================================================================
-QIcon CDockWidget::icon()
+QIcon CDockWidget::icon() const
 {
 	return tabWidget()->icon();
 }
