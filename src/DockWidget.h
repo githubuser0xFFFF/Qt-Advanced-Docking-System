@@ -341,9 +341,9 @@ public:
 
     /**
      * Returns the tab widget of this dock widget that is shown in the dock
-     * area title bar
+     * area title bar. Create it if needed
      */
-    CDockWidgetTab* tabWidget() const;
+    CDockWidgetTab* tabWidget();
 
     /**
      * Sets, whether the dock widget is movable, closable, and floatable.
@@ -502,7 +502,7 @@ public:
     /**
      * Returns the icon that has been assigned to the dock widget
      */
-    QIcon icon() const;
+    QIcon icon();
 
     /**
      * This function returns the dock widget top tool bar.
