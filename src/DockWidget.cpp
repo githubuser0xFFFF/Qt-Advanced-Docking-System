@@ -385,8 +385,6 @@ CDockWidget::CDockWidget(CDockManager *manager, const QString &title, QWidget* p
 	setWindowTitle(title);
 	setObjectName(title);
 
-	d->TabWidget = d->componentsFactory()->createDockWidgetTab(this);
-
 	d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
@@ -513,6 +511,10 @@ QWidget* CDockWidget::widget() const
 //============================================================================
 CDockWidgetTab* CDockWidget::tabWidget() const
 {
+	if (!d->TabWidget)
+	{
+		d->TabWidget = d->componentsFactory()->createDockWidgetTab(const_cast<CDockWidget*>(this));
+	}
 	return d->TabWidget;
 }
 
@@ -545,7 +547,7 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 void CDockWidget::notifyFeaturesChanged()
 {
 	Q_EMIT featuresChanged(d->Features);
-	d->TabWidget->onDockWidgetFeaturesChanged();
+	tabWidget()->onDockWidgetFeaturesChanged();
 	if(CDockAreaWidget* DockArea = dockAreaWidget())
 	{
 		DockArea->onDockWidgetFeaturesChanged();
@@ -724,7 +726,7 @@ void CDockWidget::setToggleViewActionMode(eToggleViewActionMode Mode)
 	else
 	{
 		d->ToggleViewAction->setCheckable(false);
-		d->ToggleViewAction->setIcon(d->TabWidget->icon());
+		d->ToggleViewAction->setIcon(tabWidget()->icon());
 	}
 }
 
@@ -941,7 +943,7 @@ void CDockWidget::setTabToolTip(const QString &text)
 //============================================================================
 void CDockWidget::setIcon(const QIcon& Icon)
 {
-	d->TabWidget->setIcon(Icon);
+	tabWidget()->setIcon(Icon);
 
 	if (d->SideTabWidget)
 	{
@@ -958,7 +960,7 @@ void CDockWidget::setIcon(const QIcon& Icon)
 //============================================================================
 QIcon CDockWidget::icon() const
 {
-	return d->TabWidget->icon();
+	return tabWidget()->icon();
 }
 
 
@@ -1141,7 +1143,7 @@ void CDockWidget::setFloating()
 	}
 	else
 	{
-		d->TabWidget->detachDockWidget();
+		tabWidget()->detachDockWidget();
 	}
 }
 
