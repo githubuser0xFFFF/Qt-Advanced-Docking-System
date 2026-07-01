@@ -28,6 +28,8 @@
 **   2026-05-06  Added bit-collision static_assert for HalfPanelDropZones,
 **               extended margin-setter docstring with <=0 semantics, and
 **               extended the friend-CDockOverlay justification comment.
+**   2026-07-01  Added CDockManager::setDropOverlaysEnabled() so applications
+**               can gate redocking/drop-target UI during a live drag.
 ******************************************************************************/
 
 
@@ -477,6 +479,23 @@ public:
 	 * width in pixels. See setHalfPanelContainerEdgeMargin().
 	 */
 	static int halfPanelContainerEdgeMargin();
+
+	/**
+	 * [Wizard NLE fork] Enables or disables live drop overlays and drop targets
+	 * for drags managed by this dock manager. When disabled, active drag
+	 * previews keep moving/floating, but QtADS hides its drop overlays and will
+	 * not claim a dock target on release. This is intended for applications
+	 * that gate redocking behind a live keyboard modifier.
+	 *
+	 * Defaults to true.
+	 */
+	void setDropOverlaysEnabled(bool enabled);
+
+	/**
+	 * [Wizard NLE fork] Returns whether live drop overlays/drop targets are
+	 * enabled for drags managed by this dock manager.
+	 */
+	bool dropOverlaysEnabled() const;
 
 	/**
 	 * Sets the value for the given config parameter

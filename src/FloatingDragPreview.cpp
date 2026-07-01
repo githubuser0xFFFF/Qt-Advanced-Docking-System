@@ -145,6 +145,17 @@ void FloatingDragPreviewPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	DropContainer = TopContainer;
 	auto ContainerOverlay = DockManager->containerOverlay();
 	auto DockAreaOverlay = DockManager->dockAreaOverlay();
+	if (!DockManager->dropOverlaysEnabled())
+	{
+		DropContainer = nullptr;
+		ContainerOverlay->hideOverlay();
+		DockAreaOverlay->hideOverlay();
+		if (CDockManager::testConfigFlag(CDockManager::DragPreviewIsDynamic))
+		{
+			setHidden(false);
+		}
+		return;
+	}
 
 	if (!TopContainer)
 	{
@@ -356,6 +367,12 @@ void CFloatingDragPreview::moveFloating()
 	const QPoint moveToPos = QCursor::pos() - d->DragStartMousePosition
 	    - QPoint(BorderSize, 0);
 	move(moveToPos);
+	d->updateDropOverlays(QCursor::pos());
+}
+
+//============================================================================
+void CFloatingDragPreview::refreshDropOverlays()
+{
 	d->updateDropOverlays(QCursor::pos());
 }
 

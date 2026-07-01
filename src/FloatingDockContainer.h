@@ -218,6 +218,12 @@ public:
 	CFloatingDockContainer(CDockWidget* DockWidget);
 
 	/**
+	 * [Wizard NLE fork] Refreshes drop overlays for the current cursor
+	 * position if this floating container is actively being dragged.
+	 */
+	void refreshDropOverlays();
+
+	/**
 	 * Virtual Destructor
 	 */
 	~CFloatingDockContainer() override;

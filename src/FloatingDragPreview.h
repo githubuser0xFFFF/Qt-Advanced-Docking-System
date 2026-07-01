@@ -68,6 +68,12 @@ public:
 	 */
 	~CFloatingDragPreview();
 
+	/**
+	 * [Wizard NLE fork] Refreshes drop overlays for the current cursor
+	 * position while this drag preview is active.
+	 */
+	void refreshDropOverlays();
+
     /**
      * We filter the events of the assigned content widget to receive
      * escape key presses for canceling the drag operation
@@ -110,4 +116,3 @@ Q_SIGNALS:
 
 //---------------------------------------------------------------------------
 #endif // FloatingDragPreviewH
-

@@ -20,6 +20,8 @@
 **               edge-band margin (CDockManager::setHalfPanelContainerEdgeMargin
 **               / halfPanelContainerEdgeMargin), used by CDockOverlay when
 **               HalfPanelDropZones is enabled.
+**   2026-07-01  Added a per-manager drop-overlay gate for applications that
+**               require a live modifier before redocking.
 ******************************************************************************/
 
 
@@ -56,7 +58,9 @@
 #include <QWindow>
 #include <QWindowStateChangeEvent>
 #include <QVector>
+#include <QTimer>
 
+#include "FloatingDragPreview.h"
 #include "FloatingDockContainer.h"
 #include "DockOverlay.h"
 #include "DockWidget.h"
@@ -138,6 +142,7 @@ struct DockManagerPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	CDockWidget::DockWidgetFeatures LockedDockWidgetFeatures;
+	bool DropOverlaysEnabled = true;
 	QSharedPointer<ads::CDockComponentsFactory> ComponentFactory {ads::CDockComponentsFactory::factory()};
 
 	/**
@@ -815,6 +820,55 @@ CDockOverlay* CDockManager::containerOverlay() const
 CDockOverlay* CDockManager::dockAreaOverlay() const
 {
 	return d->DockAreaOverlay;
+}
+
+
+//============================================================================
+void CDockManager::setDropOverlaysEnabled(bool enabled)
+{
+	if (d->DropOverlaysEnabled == enabled)
+	{
+		return;
+	}
+
+	d->DropOverlaysEnabled = enabled;
+	if (!enabled)
+	{
+		d->ContainerOverlay->hideOverlay();
+		d->DockAreaOverlay->hideOverlay();
+	}
+	else
+	{
+		QTimer::singleShot(0, this, [this] {
+			if (!d->DropOverlaysEnabled)
+			{
+				return;
+			}
+
+			for (auto *FloatingWidget : floatingWidgets())
+			{
+				if (FloatingWidget)
+				{
+					FloatingWidget->refreshDropOverlays();
+				}
+			}
+
+			for (auto *DragPreview : findChildren<CFloatingDragPreview*>())
+			{
+				if (DragPreview && DragPreview->isVisible())
+				{
+					DragPreview->refreshDropOverlays();
+				}
+			}
+		});
+	}
+}
+
+
+//============================================================================
+bool CDockManager::dropOverlaysEnabled() const
+{
+	return d->DropOverlaysEnabled;
 }
 
 

@@ -38,7 +38,9 @@
 #include <QDebug>
 #include <QAbstractButton>
 #include <QElapsedTimer>
+#include <QKeyEvent>
 #include <QTime>
+#include <QTimer>
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
@@ -51,6 +53,9 @@
 #ifdef _MSC_VER
 #pragma comment(lib, "User32.lib")
 #endif
+#endif
+#ifdef Q_OS_MACOS
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include "linux/FloatingWidgetTitleBar.h"
@@ -375,6 +380,9 @@ struct FloatingDockContainerPrivate
 	bool Hiding = false;
 	bool AutoHideChildren = true;
 	bool HideContentOnNextHide = false;
+#ifdef Q_OS_MACOS
+	QTimer* EscapeKeyPollTimer = nullptr;
+#endif
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     QWidget* MouseEventHandler = nullptr;
     CFloatingWidgetTitleBar* TitleBar = nullptr;
@@ -418,6 +426,16 @@ struct FloatingDockContainerPrivate
 		}
 
 		DraggingState = StateId;
+#ifdef Q_OS_MACOS
+		if (DraggingFloatingWidget == DraggingState)
+		{
+			startEscapeKeyPolling();
+		}
+		else
+		{
+			stopEscapeKeyPolling();
+		}
+#endif
         if (DraggingFloatingWidget == DraggingState)
         {
             qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
@@ -469,6 +487,14 @@ struct FloatingDockContainerPrivate
 	 */
 	void handleEscapeKey();
 
+#ifdef Q_OS_MACOS
+	void initializeEscapeKeyPolling();
+	void startEscapeKeyPolling();
+	void stopEscapeKeyPolling();
+	void pollEscapeKey();
+	static bool isEscapeKeyPressed();
+#endif
+
 	/**
 	 * Returns the title used by all FloatingContainer that does not
 	 * reflect the title of the current dock widget.
@@ -488,13 +514,23 @@ FloatingDockContainerPrivate::FloatingDockContainerPrivate(
     CFloatingDockContainer *_public) :
 	_this(_public)
 {
-
 }
 
 //============================================================================
 void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 {
 	setState(DraggingInactive);
+	if (!DockManager || !DockManager->dropOverlaysEnabled())
+	{
+		if (DockManager)
+		{
+			DockManager->containerOverlay()->hideOverlay();
+			DockManager->dockAreaOverlay()->hideOverlay();
+		}
+		DropContainer = nullptr;
+		return;
+	}
+
 	if (!DropContainer)
 	{
 		return;
@@ -585,6 +621,13 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 	DropContainer = TopContainer;
 	auto ContainerOverlay = DockManager->containerOverlay();
 	auto DockAreaOverlay = DockManager->dockAreaOverlay();
+	if (!DockManager->dropOverlaysEnabled())
+	{
+		DropContainer = nullptr;
+		ContainerOverlay->hideOverlay();
+		DockAreaOverlay->hideOverlay();
+		return;
+	}
 
 	if (!TopContainer)
 	{
@@ -647,9 +690,70 @@ void FloatingDockContainerPrivate::handleEscapeKey()
 {
 	ADS_PRINT("FloatingDockContainerPrivate::handleEscapeKey()");
 	setState(DraggingInactive);
-	DockManager->containerOverlay()->hideOverlay();
-	DockManager->dockAreaOverlay()->hideOverlay();
+	DropContainer = nullptr;
+	if (DockManager)
+	{
+		DockManager->containerOverlay()->hideOverlay();
+		DockManager->dockAreaOverlay()->hideOverlay();
+	}
 }
+
+#ifdef Q_OS_MACOS
+//============================================================================
+void FloatingDockContainerPrivate::initializeEscapeKeyPolling()
+{
+	if (EscapeKeyPollTimer)
+	{
+		return;
+	}
+
+	EscapeKeyPollTimer = new QTimer(_this);
+	EscapeKeyPollTimer->setInterval(16);
+	EscapeKeyPollTimer->setTimerType(Qt::PreciseTimer);
+	QObject::connect(EscapeKeyPollTimer, &QTimer::timeout, _this, [this]()
+	{
+		pollEscapeKey();
+	});
+}
+
+
+//============================================================================
+void FloatingDockContainerPrivate::startEscapeKeyPolling()
+{
+	if (EscapeKeyPollTimer && !EscapeKeyPollTimer->isActive())
+	{
+		EscapeKeyPollTimer->start();
+	}
+}
+
+
+//============================================================================
+void FloatingDockContainerPrivate::stopEscapeKeyPolling()
+{
+	if (EscapeKeyPollTimer)
+	{
+		EscapeKeyPollTimer->stop();
+	}
+}
+
+
+//============================================================================
+void FloatingDockContainerPrivate::pollEscapeKey()
+{
+	if (isState(DraggingFloatingWidget) && isEscapeKeyPressed())
+	{
+		handleEscapeKey();
+	}
+}
+
+
+//============================================================================
+bool FloatingDockContainerPrivate::isEscapeKeyPressed()
+{
+	static constexpr CGKeyCode EscapeKeyCode = 53;
+	return CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState, EscapeKeyCode);
+}
+#endif
 
 
 //============================================================================
@@ -657,6 +761,9 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	tFloatingWidgetBase(DockManager),
 	d(new FloatingDockContainerPrivate(this))
 {
+#ifdef Q_OS_MACOS
+	d->initializeEscapeKeyPolling();
+#endif
 	d->DockManager = DockManager;
 	d->DockContainer = new CDockContainerWidget(DockManager, this);
 	connect(d->DockContainer, SIGNAL(dockAreasAdded()), this,
@@ -1101,6 +1208,18 @@ void CFloatingDockContainer::moveFloating()
 }
 
 //============================================================================
+void CFloatingDockContainer::refreshDropOverlays()
+{
+	if (d->isState(DraggingFloatingWidget))
+	{
+		d->updateDropOverlays(QCursor::pos());
+#ifdef Q_OS_MACOS
+		activateWindow();
+#endif
+	}
+}
+
+//============================================================================
 bool CFloatingDockContainer::isClosable() const
 {
 	return d->DockContainer->features().testFlag(
@@ -1248,6 +1367,17 @@ void CFloatingDockContainer::finishDragging()
 //============================================================================
 bool CFloatingDockContainer::event(QEvent *e)
 {
+	if (d->isState(DraggingFloatingWidget) && e->type() == QEvent::KeyPress)
+	{
+		auto KeyEvent = static_cast<QKeyEvent*>(e);
+		if (KeyEvent->key() == Qt::Key_Escape)
+		{
+			d->handleEscapeKey();
+			e->accept();
+			return true;
+		}
+	}
+
 	switch (d->DraggingState)
 	{
 	case DraggingInactive:
