@@ -67,6 +67,7 @@ struct FloatingDragPreviewPrivate
 		Q_EMIT _this->draggingCanceled();
 		DockManager->containerOverlay()->hideOverlay();
 		DockManager->dockAreaOverlay()->hideOverlay();
+		qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragCancelEvent));
 		_this->close();
 	}
 

@@ -170,6 +170,7 @@ static const char* const DirtyProperty = "dirty";
 static const char* const LocationProperty = "Location";
 extern const int FloatingWidgetDragStartEvent;
 extern const int DockedWidgetDragStartEvent;
+extern const int FloatingWidgetDragCancelEvent;
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 // Utils to directly communicate with the X server

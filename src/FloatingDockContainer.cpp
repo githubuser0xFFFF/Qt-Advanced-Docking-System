@@ -353,7 +353,7 @@ static const char* windowsMessageString(int MessageId)
     case 904: return "WM_PENEVENT";
     case 911: return "WM_PENWINLAST";
     default:
-    	return "unknown WM_ message";
+	return "unknown WM_ message";
 	}
 
 	return "unknown WM_ message";
@@ -696,6 +696,7 @@ void FloatingDockContainerPrivate::handleEscapeKey()
 		DockManager->containerOverlay()->hideOverlay();
 		DockManager->dockAreaOverlay()->hideOverlay();
 	}
+	qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragCancelEvent));
 }
 
 #ifdef Q_OS_MACOS
@@ -856,7 +857,7 @@ CFloatingDockContainer::CFloatingDockContainer(CDockAreaWidget *DockArea) :
     auto TopLevelDockWidget = topLevelDockWidget();
     if (TopLevelDockWidget)
     {
-    	TopLevelDockWidget->emitTopLevelChanged(true);
+	TopLevelDockWidget->emitTopLevelChanged(true);
     }
 
     d->DockManager->notifyWidgetOrAreaRelocation(DockArea);
@@ -870,7 +871,7 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
     auto TopLevelDockWidget = topLevelDockWidget();
     if (TopLevelDockWidget)
     {
-    	TopLevelDockWidget->emitTopLevelChanged(true);
+	TopLevelDockWidget->emitTopLevelChanged(true);
     }
 
     d->DockManager->notifyWidgetOrAreaRelocation(DockWidget);
@@ -1075,7 +1076,7 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 	// embedded native/web process can trigger delayed hide/show cycles on the
 	// floating window. If every non-spontaneous hide propagates to
 	// DockWidget->toggleView(false), unrelated tabs are marked closed and seem
-	// to "disappear". We therefore arm HideContentOnNextHide only for the 
+	// to "disappear". We therefore arm HideContentOnNextHide only for the
 	// explicit close path.
 	d->HideContentOnNextHide = true;
 
@@ -1327,7 +1328,7 @@ QList<CDockWidget*> CFloatingDockContainer::dockWidgets() const
 //============================================================================
 void CFloatingDockContainer::finishDropOperation()
 {
-	// Widget has been redocked, so it must be hidden right way (see 
+	// Widget has been redocked, so it must be hidden right way (see
 	// https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/351)
 	// but AutoHideChildren must be set to false because "this" still contains
 	// dock widgets that shall not be toggled hidden.

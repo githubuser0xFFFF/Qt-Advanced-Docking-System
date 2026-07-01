@@ -52,6 +52,7 @@ namespace internal
 {
 const int FloatingWidgetDragStartEvent = QEvent::registerEventType();
 const int DockedWidgetDragStartEvent = QEvent::registerEventType();
+const int FloatingWidgetDragCancelEvent = QEvent::registerEventType();
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 static QString _window_manager;
 static QHash<QString, xcb_atom_t> _xcb_atom_cache;
