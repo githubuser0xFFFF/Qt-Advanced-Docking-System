@@ -16,8 +16,7 @@
 //============================================================================
 //                           FORWARD DECLARATIONS
 //============================================================================
-class QImage;
-
+QT_FORWARD_DECLARE_CLASS(QImage)
 
 /**
  * @brief Widget for fast display of images (i.e. for video capture devices)

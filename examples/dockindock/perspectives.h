@@ -6,8 +6,8 @@
 
 #include <memory>
 
-class QMenu;
-class QSettings;
+QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace QtAdsUtl
 {

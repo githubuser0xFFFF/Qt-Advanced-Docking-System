@@ -1,9 +1,9 @@
 #include <QObject>
 #include <QPushButton>
 
-class QDragEnterEvent;
-class QDragLeaveEvent;
-class QDropEvent;
+QT_FORWARD_DECLARE_CLASS(QDragEnterEvent)
+QT_FORWARD_DECLARE_CLASS(QDragLeaveEvent)
+QT_FORWARD_DECLARE_CLASS(QDropEvent)
 
 class DroppableItem : public QPushButton
 {

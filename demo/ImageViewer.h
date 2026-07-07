@@ -12,10 +12,7 @@
 //============================================================================
 #include <QScrollArea>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
+QT_FORWARD_DECLARE_CLASS(QLabel)
 
 struct ImageViewerPrivate;
 

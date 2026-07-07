@@ -6,7 +6,7 @@
 #include <memory>
 #include <ostream>
 
-class QMenu;
+QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace ads
 {
