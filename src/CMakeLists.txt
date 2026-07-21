@@ -3,11 +3,12 @@ project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
 include(GNUInstallDirs)
 include(Versioning)
 if (${QT_VERSION_MAJOR})
-  message(STATUS "Forced to use Qt version ${QT_VERSION_MAJOR}")
   find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 else()
   find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 endif()
+
+message(STATUS "ADS: Solution configured to use Qt version ${QT_VERSION_MAJOR}")
 
 set(ads_DEP_LIBS Core Gui Widgets)
 if (UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GREATER 8)
@@ -78,12 +79,13 @@ if (UNIX AND NOT APPLE)
     set(ads_HEADERS linux/FloatingWidgetTitleBar.h ${ads_HEADERS})
 endif()
 
-set(library_name "qtadvanceddocking-qt${QT_VERSION_MAJOR}")
+set(library_name_base "qtadvanceddocking")
+set(library_name "${library_name_base}-qt${QT_VERSION_MAJOR}")
 if(BUILD_STATIC)
     add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
     target_compile_definitions( ${library_name} PUBLIC ADS_STATIC)
 else()
-    add_library( ${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
+    add_library(${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
     if(WIN32)
         add_windows_version_resources(${library_name})
     endif()
@@ -91,6 +93,7 @@ else()
 endif()
 
 add_library(ads::${library_name} ALIAS ${library_name})
+add_library(ads::${library_name_base} ALIAS ${library_name})
 
 target_link_libraries(${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
