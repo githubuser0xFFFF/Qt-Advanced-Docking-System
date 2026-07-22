@@ -52,6 +52,10 @@ else()
     set(ads_PlatformDir "${ADS_PLATFORM_DIR}")
 endif()
 
+if(QtADS_IS_TOP_LEVEL)
+   add_compile_options($<${MSVC}:/MP>)
+endif()
+
 add_subdirectory(src)
 
 if(BUILD_EXAMPLES)
