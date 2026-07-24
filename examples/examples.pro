@@ -5,6 +5,7 @@ SUBDIRS = \
 	autohidedragndrop \
     centralwidget \
 	simple \
+	openGL \
 	hideshow \
 	sidebar \
 	deleteonclose \
