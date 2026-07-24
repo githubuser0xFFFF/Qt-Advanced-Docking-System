@@ -34,6 +34,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QXmlStreamWriter>
+#include <QWheelEvent>
 
 #include "DockContainerWidget.h"
 #include "DockWidgetTab.h"
@@ -300,6 +301,13 @@ bool CAutoHideSideBar::eventFilter(QObject *watched, QEvent *event)
 		 }
 		 break;
 
+#if QT_CONFIG(wheelevent)
+	case QEvent::Wheel:
+		// the button received the event so pass to the scroll area
+		wheelEvent(static_cast<QWheelEvent*>(event));
+		break;
+#endif
+
 	default:
 		break;
 	}
@@ -431,6 +439,41 @@ QSize CAutoHideSideBar::sizeHint() const
 {
 	return d->TabsContainerWidget->sizeHint();
 }
+
+
+//===========================================================================
+#if QT_CONFIG(wheelevent)
+void CAutoHideSideBar::wheelEvent(QWheelEvent* e)
+{
+	QPoint AngleDelta = e->angleDelta();
+
+	// completely ignore the effects if the alt key is being held
+	// if alt is held on a vertical scroll area, cancel the applied horizontal scroll by forcing a vertical scroll
+	// if alt is held on a horizontal scroll area, cancel the applied vertical scroll by forcing a horizontal scroll
+	if (!d->isHorizontal() && (e->modifiers() & Qt::KeyboardModifier::AltModifier) ||
+		 d->isHorizontal() && (~e->modifiers() & Qt::KeyboardModifier::AltModifier))
+	{
+		AngleDelta = e->angleDelta().transposed();
+	}
+
+	QWheelEvent WheelEvent {
+		e->position(),
+		e->globalPosition(),
+		e->pixelDelta(),
+		AngleDelta,
+		e->buttons(),
+		e->modifiers(),
+		e->phase(),
+		e->inverted(),
+		e->source()
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+		,e->pointingDevice()
+#endif
+	};
+
+	Super::wheelEvent(&WheelEvent);
+}
+#endif
 
 
 //===========================================================================

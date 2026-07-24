@@ -185,6 +185,16 @@ public:
 	 */
 	virtual QSize sizeHint() const override;
 
+#if QT_CONFIG(wheelevent)
+	/**
+	 * This function handles scroll wheel events and will ignore the
+	 * alt key modifier if applied by the user to make sure vertical
+	 * auto-hide side bars will always scroll vertically and that
+	 * horizontal ones will always scroll horizontally.
+	 */
+	virtual void wheelEvent(QWheelEvent* e) override;
+#endif
+
 	/**
 	 * Getter for spacing property - returns the spacing of the tabs
 	 */
