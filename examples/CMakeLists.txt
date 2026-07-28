@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(QtADSExamples LANGUAGES CXX VERSION ${VERSION_SHORT})
+project(QtADSExamples LANGUAGES CXX VERSION ${QtADS_VERSION})
 add_subdirectory(simple)
 add_subdirectory(hideshow)
 add_subdirectory(sidebar)

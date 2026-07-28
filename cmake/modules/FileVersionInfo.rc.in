@@ -13,12 +13,11 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName",      "My Company\0"
+            VALUE "CompanyName",      "N/A\0"
+            VALUE "ProductName",      "@PROJECT_NAME@\0"
             VALUE "FileDescription",  "@PROJECT_NAME@\0"
-            VALUE "FileVersion",      "@PROJECT_VERSION_STRING@\0"
-            VALUE "ProductVersion",   "@PROJECT_VERSION_STRING@\0"
-            VALUE "GitCommitFull",    "@PROJECT_GIT_HASH@\0"
-            VALUE "GitCommitShort",   "@PROJECT_GIT_HASH_SHORT@\0"
+            VALUE "FileVersion",      "@PROJECT_VERSION@\0"
+            VALUE "ProductVersion",   "@PROJECT_VERSION@\0"
         END
     END
 

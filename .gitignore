@@ -10,6 +10,7 @@ Makefile
 *.dll
 *.a
 build*
+ads_version.h
 
 # IDEs
 .idea

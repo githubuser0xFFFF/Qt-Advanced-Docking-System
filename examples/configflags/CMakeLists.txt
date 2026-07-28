@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(ads_example_configflags VERSION ${VERSION_SHORT}) 
+project(ads_example_configflags VERSION ${QtADS_VERSION}) 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -20,7 +20,7 @@ set_target_properties(ConfigFlagsExample PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
-    VERSION ${VERSION_SHORT}
+    VERSION ${QtADS_VERSION}
     EXPORT_NAME "Qt Advanced Docking System Config Flags"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"

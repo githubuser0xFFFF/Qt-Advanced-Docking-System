@@ -1,0 +1,40 @@
+#ifndef ads_versionH
+#define ads_versionH
+/*******************************************************************************
+** Qt Advanced Docking System
+** Copyright (C) 2026 Uwe Kindler
+** 
+** This library is free software; you can redistribute it and/or
+** modify it under the terms of the GNU Lesser General Public
+** License as published by the Free Software Foundation; either
+** version 2.1 of the License, or (at your option) any later version.
+** 
+** This library is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Lesser General Public License for more details.
+** 
+** You should have received a copy of the GNU Lesser General Public
+** License along with this library; If not, see <http://www.gnu.org/licenses/>.
+******************************************************************************/
+
+//============================================================================
+/// \file   ads_version.h
+/// \author auto-generated
+/// \date   @QtADS_AUTO_GEN_DATE@
+/// \brief  ADS version information
+//============================================================================
+
+// ADS version components
+#define ADS_VERSION_MAJOR @QtADS_VERSION_MAJOR@
+#define ADS_VERSION_MINOR @QtADS_VERSION_MINOR@
+#define ADS_VERSION_PATCH @QtADS_VERSION_PATCH@
+
+// ADS_VERSION is (major << 16) | (minor << 8) | patch.
+#define ADS_VERSION ADS_VERSION_CHECK(ADS_VERSION_MAJOR, ADS_VERSION_MINOR, ADS_VERSION_PATCH)
+
+// generates a complete version from the major, minor, and patch values
+// i.e. #if ADS_VERSION >= ADS_VERSION_CHECK(5, 0, 0)
+#define ADS_VERSION_CHECK(major, minor, patch) ((major<<16) | (minor<<8) | (patch))
+
+#endif // ads_versionH

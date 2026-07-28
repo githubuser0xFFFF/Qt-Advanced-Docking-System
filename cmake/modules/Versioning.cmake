@@ -8,58 +8,32 @@
 set(_VERSIONING_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "Versioning module directory")
 
 # ------------------------------------------------------------
-# Extract version information from Git or use predefined version
+# Function: Generates the required version header for the ADS
+# library.  Should only be called by the ADS library target.
 # ------------------------------------------------------------
-if(NOT DEFINED PROJECT_VERSION_MAJOR OR NOT DEFINED PROJECT_VERSION_MINOR OR NOT DEFINED PROJECT_VERSION_PATCH)
-    # Get tag (expected: v1.2.3 or 1.2.3 or 1.2.3-12-gHASH)
-    execute_process(
-        COMMAND git describe --tags --dirty
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_DESC_RAW
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+function(generate_ads_version_header)
+    # configure ads_version.h from ads_version.h.in
+    if(NOT DEFINED QtADS_VERSION_MAJOR OR
+       NOT DEFINED QtADS_VERSION_MINOR OR
+       NOT DEFINED QtADS_VERSION_PATCH)
+        message(
+            FATAL_ERROR
+            "ADS major, minor, or patch version variables not defined!")
+    endif()
 
-    # Remove leading "v" if present
-    string(REGEX REPLACE "^v" "" GIT_DESC "${GIT_DESC_RAW}")
+    string(TIMESTAMP QtADS_AUTO_GEN_DATE "%d.%m.%Y")
 
-    # Extract major.minor.patch
-    string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${GIT_DESC}")
-    set(PROJECT_VERSION_MAJOR "${CMAKE_MATCH_1}")
-    set(PROJECT_VERSION_MINOR "${CMAKE_MATCH_2}")
-    set(PROJECT_VERSION_PATCH "${CMAKE_MATCH_3}")
-
-
-
-    # Commit hash (full + short)
-    execute_process(
-        COMMAND git rev-parse HEAD
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE PROJECT_GIT_HASH
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    execute_process(
-        COMMAND git rev-parse --short HEAD
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE PROJECT_GIT_HASH_SHORT
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-endif()
-
-set(PROJECT_VERSION_STRING
-    "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
-)
-
-# Export variables to parent scope
-set(PROJECT_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}" PARENT_SCOPE)
-set(PROJECT_VERSION_MINOR "${PROJECT_VERSION_MINOR}" PARENT_SCOPE)
-set(PROJECT_VERSION_PATCH "${PROJECT_VERSION_PATCH}" PARENT_SCOPE)
-set(PROJECT_VERSION_STRING "${PROJECT_VERSION_STRING}" PARENT_SCOPE)
-set(PROJECT_GIT_HASH "${PROJECT_GIT_HASH}" PARENT_SCOPE)
-set(PROJECT_GIT_HASH_SHORT "${PROJECT_GIT_HASH_SHORT}" PARENT_SCOPE)
-
-# Public variable for users
-set(PROJECT_AUTO_VERSION "${PROJECT_VERSION_STRING}" PARENT_SCOPE)
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ads_globals.h")
+        message(
+            FATAL_ERROR
+            "Unable to place ads_version.h next to ads_globals.h")
+    else()
+        configure_file(
+            "${_VERSIONING_MODULE_DIR}/ads_version.h.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/ads_version.h"
+            @ONLY)
+    endif()
+endfunction()
 
 # ------------------------------------------------------------
 # Reusable function: Attach Windows version resources to target

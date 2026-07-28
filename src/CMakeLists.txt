@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${VERSION_SHORT})
+project(QtAdvancedDockingSystem LANGUAGES CXX VERSION ${QtADS_VERSION})
 include(GNUInstallDirs)
 include(Versioning)
 if (${QT_VERSION_MAJOR})
@@ -18,6 +18,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${ads_DEP_LIBS} REQUIRED)
 if (UNIX AND NOT APPLE AND ((QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GREATER 8) OR QT_VERSION_MAJOR STREQUAL "5"))
      include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
 endif()
+
+generate_ads_version_header()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(BUILD_STATIC)
@@ -50,6 +52,7 @@ set(ads_SRCS
 )
 set(ads_HEADERS
     ads_globals.h
+    ads_version.h
     DockAreaTabBar.h
     DockAreaTitleBar.h
     DockAreaTitleBar_p.h
@@ -115,8 +118,8 @@ set_target_properties(${library_name} PROPERTIES
     AUTOMOC ON
     AUTORCC ON
     CXX_EXTENSIONS OFF
-    VERSION ${VERSION_SHORT}
-    SOVERSION ${VERSION_SONAME}
+    VERSION ${QtADS_VERSION}
+    SOVERSION ${QtADS_VERSION_MAJOR}
     EXPORT_NAME ${library_name}
     DEBUG_POSTFIX "d"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
@@ -136,7 +139,7 @@ endif()
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     "${library_name}ConfigVersion.cmake"
-    VERSION ${VERSION_SHORT}
+    VERSION ${QtADS_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 install(FILES ${ads_HEADERS}
