@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(QtADSExamples LANGUAGES CXX VERSION ${VERSION_SHORT})
+
+if(QtADS_IS_TOP_LEVEL)
+    set(CMAKE_FOLDER "Examples")
+endif()
+
 add_subdirectory(simple)
 add_subdirectory(hideshow)
 add_subdirectory(sidebar)

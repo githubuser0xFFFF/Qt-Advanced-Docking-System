@@ -38,6 +38,12 @@ endif()
 
 project(QtADS LANGUAGES CXX VERSION ${VERSION_SHORT})
 
+if(CMAKE_VERSION VERSION_LESS 3.21.0)
+    if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+        set(QtADS_IS_TOP_LEVEL true)
+    endif()
+endif()
+
 option(BUILD_STATIC "Build the static library" OFF)
 option(BUILD_EXAMPLES "Build the examples" ON)
 
@@ -50,6 +56,12 @@ if(NOT ADS_PLATFORM_DIR)
     endif()
 else()
     set(ads_PlatformDir "${ADS_PLATFORM_DIR}")
+endif()
+
+if(QtADS_IS_TOP_LEVEL)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.26.0)
+        cmake_policy(SET CMP0143 NEW)
+    endif()
 endif()
 
 add_subdirectory(src)
