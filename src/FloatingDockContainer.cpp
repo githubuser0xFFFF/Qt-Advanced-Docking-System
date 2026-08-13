@@ -1116,6 +1116,11 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 		d->setWindowTitle(d->floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
+
+    if (d->DockContainer->dockAreaCount() == 0)
+    {
+        deleteLater();
+    }
 }
 
 //============================================================================

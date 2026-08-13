@@ -312,17 +312,14 @@ bool DockWidgetTabPrivate::startFloating(eDragState DraggingState)
     ADS_PRINT("isFloating " << dockContainer->isFloating());
     ADS_PRINT("areaCount " << dockContainer->dockAreaCount());
     ADS_PRINT("widgetCount " << DockWidget->dockAreaWidget()->dockWidgetsCount());
-	// if this is the last dock widget inside of this floating widget,
-	// then it does not make any sense, to make it floating because
-	// it is already floating
-	 if (dockContainer->isFloating()
+    // On Wayland, dragging the tab of the single dock widget of a
+    // floating widget drags the existing floating widget, so the user
+    // can dock it into another container
+    if (internal::isWayland() && dockContainer->isFloating()
 	 && (dockContainer->visibleDockAreaCount() == 1)
 	 && (DockWidget->dockAreaWidget()->dockWidgetsCount() == 1))
 	{
-		// On Wayland, dragging the tab of the single dock widget of a
-		// floating widget drags the existing floating widget, so the user
-		// can dock it into another container
-		if (internal::isWayland() && (DraggingFloatingWidget == DraggingState))
+		if (DraggingFloatingWidget == DraggingState)
 		{
 			auto FloatingContainer = dockContainer->floatingWidget();
 			if (FloatingContainer)
@@ -557,21 +554,6 @@ void CDockWidgetTab::mouseMoveEvent(QMouseEvent* ev)
     int DragDistanceY = qAbs(d->GlobalDragStartMousePosition.y() - internal::globalPositionOf(ev).y());
     if (DragDistanceY >= CDockManager::startDragDistance() || MouseOutsideBar)
 	{
-		// If this is the last dock area in a dock container with only
-    	// one single dock widget it does not make  sense to move it to a new
-    	// floating widget and leave this one empty.
-    	// On Wayland we fall through, because dragging the tab drags the
-    	// existing floating widget so the user can dock it into another
-    	// container
-		if (d->DockArea->dockContainer()->isFloating()
-		 && d->DockArea->openDockWidgetsCount() == 1
-		 && d->DockArea->dockContainer()->visibleDockAreaCount() == 1
-		 && !internal::isWayland())
-		{
-			return;
-		}
-
-
     	// Floating is only allowed for widgets that are floatable
 		// We can create the drag preview if the widget is movable.
 		auto Features = d->DockWidget->features();
