@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CMainWindow</class>
- <widget class="QMainWindow" name="CMainWindow">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1284</width>
-    <height>757</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="statusTip">
+   <string/>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -19,28 +22,189 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1284</width>
-     <height>21</height>
+     <width>800</width>
+     <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuView">
+   <widget class="QMenu" name="menuDockFlags">
     <property name="title">
-     <string>View</string>
+     <string>Flags</string>
     </property>
+    <widget class="QMenu" name="menuDockWidgetFeatures">
+     <property name="title">
+      <string>Dock Widget Features</string>
+     </property>
+     <addaction name="actionDockWidgetClosable"/>
+     <addaction name="actionDockWidgetMovable"/>
+     <addaction name="actionDockWidgetFloatable"/>
+     <addaction name="actionDockWidgetDeleteOnClose"/>
+     <addaction name="actionCustomCloseHandling"/>
+     <addaction name="actionDockWidgetFocusable"/>
+     <addaction name="actionDockWidgetForceCloseWithArea"/>
+     <addaction name="actionNoTab"/>
+     <addaction name="actionDeleteContentOnClose"/>
+     <addaction name="actionDockWidgetPinnable"/>
+    </widget>
+    <addaction name="menuDockWidgetFeatures"/>
    </widget>
-   <addaction name="menuView"/>
+   <widget class="QMenu" name="menuCreate">
+    <property name="title">
+     <string>Create</string>
+    </property>
+    <addaction name="actionCalendar"/>
+    <addaction name="actionDial"/>
+    <addaction name="actionLCDNumber"/>
+    <addaction name="actionTextEdit"/>
+   </widget>
+   <addaction name="menuDockFlags"/>
+   <addaction name="menuCreate"/>
   </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionDockWidgetClosable">
+   <property name="checkable">
+    <bool>true</bool>
    </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetClosable</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget has a close button</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetMovable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetMovable</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget is movable and can be moved to a new position in the current dock container</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetDeleteOnClose">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetDeleteOnClose</string>
+   </property>
+   <property name="statusTip">
+    <string>deletes the dock widget when it is closed</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetFloatable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetFloatable</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget can be dragged into a floating window</string>
+   </property>
+  </action>
+  <action name="actionCustomCloseHandling">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>CustomCloseHandling</string>
+   </property>
+   <property name="statusTip">
+    <string>clicking the close button will not close the dock widget but emits the closeRequested() signal instead</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetFocusable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetFocusable</string>
+   </property>
+   <property name="statusTip">
+    <string>if this is enabled, a dock widget can get focus highlighting</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetForceCloseWithArea">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetForceCloseWithArea</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget will be closed when the dock area hosting it is closed</string>
+   </property>
+  </action>
+  <action name="actionNoTab">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>NoTab</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget tab will never be shown if this flag is set</string>
+   </property>
+  </action>
+  <action name="actionDeleteContentOnClose">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DeleteContentOnClose</string>
+   </property>
+   <property name="statusTip">
+    <string>deletes only the contained widget on close, keeping the dock widget intact and in place. Attempts to rebuild the contents widget on show if there is a widget factory set.</string>
+   </property>
+  </action>
+  <action name="actionDockWidgetPinnable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DockWidgetPinnable</string>
+   </property>
+   <property name="statusTip">
+    <string>dock widget can be pinned and added to an auto hide dock container</string>
+   </property>
+  </action>
+  <action name="actionCalendar">
+   <property name="text">
+    <string>Calendar</string>
+   </property>
+  </action>
+  <action name="actionDial">
+   <property name="text">
+    <string>Dial</string>
+   </property>
+  </action>
+  <action name="actionLCDNumber">
+   <property name="text">
+    <string>LCD Number</string>
+   </property>
+  </action>
+  <action name="actionTextEdit">
+   <property name="text">
+    <string>Text Edit</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
