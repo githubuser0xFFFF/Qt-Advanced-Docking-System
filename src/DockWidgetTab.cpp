@@ -391,10 +391,13 @@ void DockWidgetTabPrivate::waylandPreviewMove(QMouseEvent* ev)
 
 	// FloatingWidget is a CFloatingDragPreview during the in-window phase
 	// (DraggingFloatingWidget state on Wayland; see startFloating()). While the
-	// cursor stays inside the source window the preview just follows it.
+	// cursor stays inside the source window the preview just follows it.  If
+	// the window is not floatable and the cursor is outside of the source window,
+	// then the preview will be frozen until the drag is cancelled or the cursor
+	// reenters the source window.
 	auto Preview = static_cast<CFloatingDragPreview*>(FloatingWidget);
 	if (CFloatingDockContainer::waylandMoveOrLeaveInWindowPreview(
-			Preview, _this->window(), GlobalPos))
+			Preview, _this->window(), GlobalPos, _this->isFloatable()))
 	{
 		return;
 	}
@@ -813,6 +816,11 @@ bool CDockWidgetTab::isClosable() const
 	return d->DockWidget && d->DockWidget->features().testFlag(CDockWidget::DockWidgetClosable);
 }
 
+//============================================================================
+bool CDockWidgetTab::isFloatable() const
+{
+	return d->DockWidget && d->DockWidget->features().testFlag(CDockWidget::DockWidgetFloatable);
+}
 
 //===========================================================================
 void CDockWidgetTab::detachDockWidget()

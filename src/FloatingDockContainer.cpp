@@ -1419,7 +1419,8 @@ Qt::DropAction CFloatingDockContainer::startPlatformDrag(
 
 //============================================================================
 bool CFloatingDockContainer::waylandMoveOrLeaveInWindowPreview(
-	CFloatingDragPreview* Preview, QWidget* SourceWindow, const QPoint& GlobalPos)
+	CFloatingDragPreview* Preview, QWidget* SourceWindow, const QPoint& GlobalPos,
+	const bool Floatable)
 {
 	const QPoint InWindow = SourceWindow->mapFromGlobal(GlobalPos);
 	if (SourceWindow->rect().contains(InWindow))
@@ -1435,11 +1436,13 @@ bool CFloatingDockContainer::waylandMoveOrLeaveInWindowPreview(
 	// drop. The caller converts the gesture into a native compositor platform
 	// drag while the implicit pointer grab from the original press is still
 	// active, which is what QDrag::exec() / xdg_toplevel_drag_v1 requires.
-	if (Preview)
+	if (Preview && Floatable)
 	{
 		Preview->cancelDraggingSilently();
+
+		return false;
 	}
-	return false;
+	return true;
 }
 
 

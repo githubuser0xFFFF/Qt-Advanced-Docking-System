@@ -368,9 +368,13 @@ void DockAreaTitleBarPrivate::waylandPreviewMove(QMouseEvent* ev)
 	// FloatingWidget is a CFloatingDragPreview during the in-window phase
 	// (DraggingFloatingWidget state on Wayland; see makeAreaFloating()). While
 	// the cursor stays inside the source window the preview just follows it.
+	// If the window is not floatable and the cursor is outside of the source window,
+	// the preview will be frozen until the drag is canclled or the cursor reenters
+	// the source window.
 	auto Preview = static_cast<CFloatingDragPreview*>(FloatingWidget);
 	if (CFloatingDockContainer::waylandMoveOrLeaveInWindowPreview(
-			Preview, _this->window(), GlobalPos))
+			Preview, _this->window(), GlobalPos,
+			DockArea->features().testFlag(CDockWidget::DockWidgetFloatable)))
 	{
 		return;
 	}
