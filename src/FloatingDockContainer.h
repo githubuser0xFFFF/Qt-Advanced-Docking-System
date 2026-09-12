@@ -309,9 +309,13 @@ public:
 	 * SourceWindow the Preview is torn down without performing a drop and this
 	 * returns false - the caller then creates the real floating widget and
 	 * hands it to startPlatformDragForFloatingWidget(). Preview may be null.
+	 * If the window is not floatable and the cursor is outside the contained
+	 * source window, the preview drag operation will not be cancelled. It will
+	 * return true, leaving the preview window frozen until the cursor reenters
+	 * the source window or the drag operation is cancelled.
 	 */
 	static bool waylandMoveOrLeaveInWindowPreview(CFloatingDragPreview* Preview,
-		QWidget* SourceWindow, const QPoint& GlobalPos);
+		QWidget* SourceWindow, const QPoint& GlobalPos, const bool Floatable);
 
 	/**
 	 * Wayland hybrid drag helper, shared by the tab and the title bar drag
