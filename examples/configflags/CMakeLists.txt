@@ -5,7 +5,11 @@ find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_executable(ConfigFlagsExample WIN32 
     main.cpp
+    createmainviewwindow.cpp
+    createmainviewwindow.h
+    createmainviewwindow.ui
     mainwindow.cpp
+    mainwindow.h
     mainwindow.ui
 )
 target_include_directories(ConfigFlagsExample PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")

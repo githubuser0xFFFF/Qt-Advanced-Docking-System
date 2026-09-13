@@ -2,26 +2,40 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QComboBox>
-#include <QWidgetAction>
+#include <Qt>
 
-#include "DockManager.h"
-#include "DockAreaWidget.h"
-#include "DockWidget.h"
+#include <memory>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class CMainWindow; }
-QT_END_NAMESPACE
-
-class CMainWindow : public QMainWindow
+namespace Ui
 {
-    Q_OBJECT
+class MainWindow;
+}  // namespace Ui
+
+namespace ads
+{
+class CDockManager;
+};
+
+class MainWindow : public QMainWindow
+{
+   Q_OBJECT
 
 public:
-    CMainWindow(QWidget *parent = nullptr);
-    ~CMainWindow();
+   MainWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = { });
+   virtual ~MainWindow();
+
+   void SetDockManager(ads::CDockManager * const dockManager);
+
+   virtual bool eventFilter(QObject * watched, QEvent * event) override;
 
 private:
-    Ui::CMainWindow *ui;
+   void SetupDockWidgetFeatures();
+   void SetupCreateCallbacks();
+
+   ads::CDockManager * dockManager;
+
+   std::unique_ptr< Ui::MainWindow > ui;
+
 };
+
 #endif // MAINWINDOW_H
