@@ -122,7 +122,7 @@ protected:
 	 * Add a new dock widget to dock area.
 	 * All dockwidgets in the dock area tabified in a stacked layout with tabs
 	 */
-	void addDockWidget(CDockWidget* DockWidget);
+	void addDockWidget(CDockWidget* DockWidget, bool activate = true);
 
 	/**
 	 * Removes the given dock widget from the dock area
