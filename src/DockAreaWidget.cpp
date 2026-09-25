@@ -119,6 +119,42 @@ public:
 	}
 
 	/**
+	 * Removes the current content widget from the box layout by widget identity.
+	 * Never use hardcoded takeAt(1): with TabsAtBottom the TabBar shares this
+	 * layout and may sit at index 1, so takeAt(1) would orphan it as a top-level
+	 * window (blank 200x44 popup, workspace tabs disappear).
+	 */
+	void removeCurrentWidgetFromBoxLayout()
+	{
+		if (!m_CurrentWidget)
+			return;
+
+		int idx = m_ParentLayout->indexOf(m_CurrentWidget);
+		if (idx < 0)
+		{
+			detachWidget(m_CurrentWidget);
+			return;
+		}
+
+		QLayoutItem* LayoutItem = m_ParentLayout->takeAt(idx);
+		if (!LayoutItem)
+			return;
+
+		QWidget* taken = LayoutItem->widget();
+		if (taken && (qobject_cast<CDockAreaTabBar*>(taken) || qobject_cast<CDockAreaTitleBar*>(taken)))
+		{
+			m_ParentLayout->insertWidget(idx, taken);
+			delete LayoutItem;
+			detachWidget(m_CurrentWidget);
+			return;
+		}
+
+		if (taken)
+			detachWidget(taken);
+		delete LayoutItem;
+	}
+
+	/**
 	 * Inserts the widget at the given index position into the internal widget
 	 * list
 	 */
@@ -150,12 +186,7 @@ public:
 	{
 		if (currentWidget() == Widget)
 		{
-			auto LayoutItem = m_ParentLayout->takeAt(1);
-			if (LayoutItem)
-			{
-				detachWidget(LayoutItem->widget());
-			}
-			delete LayoutItem;
+			removeCurrentWidgetFromBoxLayout();
 			m_CurrentWidget = nullptr;
 			m_CurrentIndex = -1;
 		}
@@ -195,17 +226,23 @@ public:
 			parent->setUpdatesEnabled(false);
 		}
 
-		if (m_CurrentWidget)
-		{
-			auto LayoutItem = m_ParentLayout->takeAt(1);
-			if (LayoutItem)
-			{
-				detachWidget(LayoutItem->widget());
-			}
-			delete LayoutItem;
-		}
+		removeCurrentWidgetFromBoxLayout();
 
-		m_ParentLayout->insertWidget(1, next);
+		int insertAt = 1;
+		if (m_ParentLayout->count() > 0)
+		{
+			for (int i = 0; i < m_ParentLayout->count(); ++i)
+			{
+				QLayoutItem* it = m_ParentLayout->itemAt(i);
+				QWidget* w = it ? it->widget() : nullptr;
+				if (qobject_cast<CDockAreaTabBar*>(w))
+				{
+					insertAt = i;
+					break;
+				}
+			}
+		}
+		m_ParentLayout->insertWidget(insertAt, next);
 		if (prev)
 		{
 			prev->hide();
@@ -572,6 +609,10 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	{
 		setCurrentIndex(index);
 		DockWidget->setClosedState(false); // Set current index can show the widget without changing the close state, added to keep the close state consistent
+		if (!DockWidget->isClosed())
+		{
+			TabWidget->setVisible(true);
+		}
 	}
 	// If this dock area is hidden, then we need to make it visible again
 	// by calling DockWidget->toggleViewInternal(true);

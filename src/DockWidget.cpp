@@ -495,7 +495,11 @@ QWidget* CDockWidget::takeWidget()
 
 	if (w)
 	{
-		w->setParent(nullptr);
+		// Native 子控件（如 OpenGL）不能 setParent(nullptr)，否则会留下空白顶层 OS 窗口
+		if (w->internalWinId() && d->DockManager)
+			w->setParent(d->DockManager);
+		else
+			w->setParent(nullptr);
 	}
 	return w;
 }
