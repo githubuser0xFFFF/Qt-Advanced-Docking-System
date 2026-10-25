@@ -830,8 +830,10 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 		// to normal state.
 		// We simply check here, if the FloatingWidget was maximized before
 		// and if the DockManager is just leaving the minimized state. In this
-		// case, we restore the maximized state of this floating widget
-		if (d->DockManager->isLeavingMinimizedState())
+		// case, we restore the maximized state of this floating widget.
+		// DockManager is cleared in finishDropOperation() before the deferred
+		// delete, so state change events may still arrive without one.
+		if (d->DockManager && d->DockManager->isLeavingMinimizedState())
 		{
 			QWindowStateChangeEvent* ev = static_cast<QWindowStateChangeEvent*>(event);
 			if (ev->oldState().testFlag(Qt::WindowMaximized))
@@ -978,8 +980,9 @@ void CFloatingDockContainer::hideEvent(QHideEvent *event)
         return;
     }
 
-    // Prevent toogleView() events during restore state
-    if (d->DockManager->isRestoringState())
+    // Prevent toogleView() events during restore state. Without a DockManager
+    // the container has been unlinked and is pending deletion.
+    if (!d->DockManager || d->DockManager->isRestoringState())
     {
         return;
     }
