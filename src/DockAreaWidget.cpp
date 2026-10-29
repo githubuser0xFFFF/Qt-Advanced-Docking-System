@@ -72,9 +72,8 @@ static bool isAutoHideFeatureEnabled()
 /**
  * Internal dock area layout mimics stack layout but only inserts the current
  * widget into the internal QLayout object.
- * \warning Only the current widget has a parent. All other widgets
- * do not have a parent. That means, a widget that is in this layout may
- * return nullptr for its parent() function if it is not the current widget.
+ * Inactive widgets are hidden and parented to the dock manager when available,
+ * rather than becoming temporary top-level windows.
  */
 class CDockAreaLayout
 {
@@ -85,12 +84,14 @@ private:
 	QWidget* m_CurrentWidget = nullptr;
 
 	/**
-	 * Detaches a widget without turning an existing native window into a top-level window.
+	 * Detaches a widget while keeping it hidden and parented to the dock manager.
 	 */
 	void detachWidget(QWidget* Widget)
 	{
+		// setParent() may be a no-op; keep inactive docks hidden explicitly.
+		Widget->hide();
 		CDockAreaWidget* DockArea = qobject_cast<CDockAreaWidget*>(m_ParentLayout->parentWidget());
-		if (Widget->internalWinId() && DockArea && DockArea->dockManager())
+		if (DockArea && DockArea->dockManager())
 		{
 			Widget->setParent(DockArea->dockManager());
 		}
