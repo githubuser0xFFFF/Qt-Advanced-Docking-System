@@ -41,7 +41,7 @@
 #define tFloatingWidgetBase QWidget
 #endif
 
-class CDockingStateReader;
+QT_FORWARD_DECLARE_CLASS(CDockingStateReader);
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 
 namespace ads
@@ -52,7 +52,6 @@ struct DockManagerPrivate;
 class CDockAreaWidget;
 class CDockContainerWidget;
 class CDockWidget;
-class CDockManager;
 class CDockAreaTabBar;
 class CDockWidgetTab;
 struct DockWidgetTabPrivate;
@@ -65,7 +64,7 @@ class CFloatingDragPreview;
 /**
  * Pure virtual interface for floating widgets.
  * This interface is used for opaque and non-opaque undocking. If opaque
- * undocking is used, the a real CFloatingDockContainer widget will be created
+ * undocking is used, the real CFloatingDockContainer widget will be created
  */
 class ADS_EXPORT IFloatingWidget
 {
@@ -160,21 +159,22 @@ private Q_SLOTS:
 	void onDockAreasAddedOrRemoved();
 	void onDockAreaCurrentChanged(int Index);
 
-protected:
+public:
 	/**
 	 * Starts floating at the given global position.
 	 * Use moveToGlobalPos() to move the widget to a new position
 	 * depending on the start position given in Pos parameter
 	 */
-	virtual void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
+	void startFloating(const QPoint& DragStartMousePos, const QSize& Size,
         eDragState DragState, QWidget* MouseEventHandler) override;
 
 	/**
 	 * Call this function if you explicitly want to signal that dragging has
 	 * finished
 	 */
-	virtual void finishDragging() override;
+	void finishDragging() override;
 
+protected:
 	/**
 	 * This function deletes all dock widgets in it.
 	 * This functions should be called only from dock manager in its
@@ -191,12 +191,14 @@ protected:
         startFloating(DragStartMousePos, Size, DraggingInactive, nullptr);
 	}
 
+public:
 	/**
 	 * Moves the widget to a new position relative to the position given when
 	 * startFloating() was called
 	 */
 	void moveFloating() override;
 
+protected:
 	/**
 	 * Restores the state from given stream.
 	 * If Testing is true, the function only parses the data from the given
@@ -210,19 +212,26 @@ protected:
 	 */
     void updateWindowTitle();
 
-protected: // reimplements QWidget
-	virtual void changeEvent(QEvent *event) override;
-	virtual void closeEvent(QCloseEvent *event) override;
-	virtual void hideEvent(QHideEvent *event) override;
-	virtual void showEvent(QShowEvent *event) override;
+    // reimplements QWidget
+	void changeEvent(QEvent *event) override;
+	void closeEvent(QCloseEvent *event) override;
+	void hideEvent(QHideEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 #ifdef Q_OS_MACOS
-	virtual bool event(QEvent *e) override;
-    virtual void moveEvent(QMoveEvent *event) override;
+	bool event(QEvent *e) override;
+    void moveEvent(QMoveEvent *event) override;
 #elif defined(Q_OS_UNIX)
-	virtual void moveEvent(QMoveEvent *event) override;
-	virtual void resizeEvent(QResizeEvent *event) override;
-	virtual bool event(QEvent *e) override;
+	void moveEvent(QMoveEvent *event) override;
+	void resizeEvent(QResizeEvent *event) override;
+	bool event(QEvent *e) override;
+
+	// Edge/corner resize support on Linux
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void leaveEvent(QEvent *event) override;
+	bool eventFilter(QObject *watched, QEvent *event) override;
 #endif
 
 #ifdef Q_OS_WIN
@@ -230,9 +239,9 @@ protected: // reimplements QWidget
 	 * Native event filter for handling WM_MOVING messages on Windows
 	 */
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-    virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 #else
-    virtual bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 #endif
 #endif
 
@@ -384,16 +393,19 @@ public:
 
 	/**
 	 * Maximizes the window.
+	 * Hides non-virtual method from QWidget.
 	 */
 	void showMaximized();
 
 	/**
 	 * Returns if the window is currently maximized or not.
+	 * Hides non-virtual method from QWidget.
 	 */
 	bool isMaximized() const;
 
 	/**
 	 * Patched show to prevent the window from appearing in the taskbar.
+	 * Hides non-virtual method from QWidget.
 	 */
 	void show();
 
@@ -402,6 +414,21 @@ public:
 	 * the floating widget has a QWidget based title bar
 	 */
 	bool hasNativeTitleBar();
+#endif
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+	/**
+	 * Returns the resize grip width in pixels (for title bar edge detection).
+	 */
+	int gripWidth() const;
+
+private:
+	/// @brief Detects which window edge(s) or corner the mouse position is over.
+	[[nodiscard]] Qt::Edges edgesAt(const QPointF& pos) const;
+	/// @brief Updates the cursor shape based on the detected resize edges.
+	void updateCursorFor(Qt::Edges edges);
+	/// @brief Performs manual window resize when startSystemResize() is unavailable.
+	void performManualResize(const QPointF& globalPos);
 #endif
 }; // class FloatingDockContainer
 }

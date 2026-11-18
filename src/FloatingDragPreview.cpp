@@ -23,6 +23,7 @@
 #include "DockContainerWidget.h"
 #include "DockOverlay.h"
 #include "AutoHideDockContainer.h"
+#include "FloatingDockContainer.h"
 #include "ads_globals.h"
 
 namespace ads
