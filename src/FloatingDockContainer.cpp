@@ -62,6 +62,7 @@
 #include <xcb/xcb.h>
 #endif
 
+
 namespace ads
 {
 #ifdef Q_OS_WIN
@@ -1848,9 +1849,11 @@ void CFloatingDockContainer::mousePressEvent(QMouseEvent* event)
     QWindow* wh = windowHandle();
     if (const Qt::Edges edges = edgesAt(EventHelper(event).position()))
     {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
         // Preferred: let the window manager / compositor do the resize.
         if (wh && wh->startSystemResize(edges))
             return;
+#endif
         // Fallback: resize manually.
         d->_manualResizing = true;
         d->_resizeEdges = edges;
@@ -1917,8 +1920,10 @@ bool CFloatingDockContainer::eventFilter(QObject* watched, QEvent* event)
         {
             updateCursorFor(Qt::Edges());
             QWindow* wh = windowHandle();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
             if (wh && wh->startSystemResize(edges))
                 return true;
+#endif
             d->_manualResizing = true;
             d->_resizeEdges = edges;
             d->_pressGlobalPos = EventHelper(me).globalPosition();
