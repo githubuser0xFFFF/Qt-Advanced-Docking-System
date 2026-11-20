@@ -606,7 +606,7 @@ void CDockWidgetTab::contextMenuEvent(QContextMenuEvent* ev)
 QMenu* CDockWidgetTab::buildContextMenu(QMenu *Menu)
 {
     if (Menu == nullptr) {
-        Menu = new QMenu(this);
+        Menu = new QMenu(this->window());
     }
     
     ADS_PRINT("CDockWidgetTab::buildContextMenu");
