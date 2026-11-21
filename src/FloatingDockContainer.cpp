@@ -62,6 +62,7 @@
 #include <xcb/xcb.h>
 #endif
 
+
 namespace ads
 {
 #ifdef Q_OS_WIN
@@ -385,6 +386,14 @@ struct FloatingDockContainerPrivate
     CFloatingWidgetTitleBar* TitleBar = nullptr;
 	bool IsResizing = false;
     bool MousePressed = false;
+
+    // Edge/corner resize support
+    int _gripWidth = 6;
+    bool _manualResizing = false;
+    bool _edgeCursorActive = false;
+    Qt::Edges _resizeEdges;
+    QPointF _pressGlobalPos;
+    QRect _startGeometry;
 #endif
 
 	/**
@@ -425,7 +434,8 @@ struct FloatingDockContainerPrivate
 		DraggingState = StateId;
         if (DraggingFloatingWidget == DraggingState)
         {
-            qApp->postEvent(_this, new QEvent((QEvent::Type)internal::FloatingWidgetDragStartEvent));
+            qApp->postEvent(_this, new QEvent(static_cast<QEvent::Type>(
+                                       internal::FloatingWidgetDragStartEvent)));
         }
 	}
 
@@ -490,11 +500,9 @@ struct FloatingDockContainerPrivate
 
 //============================================================================
 FloatingDockContainerPrivate::FloatingDockContainerPrivate(
-    CFloatingDockContainer *_public) :
-	_this(_public)
-{
-
-}
+    CFloatingDockContainer *_public)
+    : _this(_public), DockContainer(nullptr)
+{}
 
 //============================================================================
 void FloatingDockContainerPrivate::titleMouseReleaseEvent()
@@ -631,9 +639,8 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	    SLOT(onDockAreasAddedOrRemoved()));
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	QDockWidget::setWidget(d->DockContainer);
-	QDockWidget::setFeatures(QDockWidget::DockWidgetClosable
-		| QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+	setWidget(d->DockContainer);
+	setFeatures(DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable);
 
 	bool native_window = true;
 
@@ -647,11 +654,11 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	{
 		native_window = false;
 	}
-	else if (DockManager->testConfigFlag(CDockManager::FloatingContainerForceNativeTitleBar))
+	else if (CDockManager::testConfigFlag(CDockManager::FloatingContainerForceNativeTitleBar))
 	{
 		native_window = true;
 	}
-	else if (DockManager->testConfigFlag(CDockManager::FloatingContainerForceQWidgetTitleBar))
+	else if (CDockManager::testConfigFlag(CDockManager::FloatingContainerForceQWidgetTitleBar))
 	{
 		native_window = false;
 	}
@@ -686,6 +693,8 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 		connect(d->TitleBar, &CFloatingWidgetTitleBar::maximizeRequested,
 				this, &CFloatingDockContainer::onMaximizeRequest);
 	}
+	setMouseTracking(true);
+	d->DockContainer->installEventFilter(this);
 #else
 	setWindowFlags(
 	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
@@ -753,6 +762,10 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
 CFloatingDockContainer::~CFloatingDockContainer()
 {
 	ADS_PRINT("~CFloatingDockContainer");
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+	qApp->removeEventFilter(this);
+	updateCursorFor(Qt::Edges());
+#endif
 	if (d->DockManager)
 	{
 		d->DockManager->removeFloatingWidget(this);
@@ -783,7 +796,7 @@ void CFloatingDockContainer::deleteContent()
 		{
 			deleteWidgets.push_back(widget);
 		}
-		for (auto ptrWdg : deleteWidgets)
+		for (const auto& ptrWdg : deleteWidgets)
 		{
 			delete ptrWdg;
 		}
@@ -835,7 +848,7 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 		// delete, so state change events may still arrive without one.
 		if (d->DockManager && d->DockManager->isLeavingMinimizedState())
 		{
-			QWindowStateChangeEvent* ev = static_cast<QWindowStateChangeEvent*>(event);
+			auto ev = static_cast<QWindowStateChangeEvent*>(event);
 			if (ev->oldState().testFlag(Qt::WindowMaximized))
 			{
 				this->showMaximized();
@@ -975,6 +988,10 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 void CFloatingDockContainer::hideEvent(QHideEvent *event)
 {
 	Super::hideEvent(event);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+	qApp->removeEventFilter(this);
+	updateCursorFor(Qt::Edges());
+#endif
     if (event->spontaneous())
     {
         return;
@@ -1016,6 +1033,8 @@ void CFloatingDockContainer::showEvent(QShowEvent *event)
 {
 	Super::showEvent(event);
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+	qApp->removeEventFilter(this);
+	qApp->installEventFilter(this);
     if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
     {
         this->window()->activateWindow();
@@ -1116,7 +1135,7 @@ void CFloatingDockContainer::onDockAreasAddedOrRemoved()
 			    SLOT(onDockAreaCurrentChanged(int)));
 			d->SingleDockArea = nullptr;
 		}
-		d->setWindowTitle(d->floatingContainersTitle());
+		d->setWindowTitle(FloatingDockContainerPrivate::floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 
@@ -1148,7 +1167,7 @@ void CFloatingDockContainer::updateWindowTitle()
 	}
 	else
 	{
-		d->setWindowTitle(d->floatingContainersTitle());
+		d->setWindowTitle(FloatingDockContainerPrivate::floatingContainersTitle());
 		setWindowIcon(QApplication::windowIcon());
 	}
 }
@@ -1699,6 +1718,228 @@ bool CFloatingDockContainer::hasNativeTitleBar()
 {
 	return d->TitleBar == nullptr;
 }
+
+//============================================================================
+int CFloatingDockContainer::gripWidth() const
+{
+	return d->_gripWidth;
+}
+
+// Edge/corner resize support on Linux
+namespace
+{
+struct EventHelper
+{
+    explicit EventHelper(QEvent* event)
+        : _mouseEvent(dynamic_cast<QMouseEvent*>(event))
+    {}
+
+    QMouseEvent* _mouseEvent;
+
+    const QPointF& position() const
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        return _mouseEvent->position();
+#else
+        return _mouseEvent->localPos();
+#endif
+    }
+
+    const QPointF& globalPosition() const
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        return _mouseEvent->globalPosition();
+#else
+        return _mouseEvent->screenPos();
+#endif
+    }
+
+};
+}  // namespace
+
+Qt::Edges CFloatingDockContainer::edgesAt(const QPointF& pos) const
+{
+    Qt::Edges edges;
+    if (pos.x() <= d->_gripWidth)
+        edges |= Qt::LeftEdge;
+    if (pos.x() >= width() - d->_gripWidth)
+        edges |= Qt::RightEdge;
+    if (pos.y() <= d->_gripWidth)
+        edges |= Qt::TopEdge;
+    if (pos.y() >= height() - d->_gripWidth)
+        edges |= Qt::BottomEdge;
+    return edges;
+}
+
+void CFloatingDockContainer::updateCursorFor(Qt::Edges edges)
+{
+    constexpr Qt::Edges tl = Qt::LeftEdge | Qt::TopEdge;
+    constexpr Qt::Edges br = Qt::RightEdge | Qt::BottomEdge;
+    constexpr Qt::Edges tr = Qt::RightEdge | Qt::TopEdge;
+    constexpr Qt::Edges bl = Qt::LeftEdge | Qt::BottomEdge;
+
+    Qt::CursorShape targetShape = Qt::ArrowCursor;
+    if (edges == tl || edges == br)
+        targetShape = Qt::SizeFDiagCursor;
+    else if (edges == tr || edges == bl)
+        targetShape = Qt::SizeBDiagCursor;
+    else if (edges & (Qt::LeftEdge | Qt::RightEdge))
+        targetShape = Qt::SizeHorCursor;
+    else if (edges & (Qt::TopEdge | Qt::BottomEdge))
+        targetShape = Qt::SizeVerCursor;
+    else
+    {
+        if (d->_edgeCursorActive)
+        {
+            QGuiApplication::restoreOverrideCursor();
+            d->_edgeCursorActive = false;
+        }
+        return;
+    }
+
+    if (d->_edgeCursorActive)
+        QGuiApplication::changeOverrideCursor(QCursor(targetShape));
+    else
+    {
+        QGuiApplication::setOverrideCursor(QCursor(targetShape));
+        d->_edgeCursorActive = true;
+    }
+}
+
+void CFloatingDockContainer::performManualResize(const QPointF& globalPos)
+{
+    const QPointF d_pos = globalPos - d->_pressGlobalPos;
+    QRect g = d->_startGeometry;
+
+    if (d->_resizeEdges & Qt::LeftEdge)
+        g.setLeft(g.left() + static_cast<int>(d_pos.x()));
+    if (d->_resizeEdges & Qt::RightEdge)
+        g.setRight(g.right() + static_cast<int>(d_pos.x()));
+    if (d->_resizeEdges & Qt::TopEdge)
+        g.setTop(g.top() + static_cast<int>(d_pos.y()));
+    if (d->_resizeEdges & Qt::BottomEdge)
+        g.setBottom(g.bottom() + static_cast<int>(d_pos.y()));
+
+    // Enforce the minimum size while keeping the opposite edge anchored.
+    if (g.width() < minimumWidth())
+    {
+        if (d->_resizeEdges & Qt::LeftEdge)
+            g.setLeft(g.right() - minimumWidth() + 1);
+        else
+            g.setRight(g.left() + minimumWidth() - 1);
+    }
+    if (g.height() < minimumHeight())
+    {
+        if (d->_resizeEdges & Qt::TopEdge)
+            g.setTop(g.bottom() - minimumHeight() + 1);
+        else
+            g.setBottom(g.top() + minimumHeight() - 1);
+    }
+
+    setGeometry(g);
+}
+
+void CFloatingDockContainer::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() != Qt::LeftButton)
+    {
+        Super::mousePressEvent(event);
+        return;
+    }
+    QWindow* wh = windowHandle();
+    if (const Qt::Edges edges = edgesAt(EventHelper(event).position()))
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        // Preferred: let the window manager / compositor do the resize.
+        if (wh && wh->startSystemResize(edges))
+            return;
+#endif
+        // Fallback: resize manually.
+        d->_manualResizing = true;
+        d->_resizeEdges = edges;
+        d->_pressGlobalPos = EventHelper(event).globalPosition();
+        d->_startGeometry = geometry();
+        return;
+    }
+    // Let the base class handle title bar dragging and other interactions.
+    Super::mousePressEvent(event);
+}
+
+void CFloatingDockContainer::mouseMoveEvent(QMouseEvent* event)
+{
+    if (d->_manualResizing)
+    {
+        performManualResize(EventHelper(event).globalPosition());
+        return;
+    }
+
+    updateCursorFor(edgesAt(EventHelper(event).position()));
+    Super::mouseMoveEvent(event);
+}
+
+void CFloatingDockContainer::mouseReleaseEvent(QMouseEvent* event)
+{
+    d->_manualResizing = false;
+    Super::mouseReleaseEvent(event);
+}
+
+void CFloatingDockContainer::leaveEvent(QEvent* event)
+{
+    if (!d->_manualResizing)
+        updateCursorFor(Qt::Edges());
+    Super::leaveEvent(event);
+}
+
+bool CFloatingDockContainer::eventFilter(QObject* watched, QEvent* event)
+{
+    const QEvent::Type type = event->type();
+    if (type != QEvent::MouseMove && type != QEvent::HoverMove && type != QEvent::Enter
+        && type != QEvent::Leave && type != QEvent::MouseButtonPress)
+    {
+        return Super::eventFilter(watched, event);
+    }
+
+    QWidget* w = qobject_cast<QWidget*>(watched);
+    if (!w || !isVisible() || d->_manualResizing || QApplication::mouseButtons() != Qt::NoButton)
+    {
+        if (type != QEvent::MouseButtonPress || !w)
+            return Super::eventFilter(watched, event);
+    }
+    if (w != this && !isAncestorOf(w))
+    {
+        return Super::eventFilter(watched, event);
+    }
+
+    const QPoint globalPos = QCursor::pos();
+    const Qt::Edges edges = edgesAt(mapFromGlobal(globalPos));
+
+    if (type == QEvent::MouseButtonPress)
+    {
+        QMouseEvent* me = static_cast<QMouseEvent*>(event);
+        if (me->button() == Qt::LeftButton && edges && !d->_manualResizing)
+        {
+            updateCursorFor(Qt::Edges());
+            QWindow* wh = windowHandle();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            if (wh && wh->startSystemResize(edges))
+                return true;
+#endif
+            d->_manualResizing = true;
+            d->_resizeEdges = edges;
+            d->_pressGlobalPos = EventHelper(me).globalPosition();
+            d->_startGeometry = geometry();
+            return true;
+        }
+        return Super::eventFilter(watched, event);
+    }
+
+    if (d->_manualResizing || QApplication::mouseButtons() != Qt::NoButton)
+        return Super::eventFilter(watched, event);
+
+    updateCursorFor(type == QEvent::Leave ? Qt::Edges() : edges);
+    return Super::eventFilter(watched, event);
+}
+
 #endif
 
 } // namespace ads

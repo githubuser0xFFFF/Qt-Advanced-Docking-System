@@ -40,6 +40,7 @@
 #include "ads_globals.h"
 #include "ElidingLabel.h"
 #include "FloatingDockContainer.h"
+#include <QApplication>
 
 namespace ads
 {
@@ -158,6 +159,31 @@ void CFloatingWidgetTitleBar::mousePressEvent(QMouseEvent *ev)
 {
 	if (ev->button() == Qt::LeftButton)
 	{
+		// Check if the press is near a resize edge of the container.
+		// The title bar sits at the top of the container, so we need to check
+		// the top edge and top corners. Map the press position to container coords.
+		QPoint containerPos = mapTo(d->FloatingWidget, ev->pos());
+		int gripWidth = d->FloatingWidget->gripWidth();
+		bool nearTopEdge = containerPos.y() <= gripWidth;
+		bool nearLeftEdge = containerPos.x() <= gripWidth;
+		bool nearRightEdge = containerPos.x() >= d->FloatingWidget->width() - gripWidth;
+
+		if (nearTopEdge && (nearLeftEdge || nearRightEdge || true))
+		{
+			// Forward the event to the container for resize handling.
+			// Create a new event in the container's coordinate space.
+			QMouseEvent* forwardedEvent = new QMouseEvent(
+				QEvent::MouseButtonPress,
+				containerPos,
+				ev->globalPos(),
+				ev->button(),
+				ev->buttons(),
+				ev->modifiers()
+			);
+			QApplication::sendEvent(d->FloatingWidget, forwardedEvent);
+			return;
+		}
+
 		d->DragState = DraggingFloatingWidget;
 		d->FloatingWidget->startDragging(ev->pos(), d->FloatingWidget->size(),
 		    this);
@@ -185,6 +211,18 @@ void CFloatingWidgetTitleBar::mouseMoveEvent(QMouseEvent *ev)
 	if (!(ev->buttons() & Qt::LeftButton) || DraggingInactive == d->DragState)
 	{
 		d->DragState = DraggingInactive;
+		// When not dragging, let the container handle cursor updates for resize edges.
+		// Forward the move event so the container can update the cursor shape.
+		QPoint containerPos = mapTo(d->FloatingWidget, ev->pos());
+		QMouseEvent* forwardedEvent = new QMouseEvent(
+			QEvent::MouseMove,
+			containerPos,
+			ev->globalPos(),
+			ev->button(),
+			ev->buttons(),
+			ev->modifiers()
+		);
+		QApplication::sendEvent(d->FloatingWidget, forwardedEvent);
 		Super::mouseMoveEvent(ev);
 		return;
 	}
