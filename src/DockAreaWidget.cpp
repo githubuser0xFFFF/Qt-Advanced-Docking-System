@@ -124,7 +124,7 @@ public:
 	 * layout and may sit at index 1, so takeAt(1) would orphan it as a top-level
 	 * window (blank 200x44 popup, workspace tabs disappear).
 	 */
-	void removeCurrentWidgetFromBoxLayout()
+	void removeCurrentWidgetFromBoxLayout(bool Detach = true)
 	{
 		if (!m_CurrentWidget)
 			return;
@@ -132,7 +132,10 @@ public:
 		int idx = m_ParentLayout->indexOf(m_CurrentWidget);
 		if (idx < 0)
 		{
-			detachWidget(m_CurrentWidget);
+			if (Detach)
+			{
+				detachWidget(m_CurrentWidget);
+			}
 			return;
 		}
 
@@ -145,11 +148,14 @@ public:
 		{
 			m_ParentLayout->insertWidget(idx, taken);
 			delete LayoutItem;
-			detachWidget(m_CurrentWidget);
+			if (Detach)
+			{
+				detachWidget(m_CurrentWidget);
+			}
 			return;
 		}
 
-		if (taken)
+		if (taken && Detach)
 			detachWidget(taken);
 		delete LayoutItem;
 	}
@@ -190,9 +196,14 @@ public:
 			m_CurrentWidget = nullptr;
 			m_CurrentIndex = -1;
 		}
-		else if (indexOf(Widget) < m_CurrentIndex)
+		else
 		{
-			--m_CurrentIndex;
+			if (indexOf(Widget) < m_CurrentIndex)
+			{
+				--m_CurrentIndex;
+			}
+			// A page that was current once is still our child (see setCurrentIndex): it leaves with its dock widget
+			detachWidget(Widget);
 		}
 		m_Widgets.removeOne(Widget);
 	}
@@ -226,7 +237,9 @@ public:
 			parent->setUpdatesEnabled(false);
 		}
 
-		removeCurrentWidgetFromBoxLayout();
+		// The outgoing page keeps its parent and is only hidden below. QWidget::setParent() restyles and
+		// repolishes the whole subtree under a style sheet, once out and once back in, on every tab switch.
+		removeCurrentWidgetFromBoxLayout(false);
 
 		int insertAt = 1;
 		if (m_ParentLayout->count() > 0)
